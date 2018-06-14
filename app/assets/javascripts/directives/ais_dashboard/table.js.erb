@@ -1,0 +1,285 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('aisDashboardTable', function(){
+  return {
+    restrict: 'E',
+    templateUrl: function(elem,attrs) {
+      return attrs.indexpage = '<%=asset_path("ais_dashboard/advanced_table.html",type: :template)%>';
+    },
+    scope: {
+             aisDashboardData: '=',
+             metadata: '=?',
+             search: '=?',
+             fetching: '=?',
+             filtered: '=?'
+           },
+
+    controller: ['$scope','Restangular','$rootScope','$location','$window', function($scope,Restangular,$rootScope,$location,$window) {
+      $scope.showTable = true;
+
+      $scope.can = $rootScope.can;
+      $scope.SYSTEM_MODE = $rootScope.SYSTEM_MODE;
+
+      $scope.sanitized_q = '';
+      $scope.original_q = '';
+      $scope.received_time_q = '';
+      $scope.indicator_amount_q = '';
+      $scope.flare_in_status_q = ''
+      $scope.ciap_status_q = ''
+      $scope.ecis_status_q = ''
+      $scope.flare_out_status_q = ''
+      $scope.feeds_q = '';
+      $scope.disseminated_time_q = '';
+      $scope.hr_count_q = '';
+      $scope.ecis_hr_status_q = ''
+      $scope.flare_out_hr_status_q = ''
+      $scope.disseminated_time_hr_q = '';
+      $scope.filtered = false;
+      
+      $scope.date_picker_opts_r = {
+        defaultRanges: true
+      };
+      $scope.date_picker_opts_d = {
+        defaultRanges: true
+      };
+      $scope.date_picker_opts_dhr = {
+        defaultRanges: true
+      };
+      
+      $scope.sortOptions = {
+        'stix_package_original_id' : 'desc',
+        'stix_package_stix_id' : 'desc',
+        'received_time' : 'desc',
+        'indicator_amount' : 'desc',
+        'flare_in_status' : 'desc',
+        'ciap_status' : 'desc',
+        'ecis_status' : 'desc',
+        'flare_out_status' : 'desc',
+        'feeds' : 'desc',
+        'dissemination_time' : 'desc',
+        'ecis_status_hr' : 'desc',
+        'flare_out_status_hr' : 'desc',
+        'dissemination_time_hr' : 'desc'
+      };
+
+      $scope.sortMethod = '';
+
+      if (angular.isUndefined($scope.offset)) {
+        $scope.offset=0;
+      }
+      if (angular.isUndefined($scope.amount)) {
+        $scope.amount=$rootScope.setting_value('DEFAULT_MAX_RECORDS');
+      }
+
+      // Cleanup
+      $scope.$on('$destroy', function() {
+        $('.daterangepicker').remove();
+      });
+      
+      $scope.dateRangePickerR = function(picker) {
+        $scope.date_picker_object_r = picker;
+        $scope.offset=0;
+        $scope.filtered=true;
+        $scope.getAisData($scope.offset);
+      };
+
+      $scope.dateRangePickerD = function(picker) {
+        $scope.date_picker_object_d = picker;
+        $scope.offset=0;
+        $scope.filtered=true;
+        $scope.getAisData($scope.offset);
+      };
+
+      $scope.dateRangePickerDhr = function(picker) {
+        $scope.date_picker_object_dhr = picker;
+        $scope.offset=0;
+        $scope.filtered=true;
+        $scope.getAisData($scope.offset);
+      };
+
+      $scope.open = function($event) {
+        $event.preventDefault();
+        $event.stopPropagation();
+      };
+
+      $scope.sort = function(method) {
+        $scope.sortMethod = method;
+        $scope.sortOptions[method]=($scope.sortOptions[method]=='desc')?'asc':'desc';
+        $scope.offset=0;
+        $scope.getAisData($scope.offset);
+      };
+
+      $scope.startSearch = function() {
+        $scope.offset=0;
+        $scope.filtered=true;
+        $scope.getAisData($scope.offset);
+      };
+
+      $scope.filterIndicators = function() {
+        $scope.offset=0;
+        $scope.filtered=true;
+        $scope.getAisData($scope.offset);
+      };
+
+      $scope.clearFilters = function(){
+        // clear the search boxes
+        $scope.sanitized_q = '';
+        $scope.original_q = '';
+        $scope.received_time_q = '';
+        $scope.indicator_amount_q = '';
+        $scope.flare_in_status_q = ''
+        $scope.ciap_status_q = ''
+        $scope.ecis_status_q = ''
+        $scope.flare_out_status_q = ''
+        $scope.feeds_q = '';
+        $scope.disseminated_time_q = '';
+        $scope.hr_count_q = '';
+        $scope.ecis_hr_status_q = ''
+        $scope.flare_out_hr_status_q = ''
+        $scope.disseminated_time_hr_q = '';
+
+        // clear the sort
+        $scope.sortMethod = '';
+        
+        // clear the date range picker if it is set
+        if (angular.isDefined($scope.date_picker_object_r) && typeof($scope.date_picker_object_r.clickClear) != "undefined"){
+          $scope.date_picker_object_r.clickClear();
+        }
+        // clear the date range picker if it is set
+        if (angular.isDefined($scope.date_picker_object_d) && typeof($scope.date_picker_object_d.clickClear) != "undefined"){
+          $scope.date_picker_object_d.clickClear();
+        }
+        // clear the date range picker if it is set
+        if (angular.isDefined($scope.date_picker_object_dhr) && typeof($scope.date_picker_object_dhr.clickClear) != "undefined"){
+          $scope.date_picker_object_dhr.clickClear();
+        }
+
+        $scope.date_picker_object_r = {
+          startDate: null,
+          endDate: null,
+          getStartDate: function() { return ''; },
+          getEndDate: function() { return ''; }
+        };
+
+        $scope.date_picker_object_d = {
+          startDate: null,
+          endDate: null,
+          getStartDate: function() { return ''; },
+          getEndDate: function() { return ''; }
+        };
+
+        $scope.date_picker_object_dhr = {
+          startDate: null,
+          endDate: null,
+          getStartDate: function() { return ''; },
+          getEndDate: function() { return ''; }
+        };
+
+        $scope.startSearch();
+      }
+      
+      $scope.getScrollBarWidth = function() {
+          var outer = document.createElement("div");
+          outer.style.visibility = "hidden";
+          outer.style.width = "100px";
+          outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
+
+          document.body.appendChild(outer);
+
+          var widthNoScroll = outer.offsetWidth;
+          // force scrollbars
+          outer.style.overflow = "scroll";
+
+          // add innerdiv
+          var inner = document.createElement("div");
+          inner.style.width = "100%";
+          outer.appendChild(inner);        
+
+          var widthWithScroll = inner.offsetWidth;
+
+          // remove divs
+          outer.parentNode.removeChild(outer);
+
+          return widthNoScroll - widthWithScroll;
+      }
+
+      $scope.initPage = function(){
+        angular.element('#fakerowwidth').css('width', $scope.getScrollBarWidth() + 'px');
+        angular.element('#fakerowone').css('height', angular.element('#advindfirstrow').height());
+        angular.element('#fakerowtwo').css('height', angular.element('#advindsecondrow').height());
+        angular.element('#first_header').css('width', '100%');
+        angular.element('#first_header').css('width', '-=' + $scope.getScrollBarWidth()+ 'px');
+        angular.element('#first_header').css('width', '-=1px');
+      }
+
+      // ugh for some reason if you load the width/heights too early it wont be right.....
+      // you need the page to like fully load before setting things or else things get messed up
+      // document.ready/ng-init/other initalizers are too soon
+      var checkToResize = function(){
+        if (angular.isDefined(angular.element('#advrows')[0]) && (angular.element('#advrows')[0]).innerHTML.length > 0){
+          $scope.initPage();
+        } else {
+          setTimeout(checkToResize, 1000);
+        }
+      }
+
+      setTimeout(checkToResize, 100);
+
+      $window.onresize = function(){
+        $scope.initPage();
+      }
+
+      $scope.startSearch = function() {
+        $scope.offset=0;
+        $scope.getAisData($scope.offset);
+      };
+
+      $scope.getAisData = function(offset) {
+        if (angular.isDefined($scope.metadata)) {
+          delete($scope.metadata);
+        }
+        $scope.showTable = false;
+        $scope.fetching = true;
+        Restangular.one("ais_statistics").get({
+          received_time_ebt: angular.isDefined($scope.date_picker_object_r) ? $scope.date_picker_object_r.getStartDate() : '',
+          received_time_iet: angular.isDefined($scope.date_picker_object_r) ? $scope.date_picker_object_r.getEndDate() : '',
+          disseminated_time_ebt: angular.isDefined($scope.date_picker_object_d) ? $scope.date_picker_object_d.getStartDate() : '',
+          disseminated_time_iet: angular.isDefined($scope.date_picker_object_d) ? $scope.date_picker_object_d.getEndDate() : '',
+          disseminated_time_hr_ebt: angular.isDefined($scope.date_picker_object_dhr) ? $scope.date_picker_object_dhr.getStartDate() : '',
+          disseminated_time_hr_iet: angular.isDefined($scope.date_picker_object_dhr) ? $scope.date_picker_object_dhr.getEndDate() : '',
+          column: $scope.sortMethod,
+          direction: $scope.sortOptions[$scope.sortMethod],
+          amount: $scope.amount,
+          offset: offset,
+          sanitized_q: $scope.sanitized_q,
+          original_q: $scope.original_q,
+          indicator_amount_q: $scope.indicator_amount_q,
+          flare_in_status_q: $scope.flare_in_status_q,
+          ciap_status_q: $scope.ciap_status_q,
+          ecis_status_q: $scope.ecis_status_q,
+          flare_out_status_q: $scope.flare_out_status_q,
+          feeds_q: $scope.feeds_q,
+          hr_count_q: $scope.hr_count_q,
+          ecis_hr_status_q: $scope.ecis_hr_status_q,
+          flare_out_hr_status_q: $scope.flare_out_hr_status_q
+        }).then(
+          function(data){
+            $scope.aisDashboardData = data.ais_statistics;
+            $scope.metadata = data.metadata;
+            if (data.metadata['total_count']>0) {
+              $scope.showTable = true;
+            }
+            $scope.fetching= false;
+          },
+          function(res){
+            $scope.aisDashboardData = null;
+            $scope.metadata = { total_count: 0 };
+            toastr.error("Unable to load AIS Statistics Data");
+            $scope.fetching = false;
+          }
+        );
+      };
+
+    }]
+  };
+});

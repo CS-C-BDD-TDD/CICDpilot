@@ -1,0 +1,39 @@
+app.controller('CourseOfActionNewController',['$scope','$location','$rootScope','Restangular',
+  function($scope,$location,$rootScope,Restangular) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                              {text:'All Courses of Action',link:'#/course_of_actions',icon:'fa-list'},
+                              {text:'New',link:'#/course_of_actions/new',icon:'fa-plus'}];
+    $scope.course_of_action = {};
+    $scope.course_of_action.indicators = [];
+    $scope.course_of_action.stix_packages = [];
+    $scope.save = function(course_of_action, done){
+      
+      var indicator_ids = _.map(course_of_action.indicators,function(i) {
+        return i.stix_id;
+      });
+      
+      var package_ids = _.map(course_of_action.stix_packages,function(p) {
+        return p.stix_id;
+      });
+
+      course_of_action.indicator_stix_ids = indicator_ids;
+      course_of_action.stix_package_stix_ids = package_ids;
+      
+      Restangular.all('course_of_actions').post(course_of_action).then(function(data){
+        toastr.success("New Course of Action created");
+        done();
+        $scope.course_of_action = data;
+        $location.path('/course_of_actions/'+encodeURIComponent($scope.course_of_action.stix_id));
+      },function(res){
+        done();
+        toastr.error("Unable to save Course of Action");
+        if (angular.isDefined(res.data) && angular.isDefined(res.data.errors) && angular.isDefined(res.data.errors.base)) {
+            _.each(res.data.errors.base,function(e){
+                toastr.error(e);
+            });
+        }
+        $scope.course_of_action.errors = res.data.errors;
+      });
+    };
+  }
+]);

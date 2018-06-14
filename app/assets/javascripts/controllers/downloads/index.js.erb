@@ -1,0 +1,86 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('DownloadsIndexController', ['$scope','$rootScope','Restangular',
+  function ($scope, $rootScope,Restangular) {
+    $scope.date_picker_opts = {
+      format: 'MM/DD/YYYY',
+      opens: 'center',
+      startDate: moment().subtract(1, 'days').format('MM/DD/YYYY'),
+      endDate: moment().subtract(1, 'days').format('MM/DD/YYYY'),
+      ranges: {
+        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+        'Today': [moment(), moment()],
+        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+        'Last 30 Days': [moment().subtract(29, 'days'), moment()]
+      }
+    };
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                {text:'Download Zip',link:'#/downloads', icon:'fa-file-archive-o'}];
+
+    // Cleanup
+    $scope.$on('$destroy', function() {
+      $('.daterangepicker').remove();
+    });
+      
+    $scope.dateRangePicker = function(picker) {
+      $scope.date_picker_object = picker;
+    };
+
+    var source;
+
+    var close_event_source=function() {
+      if (angular.isDefined(source)) {
+        source.close();
+        window.removeEventListener("hashchange", close_event_source, false);
+      }
+    };
+
+    $scope.download = function() {
+      $scope.error = "";
+      if (angular.isUndefined($scope.date_picker_object)) {
+        $scope.error = 'You must select a date range';
+      } else {
+        if ($scope.date_picker_object.startDate==null || $scope.date_picker_object.endDate==null) {
+          $scope.error = "Dates can't be blank";
+        } else {
+          $scope.downloading = true;
+          // I added the following because in production (ie., with Tomcat being the web server)
+          // the ActionController:Live streaming will work properly.  In our development
+          // environments, the Thin web server is a caching web server, and therefore,
+          // streaming will not work properly.
+          if ("<%= Rails.env.production? %>" == "false") {
+            $scope.live_updates = false;
+            window.location.href = "downloads?ebt="+$scope.date_picker_object.startDate.format('YYYY/MM/DD')+"&iet="+$scope.date_picker_object.endDate.format('YYYY/MM/DD');
+          } else {
+            $scope.live_updates = true;
+            $scope.total="Total --collecting data--";
+            $scope.remaining="Remaining --collecting data--";
+            source = new EventSource("/cyber-indicators/downloads?ebt="+$scope.date_picker_object.startDate.format('YYYY/MM/DD')+"&iet="+$scope.date_picker_object.endDate.format('YYYY/MM/DD'));
+            window.addEventListener("hashchange", close_event_source, false);
+            source.onmessage = function (ev) {
+              if (!ev) {
+                source.close();
+              } else {
+                if (ev.data.indexOf('Total')==0) {
+                  $scope.$evalAsync(function() {
+                    $scope.total=ev.data;
+                  });
+                } else if (ev.data.indexOf('close')==0) {
+                  source.close();
+                  $scope.$evalAsync(function() {
+                    $scope.downloading = false;
+                  });
+                  window.location.href = 'downloads?download=1';
+                } else {
+                  $scope.$evalAsync(function() {
+                    $scope.remaining=ev.data;
+                  });
+                }
+              };
+            };
+          };
+        };
+      }
+    }
+  }
+]);

@@ -1,0 +1,16 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('NetworkConnectionsIndexController', ['$scope','$rootScope','Restangular',
+  function ($scope, $rootScope, Restangular) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Network Connections',link:'#/network_connections',icon:'fa-group'}];
+    $scope.fetching = true;
+    Restangular.one('/network_connections').get().then(function(data){
+      $scope.network_connections = data.network_connections;
+      $scope.metadata = data.metadata;
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load Network Connections");
+
+    });
+  }
+]);

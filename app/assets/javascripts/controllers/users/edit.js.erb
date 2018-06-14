@@ -1,0 +1,139 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('UsersEditController', ['$scope','$location','$routeParams','$rootScope', '$q', 'Restangular',
+  function ($scope, $location, $routeParams, $rootScope, $q, Restangular) {
+    var user_promise = Restangular.one("users/"+$routeParams.id).get();
+    user_promise.then(function(data){
+      $scope.user = data;
+    });
+    var all_groups_promise = Restangular.one("groups").get();
+    $q.all([all_groups_promise,user_promise]).then(function(res){
+      var all=res[0];
+      var u=res[1];
+      $scope.unselected_groups = all.filter(function(g){
+        return !$scope.user.groups.some(function(q){return g.id == q.id;});
+      });
+      $scope.heightStyle={ 'min-height' : (all.length*31+6)+'px' };
+      $rootScope.breadcrumbs = [
+                                 {text:'Home',link:'#/',icon:'fa-home'},
+                                 {text:'Users',link:'#/users',icon:'fa-group'},
+                                 {text:u.username,link:'#/users/'+u.id}
+                               ];
+    });
+    Restangular.all('/organizations').getList().then(function(data){
+      $scope.organizations = data;
+    });
+    $scope.save = function(user){
+      var group_ids=_.map(user.groups,function(p) {
+        return p.id;
+      });
+      user.group_ids = group_ids;
+      if (user.organization){ user.organization_guid = user.organization.guid; }
+      if (angular.isDefined(user.api_key)) {
+        // delete out the api key so we dont have a session error
+        delete user.api_key;
+      }
+      Restangular.one("users/"+$routeParams.id).customPUT(user).then(function(data) {
+        toastr.success('User saved');
+        $location.path('/users/'+data.id);
+      },function(res){
+        toastr.error("Unable to save user");
+        $scope.error=res.data.errors;
+        $("html, body").animate({ scrollTop: 0 }, 200);
+      });
+    };
+    $scope.list_options = {
+                            placeholder: "sortable-placeholder",
+                            connectWith: ".sortable-container"
+                          };
+    $scope.cancelEdit = function() {
+      $location.path('/users');
+    };
+    $scope.deleteUser = function(user) {
+      var justification = prompt("Justification for removing user");
+      if (justification){
+        Restangular.one("users/"+$routeParams.id).remove().then(function(data){
+          toastr.success("User removed");
+          $location.path('/users');
+        },function(res){
+          toastr.error("Could not remove user");
+        });
+      }
+    };
+    $scope.generate_api_key = function(user){
+      Restangular.all("users/generate_api_key").post({user_guid: user.guid}).then(
+          function(data, status, headers, config){
+            user.api_key = data.api_key;
+            toastr.success('API key generated');
+          },function(res){
+            $scope.api_errors = res.data.errors;
+            toastr.error("Unable to generate API key");
+          });
+    };
+    $scope.revoke_api_key = function(user){
+      var justification = prompt("Justification for revoking API key for "+user.first_name+" "+user.last_name, "");
+      if (justification){
+        Restangular.all("users/revoke_api_key").post({user_guid: user.guid}).then(
+          function(data, status, headers, config){
+            user.api_key = null;
+            toastr.success('API key revoked');
+          },function(res){
+            $scope.api_errors = res.data.errors;
+            toastr.error("Unable to revoke API key");
+          });
+      }
+    }
+    $scope.change_api_key_secret_keypress = function(keyEvent, user, secret){
+      if (keyEvent.which === 13){
+        $scope.change_api_key_secret(user, secret);
+        keyEvent.preventDefault();
+      }
+    };
+    $scope.change_api_key_secret = function(user, secret){
+      $scope.api_secret_errors = [];
+      Restangular.all("users/change_api_key_secret").post({secret: secret, user_guid: user.guid}).then(
+        function(data, status, headers, config){
+          toastr.success("Successfully changed API Key secret");
+          $scope.api_key_secret = "";
+        },function(res, status, headers, config){
+          toastr.success("Unable to change API Key secret");
+          $scope.api_secret_errors = res.data.errors;
+      });
+    };
+    $scope.enable_user_confirm = function(user){
+      var justification = prompt("Justification for re-enabling "+user.first_name+" "+user.last_name, "");
+      if (justification){
+        $scope.enable_disable_user(user, justification);
+      }
+    };
+    $scope.disable_user_confirm = function(user){
+      var justification = prompt("Justification for disabling "+user.first_name+" "+user.last_name, "");
+      if (justification){
+        $scope.enable_disable_user(user, justification);
+      }
+    };
+    $scope.enable_disable_user = function(user, justification){
+      $scope.api_secret_errors = [];
+      Restangular.all('/users/enable_disable').post({user_id: user.id, justification: justification}).
+        then(function(data, status, headers, config){
+          if (data.status == 'disabled'){
+            toastr.success("User disabled");
+            $scope.user.disabled_at = 'disabled';
+          }
+          if (data.status == 'enabled'){
+            toastr.success("User enabled");
+            $scope.user.disabled_at = '';
+          }
+        },function(res){
+          var error = _.reduce(_.map(res.data.errors, function(errors,key){ return key+' '+_.reduce(errors, function(a,b){return a+b})}),function(a,b){return a+' '+b;})
+          toastr.error("Could not alter user: "+error);
+      });
+    }
+    $scope.require_old_password = function() {
+      // The old password field is only required if you are an admin editing your own account
+      if (angular.isDefined($scope.user)) {
+        return($rootScope.can('view_user_organization') && $rootScope.current_user.username == $scope.user.username);
+      };
+    }
+  }
+]);

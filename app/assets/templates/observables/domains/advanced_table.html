@@ -1,0 +1,79 @@
+  <div class="widget-box widget-color-blue ui-sortable-handle">
+    <pagination-header metadata="metadata" offset="offset" pagename="'Domains'"></pagination-header>
+    <pagination-footer metadata="metadata" offset="offset" get_records="getDomains"></pagination-footer>
+    <div class="dataTables_wrapper form-inline no-footer">
+      <div class="row">
+        <div class="col-xs-4">
+        </div>
+        <div class="col-xs-4">
+          <div style="text-align: center">
+            <div class="input-group">
+              <span class="input-group-addon">
+                <i class="fa fa-calendar"></i>
+              </span>
+              <input date-range-picker style="margin-left: 0px" type="text" class="form-control" options="date_picker_opts" />
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-4">
+          <div style="text-align: right">
+            <search-markings  search-fn="startSearch()" marking-search-params="marking_search_params"></search-markings>
+            <a ng-href="{{buildHref()}}">
+              <button class="btn btn-grey no-radius btn-xs">
+                <i class="ace-icon fa fa-floppy-o bigger-160"></i>
+                Download to CSV
+              </button>
+            </a>
+            <span class="input-icon">
+              <input class="form-control search-query" placeholder="Search Domains..." type="search"
+                     ng-enter="startSearch()" ng-model="q">
+              <i class="ace-icon fa fa-search nav-search-icon" style="margin-left: 4px"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="widget-body">
+      <div class="widget-main no-padding">
+        <table class="table table-striped table-bordered table-hover dataTable">
+          <thead class="thin-border-bottom">
+            <tr>
+              <input type="hidden" ng-model="marking_search_params">
+              <th class="sorting" ng-click="sort('name_normalized')">Domain Name</th>
+              <th class="sorting" ng-click="sort('name_condition')">Domain Condition</th>
+              <th class="sorting" ng-click="sort('created_at')">Created At</th>
+              <th class="sorting" ng-click="sort('updated_at')">Last Updated</th>
+            </tr>
+          </thead>
+          <tbody ng-hide="fetching">
+            <tr ng-repeat="domain in domains">
+              <td>
+                <a ng-show="domain.combined_score||domain.com_threat_score||domain.gov_threat_score" ng-href="#/domains/{{domain.cybox_object_id | encodeURIComponent}}">{{domain.name | prefixWithPortionMarking: domain.portion_marking : "U"}}</a>
+                <a ng-hide="domain.combined_score||domain.com_threat_score||domain.gov_threat_score" ng-href="#/domains/{{domain.cybox_object_id | encodeURIComponent}}">{{domain.name | prefixWithPortionMarking: domain.portion_marking}}</a>
+              </td>
+              <td>
+                {{domain.name_condition}}
+              </td>
+              <td>
+                {{domain.created_at | date: 'medium'}}
+              </td>
+              <td>
+                {{domain.updated_at | date: 'medium'}}
+              </td>
+            </tr>
+            <tr ng-hide="domains.length || fetching">
+              <td colspan="4" style="text-align:center">No Results</td>
+            </tr>
+          </tbody>
+          <tbody ng-show="fetching">
+            <tr>
+              <td colspan="4" class="center">
+                <i class="fa fa-spinner fa-spin bigger-300 blue"></i>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <pagination-footer metadata="metadata" offset="offset" get_records="getDomains"></pagination-footer>
+  </div>

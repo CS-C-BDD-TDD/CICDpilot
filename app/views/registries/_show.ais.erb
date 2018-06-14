@@ -1,0 +1,24 @@
+<cybox:Object id="<%=registry.cybox_object_id%>">
+  <cybox:Properties xsi:type="WinRegistryKeyObj:WindowsRegistryKeyObjectType">
+    <WinRegistryKeyObj:Key condition="Equals"><%=registry.key%></WinRegistryKeyObj:Key>
+<% if registry.hive_condition.present? %>
+    <WinRegistryKeyObj:Hive condition="<%= registry.hive_condition %>"><%=registry.hive%></WinRegistryKeyObj:Hive>
+<% else %>
+    <WinRegistryKeyObj:Hive><%=registry.hive%></WinRegistryKeyObj:Hive>
+<% end %>
+<% if !registry.registry_values.empty? %>
+    <WinRegistryKeyObj:Values>
+  <% registry.registry_values.each do |value| %>
+      <WinRegistryKeyObj:Value>
+        <WinRegistryKeyObj:Name condition="Equals"><%=value.reg_name%></WinRegistryKeyObj:Name>
+    <% if value.data_condition.present? %>
+        <WinRegistryKeyObj:Data condition="<%= value.data_condition %>"><%=value.reg_value%></WinRegistryKeyObj:Data>
+    <% else %>  
+        <WinRegistryKeyObj:Data><%=value.reg_value%></WinRegistryKeyObj:Data>
+    <% end %>
+      </WinRegistryKeyObj:Value>
+  <% end %>
+    </WinRegistryKeyObj:Values>
+<% end %>
+  </cybox:Properties>
+</cybox:Object>

@@ -1,0 +1,7 @@
+<div class="col-sm-12 col-md-12 col-lg-12" ng-show="can('create_remove_course_of_actions')">
+  <a ng-href="#/course_of_actions/new"><button class="btn btn-info btn-white"><i class="ace-icon fa fa-plus"></i> Add New Course of Action </button></a>
+</div>
+
+<div class="col-sm-12 col-md-12 col-lg-12">
+  <course-of-actions-table course_of_actions="course_of_actions" metadata="metadata" indexpage=true fetching="fetching"></course-of-actions-table>
+</div>

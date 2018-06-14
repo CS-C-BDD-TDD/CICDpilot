@@ -1,0 +1,71 @@
+<div class="dataTables_wrapper form-inline no-footer">
+  <div class="row">
+    <div class="col-xs-4">
+    </div>
+    <div class="col-xs-4">
+      <div style="text-align: center">
+        <div class="input-group">
+          <span class="input-group-addon">
+            <i class="fa fa-calendar"></i>
+          </span>
+          <input date-range-picker style="margin-left: 0px" type="text" class="form-control" options="date_picker_opts" />
+        </div>
+      </div>
+    </div>
+    <div class="col-xs-4">
+      <div style="text-align: right">
+        <span class="input-icon">
+          <input class="form-control search-query" placeholder="Search Network Connections..." type="search"
+                 ng-enter="startSearch()" ng-model="q">
+          <i class="ace-icon fa fa-search nav-search-icon" style="margin-left: 4px"></i>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="widget-box widget-color-blue ui-sortable-handle">
+  <pagination-header metadata="metadata" offset="offset"></pagination-header>
+  <pagination-footer metadata="metadata" offset="offset" get_records="getNetworkConnections"></pagination-footer>
+</div>
+<div class="widget-body">
+  <div class="widget-main no-padding" style="height: 220px; overflow-y: scroll;">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Fields</th>
+          <th>Created At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr ng-repeat="networkconnection in networkConnections | orderBy:'-created_at' | filter:search:strict" ng-click="setSelected()" class="{{classSelected()}}">
+          <td class="pointer">
+            <span ng-show="networkconnection.source_socket_address || networkconnection.source_socket_hostname || networkconnection.source_socket_port">
+              Source: {{networkconnection.source_socket_address || networkconnection.source_socket_hostname | prefixWithPortionMarking: networkconnection.portion_marking:get_max_classification(networkconnection.source_socket_address_c,networkconnection.source_socket_port_c,networkconnection.layer4_protocol_c)}}:{{networkconnection.source_socket_port}}/{{networkconnection.layer4_protocol}}</br>
+            </span>
+            <span ng-show="networkconnection.dest_socket_address || networkconnection.dest_socket_hostname || networkconnection.dest_socket_port">
+              Destination: {{networkconnection.dest_socket_address || networkconnection.dest_socket_hostname | prefixWithPortionMarking: networkconnection.portion_marking:get_max_classification(networkconnection.dest_socket_address_c,networkconnection.dest_socket_port_c,networkconnection.layer4_protocol_c)}}:{{networkconnection.dest_socket_port}}/{{networkconnection.layer4_protocol}}</br>
+            </span>
+          </td>
+          <td class="pointer">{{networkconnection.created_at | date:"medium"}}</td>
+          <td>
+            <button class="btn btn-primary btn-xs" tooltip="Edit Field" ng-click="setEdit()" ng-hide="networkconnection.read_only">
+                <i class="ace-icon fa fa-pencil "></i>
+                Edit
+            </button>
+            <small ng-show="networkconnection.read_only">
+              <span style="margin-left: 10px" class="label label-warning arrowed arrowed-right">
+                <span class="white">Read Only</span>
+              </span>
+            </small>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="widget-box widget-color-blue">
+  <pagination-footer metadata="metadata" offset="offset" get_records="getNetworkConnections"></pagination-footer>
+</div>

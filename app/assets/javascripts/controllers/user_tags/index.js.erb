@@ -1,0 +1,27 @@
+var userTagsIndexController = app.controller('UserTagsIndexController',['$scope','$rootScope','Restangular','$location',
+  function($scope,$rootScope,Restangular,$location) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'User Tags',link:'#/user_tags',icon:'fa-thumb-tack'}];
+
+    $scope.fetching = true;
+    Restangular.all('user_tags').getList().then(function(user_tags) {
+      $scope.user_tags = user_tags;
+      $scope.fetching = false;
+    });
+
+    $scope.create = function(user_tag) {
+      Restangular.all('/user_tags').post(user_tag).then(function(created_tag) {
+        $scope.user_tags.push(created_tag);
+        toastr.success("User Tag Created.");
+      },function(response) {
+        toastr.error("Could not create User Tag.");
+      });
+    };
+
+    $scope.check_for_tag=function(tag) {
+      if (angular.isUndefined(_.find($scope.user_tags,{"name":tag}))) {
+        return false;
+      }
+      return true;
+    }
+  }
+]);

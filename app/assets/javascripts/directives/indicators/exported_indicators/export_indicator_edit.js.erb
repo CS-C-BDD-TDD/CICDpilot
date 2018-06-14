@@ -1,0 +1,48 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('exportIndicatorEdit',function() {
+	return {
+		restrict: 'E',
+		scope: {
+			exportedIndicator:'&'
+		},
+		templateUrl: '<%=asset_path("exported_indicators/new.html",type: :template)%>',
+		controller: ['$scope','$location','Restangular','Indicator','Color',function($scope,$location,Restangular,Indicator,Color) {
+			$scope.Indicator = Indicator;
+			$scope.Color = Color;
+			$scope.exported_indicator = $scope.exportedIndicator;
+
+			$scope.save = function(exported_indicator){
+				Restangular.all('exported_indicators').customPUT(exported_indicator).then(function(data){
+					$location.path('/exported_indicators/'+encodeURIComponent(exported_indicator.system.toLowerCase()));
+				},function(res){
+					if (angular.isDefined(res.data.errors)){
+						_.forEach(res.data.errors,function(error) {
+							toastr.error("Unable to Export: "+error);
+						})
+					}
+					else {
+						toastr.error("Unable to Export");
+					}
+				});
+			};
+
+			$scope.getColors = function(object) {
+				if (angular.isDefined(object) &&
+						angular.isDefined(object.stix_markings)) {
+
+					for (var i = 0; i < object.stix_markings.length;i++) {
+						if (angular.isDefined(object.stix_markings[i].tlp_marking_structure) &&
+								object.stix_markings[i].tlp_marking_structure != null) {
+
+							return Color.colors.slice(_.findIndex(Color.colors,function(color) {
+								return color == object.stix_markings[i].tlp_marking_structure.color;
+							}),Color.colors.size);
+						}
+					}
+				}
+				return Color.colors;
+			}
+		}]
+	}
+});

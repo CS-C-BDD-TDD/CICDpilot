@@ -1,0 +1,16 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('DnsRecordsIndexController', ['$scope','$rootScope','Restangular',
+  function ($scope, $rootScope, Restangular) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'DNS Records',link:'#/dns_records',icon:'fa-group'}];
+    $scope.fetching = true;
+    Restangular.one('/dns_records').get().then(function(data){
+      $scope.dns_records = data.dns_records;
+      $scope.metadata = data.metadata;
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load DNS Records");
+      $scope.fetching = false;
+    });
+  }
+]);

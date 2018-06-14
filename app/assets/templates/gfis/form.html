@@ -1,0 +1,253 @@
+<div class="widget-box">
+  <div class="widget-header" align="center">
+      <a class='fake-link widget-title ng-cloak' ng-click="showWidget = !showWidget">
+          <i class="ace-icon fa" ng-class="showWidget ? 'fa-minus' : 'fa-plus'"></i>
+          GFI Fields
+          <span class="ace-icon ciap_fa_icon_sm fa-stack ciap_pleft_6" tooltip="Not Exportable Field">
+      		<i class="fa fa-ban fa-stack-2x"> </i> 
+ 			<i class="fa fa-download fa-stack-1x"> </i> 
+      	  </span>
+      </a>
+  </div>
+  <div class="widget-body" ng-show="showWidget">
+    <div class="widget-main">
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_source_name}">
+        <label class="control-label col-md-3 no-padding-right">GFI Source Name</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_source_name" name="gfi_source_name" placeholder="GFI Source Name"/>
+          <ul ng-if="observableScope.error.gfi_source_name" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_source_name">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_action_name}">
+        <label class="control-label col-md-3 no-padding-right">GFI Action Name</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_action_name" name="gfi_action_name" placeholder="GFI Action Name"/>
+          <ul ng-if="observableScope.error.gfi_action_name" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_action_name">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_action_name_class}">
+        <label class="control-label col-md-3 no-padding-right">GFI Action Name Class</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_action_name_class" name="gfi_action_name_class" placeholder="GFI Action Name Class"/>
+          <ul ng-if="observableScope.error.gfi_action_name_class" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_action_name_class">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_action_name_subclass}">
+        <label class="control-label col-md-3 no-padding-right">GFI Action Name Sub-class</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_action_name_subclass" name="gfi_action_name_subclass" placeholder="GFI Action Name Sub-class"/>
+          <ul ng-if="observableScope.error.gfi_action_name_subclass" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_action_name_subclass">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_ps_regex}">
+        <label class="control-label col-md-3 no-padding-right">GFI PS RegEx</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_ps_regex" name="gfi_ps_regex" placeholder="GFI PS RegEx"/>
+          <ul ng-if="observableScope.error.gfi_ps_regex" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_ps_regex">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_ps_regex_class}">
+        <label class="control-label col-md-3 no-padding-right">GFI PS RegEx Class</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_ps_regex_class" name="gfi_ps_regex_class" placeholder="GFI PS RegEx Class"/>
+          <ul ng-if="observableScope.error.gfi_ps_regex_class" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_ps_regex_class">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_ps_regex_subclass}">
+        <label class="control-label col-md-3 no-padding-right">GFI PS RegEx Sub-class</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_ps_regex_subclass" name="gfi_ps_regex_subclass" placeholder="GFI PS RegEx Sub-class"/>
+          <ul ng-if="observableScope.error.gfi_ps_regex_subclass" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_ps_regex_subclass">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_cs_regex}">
+        <label class="control-label col-md-3 no-padding-right">GFI CS RegEx</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_cs_regex" name="gfi_cs_regex" placeholder="GFI CS RegEx"/>
+          <ul ng-if="observableScope.error.gfi_cs_regex" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_cs_regex">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_cs_regex_class}">
+        <label class="control-label col-md-3 no-padding-right">GFI CS RegEx Class</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_cs_regex_class" name="gfi_cs_regex_class" placeholder="GFI CS RegEx Class"/>
+          <ul ng-if="observableScope.error.gfi_cs_regex_class" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_cs_regex_class">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_cs_regex_subclass}">
+        <label class="control-label col-md-3 no-padding-right">GFI CS RegEx Sub-class</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_cs_regex_subclass" name="gfi_cs_regex_subclass" placeholder="GFI CS RegEx Sub-class"/>
+          <ul ng-if="observableScope.error.gfi_cs_regex_subclass" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_cs_regex_subclass">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_exp_sig_loc}">
+        <label class="control-label col-md-3 no-padding-right">GFI Exp Sig Loc</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_exp_sig_loc" name="gfi_exp_sig_loc" placeholder="GFI Exp Sig Loc"/>
+          <ul ng-if="observableScope.error.gfi_exp_sig_loc" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_exp_sig_loc">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_exp_sig_loc_class}">
+        <label class="control-label col-md-3 no-padding-right">GFI Exp Sig Loc Class</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_exp_sig_loc_class" name="gfi_exp_sig_loc_class" placeholder="GFI Exp Sig Loc Class"/>
+          <ul ng-if="observableScope.error.gfi_exp_sig_loc_class" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_exp_sig_loc_class">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_exp_sig_loc_subclass}">
+        <label class="control-label col-md-3 no-padding-right">GFI Exp Sig Loc Sub-class</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_exp_sig_loc_subclass" name="gfi_exp_sig_loc_subclass" placeholder="GFI Exp Sig Loc Sub-class"/>
+          <ul ng-if="observableScope.error.gfi_exp_sig_loc_subclass" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_exp_sig_loc_subclass">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_bluesmoke_id}">
+        <label class="control-label col-md-3 no-padding-right">GFI Bluesmoke ID</label>
+        <div class="col-md-9">
+          <input type="text" only-digits class="form-control" ng-model="gfi.gfi_bluesmoke_id"
+                 name="gfi_bluesmoke_id" placeholder="GFI Bluesmoke ID"/>
+          <ul ng-if="observableScope.error.gfi_bluesmoke_id" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_bluesmoke_id">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_uscert_sid}">
+        <label class="control-label col-md-3 no-padding-right">GFI US-CERT SID</label>
+        <div class="col-md-9">
+          <input type="text" only-digits class="form-control" ng-model="gfi.gfi_uscert_sid"
+                 name="gfi_uscert_sid" placeholder="GFI US-CERT SID"/>
+          <ul ng-if="observableScope.error.gfi_uscert_sid" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_uscert_sid">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_notes}">
+        <label class="control-label col-md-3 no-padding-right">GFI Notes</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_notes" name="gfi_notes" placeholder="GFI Notes"/>
+          <ul ng-if="observableScope.error.gfi_notes" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_notes">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_notes_class}">
+        <label class="control-label col-md-3 no-padding-right">GFI Notes Class</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_notes_class" name="gfi_notes_class" placeholder="GFI Notes Class"/>
+          <ul ng-if="observableScope.error.gfi_notes_class" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_notes_class">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_notes_subclass}">
+        <label class="control-label col-md-3 no-padding-right">GFI Notes Sub-class</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_notes_subclass" name="gfi_notes_subclass" placeholder="GFI Notes Sub-class"/>
+          <ul ng-if="observableScope.error.gfi_notes_subclass" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_notes_subclass">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_status}">
+        <label class="control-label col-md-3 no-padding-right">GFI Status</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_status" name="gfi_status" placeholder="GFI Status"/>
+          <ul ng-if="observableScope.error.gfi_status" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_status">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_uscert_doc}">
+        <label class="control-label col-md-3 no-padding-right">GFI US-CERT Doc</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_uscert_doc" name="gfi_uscert_doc" placeholder="GFI US-CERT Doc"/>
+          <ul ng-if="observableScope.error.gfi_uscert_doc" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_uscert_doc">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_uscert_doc_class}">
+        <label class="control-label col-md-3 no-padding-right">GFI US-CERT Doc Class</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_uscert_doc_class" name="gfi_uscert_doc_class" placeholder="GFI US-CERT Doc Class"/>
+          <ul ng-if="observableScope.error.gfi_uscert_doc_class" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_uscert_doc_class">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_uscert_doc_subclass}">
+        <label class="control-label col-md-3 no-padding-right">GFI US-CERT Doc Sub-class</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_uscert_doc_subclass" name="gfi_uscert_doc_subclass" placeholder="GFI US-CERT Doc Sub-class"/>
+          <ul ng-if="observableScope.error.gfi_uscert_doc_subclass" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_uscert_doc_subclass">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_special_inst}">
+        <label class="control-label col-md-3 no-padding-right">GFI Special Inst</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_special_inst" name="gfi_special_inst" placeholder="GFI Special Inst"/>
+          <ul ng-if="observableScope.error.gfi_special_inst" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_special_inst">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_special_inst_class}">
+        <label class="control-label col-md-3 no-padding-right">GFI Special Inst Class</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_special_inst_class" name="gfi_special_inst_class" placeholder="GFI Special Inst Class"/>
+          <ul ng-if="observableScope.error.gfi_special_inst_class" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_special_inst_class">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_special_inst_subclass}">
+        <label class="control-label col-md-3 no-padding-right">GFI Special Inst Sub-class</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_special_inst_subclass" name="gfi_special_inst_subclass" placeholder="GFI Special Inst Sub-class"/>
+          <ul ng-if="observableScope.error.gfi_special_inst_subclass" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_special_inst_subclass">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="form-group" ng-class="{'has-error': observableScope.error.gfi_type}">
+        <label class="control-label col-md-3 no-padding-right">GFI Type</label>
+        <div class="col-md-9">
+          <input type="text" class="form-control" ng-model="gfi.gfi_type" name="gfi_type" placeholder="GFI Type"/>
+          <ul ng-if="observableScope.error.gfi_type" class="help-block">
+            <li ng-repeat="e in observableScope.error.gfi_type">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="span-1"></div>
+    </div>
+  </div>
+</div>

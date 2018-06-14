@@ -1,0 +1,185 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('fieldMarkingsEdit',function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("markings/field-markings-edit.html",type: :template)%>',
+    scope: {
+      object: '=',
+      sets: '=',
+      disablesave: '=',
+      editform: '=',
+      fieldname: '@',
+      togglebuttons: '=',
+      fieldtext: '=?'
+    },
+    controller: ['$scope', '$rootScope', 'Marking', 'Restangular', function($scope,$rootScope,Marking,Restangular){
+      $scope.show_classifications = $rootScope.setting_value('CLASSIFICATION');
+      // init existing index
+      $scope.existing_index = {index: -3};
+      // try and find the attributes.
+      $scope.existing_index.index = find_field_attributes_index();
+      $scope.marking_sets = [];
+      $rootScope.mouse_press = false;
+      addToggleWatch();
+
+      angular.element(':button').mousedown(function(e){
+        $rootScope.mouse_press = true;
+      });
+
+      // Try to find the existing marking attributes.
+      function find_field_attributes_index(){
+        if (angular.isDefined($scope.object) && angular.isDefined($scope.object.stix_markings_attributes)){
+          for (var i = 0; i < $scope.object.stix_markings_attributes.length; i++){
+            if (angular.isDefined($scope.object.stix_markings_attributes[i]) && angular.isDefined($scope.object.stix_markings_attributes[i].remote_object_field) && $scope.object.stix_markings_attributes[i].remote_object_field != null && $scope.object.stix_markings_attributes[i].remote_object_field == $scope.fieldname && $scope.object.stix_markings_attributes[i]._destroy != "1"){
+              $scope.togglebuttons.toggle += 2;
+              return i;
+            }
+          }
+        }
+        return -1;
+      }
+
+      $scope.get_field_id = function(){
+        return "id_" + $scope.fieldname + "_" + $scope.$id;
+      }
+
+      $scope.$watch('object', function(){
+        if(_.isEmpty($scope.object)){
+          if(angular.isDefined($scope.togglebuttons)){
+            // reinit the toggle buttons and the index
+            if(angular.isDefined($scope.existing_index)){
+              $scope.existing_index.index = -3;
+            }
+            $scope.togglebuttons.toggle = 0;
+            $scope.togglebuttons.clear = 0;
+            return;
+          }
+        } else {
+          $scope.existing_index.index = find_field_attributes_index();
+        }
+      });
+
+      /* 
+
+      This watch is needed to be written like this so 
+      recursive firing doesn't happen.  
+      We unwatch the function while changing anything. 
+      Then immediately rewatch it. 
+      This works because listener function is called asynchronously
+      */
+      function addToggleWatch(){
+        var toggles = $scope.$watch('togglebuttons', function(newValue, oldValue){
+          // need to make sure the custom flag is set.
+          if (angular.isDefined($scope.existing_index) && $scope.existing_index.index > -1 && angular.isDefined($scope.object) && angular.isDefined($scope.object.stix_markings_attributes) && angular.isDefined($scope.object.stix_markings_attributes[$scope.existing_index.index]) && $scope.object.stix_markings_attributes[$scope.existing_index.index].custom != true){
+            $scope.object.stix_markings_attributes[$scope.existing_index.index].custom = true;
+          }
+          // field level markings logic.
+          if(!angular.equals(newValue, oldValue)) {
+            if(angular.isDefined($scope.togglebuttons)){
+              if(angular.isDefined($scope.object)){
+                if(_.isEmpty($scope.object)){
+                  return;
+                }
+                if(angular.isDefined($scope.object.stix_markings_attributes)){
+                  if (angular.isDefined($scope.existing_index.index) && $scope.existing_index.index <= 0){
+                    $scope.existing_index.index = find_field_attributes_index();
+                    if ($scope.existing_index.index > 0){
+                      $scope.object.stix_markings_attributes[$scope.existing_index.index].custom = true;
+                    }
+                  }
+                  // For the transitions when making the field level markings show up
+                  if($scope.togglebuttons.toggle != 0){
+                    if($scope.togglebuttons.toggle % 2 == 0){
+                      angular.element("#" + $scope.get_field_id()).removeClass("fadeIn");
+                    } else {
+                      angular.element("#" + $scope.get_field_id()).addClass("fadeIn");
+                    }  
+                  }
+                  if ($rootScope.mouse_press == true && $scope.togglebuttons.clear == 0){
+                    $rootScope.mouse_press = false;
+                  }
+                  // delete the attributes associated with the field
+                  if ($scope.togglebuttons.clear > 0){
+
+                    $scope.togglebuttons.clear = 0;
+
+                    if (!$rootScope.mouse_press) return;
+
+                    $scope.togglebuttons.toggle = 0;
+
+                    if (angular.isDefined($scope.object.stix_markings_attributes) && angular.isDefined($scope.object.stix_markings_attributes[$scope.existing_index.index])){
+                      if (angular.isDefined($scope.object.stix_markings_attributes[$scope.existing_index.index].id)){
+                        $scope.object.stix_markings_attributes[$scope.existing_index.index]._destroy = "1";
+                      } else {
+                        $scope.object.stix_markings_attributes.splice($scope.existing_index.index, 1);
+                      }
+                    }
+
+                    $scope.existing_index.index = -3;
+                    $rootScope.mouse_press = false;
+                    return;
+                  }
+                  if ($scope.togglebuttons.toggle <= 3 && $scope.togglebuttons.toggle != 0 && $scope.togglebuttons.toggle % 2 == 1){
+                    //$scope.existing_index.index = find_field_attributes_index();
+
+                    // If it exists use it. 
+                    if ($scope.existing_index.index > -1 && angular.isDefined($scope.object.stix_markings_attributes[$scope.existing_index.index])){
+                      $scope.object.stix_markings_attributes[$scope.existing_index.index].custom = true;
+                      return;
+                    //Else build the stix marking attributes
+                    } else {
+                      $scope.existing_index.index = $scope.object.stix_markings_attributes.length;
+                      
+                      $scope.object.stix_markings_attributes[$scope.existing_index.index] = {
+                        isa_marking_structure_attributes: Marking.build_default_isa_marking(), 
+                        isa_assertion_structure_attributes: Marking.build_default_isa_assertion()
+                      };
+
+                      // If the object level attributes exist, set the field level attributes to match
+                      var obj_level_index = _.findIndex($scope.object.stix_markings_attributes, function(sm){
+                        return sm.remote_object_field == null && angular.isDefined(sm.isa_assertion_structure_attributes);
+                      });
+                      if (angular.isDefined($scope.object.stix_markings_attributes[obj_level_index])){
+                        $scope.object.stix_markings_attributes[$scope.existing_index.index] = Marking.translate_existing_markings($scope.object.stix_markings_attributes[$scope.existing_index.index], $scope.object.stix_markings_attributes[obj_level_index]);
+                      }
+
+                      if ($scope.object.acs_set_id != null){
+                        var saved_markings = $scope.marking_sets.find(function(markings_set){
+                          return $scope.object.acs_set_id == markings_set.guid;
+                        });
+                        if (saved_markings == null){
+                          Restangular.one('acs_sets').get({id: $scope.object.acs_set_id}).then(function(data){
+                            // add the acs_set into the markings_set to cache;
+                            $scope.marking_sets.push(data);  
+                            // set it equal to the existing markings
+                            if (angular.isDefined(data.stix_markings)){
+                              $scope.object.stix_markings_attributes[$scope.existing_index.index] = Marking.translate_acs_markings($scope.object.stix_markings_attributes[$scope.existing_index.index], data.stix_markings[0]);
+                            }
+                          },function(res){
+                              toastr.error("Unable to load ACS Set Markings");
+                          });
+                        } else {
+                          if (angular.isDefined(saved_markings.stix_markings)){
+                            $scope.object.stix_markings_attributes[$scope.existing_index.index] = Marking.translate_acs_markings($scope.object.stix_markings_attributes[$scope.existing_index.index], saved_markings.stix_markings[0]);
+                          }
+                        }
+                        
+                      }
+
+                      $scope.object.stix_markings_attributes[$scope.existing_index.index].remote_object_field = $scope.fieldname;
+                      $scope.object.stix_markings_attributes[$scope.existing_index.index].setup = true;
+                      $scope.object.stix_markings_attributes[$scope.existing_index.index].custom = true;
+                    }
+                  }
+                }
+              }
+            }
+            toggles();
+            addToggleWatch();
+          }
+        }, true);
+      }
+    }]
+  };
+});

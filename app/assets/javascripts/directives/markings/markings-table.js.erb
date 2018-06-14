@@ -1,0 +1,19 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('markingsTable',function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("markings/markings-table.html",type: :template)%>',
+    scope: {
+      markings: '=',
+      fieldname: '=?',
+      fieldtext: '=?'
+    },
+    controller: ['$scope', '$rootScope', 'Marking','Color', function($scope,$rootScope,Marking,Color){
+        $scope.showTable = true;
+        $scope.Marking = Marking;
+        $scope.Color = Color;
+        $scope.show_classifications = $rootScope.setting_value('CLASSIFICATION');
+    }]
+  };
+});

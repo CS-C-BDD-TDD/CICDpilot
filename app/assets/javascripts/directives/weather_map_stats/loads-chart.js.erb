@@ -1,0 +1,79 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('weatherMapLoadsChart', function () {
+  return {
+    restrict: 'E',
+    templateUrl: function () {
+      return '<%=asset_path('weather_map_stats/loads-chart.html',type: :template) %>';
+    },
+    scope: {
+      wmdstats: '='
+    },
+    link: function (scope, element) {
+      var newSVG = function (stats) {
+        var len = stats.length;
+        var newLines = [];
+        var lineWidth = 100, lineHeight = 100;
+        var segWidth = lineWidth / len;
+        var i, max = 0;
+
+        // Find maximum count.
+        for (i = 0; i < len; i++) {
+          if (stats[i].count > max) {
+            max = stats[i].count;
+          }
+        }
+
+        // If all of the counts are zero, set max to 0.001 to prevent
+        // division by zero. Since all of the counts are zero, the resulting
+        // y-axis coordinates will still end up being calculated as zero but
+        // this will prevent division by zero.
+        if (max == 0) {
+          max = 0.001;
+        }
+
+        // Generate half-size left continution line segment.
+        var x1 = 0;
+        var y1 = Math.floor(stats[0].count / max * lineHeight);
+        var x2 = Math.floor(segWidth / 2);
+        var y2 = y1;
+        var newLine = '<line x1="' + x1 + '%" y1="' + y1 + '%" x2="' + x2 +
+            '%" y2="' + y2 + '%"/></line>';
+        newLines.push(newLine);
+
+        // Generate line segments.
+        for (i = 0; i < len - 1; i++) {
+          x1 = x2;
+          y1 = Math.floor(stats[i].count / max * lineHeight);
+          x2 = x1 + segWidth;
+          y2 = Math.floor(stats[i + 1].count / max * lineHeight);
+          newLine = '<line x1="' + x1 + '%" y1="' + y1 + '%" x2="' + x2 +
+              '%" y2="' + y2 + '%"/></line>';
+          newLines.push(newLine);
+        }
+
+        // Generate half-size right continution line segment.
+        x1 = x2;
+        y1 = Math.floor(stats[len - 1].count / max * lineHeight);
+        x2 = lineWidth;
+        y2 = y1;
+        newLine = '<line x1="' + x1 + '%" y1="' + y1 + '%" x2="' + x2 +
+            '%" y2="' + y2 + '%"/></line>';
+        newLines.push(newLine);
+
+        // Return string with new svg element.
+        return '<svg>\n' +
+            newLines.join('\n') + '\n</svg>';
+      };
+      scope.$watch('wmdstats', function () {
+        // Update the svg load trend chart when wmdstats changes.
+        if (angular.isDefined(scope.wmdstats) && scope.wmdstats &&
+            scope.wmdstats.length > 1) {
+          var svgHTMLStr = newSVG(scope.wmdstats);
+          var svgElem = angular.element(svgHTMLStr);
+          element.find('svg').replaceWith(svgElem);
+        }
+      });
+    }
+  };
+});

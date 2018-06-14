@@ -1,0 +1,154 @@
+<div class="col-sm-12 col-md-12 col-lg-12" ng-hide="hide_ciscp_banner">
+  <div class="alert alert-block alert-warning">
+    <button class="close" data-dismiss="alert" type="button">
+      <i class="ace-icon fa fa-times"></i>
+    </button>
+    <div>TLP: WHITE or TLP: GREEN or TLP: AMBER documents uploaded with the STIX Package Titles listed below will automatically be sent to the TAXII Feed listed:</div>
+    <div>(populate the Title column with the values you’re using)</div>
+    <div class="container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>STIX Package Title (prefix)</th>
+            <th>CISCP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>IB (10Ks)</td>
+            <td>X</td>
+          </tr>
+          <tr>
+            <td>IB (20Ks)</td>
+            <td>X</td>
+          </tr>
+          <tr>
+            <td>AR (10Ks)</td>
+            <td>X</td>
+          </tr>
+          <tr>
+            <td>AR (20Ks)</td>
+            <td>X</td>
+          </tr>
+          <tr>
+            <td>MIFR</td>
+            <td>X</td>
+          </tr>
+          <tr>
+            <td>MAR</td>
+            <td>X</td>
+          </tr>
+          <tr>
+            <td>JIB</td>
+            <td>X</td>
+          </tr>
+          <tr>
+            <td>JAR</td>
+            <td>X</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="page-header">
+   <h1>Upload</h1>
+</div>
+
+<div class="col-sm-12 space-8"></div>
+<div class="col-sm-3"></div>
+
+<div class="col-sm-4" ng-show="canAll(['view_uploaded_file_info', 'create_indicator_observable', 'create_package_report'])">
+  <div class="widget-box">
+    <div class="widget-header">
+      <h4 class="widget-title">Upload STIX File</h4>
+    </div>
+
+    <div class="widget-body">
+      <div class="widget-main no-padding">
+        <h5 class="center">Upload data files that conform to the STIX XML standard.</h5>
+
+        <div class="space-12"></div>
+
+        <div class='widget-main no-padding-bottom'>
+        <div class="form-group">
+          <div class="col-xs-12">
+              <label class="ace-file-input">
+                <input type='file' accept=".xml" nv-file-select uploader="uploader"/>
+                <span class="ace-file-container" data-title="Choose">
+                  <span class="ace-file-name" data-title="{{uploader.queue.length > 0 ? uploader.queue[0].file.name : 'No File'}}">
+                    <i class=" ace-icon fa fa-upload"></i>
+                  </span>
+                </span>
+
+              </label>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin:40px 0 10px 12px">
+            <label class="control-label no-padding-right">Validate Only</label>
+            <input class="ace" type="checkbox" name="validate" ng-click="validate_only = !validate_only"/>
+            <span class="lbl"></span>
+            <label class="control-label no-padding-right">&nbsp;&nbsp;&nbsp;Overwrite Existing</label>
+            <input class="ace" type="checkbox" name="overwrite" ng-click="overwrite = !overwrite"/>
+            <span class="lbl"></span>
+            <span ng-show="setting_value('FLARE_AVP_PATH')">
+              <label class="control-label no-padding-right">&nbsp;&nbsp;&nbsp;Disable AVP Validation</label>
+              <input class="ace" type="checkbox" name="disable_avp" ng-model="disable_avp"/>
+              <span class="lbl"></span>
+              <label class="control-label no-padding-right">&nbsp;&nbsp;&nbsp;Continue on AVP Validation Failure</label>
+              <input class="ace" type="checkbox" name="avp_fail_continue" ng-model="avp_fail_continue"/>
+              <span class="lbl"></span>
+            </span>
+        </div>
+        </div>
+
+        <div class='clearfix form-actions' style='margin-bottom: 0' ng-show='uploader.queue.length'>
+          <span ng-show="is_uploading">
+            <i class="ace-icon fa fa-sun-o fa-spin green bigger-250 pull-right" ng-show="is_uploading"></i>
+          </span>
+          <button ng-disabled="is_uploading" class="btn btn-sm btn-success pull-right" type="button" ng-click="uploader.queue[0].upload()">
+            {{is_uploading ? 'Uploading' : 'Upload'}}
+            <i ng-class="is_uploading ? 'fa-arrow-right' : 'fa-arrow-up'" class="ace-icon fa icon-on-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container space-30"></div>
+
+
+
+<!-- AVP Messages Modal -->
+<div class="modal fade" id="avp_messages" tabindex="-1" role="dialog" aria-labelledby="avpModalLabel">
+  <div class="modal-dialog ciap_width_95" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="avpModalLabel">AVP Messages</h4>
+      </div>
+      <div class="modal-body">
+        Do you want to continue the Upload with the following errors from AVP?
+        Note: If there are AVP Errors this package will not disseminate.
+        <errors-table errors="avp.avp_errors" tlabel="'AVP Errors'"></errors-table>
+        <div class="space-12"></div>
+        <errors-table errors="avp.prohibited" tlabel="'AVP Prohibited'"></errors-table>
+      </div>
+      <div class="modal-footer">
+        <span ng-show="is_uploading">
+          <i class="ace-icon fa fa-sun-o fa-spin green bigger-250 pull-right" ng-show="is_uploading"></i>
+        </span>
+        <button class="btn btn-info pull-right ciap_mleft_5" ng-disabled="is_uploading" type="button" ng-click="continueUploadWithErrors()">
+          <i class="ace-icon fa fa-check bigger-110"></i> Continue Upload
+        </button>
+        <button class="btn btn-default pull-right ciap_mleft_5" ng-disabled="is_uploading" type="button" data-dismiss="modal" ng-click="cancelUpload()">
+          <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- AVP Messages Modal End-->

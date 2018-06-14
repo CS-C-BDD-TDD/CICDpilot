@@ -1,0 +1,123 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('sourceNew', function () {
+  return {
+    restrict: 'E',
+    scope: {      
+      showNew: '='
+    },
+    templateUrl: '<%=asset_path("sources/new_source_form.html",type: :template)%>',
+    controller: ['$scope', '$rootScope','Restangular', 'Marking',
+      function ($scope, $rootScope, Restangular, Marking) {
+        $scope.Marking = Marking;
+
+        $scope.showNew = false;
+        $scope.formTitle = "";
+        $scope.isModification = false;
+        $scope.tempSource = {};
+        $scope.$on('modifySourceEvent', function(event, args)//capture a modify event being broadcast by the source view table
+            {
+              $scope.tempSource = JSON.parse(JSON.stringify(args[0]));//create a clone of the object that's being modified, in case they change their minds
+
+              $scope.newSource = args[0];
+              $scope.isModification = true;
+              $scope.showNew = true;              
+            }
+          );
+        $scope.cleanSource = function(source)
+        {
+          if(Array.isArray(source.organization_names)) 
+          {
+            source.organization_names = source.organization_names.join('|'); //done to conform to back end
+          }  
+          if(Array.isArray(source.organization_info)) 
+          {
+            source.organization_info = source.organization_info.join('|'); //done to conform to back end
+          }                         
+          if(Array.isArray(source.administrative_areas)) 
+          {
+            source.administrative_areas = source.administrative_areas.join('|');   
+          }    
+          return source;
+        };
+        $scope.saveSource = function () {                
+          if ($rootScope.is_undefined_or_null($scope.newSource.organization_names) || //make sure all fields are filled              
+              $rootScope.is_undefined_or_null($scope.newSource.administrative_areas) ||
+              $rootScope.is_undefined_or_null($scope.newSource.organization_info) ||
+              $scope.newSource.administrative_areas.length == 0 ||
+              $scope.newSource.organization_names.length == 0 ||
+              $scope.newSource.organization_info.length == 0 
+
+              )    
+          {
+            toastr.error("All contributing sources fields are required");
+          	return;
+          }
+          
+          // Extract countries from administrative areas
+          $scope.newSource.countries = [];
+          $scope.newSource.administrative_areas.forEach(function(area) {
+          	var country_code = area.substr(0, 2);
+          	if (!$scope.newSource.countries.includes(country_code)) {
+          		$scope.newSource.countries.push(country_code);
+          	}
+          });
+          
+          if(!$scope.isModification)//this is a new source
+          {
+                $scope.$parent.package.contributing_sources.push($scope.newSource);
+                $scope.reset_source();          
+                $scope.showNew = false; 
+          }
+          else //modifying an existing source
+          {
+              $scope.showNew = false;
+              $scope.reset_source(); 
+              $scope.isModification = false;
+          }
+
+        };
+        $scope.cancelCreateSource = function () {
+          if($scope.isModification)//restore the source to what it was before they made changes
+          {
+            $scope.newSource.administrative_areas = $scope.tempSource.administrative_areas;
+            $scope.newSource.countries = $scope.tempSource.countries;
+            $scope.newSource.organization_names = $scope.tempSource.organization_names;
+            $scope.newSource.organization_info = $scope.tempSource.organization_info;
+            $scope.newSource.is_federal = $scope.tempSource.is_federal;
+          }
+          if (angular.isDefined($scope.newSource)) {
+            delete $scope.newSource;
+          }          
+          $scope.reset_source();       
+          $scope.showNew = false;
+        };
+        $scope.add_aa = function() {          
+          $scope.newSource.administrative_areas.push("");
+        };
+        $scope.remove_aa = function(index) {
+          $scope.newSource.administrative_areas.splice(index, 1);
+        };
+        $scope.add_on = function() {          
+          $scope.newSource.organization_names.push("");
+        };
+        $scope.remove_on = function(index) {
+          $scope.newSource.organization_names.splice(index, 1);
+        };       
+        $scope.add_oi = function() {          
+          $scope.newSource.organization_info.push("");
+        };
+        $scope.remove_oi = function(index) {
+          $scope.newSource.organization_info.splice(index, 1);
+        };           
+        $scope.reset_source = function() {
+          $scope.newSource = {};
+          $scope.newSource.countries = [];
+          $scope.newSource.administrative_areas = [];
+          $scope.newSource.organization_names = [];  
+          $scope.newSource.organization_info = [];                   
+        };
+        $scope.reset_source(); 
+      }]
+  }
+});

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="lib" path="/home/jquigg/jars/bcprov-ext-jdk15on-151.jar"/>
+	<classpathentry kind="lib" path="/home/jquigg/code/cyber-indicators/lib/spnego-r7.jar"/>
+	<classpathentry kind="lib" path="/home/jquigg/jars/tomcat7/catalina.jar"/>
+	<classpathentry kind="lib" path="/home/jquigg/jars/tomcat7/servlet-api.jar"/>
+	<classpathentry kind="lib" path="/home/jquigg/jars/tomcat7/tomcat-coyote.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

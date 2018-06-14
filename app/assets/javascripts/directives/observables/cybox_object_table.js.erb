@@ -1,0 +1,55 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('cyboxObjectTable', function() {
+  return {
+    restrict: 'E',
+    templateUrl: function(elem,attrs) {
+          return '<%=asset_path("observables/cybox_object_table.html",type: :template)%>';
+    },
+    scope: {
+             observables: '='
+           },
+    controller: ['$scope', 'Restangular', '$rootScope', '$location', 'Observable', function($scope,Restangular,$rootScope,$location,Observable) {
+      $scope.SYSTEM_MODE = $rootScope.SYSTEM_MODE;
+      $scope.Observable = Observable;
+      
+      $scope.fixCyboxLinkType = function(type){
+        switch(type){
+          case 'Address': 
+              return 'addresses';
+          case 'DnsQuery': 
+              return 'dns_queries';
+          case 'DnsRecord': 
+              return 'dns_records';
+          case 'Domain': 
+              return 'domains';
+          case 'EmailMessage': 
+              return 'emails';
+          case 'CyboxFile': 
+              return 'files';
+          case 'HttpSession': 
+              return 'http_sessions';
+          case 'Hostname': 
+              return 'hostnames';
+          case 'Link': 
+              return 'links';
+          case 'CyboxMutex': 
+              return 'mutexes';
+          case 'NetworkConnection': 
+              return 'network_connections';
+          case 'Port': 
+              return 'ports';
+          case 'Registry': 
+              return 'registries';
+          case 'SocketAddress': 
+              return 'socket_addresses';
+          case 'Uri': 
+              return 'uris';
+          default:
+              return type;
+        }
+      }
+
+    }]
+  };
+});

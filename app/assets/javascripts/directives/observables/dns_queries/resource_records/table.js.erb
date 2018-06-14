@@ -1,0 +1,94 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('resourceRecordTable', function() {
+  return {
+    restrict: 'E',
+    templateUrl: function(elem,attrs) {
+      if (attrs.indexpage){
+        return '<%=asset_path("observables/dns_queries/resource_records/advanced_table.html", type: :template)%>';
+      } else {
+        return '<%=asset_path("observables/dns_queries/resource_records/table.html", type: :template)%>';
+      }
+    },
+    scope: {
+      resourceRecords: '=',
+      metadata: '=',
+      fetching: '='
+    },
+    controller: ['$scope', 'Restangular', '$rootScope', '$location', function($scope,Restangular,$rootScope, $location) {
+      $scope.SYSTEM_MODE = $rootScope.SYSTEM_MODE;
+      $scope.date_picker_opts = {
+        defaultRanges: true
+      };
+      $scope.q = '';
+      if (angular.isUndefined($scope.offset)) {
+        $scope.offset=0;
+      }
+      if (angular.isUndefined($scope.amount)) {
+        $scope.amount=$rootScope.setting_value('DEFAULT_MAX_RECORDS');
+      }
+      
+      $scope.sortOptions = {
+          'created_at': 'desc',
+          'updated_at': 'desc'
+        };
+      $scope.sortMethod = '';
+
+      // Cleanup
+      $scope.$on('$destroy', function() {
+        $('.daterangepicker').remove();
+      });
+      
+      $scope.dateRangePicker = function(picker) {
+        $scope.date_picker_object = picker;
+        $scope.offset=0;
+        $scope.getResourceRecords($scope.offset);
+      };
+
+      $scope.sort = function(method) {
+        $scope.sortMethod = method;
+        $scope.sortOptions[method]=($scope.sortOptions[method]=='desc')?'asc':'desc';
+        $scope.offset=0;
+        $scope.getResourceRecords($scope.offset);
+      };
+
+      $scope.startSearch = function() {
+        $scope.offset=0;
+        $scope.getResourceRecords($scope.offset);
+      };
+
+      $scope.getResourceRecords = function(offset) {
+        if (angular.isDefined($scope.metadata)) {
+          delete($scope.metadata);
+        }
+        $scope.fetching = true;
+        Restangular.one("resource_records").get({
+          ebt: $scope.date_picker_object.getStartDate(),
+          iet: $scope.date_picker_object.getEndDate(),
+          q: $scope.q,
+          column: $scope.sortMethod,
+          direction: $scope.sortOptions[$scope.sortMethod],
+          amount: $scope.amount,
+          offset: offset
+        }).then(
+            function(data){
+              $scope.resourceRecords = data.resource_records;
+              $scope.metadata = data.metadata;
+              $scope.fetching = false;
+            },
+            function(res){
+              $scope.resourceRecords = null;
+              $scope.metadata={total_count: 0};
+              toastr.error("Unable to load Resource Records");
+              $scope.fetching = false;
+            }
+        );
+      };
+
+      $scope.buildHref = function() {
+        return $rootScope.buildCSVHref($scope, "resource_records");
+      };
+
+    }]
+  };
+});

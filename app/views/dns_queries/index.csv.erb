@@ -1,0 +1,6 @@
+<%- headers = ['Cybox Object ID', 'Questions', 'Answer Resource Records', 'Authority Resource Records', 'Additional Records', 'Created At', 'Last Updated'] %>
+<%= raw CSV.generate_line addPortionMarkingToCSV(headers), :row_sep => '', :force_quotes => true %>
+<% @dns_queries.each do |dns_query| %>
+  <%- row = [dns_query.cybox_object_id, dns_query.question_normalized_cache, dns_query.answer_normalized_cache, dns_query.authority_normalized_cache, dns_query.additional_normalized_cache, dns_query.created_at, dns_query.updated_at] -%>
+<%= raw CSV.generate_line addPortionMarkingToCSV(nil, row, dns_query), :row_sep => '', :force_quotes => true %>
+<% end %>

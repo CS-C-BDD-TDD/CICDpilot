@@ -1,0 +1,125 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('vulnerabilityForm', function(){
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("vulnerabilities/form.html",type: :template)%>',
+        scope: {
+            vulnerability: '=',
+            save: '=',
+            editform: '='
+        },
+        controller: ['$scope','$rootScope','$location', 'Restangular', 'Classification', 'exploitTargetService', 
+            function($scope,$rootScope, $location, Restangular, Classification, exploitTargetService) {
+                $scope.sets = [];
+                $scope.cybox = "cybox";
+                $scope.cve_pattern = /^CVE-\d{4}-[0-9]+$/;
+                $scope.positive_integer = /^\d+$/;
+
+                // Toggles for field level markings
+                $scope.title_toggle = {toggle: 0, clear: 0};
+                $scope.des_toggle = {toggle: 0, clear: 0};
+                $scope.cve_toggle = {toggle: 0, clear: 0};
+                $scope.osvdb_toggle = {toggle: 0, clear: 0};
+
+                Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+                    $scope.sets = data;
+                },function(res){
+                    toastr.error("Unable to load ACS Set List");
+                });
+                
+                $scope.start_save = function(){
+                    $scope.is_saving = true;
+                    $scope.part_two = false;
+                    $scope.vulnerability.errors = {};
+                    
+                    
+                   if($rootScope.is_undefined_or_null($scope.vulnerability.osvdb_id) && $rootScope.is_undefined_or_null($scope.vulnerability.cve_id) ){
+                     if($rootScope.is_undefined_or_null($scope.vulnerability.title)){
+                      $scope.vulnerability.errors.title = [" can't be blank if cve_id or osvdb_id is not provided"];
+                    }
+                  }
+                 
+                  if($scope.vulnerability.description) {
+                    if($rootScope.is_undefined_or_null($scope.vulnerability.title)){
+                        $scope.vulnerability.errors.title = [" can't be blank if description is defined"];
+                    }
+                 }
+                              
+                  if($scope.vulnerability.title) {
+                    if($rootScope.is_undefined_or_null($scope.vulnerability.description)){
+                        $scope.vulnerability.errors.description = [" can't be blank if title is defined"];
+                    }
+                 }
+               
+                  if ($scope.vulnerability.cve_id) {
+                    if($rootScope.is_undefined_or_null($scope.vulnerability.osvdb_id)){
+                        $scope.vulnerability.errors.osvdb_id = [" can't be blank if CVE_ID is defined"];
+                    }
+                    if(!$scope.cve_pattern.test($scope.vulnerability.cve_id)){
+                        $scope.vulnerability.errors.cve_id = [" must follow the pattern: CVE-<exactly four digits>—<one or more digits>"];
+                    }
+                 }
+                 
+                  if($scope.vulnerability.osvdb_id) {
+                     if($rootScope.is_undefined_or_null($scope.vulnerability.cve_id)){
+                        $scope.vulnerability.errors.cve_id = [" can't be blank if OSVDB_ID is defined"];
+                    }
+                     /*positive integer*/
+                    if (!$scope.positive_integer.test($scope.vulnerability.osvdb_id)){
+                        $scope.vulnerability.errors.osvdb_id = [" must be positive integer"];
+                    }
+                 }
+        
+                    /*
+                    Rules for when CLASSIFICATION is true
+
+                    and ACS Set or Classification must be selected. When Classification is above unclassified, 
+                    details must be filled out.
+                    */
+                    if ($rootScope.setting_value('CLASSIFICATION') == true){
+                        $scope.vulnerability.stix_markings_attributes = Classification.check_classification_details($scope.vulnerability.stix_markings_attributes);
+                        var problems = $scope.vulnerability.stix_markings_attributes.problems;
+                        var classification_check = $scope.vulnerability.stix_markings_attributes.classification_check;
+                   }
+                   if (Object.keys($scope.vulnerability.errors).length > 0 || classification_check) {
+                        $scope.is_saving = false;
+                         toastr.error("Unable to save Vulnerability");
+                        $("html, body").animate({ scrollTop: 0 }, 200);
+                        if(classification_check){
+                            for (var i = 0; i < problems.length; i++){
+                                if(problems[i].field == null){
+                                    toastr.error("Unable to save due to classification errors in the Object level markings");
+                                } else {
+                                    toastr.error("Unable to save due to classification errors in the " + problems[i].field + " markings");
+                                }
+                            }
+                        }
+                        return;
+                    }
+                    $scope.save($scope.vulnerability, function(){
+                        $scope.is_saving = false;
+                    })
+            };
+                
+                $scope.cancel = function() {
+                    if (exploitTargetService.is_data_set()){
+                        var et = exploitTargetService.get_data_no_clear();
+                        if (angular.isDefined(et.stix_id)){
+                            $location.path('/exploit_targets/' + et.stix_id + '/edit');
+                        } else {
+                            $location.path('/exploit_targets/new')
+                        }
+                    } else {
+                        if (angular.isDefined($scope.vulnerability.guid)){
+                            $location.path('/vulnerabilities/' + encodeURIComponent($scope.vulnerability.guid));
+                        } else {
+                            $location.path('/vulnerabilities');
+                        }
+                    }
+                };
+
+            }
+        ]
+    };
+});

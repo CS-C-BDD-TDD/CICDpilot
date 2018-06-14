@@ -1,0 +1,59 @@
+<div ng-show="loading">
+  <div class="page-header">
+    <h1>Searching for {{q}}</h1>
+  </div>
+</div>
+<div ng-show="indicators_metadata['total_count'] > 100" class="alert alert-block alert-warning">
+    <button class="close" data-dismiss="alert" type="button">
+      <i class="ace-icon fa fa-times"></i>
+    </button>
+    Your search returned a lot of results, try limiting your search query to refine your results.  Click the ? icon next to the search box for help.
+</div>
+<div ng-hide="loading">
+<div ng-show="valid_search">
+  <div class="page-header">
+    <h1>Search results for {{lastSearch}}</h1>
+  </div>
+
+  <div>Indicators: <span ng-show="indicators_fetching">Searching... <i class="fa fa-spinner fa-spin"></i></span><span ng-hide="indicators_fetching">{{indicators_metadata['total_count']}}</span></div>
+  <div>Weather Map Addresses: <span ng-show="wmaddresses_fetching">Searching... <i class="fa fa-spinner fa-spin"></i></span><span ng-hide="wmaddresses_fetching">{{weather_maps_addresses_metadata['total_count']}}</div>
+  <div>Weather Map Domains: <span ng-show="wmdomains_fetching">Searching... <i class="fa fa-spinner fa-spin"></i></span><span ng-hide="wmdomains_fetching">{{weather_maps_domains_metadata['total_count']}}</div>
+  <div>Packages: <span ng-show="packages_fetching">Searching... <i class="fa fa-spinner fa-spin"></i></span><span ng-hide="packages_fetching">{{packages_metadata['total_count']}}</div>
+
+  <span ng-show="indicators_metadata['total_count'] > 0 || filtered">
+    <div class="space-12"></div>
+
+    <span>
+      <a ng-href="<%= Rails.configuration.action_controller.relative_url_root %>/search.stix?q={{lastSearch}}" class="btn btn-pink no-radius btn-xs">
+        <i class="ace-icon fa fa-share bigger-160"></i> Download Indicator<span ng-show="indicators_metadata['total_count']>1">s</span> as STIX
+      </a>
+    </span>
+    <indicator-table indicators="indicators" indexpage=true metadata="indicators_metadata" search="q" fetching="indicators_fetching" filtered="filtered"></indicator-table>
+  </span>
+
+  <span ng-show="weather_maps_addresses_metadata['total_count'] > 0">
+    <div class="space-12"></div>
+
+    <weather-map-addresses-collapsable-table addresses="addresses" metadata="weather_maps_addresses_metadata" search="q" fetching="wmaddresses_fetching" mainsearch=1></weather-map-addresses-collapsable-table>
+  </span>
+
+  <span ng-show="weather_maps_domains_metadata['total_count'] > 0">
+    <div class="space-12"></div>
+
+    <weather-map-domains-collapsable-table domains="domains" metadata="weather_maps_domains_metadata" search="q" fetching="wmdomains_fetching" mainsearch=1></weather-map-domains-collapsable-table>
+  </span>
+
+  <span ng-show="packages_metadata['total_count'] > 0">
+    <div class="space-12"></div>
+
+    <package-table packages="packages" metadata="packages_metadata" search="q" fetching="packages_fetching" mainsearch=1></package-table>
+  </span>
+</div>
+
+<div ng-hide="valid_search">
+  <div class="page-header"><h1>No search results</h1></div>
+  <div style="text-align: center; font-style: italic;">
+    Cannot perform a blank search.  Please enter a search term in the upper right search bar and hit enter.
+  </div>
+</div>
+</div>

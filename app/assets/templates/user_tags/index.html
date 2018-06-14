@@ -1,0 +1,56 @@
+<style type="text/css">
+  /*tr.tag_row { border: 1px solid black; height: 2em; }*/
+  tr.tag-row button{ display: none; }
+  tr.tag-row:hover button{ display: inline-block; }
+  tr.tag-row i{ display: none; }
+  tr.tag-row:hover i{ display: inline-block;color:#E09E96; }  
+  span.help-block { padding: 2px 2px 2px 2px;}
+</style>
+
+<div class="col-md-12">
+  <div class="col-sm-12 col-md-12 col-lg-12">
+    <div class="widget-box widget-color-blue ui-sortable-handle">
+      <div class="widget-header">
+        <h5 class="widget-title bigger lighter">
+          <i class="ace-icon fa fa-table"></i>
+          User Tags
+          <span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+      		<i class="fa fa-ban fa-stack-2x"> </i> 
+ 			<i class="fa fa-download fa-stack-1x"> </i> 
+    	 </span>
+        </h5>
+      </div>
+      <div class="widget-body">
+        <div class="widget-main no-padding">
+          <input type="text" placeholder="Type to begin filtering..." ng-model="name" class="form-control" style="width: 50%">
+          <button class="btn btn-xs btn-primary pull-right" 
+                  ng-click="create({name: name})"
+                  ng-show='!check_for_tag(name) && name.length >= 3'>
+            Create User Tag
+          </button> 
+
+          <table class="table table-striped table-bordered table-hover">
+            <tbody ng-hide="fetching">
+            <tr ng-repeat="user_tag in user_tags | filter:{'name':name}" class="tag-row">
+              <td>
+                <a href="#/user_tags/{{user_tag.guid | encodeURIComponent}}">{{user_tag.name}}</a>
+              </td>
+            </tr>
+
+            <tr ng-show="!(user_tags | filter:{'name':name}).length">
+              <td>No User Tags</td>
+            </tr>
+            </tbody>
+            <tbody ng-show="fetching">
+              <tr>
+                <td class="center">
+                  <i class="fa fa-spinner fa-spin bigger-300 blue"></i>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

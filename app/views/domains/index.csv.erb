@@ -1,0 +1,8 @@
+<%- headers = ['Domain Name', 'Domain Condition', 'Created At', 'Last Updated'] %>
+<%= raw CSV.generate_line addPortionMarkingToCSV(headers), :row_sep => '', :force_quotes => true %>
+<%- domainName = String.new %>
+<% @domains.each do |domain| %>
+  <% if domain.name_normalized != nil then domainName = domain.name_normalized else domainName = domain.name_raw end %>
+  <%- row = [domainName, domain.name_condition, domain.created_at, domain.updated_at] -%>
+<%= raw CSV.generate_line addPortionMarkingToCSV(nil, row, domain), :row_sep => '', :force_quotes => true %>
+<% end %>

@@ -1,0 +1,136 @@
+test case started at 09:58:24 on 07/29/16
+task: "login" completed successfully at 09:58:43 on 07/29/16
+task: "create new ACS set" completed successfully at 09:58:55 on 07/29/16
+test case ended at 09:58:55 on 07/29/16
+
+test case started at 09:59:43 on 07/29/16
+task: "login" completed successfully at 10:00:00 on 07/29/16
+task: "create new ACS set" completed successfully at 10:00:11 on 07/29/16
+test case ended at 10:00:11 on 07/29/16
+
+test case started at 10:21:44 on 07/29/16
+task: "login" completed successfully at 10:21:59 on 07/29/16
+test case ended at 10:22:31 on 07/29/16
+
+test case started at 10:22:48 on 07/29/16
+task: "login" completed successfully at 10:23:05 on 07/29/16
+task: "create new ACS set" completed successfully at 10:23:16 on 07/29/16
+test case ended at 10:23:16 on 07/29/16
+
+test case started at 10:41:58 on 07/29/16
+task: "login" completed successfully at 10:42:16 on 07/29/16
+task: "create new ACS set" completed successfully at 10:42:26 on 07/29/16
+test case ended at 10:42:27 on 07/29/16
+
+test case started at 10:25:56 on 08/01/16
+task: "login" completed successfully at 10:26:16 on 08/01/16
+task: "create new ACS set" completed successfully at 10:26:35 on 08/01/16
+test case ended at 10:26:35 on 08/01/16
+
+test case started at 15:52:59 on 08/01/16
+task: "login" completed successfully at 15:53:17 on 08/01/16
+task: "create new ACS set" completed successfully at 15:53:28 on 08/01/16
+test case ended at 15:53:28 on 08/01/16
+
+test case started at 15:53:55 on 08/01/16
+task: "login" completed successfully at 15:54:12 on 08/01/16
+test case ended at 15:54:43 on 08/01/16
+
+test case started at 15:59:26 on 08/01/16
+task: "login" completed successfully at 15:59:53 on 08/01/16
+test case ended at 16:00:29 on 08/01/16
+
+test case started at 16:02:55 on 08/01/16
+task: "login" completed successfully at 16:03:15 on 08/01/16
+test case ended at 16:03:52 on 08/01/16
+
+test case started at 16:07:08 on 08/01/16
+task: "login" completed successfully at 16:07:24 on 08/01/16
+test case ended at 16:08:00 on 08/01/16
+
+test case started at 16:08:17 on 08/01/16
+task: "login" completed successfully at 16:08:33 on 08/01/16
+test case ended at 16:09:09 on 08/01/16
+
+test case started at 16:10:05 on 08/01/16
+task: "login" completed successfully at 16:10:21 on 08/01/16
+task: "create new ACS set" completed successfully at 16:10:30 on 08/01/16
+test case ended at 16:10:30 on 08/01/16
+
+test case started at 16:11:07 on 08/01/16
+task: "login" completed successfully at 16:11:23 on 08/01/16
+task: "create new ACS set" completed successfully at 16:11:33 on 08/01/16
+test case ended at 16:11:33 on 08/01/16
+
+test case started at 16:17:15 on 08/01/16
+test case started at 16:17:28 on 08/01/16
+task: "login" completed successfully at 16:17:43 on 08/01/16
+task: "create new ACS set" completed successfully at 16:17:53 on 08/01/16
+test case ended at 16:17:53 on 08/01/16
+
+test case started at 16:18:57 on 08/01/16
+task: "login" completed successfully at 16:19:13 on 08/01/16
+test case ended at 16:19:13 on 08/01/16
+
+test case started at 16:19:45 on 08/01/16
+task: "login" completed successfully at 16:20:00 on 08/01/16
+task: "create new ACS set" completed successfully at 16:20:11 on 08/01/16
+test case ended at 16:20:11 on 08/01/16
+
+test case started at 11:03:01 on 08/02/16
+task: "login" completed successfully at 11:03:24 on 08/02/16
+task: "create new ACS set" completed successfully at 11:03:37 on 08/02/16
+test case ended at 11:03:37 on 08/02/16
+
+test case started at 11:04:33 on 08/02/16
+task: "login" completed successfully at 11:04:49 on 08/02/16
+test case ended at 11:05:32 on 08/02/16
+
+test case started at 11:05:59 on 08/02/16
+task: "login" completed successfully at 11:06:23 on 08/02/16
+test case ended at 11:07:10 on 08/02/16
+
+test case started at 11:07:32 on 08/02/16
+task: "login" completed successfully at 11:07:49 on 08/02/16
+task: "create new ACS set" completed successfully at 11:08:11 on 08/02/16
+test case ended at 11:08:11 on 08/02/16
+
+test case started at 13:52:29 on 08/02/16
+task: "login" completed successfully at 13:52:45 on 08/02/16
+test case ended at 13:52:45 on 08/02/16
+
+test case started at 13:53:00 on 08/02/16
+task: "login" completed successfully at 13:53:17 on 08/02/16
+task: "create new ACS set" completed successfully at 13:53:41 on 08/02/16
+test case ended at 13:53:41 on 08/02/16
+
+test case started at 13:53:48 on 08/02/16
+task: "login" completed successfully at 13:54:04 on 08/02/16
+test case ended at 13:54:05 on 08/02/16
+
+test case started at 10:19:13 on 08/03/16
+task: "login" completed successfully at 10:19:51 on 08/03/16
+task: "create new ACS set" completed successfully at 10:20:13 on 08/03/16
+test case ended at 10:20:13 on 08/03/16
+
+test case started at 13:41:59 on 08/03/16
+task: "login" completed successfully at 13:42:17 on 08/03/16
+task: "create new ACS set" completed successfully at 13:42:40 on 08/03/16
+test case ended at 13:42:40 on 08/03/16
+
+test case started at 14:20:29 on 08/05/16
+task: "login" completed successfully at 14:20:46 on 08/05/16
+task: "create new ACS set" completed successfully at 14:21:08 on 08/05/16
+test case ended at 14:21:08 on 08/05/16
+
+test case started at 14:13:14 on 08/10/16
+test case started at 14:17:23 on 08/10/16
+task: "login" completed successfully at 14:17:49 on 08/10/16
+task: "create new ACS set" completed successfully at 14:18:13 on 08/10/16
+test case ended at 14:18:13 on 08/10/16
+
+test case started at 09:28:55 on 08/11/16
+task: "login" completed successfully at 09:29:14 on 08/11/16
+task: "create new ACS set" completed successfully at 09:29:36 on 08/11/16
+test case ended at 09:29:36 on 08/11/16
+

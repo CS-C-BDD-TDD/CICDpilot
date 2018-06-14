@@ -1,0 +1,29 @@
+<div class="tags" style="background-color: transparent;border: none;color:transparent;display: block;vertical-align: bottom;width: inherit">
+  <div class="col-lg-9" style="padding-left: 6px" ng-show="killChainPhases.length" >
+    <span ng-show="is_default_kill_chain" ng-repeat="val in killChainPhases | orderBy:'ordinality'" class="tag label label-margin label-info">
+      {{val.phase_name}}
+      <button class="close"
+              type="button"
+              ng-click="remove(val.guid)">
+        x
+      </button>
+    </span>
+    <span ng-hide="is_default_kill_chain" ng-repeat="val in killChainPhases | orderBy:'ordinality'" class="label label-margin label-info">
+      {{val.phase_name}}
+    </span>
+  </div>
+  <div ng-hide="killChainPhases.length" class="col-lg-9" style="padding-left: 6px">
+        <span class='label label-margin label-inverse'>
+            NONE
+        </span>
+  </div>
+</div>
+
+<div class="space-8"></div>
+
+<div ng-show="is_default_kill_chain" class="col-md-9" style="margin-top: 10px">
+  <select class="col-md-12" ng-model='attr'
+          ng-options="phase.guid as phase.phase_name for phase in $root.kill_chain_phases"
+          ng-change="add(attr)">
+  </select>
+</div>

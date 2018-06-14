@@ -1,0 +1,69 @@
+<div class="page-header">
+  <h1>Create Group</h1>
+</div>
+
+<form class="form-horizontal">
+  <div class="col-md-12">
+    <div class="form-group">
+      <label class="col-md-4 control-label">Group Name *</label>
+      <div class="col-md-6" ng-class="error.name ? 'has-error' : ''">
+        <input type="text" ng-model="group.name" name="name" class="form-control" placeholder="Group name">
+        <ul ng-show="error.name">
+          <li ng-repeat="e in error.name">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-md-4 control-label">Group Description *</label>
+      <div class="col-md-6" ng-class="error.description ? 'has-error' : ''">
+        <input type="text" ng-model="group.description" name="description" class="form-control" placeholder="Group Description">
+        <ul ng-show="error.description">
+          <li ng-repeat="e in error.description">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</form>
+
+<div class="form-group">
+  <label class="col-md-12 control-label text-center"><strong>Group Permissions</strong></label>
+  <div class="col-md-12">
+    Drag the permissions from Unselected to Selected to add them to the permissions for this group.
+    Drag the permissions from Selected to Unselected to remove them from the permissions for this group.
+  </div>
+  <div class="col-md-12">
+    <div class="col-md-1"></div>
+    <label class="col-md-5 control-label text-center"><strong>Unselected</strong></label>
+    <label class="col-md-5 control-label text-center"><strong>Selected</strong></label>
+  </div>
+  <div class="col-md-1"></div>
+  <div class="col-md-5">
+    <ul id="unselected" ui-sortable="list_options" class="sortable-container" ng-model="unselected_permissions" ng-style="heightStyle">
+      <li ng-repeat="p in unselected_permissions" class="sortable-item">{{p.display_name}}</li>
+    </ul>
+  </div>
+  <div class="col-md-5">
+    <ul id="selected" ui-sortable="list_options" class="sortable-container" ng-model="group.permissions" ng-style="heightStyle">
+      <li ng-repeat="p in group.permissions" class="sortable-item">{{p.display_name}}</li>
+    </ul>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-xs-12">
+    <form class="form-horizontal" role="form" ng-submit="save(group)">
+      <div class="clearfix form-actions">
+        <div class="col-md-offset-5 col-md-6">
+          <button class="btn btn-info" type="submit">
+            <i class="ace-icon fa fa-check bigger-110"></i> Save
+          </button>
+          <a class="btn" ng-click="cancel()">
+            <i class="ace-icon fa fa-trash-o"></i> Cancel
+          </a>
+        </div>
+      </div>
+      <div class="hr hr-24"></div>
+    </form>
+  </div>
+</div>

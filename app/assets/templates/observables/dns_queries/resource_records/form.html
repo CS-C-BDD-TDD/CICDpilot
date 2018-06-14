@@ -1,0 +1,53 @@
+<form class="form-horizontal">
+  <div class="widget-body">
+    <div class="widget-main">
+
+      <div class="form-group">
+        <label class="control-label col-md-3 no-padding-right">Resource Record Type *</label>
+
+        <div class="col-md-9">
+          <select class="col-md-8" id="" ng-model="resourceRecord.record_type" ng-options="obj.name as obj.name for obj in ResourceRecord.resource_record_types">
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <div class="widget-header widget-header-small">
+            <h4 class="widget-title blue smaller">
+                <i class="ace-icon fa fa-tasks orange"></i>
+                Attached Dns Records
+            </h4>
+        </div>
+
+        <div class="space-6"></div>
+
+        <div class="width-90 center-block" ng-show="resourceRecord.dns_records.length">
+          <div class="ciap_table_scroll_500">
+          <ol class="dd-list">
+            <li class="dd-item" ng-repeat="dns_record in resourceRecord.dns_records">
+              <div class="dd-handle">
+                <a href="#/dns_records/{{dns_record.cybox_object_id}}">{{dns_record.address | prefixWithPortionMarking: dns_record.portion_marking:dns_record.address_c}} | {{dns_record.domain | prefixWithPortionMarking: dns_record.portion_marking:dns_record.domain_c}}</a>
+                <div class="pull-right action-buttons">
+                    <a class="red" href="" ng-click="removeDnsRecord(dns_record)">
+                        <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                    </a>
+                </div>
+              </div>
+            </li>
+          </ol>
+          </div>
+        </div>
+      </div>
+
+      <div ng-hide="resourceRecord.dns_records.length">
+      No Attached Dns Records
+      </div>
+
+      <dns-records-browser selected-dns-records="resourceRecord.dns_records"></dns-records-browser>
+
+      <div class="space-12"></div>
+
+    </div>
+  </div>
+  <!-- End Part 1 -->
+</form>

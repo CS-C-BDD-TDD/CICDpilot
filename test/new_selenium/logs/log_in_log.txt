@@ -1,0 +1,69 @@
+test case started at 14:04:43 on 07/29/16
+task: "login" completed successfully at 14:04:59 on 07/29/16
+test case ended at 14:04:59 on 07/29/16
+
+test case started at 10:23:21 on 08/01/16
+task: "login" completed successfully at 10:23:58 on 08/01/16
+test case ended at 10:24:28 on 08/01/16
+
+test case started at 10:24:57 on 08/01/16
+task: "login" completed successfully at 10:25:15 on 08/01/16
+test case ended at 10:25:15 on 08/01/16
+
+test case started at 15:37:38 on 08/01/16
+task: "login" completed successfully at 15:38:14 on 08/01/16
+test case ended at 15:38:14 on 08/01/16
+
+test case started at 15:38:30 on 08/01/16
+task: "login" completed successfully at 15:38:45 on 08/01/16
+test case ended at 15:38:45 on 08/01/16
+
+test case started at 13:43:15 on 08/02/16
+test case started at 13:44:46 on 08/02/16
+test case started at 13:45:36 on 08/02/16
+test case started at 13:46:50 on 08/02/16
+task: "login" completed successfully at 13:47:08 on 08/02/16
+test case ended at 13:47:08 on 08/02/16
+
+test case started at 13:51:57 on 08/02/16
+task: "login" completed successfully at 13:52:13 on 08/02/16
+test case ended at 13:52:13 on 08/02/16
+
+test case started at 13:41:09 on 08/03/16
+task: "login" completed successfully at 13:41:35 on 08/03/16
+test case ended at 13:41:35 on 08/03/16
+
+test case started at 14:17:43 on 08/05/16
+task: "login" completed successfully at 14:17:59 on 08/05/16
+test case ended at 14:17:59 on 08/05/16
+
+test case started at 09:41:26 on 08/10/16
+task: "login" completed successfully at 09:42:30 on 08/10/16
+test case ended at 09:42:30 on 08/10/16
+
+test case started at 09:55:34 on 08/10/16
+task: "login" completed successfully at 09:56:18 on 08/10/16
+test case ended at 09:56:18 on 08/10/16
+
+test case started at 14:13:07 on 08/10/16
+test case started at 09:29:40 on 08/11/16
+task: "login" completed successfully at 09:29:56 on 08/11/16
+test case ended at 09:29:56 on 08/11/16
+
+test case started at 10:37:07 on 08/11/16
+task: "login" completed successfully at 10:37:52 on 08/11/16
+test case ended at 10:37:52 on 08/11/16
+
+test case started at 10:55:46 on 08/11/16
+test case ended at 10:56:36 on 08/11/16
+
+test case started at 11:45:50 on 08/11/16
+task: "login" completed successfully at 11:46:33 on 08/11/16
+test case ended at 11:46:33 on 08/11/16
+
+test case started at 10:55:38 on 08/12/16
+task: "login" completed successfully at 10:55:49 on 08/12/16
+test case started at 10:56:17 on 08/12/16
+task: "login" completed successfully at 10:56:40 on 08/12/16
+test case ended at 10:56:40 on 08/12/16
+

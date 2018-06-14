@@ -1,0 +1,132 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('acsSetForm',function() {
+    return {
+        restrict: 'E',
+        scope: {
+            set:'=',
+            save:'=',
+            editform:'=',
+            acsedit:'=?'
+        },
+        templateUrl: '<%=asset_path("acs_sets/form.html",type: :template)%>',
+        controller: ['$scope','$rootScope','Restangular','$location',function($scope,$rootScope,Restangular, $location) {
+            $scope.organizations = [];
+
+            if (angular.isUndefined($scope.selected_orgs) || $scope.selected_orgs == null || $scope.selected_orgs == [] || $scope.selected_orgs == '') {
+                $scope.selected_orgs = [];
+            }
+            else {
+                $scope.selected_orgs = $scope.selected_orgs.split(",")
+            }
+
+            $scope.cancel = function() {
+                if (angular.isDefined($scope.set.guid)){
+                    $location.path('/acs_sets/' + $scope.set.guid);
+                } else {
+                    $location.path('/acs_sets');    
+                }
+            };
+
+            $scope.start_save = function(){
+                $scope.is_saving = true;
+                $scope.set.errors = {};
+                $scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.errors = {};
+                if ($rootScope.is_undefined_or_null($scope.set.name)) {
+                  $scope.set.errors.name = [" can't be blank"];
+                }
+                /*
+                Rules for when CLASSIFICATION is true
+
+                and ACS Set or Classification must be selected. When Classification is above unclassified, 
+                details must be filled out.
+                */
+                if ($rootScope.setting_value('CLASSIFICATION') == true){
+                  if (angular.isDefined($scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes)){
+                    /* 
+                    If customized was clicked ISA Assertion structure will be defined.  When this is true we need to check
+                    if classification was defined.  If it was defined and it is not unclassified, we require that the classification
+                    details are labeled. This means classified_by,classified_on, and classification_reason must be filled out.
+                     */
+
+                    if ($rootScope.is_undefined_or_null($scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.cs_classification)){
+                      $scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.errors.acs_set_id = ["You need to set a Classification"];
+                    } else if ($scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.cs_classification != 'U'
+                      && ($rootScope.is_undefined_or_null($scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.classified_by)
+                        || $rootScope.is_undefined_or_null($scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.classified_on)
+                        || $rootScope.is_undefined_or_null($scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.classification_reason))) {
+                        $scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.errors.classification_details = ["You must specify Classification details if the object is not unclassified."];
+                    }
+                    /*
+                    If the object is public released. It should change the authorizer and 
+                    also the other details and change the classification to unclassified.
+                    */
+                    if ($scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.public_release == true && $scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.classified_by != $scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.public_released_by){
+                      $scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.classified_by = $scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.public_released_by;
+                      $scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.classified_on = $scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.public_released_on;
+                      $scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.classification_reason = '';
+                      $scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.cs_classification = 'U';
+                    }
+                  }
+                }
+                if (Object.keys($scope.set.errors).length > 0 || Object.keys($scope.set.stix_markings_attributes[0].isa_assertion_structure_attributes.errors).length > 0) {
+                    $scope.is_saving = false;
+                    $("html, body").animate({ scrollTop: 0 }, 200);
+                    return;
+                }
+                $scope.save(function(){
+                    $scope.is_saving = false;
+                });
+            };
+
+            $scope.$watch("set", function() {
+                if (angular.isDefined($scope.set)){
+                    $scope.is_saving = true;
+                    Restangular.one('organizations').get().then(function(data){
+                        $scope.organizations = data;
+                        $scope.set.acs_sets_organizations_attributes = [];
+
+                        _.forEach($scope.set.organizations,function(org){
+                            org.organization_id = org.guid;
+                            $scope.set.acs_sets_organizations_attributes.push(org);
+                        });
+
+                        $scope.count_orgs = function() {
+                            if (angular.isDefined($scope.set.acs_sets_organizations_attributes)) {
+                                if (angular.isDefined($scope.set.guid) || $scope.set.guid != null) {
+                                    return _.filter($scope.set.acs_sets_organizations_attributes,function(org) {return org.destroy != 1}).length;
+                                }
+                                else {
+                                    return $scope.set.acs_sets_organizations_attributes.length
+                                }
+                            }
+                        };
+
+                        $scope.remove_org = function(index) {
+                            if (angular.isDefined($scope.set.guid) || $scope.set.guid != null) {
+                                $scope.set.acs_sets_organizations_attributes[index].destroy = "1";
+                            }
+                            else {
+                                $scope.set.acs_sets_organizations_attributes.splice(index,1)[0];
+                            }
+                        };
+
+                        $scope.add_org = function(org) {
+                            if(_.findIndex($scope.set.acs_sets_organizations_attributes,function(i){return i==org}) == -1){
+                                org.organization_id = org.guid;
+                                $scope.set.acs_sets_organizations_attributes.push(org)
+                            }
+                        };
+
+                        $scope.is_saving = false;
+                        },function(res){
+                            toastr.error("Unable to load Organizations");
+                            $scope.is_saving = false;
+                        }
+                    );
+
+                }
+            });
+        }]
+    }
+});

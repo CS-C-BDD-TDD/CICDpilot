@@ -1,0 +1,9 @@
+<cybox:Object id="<%=mutex.cybox_object_id%>">
+  <cybox:Properties xsi:type="MutexObj:MutexObjectType">
+  <% if mutex.name_condition.present? %>
+    <MutexObj:Name condition="<%=mutex.name_condition%>"><%=mutex.name%></MutexObj:Name>
+  <% else %>
+    <MutexObj:Name><%=mutex.name%></MutexObj:Name>
+  <% end %>
+  </cybox:Properties>
+</cybox:Object>

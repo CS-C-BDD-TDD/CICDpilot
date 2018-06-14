@@ -1,0 +1,15 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('badgeStatusForm', function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("badge_statuses/form.html",type: :template)%>',
+    scope: {
+             badgeStatus: '='
+           },
+    controller: ['$scope','$rootScope','$location', 'Restangular',
+      function($scope,$rootScope, $location, Restangular) {
+      }
+    ]
+  };
+});

@@ -1,0 +1,18 @@
+app.controller('RegistriesShowController', ['$scope','$location','$routeParams','$rootScope','Restangular','Registry',
+  function ($scope, $location, $routeParams, $rootScope, Restangular, Registry) {
+    $scope.fetching = true;
+    $scope.Registry = Registry;
+    Restangular.one("/registries",$routeParams.id).get().then(function(data){
+      $scope.registry = data;
+      if (angular.isDefined($scope.registry) && angular.isDefined($scope.registry.ind_course_of_actions)){
+        $scope.registry.course_of_actions = $scope.registry.course_of_actions.concat($scope.registry.ind_course_of_actions);
+      }
+      $scope.showTable = {coa_data: true, collapse: false};
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Registries',link:'#/registries',icon:'fa-group'},{text:Registry.get_value(data),link:'#/registries/'+encodeURIComponent(data.cybox_object_id)}];
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load Registry");
+      $scope.fetching = false;
+    });
+  }
+]);

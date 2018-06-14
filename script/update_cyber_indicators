@@ -1,0 +1,385 @@
+#!/usr/bin/env bash
+
+# This script is meant to upgrade the cyber-indicators installation, including setting up the proper settings.yml file for the current system
+log_directory="/var/log/ciap_install"
+# Environment can be set to one of 4 settings:  "int" (for integration), "dte" (for DTE), "ais" (for AIS in DTE), "prod" (for production)
+# This value is used to pull the proper settings.yml overrides for the installation
+environment="int"
+
+update_state()
+{
+  local state=$1
+  local last_state=$2
+  local step=$3
+  local rc=$4
+  local max_steps=$5
+
+  write_me="Step ${step} "
+  if [ "$last_state" = "$step" ]
+  then
+    write_me="${write_me}Retry "
+  fi
+  if [ $rc -gt 0 ]
+  then
+    write_me="${write_me}Failed"
+    echo $write_me >> "${state}"
+    echo "-------------------------------------------------------------------------------"
+    echo "The upgrade process has stopped due to a problem."
+    echo "All output of this session has been placed in"
+    echo "#{log_directory}/cyber-indicators-install.log"
+    echo
+    echo "This file can be forwarded to the CIAP team for assistance"
+    exit 1
+  else
+    write_me="${write_me}Succeeded"
+    echo $write_me >> "${state}"
+  fi
+  if [ "$step" = "$max_steps" ]
+  then
+    echo "Install completed" >> "${state}"
+  fi
+}
+
+log_step()
+{
+  local step=$1
+  local log_file=$2
+
+  echo -n "Step ${step}: ----------------------------------------------------------------------" >> "${log_file}"
+  if [ ${#step} -eq 1 ]
+  then
+    echo -n "-" >> "${log_file}"
+  fi
+  echo >> "${log_file}"
+}
+
+# -- UPDATE SETTINGS CODE
+get_name_value()
+{
+  local line=$1
+  local name
+  local value
+
+  original_ifs=$IFS
+  IFS=':' read -ra LINE <<< "$line"
+  IFS=$original_ifs
+
+  if [[ ${#LINE[@]} -gt 2 ]]; then
+    max=`expr ${#LINE[@]} - 1`
+    for i in $(seq 2 $max); do
+      LINE[1]="${LINE[1]}:${LINE[$i]}"
+    done
+  fi
+
+  LINE[1]="$(sed -e 's/^[[:space:]]*//' <<<${LINE[1]})"
+}
+
+update_settings()
+{
+  local type=$1
+  local environment=$2
+
+  local output_file='/etc/cyber-indicators/config/settings.yml'
+  local template="/etc/cyber-indicators/templates/etc/cyber-indicators/config/settings.${type}.yml"
+  local overrides="/etc/cyber-indicators/templates/etc/cyber-indicators/config/${environment}/settings.${type}.yml"
+
+  declare -A hash
+  local re='(^\s*#|^production:\s*$)'
+  readarray -t template < "$template"
+
+  for line in "${template[@]}"
+  do
+    if [[ ! "$line" =~ $re ]]
+    then
+      get_name_value "$line"
+      hash["${LINE[0]}"]=${LINE[1]}
+    fi
+  done
+
+  # Update the settings with any overrides for non-production systems
+  if [ ! "$environment" = "prod" ]
+  then
+    readarray -t template < "$overrides"
+    for line in "${template[@]}"
+    do
+      if [[ ! "$line" =~ $re ]]
+      then
+        get_name_value "$line"
+        hash["${LINE[0]}"]=${LINE[1]}
+      fi
+    done
+  fi
+
+  readarray -t settings < $output_file
+
+  date=`date +"%Y%m%d%H%M%S"`
+
+  cp -a "$output_file" "${output_file}.${date}"
+  rm "$output_file"
+
+  local blank_re='^\s*$'
+  for line in "${settings[@]}"
+  do
+    if [[ "$line" =~ $re ]]
+    then
+      echo "$line" >> $output_file
+    elif [[ ! "$line" =~ $blank_re ]]
+    then
+      get_name_value "$line"
+      if [ "${hash[${LINE[0]}]}" = "<RETAIN>" ]
+      then
+        echo "$line" >> $output_file
+        unset hash["${LINE[0]}"]
+      else
+        echo "${LINE[0]}: ${hash[${LINE[0]}]}" >> $output_file
+        unset hash["${LINE[0]}"]
+      fi
+    fi
+  done
+
+  for key in "${!hash[@]}"
+  do
+    echo "  ${key}: ${hash[$key]}" >> $output_file
+  done
+
+  diff=`diff $output_file $output_file.$date`
+  if [ "$diff" = "" ]
+  then
+    rm "$output_file"
+    mv "${output_file}.${date}" "$output_file"
+  fi
+
+  chown tomcat:tomcat ${output_file}
+  chmod 740 ${output_file}
+}
+# -- END UPDATE SETTINGS CODE
+
+while [[ $# -gt 1 ]]
+do
+  key="$1"
+
+  case $key in
+    -t|--type)
+    if [[ $# -le 2 ]]
+    then
+      echo "You must specify a type after -t"
+      exit 1
+    fi
+    type="$2"
+    shift # past argument
+    ;;
+    -s|--step)
+    if [[ $# -le 2 ]]
+    then
+      echo "You must specify a step # to start at after -s"
+      exit 1
+    fi
+    step_input="$2"
+    shift # past argument
+    ;;
+    -q|--quiet)
+    quiet=YES
+    ;;
+    -c|--complete)
+    complete=YES
+    ;;
+    -h|--help)
+    help=YES
+    ;;
+    *)
+            # unknown option
+    ;;
+  esac
+  shift # past argument or value
+done
+
+re='^(int|dte|ais|prod)$'
+if [[ ! $environment =~ $re ]]
+then
+  echo "The environment variable has not been properly set at the top of this script"
+  exit 1
+fi
+
+if [ "$1" = "-t" -o "$1" = "--type" -o "$1" = "" -o "$help" = "YES" ]
+then
+  echo "$0: Update cyber-indicators installation"
+  echo ""
+  echo "Syntax: $0 -t <TYPE> [-q] [-h] <RPM Filename>"
+  echo ""
+  echo "     -t|--type <TYPE> - Specify the type for this install.  Must be one of:"
+  echo "                        CIAP, CIR, ECIS or TS-CIAP"
+  echo "     -q|--quiet       - Quiet output.  All output of script is normally"
+  echo "                        directed to the screen and the log file.  -q will only"
+  echo "                        output this to the log file."
+  echo "     -c|--complete    - Do a complete reinstall, starting from the beginning"
+  echo "                        instead of from the last failed step."
+  echo "     -s|--step        - Specify the step to continue the install from.  Should"
+  echo "                        be rarely used, as the program has the ability to know"
+  echo "                        what step to restart from."
+  echo "     -h|--help        - Display this help."
+  echo "     <RPM Filename>   - Full path to the RPM to update the server to."
+  echo ""
+  exit 0
+fi
+
+rpm_file=$1
+re='^.*/?cyber-indicators-(.+?)\.x86_64\.rpm$'
+if [[ $rpm_file =~ $re ]]
+then
+  version=${BASH_REMATCH[1]}
+fi
+if [ "$version" = "" ]
+then
+  echo "You must specify a cyber-indicators RPM"
+  exit 1
+fi
+
+if [ ! -f $rpm_file ]; then
+  echo "You must specify a valid RPM file to install"
+  exit 1
+fi
+
+type=${type,,}
+re='^(ciap|cir|ecis|ts-ciap|[1-4])$'
+while [[ !($type =~ $re) ]]
+do
+  echo "You must specify the type (CIAP, CIR, ECIS or TS-CIAP) for this install"
+  echo "Choose one of the following:"
+  echo "  1 - CIAP"
+  echo "  2 - CIR"
+  echo "  3 - ECIS"
+  echo "  4 - TS-CIAP"
+  read -n 1 -p "Your choice [1-4]:" type
+  echo ""
+  echo ""
+done
+
+re='^[1-4]$'
+if [[ "$type" =~ $re ]]
+then
+  case $type in
+    1)
+    type="ciap"
+    ;;
+    2)
+    type="cir"
+    ;;
+    3)
+    type="ecis"
+    ;;
+    4)
+    type="ts-ciap"
+    ;;
+  esac
+fi
+
+if [ ! -d "$log_directory" ]
+then
+  mkdir "$log_directory"
+  chmod 750 "$log_directory"
+fi
+
+state_file="${log_directory}/${version}.log"
+log_file="${log_directory}/cyber-indicators-install.log"
+first_time=true
+if [ -f "$state_file" ]
+then
+  first_time=false
+fi
+if [ "$complete" = "YES" ]
+then
+  first_time=true
+  rm -f $state_file
+fi
+
+last_state=0
+if [ "$first_time" = "true" -a -f "$log_file" ]
+then
+  rm "$log_file"
+elif [ "$first_time" = "false" ]
+then
+  readarray states < $state_file
+  last_state=${states[@]: -1}
+  re1='^Step ([0-9]+)( Retry)? Failed$'
+  re2='^Step ([0-9]+) Succeeded$'
+  if [[ $last_state =~ $re1 ]]
+  then
+    last_state=$((${BASH_REMATCH[1]} - 1))
+  elif [[ $last_state =~ $re2 ]]
+  then
+    last_state=${BASH_REMATCH[1]}
+  elif [ "$last_state" = "Install completed" ]
+  then
+    # We must be reinstalling the same version
+    rm $state_file
+    last_state=0
+  fi
+fi
+
+redirection='|& tee'
+if [ "$quiet" = "YES" ]
+then
+  redirection='>>'
+fi
+
+steps=(
+        "/sbin/service cyber-indicators stop ${redirection} ${log_file}"
+        "yum -y -C remove cyber-indicators ${redirection} ${log_file}"
+        "yum -y -C install ${rpm_file} ${redirection} ${log_file}"
+        "/var/apps/cyber-indicators/bin/initialize-sysconfig ${redirection} ${log_file}"
+        "RAILS_ENV=dbadmin /var/apps/cyber-indicators/bin/rake db:migrate ${redirection} ${log_file}"
+        "RAILS_ENV=dbadmin /var/apps/cyber-indicators/bin/rake db:grant ${redirection} ${log_file}"
+        "/var/apps/cyber-indicators/bin/rake db:synonyms ${redirection} ${log_file}"
+        "/var/apps/cyber-indicators/bin/rake groups:update ${redirection} ${log_file}"
+        "update_settings ${type} ${environment}"
+        "/sbin/service cyber-indicators start ${redirection} ${log_file}"
+        'sleep 30'
+        "/var/apps/cyber-indicators/bin/solr-reindex ${redirection} ${log_file}"
+      )
+messages=(
+           'Stopping cyber-indicators service...'
+           'Removing old version of cyber-indicators...'
+           'Installing new version of cyber-indicators...'
+           'Running initialize-sysconfig...'
+           'Running database migrations...'
+           'Granting appuser permission to any new tables...'
+           'Creating synonyms...'
+           'Updating groups and permissions...'
+           'Updating settings.yml...'
+           'Starting cyber-indicators service...'
+           'Waiting for cyber-indicators to start up...'
+           'Running SOLR reindex...'
+         )
+
+messages_length=${#messages[@]}
+
+if [ ! "$step_input" == "" ]
+then
+  re="[^0-9]"
+  if [[ $step_input =~ $re ]]
+  then
+    echo "-s value must be a number"
+    exit 1
+  fi
+  if [ $step_input -gt $messages_length -o $step_input -lt 0 ]
+  then
+    echo "-s value specified is invalid"
+    exit 1
+  fi
+
+  last_state=$step_input
+fi
+
+for((step=${last_state};step<${#messages[@]};step++))
+do
+  if [ ! "$quiet" = "YES" ]
+  then
+    echo "-------------------------------------------------------------------------------"
+  fi
+  echo ${messages[$step]}
+  log_step $(($step + 1)) $log_file
+  eval "${steps[$step]};(exit \${PIPESTATUS[0]})"
+  rc=$?
+  update_state $state_file $(($last_state + 1)) $(($step + 1)) $rc $messages_length
+done
+echo

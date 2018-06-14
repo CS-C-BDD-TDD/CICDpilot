@@ -1,0 +1,277 @@
+# Cyber Indicators System Administration Guide
+
+Execute all commands as root on the application server unless specified.
+
+Conventions in this document:
+
+* !Note!: Information that may help you understand concepts surrounding a task.
+* !Important!: Information that must be adhered to.
+* !Example!: An example of some configuration file or workflow to assist in your understanding.
+
+You will see command-line arguments as follows:
+
+```bash
+ENVIRONMENT_VARIABLE=[SOMETHING_TO_REPLACE] /path/to/some/command
+```
+
+You may export the ENVIRONMENT_VARIABLE prior to executing the command.
+
+You will also see backslashes at the end of some lines of very long commands.  We include these backslashes so that you may easily identify which environment variables are required for each command.  As mentioned above, you may choose to export these environment variables, which will shorten the command.
+
+This is convention for splitting long command lines in to multiple, shorter, command lines. For example:
+
+```bash
+ENVIRONMENT_VARIABLE=[SOME_LONG_VALUE] \
+ENVIRONMENT_VARIABLE=[SOME_LONG_VALUE] \
+/path/to/some/command
+```
+
+You may include or omit the backslashes when entering the command.  The command will execute either way.
+
+<%if ENV['NOTE']%>
+!Note! For Microsoft Windows systems, the carat ("^") is used in place of a backslash.
+<%end%>
+
+# Training and Knowledge Needed
+
+The following knowledge is required in order to install the Cyber Indicators system.  This guide will not go into detail on the following:
+
+*  Virtual Machine (VM) installation and configuration
+*  Oracle database installation and configuration
+*  Linux system administration.
+*  Windows Active Directory (AD) configuration.
+*  Apache Tomcat installation and configuration (except where the configuration must be adjusted for the Cyber Indicators system).
+*  Creating and managing new user accounts in AD.
+*  DHS policies and procedures for adhering to security standards, account creating and management, and system backup and restore.
+
+# Prerequisites
+
+* Network configuration between application and database server:  The application server must be able to communicate to the database server on the appropriate port.  The port should be chosen at the time of deployment, and won't be specified in this guide
+* Security hardening of base OS software
+* Creating or installing Secure Socket Layer (SSL) Certificates:  This guide will assume that users have obtained SSL Certificate information from a trusted source, and know where these certificates are placed on the application server.
+* Using a text editor:  This guide will not explain how to edit files on your system.  The guide may ask you to use vi or vim, but any text editor may be used.
+
+# Database Connectivity
+
+The Cyber Indicators application is DB agnostic.  The application will run on relational DBs that follow the Structured Query Language (SQL) standard.  However, Oracle is intended for production use.
+
+The Oracle Instant Client SQLPlus is used to verify database connectivity and install stored procedures necessary to manage access between the two, provided, database schemas.
+
+The Oracle DBA must provide the system administrator with the following:
+
+  * The DB service name to connect to.
+  * A DB admin username and password ("dbadmin"); this account will own all DB objects.
+  * A DB application username and password ("appuser"); this account will be used by the web application to query against database tables. This account will be a member of the APP_USER role.
+  * An APP_USER role; this role will receive all required grants from "dbadmin".
+  * A configured /etc/tnsnames.ora file on the application server
+  * Correctly configured timezone information (e.g. /etc/localtime)
+
+!Note! The tnsnames.ora file is not required to be in the path /etc, however, for the purposes of this guide, we assume that it is.  The location of this configuration file is controlled via the TNS_ADMIN environment variable.  We prefix all commands that use this path with this environment variable, and call-out the necessity for you to supply the correct path information, if it differs from what is documented in this guide.
+
+The DB admin user requires the privileges to drop and create tables within its schema and have permission to grant privileges on these objects to the DB application user.  The application user is the user under which the application connects to the DB.  All privileges [e.g. INSERT, DELETE, UPDATE] shall be granted to the DB application user on an object-by-object basis or as the schema level.  The Oracle DBA must configure the correct environment variables for the Oracle Instant Client Libraries.  The DB should be free of all non-essential tables and user accounts.  In addition, the app user role requires the select privilege on the system plan table, as well as all_tables and all_sequences.
+
+Specifically, the DB admin user, a member of a DB Admin Role requires the following Oracle privileges:
+
+  * select on all_tables
+  * select on all_constraints
+  * select on all_cons_columns
+  * select on all_tab_cols
+  * select on all_sequences
+  * select on dual
+  * select on all_indexes
+  * select on all_views
+  * select on user_constraints
+  * select on user_cons_columns
+  * select on user_synonyms
+  * select on user_users
+  * select on all_ind_columns
+  * select on all_ind_expressions
+  * select on all_tab_cols
+  * create/replace stored procedure
+
+The DB app user, a member of a DB APP_USER Role requires the following Oracle privileges:
+
+  * select on all_tables
+  * select on all_sequences
+  * create/replace stored procedure
+  * create private synonym
+
+These environment variables are:
+
+  * LD_LIBRARY_PATH: Specifies the path to the Oracle Instant Client libraries.
+  * TNS_ADMIN: Specifies the path to the Oracle tnsnames.ora file.
+  * ORACLE_HOME: Specifies the path to the Oracle Instant Client root path.
+  * NLS_LANG: Specifies the encoding to use for information stored within the DB.  This application uses AMERICAN_AMERICA.UTF8.
+
+Test the DB connection independent of the application by using the SQLPlus command:
+
+Before proceeding, execute the following:
+
+  * Connect to the DB as the DB admin user.
+
+```bash
+sqlplus [EXAMPLE_DBADMIN_USERNAME]@[EXAMPLE_DATABASE_NAME]
+```
+
+<%if ENV['NOTE']%>
+!Note! Replace the [EXAMPLE_DBADMIN_USERNAME] with the dbadmin username.
+
+!Note! Replace the [EXAMPLE_DATABASE_NAME] with the database name.
+
+!Note! The database name is located in the tnsnames.ora file.
+<%end%>
+
+<%if ENV['EXAMPLE']%>
+!Example! An example of a tnsnames.ora file is as follows:
+
+```bash
+EXAMPLE_DATABASE_NAME =
+  (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = db)(PORT = 1521))
+      (CONNECT_DATA =
+        (SERVER = DEDICATED)
+        (SERVICE_NAME = EXAMPLE_SERVICE_NAME)
+      )
+  )
+```
+
+<%if ENV['NOTE']%>
+!Note! In this example tnsnames.ora file, the connection string is identified by "EXAMPLE_DATABASE_NAME".
+<%end%>
+
+<%end%>
+
+  * Connect to the DB as the application user.
+
+```bash
+sqlplus [EXAMPLE_APPUSER_USERNAME]@[EXAMPLE_DATABASE_NAME]
+```
+
+<%if ENV['NOTE']%>
+!Note! Replace the [EXAMPLE_APPUSER_USERNAME] with the appuser username.
+
+!Note! Replace the [EXAMPLE_DATABASE_NAME] with the database name.
+
+!Note! The database name is located in the tnsnames.ora file.
+<%end%>
+
+<%if ENV['EXAMPLE']%>
+!Example! An example of a tnsnames.ora file is as follows:
+
+```bash
+EXAMPLE_DATABASE_NAME =
+  (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = db)(PORT = 1521))
+      (CONNECT_DATA =
+        (SERVER = DEDICATED)
+        (SERVICE_NAME = EXAMPLE_SERVICE_NAME)
+      )
+  )
+```
+
+<%if ENV['NOTE']%>
+!Note! In this example tnsnames.ora file, the connection string is identified by "EXAMPLE_DATABASE_NAME".
+<%end%>
+
+<%end%>
+
+  * Verify appropriate privileges for each account type.
+
+You will need to work with the Oracle DBA to verify these privilges.
+
+  * Verify that the DB server has the following setting in the init.ora file:
+
+You will need to work with the Oracle DBA to verify this setting.
+
+```bash
+REMOTE_LOGIN_PASSWORDFILE = EXCLUSIVE
+```
+
+# Application Server
+
+This section outlines the prerequisites, packages and steps required for the application server installation.  Note that some commands require the use of the 'sudo' command.  If this command is non-function, please login to the application server as root so that you can execute the 'sudo' command.
+
+# Prerequisites
+
+Ensure that the following dependencies are met:
+
+  * Install Red Hat Enterprise Linux (RHEL) Operating System 64-bit
+  * Assign an IP address
+  * Verify database connectivity with the supplied credentials
+  * Required network ports are open for application communication.  Refer to the Appendix for a list of the application required ports.
+
+# Disk Usage Requirements
+
+The Cyber Indicators application uses /etc and /var
+
+/etc
+Small configuration files are kept in etc.  Only a trivial (less than 5MB) of space is required by Cyber Indicators on the partition which holds /etc
+
+/var
+The application uses 1GB of space for application code.  Logs are persisted to the /var directory.  The size required for logs will depend greatly on your system usage.  For testing systems, we recommend at least 20GB of free space on the partition which holds /var for Cyber Indicators usage.
+
+An administrator will typically import RPM installation files to his or her /home directory.  It's recommended that at least 10GB of free space is allotted for keeping new and older versions of the Cyber Indicators RPM files.
+
+# Network Configuration Requirements
+
+Cyber Indicators requires INPUT and OUTPUT connections.  These are listed in the table below:
+
+|Direction|Adapter|Protocol|Port|Description|
+|---------|-------|--------|----|-----------|
+|INPUT|eth0|tcp|22|SSH|
+|INPUT|eth0|tcp|443|HTTPS Application Access|
+|INPUT|eth0|tcp|8443|HTTPS Application Access|
+|INPUT|eth0|tcp|88|Kerberos|
+|INPUT|eth0|udp|88|Kerberos|
+|INPUT|eth0|tcp|1521|Oracle Database|
+|OUTPUT|eth0|tcp|22|SSH|
+|OUTPUT|eth0|tcp|443|HTTPS Application Access|
+|OUTPUT|eth0|tcp|8443|HTTPS Application Access|
+|OUTPUT|eth0|tcp|88|Kerberos|
+|OUTPUT|eth0|udp|88|Kerberos|
+|OUTPUT|eth0|udp|53|DNS|
+|OUTPUT|eth0|tcp|123|NTP|
+|OUTPUT|eth0|tcp|1521|Oracle Database|
+
+Cyber Indicators also requires a TCP redirect rule from port 443 to port 8443.
+
+!Note! We list "eth0" as the public and "lo" as the loopback adapters.  The public adapter is the adapter that external users and services use to access this application sever.
+
+!Note! The TCP port for Oracle connectivity may not be 1521 in your instance.  Please use the port that your application server will connect to Oracle.  This information is found in the tnsnames.ora file.
+
+# Packages
+
+The packages identified below are required on the application server.  These components are not delivered by GD-AIS, but are installed through typical means (e.g. yum, rpm).
+
+```bash
+Required Packages:
+  Oracle Java (version 6 or greater)
+  Oracle Client Libraries and Oracle SQLPlus (Version to match compatibility with database server)
+  Apache Tomcat version 7 STIG Hardened
+```
+
+!Important! Ensure that these packages are installed before proceeding to the next section.
+
+!Important! Ensure that Java has the Java Cryptography Extensions (JCE) installed.
+
+# Application Logs
+
+Cyber Indicators logs to the following locations:
+
+```bash
+$CATALINA_HOME/logs/catalina.out
+```
+
+This log records Web server events, such as the time that the application server was started.
+
+```bash
+$CATALINA_HOME/logs/localhost.<TIMESTAMP>.log
+```
+
+This log records application events, such as page requests, or application exceptions.
+
+<%if ENV['NOTE']%>
+!Note! $CATALINA_HOME is the path to the Web server
+
+!Note! The TIMESTAMP is assigned when the application starts.
+<%end%>

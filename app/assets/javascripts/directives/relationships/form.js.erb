@@ -1,0 +1,17 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('relationshipForm',function() {
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("relationships/form.html",type: :template)%>',
+        scope: {
+            relationship: '=',
+            save: '=',
+            headerTitle: '='
+        },
+        transclude: 'true',
+        controller: ['$scope', 'Restangular','$rootScope', function($scope, Restangular,$rootScope){
+            $scope.can = $rootScope.can;
+        }]
+    }
+});

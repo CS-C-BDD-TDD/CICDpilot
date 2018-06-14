@@ -1,0 +1,210 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('courseOfActionForm',function() {
+  return {
+    restrict: 'E',
+    scope: {
+      courseOfAction: '=',
+      save: '=',
+      editform: '='
+    },
+    templateUrl: '<%=asset_path("course_of_actions/form.html",type: :template)%>',
+    controller: ['$scope', '$rootScope', 'Restangular','CiapCommon','Color', '$location', 'Observable', 'Classification', 'Indicator', 'Marking', function($scope, $rootScope, Restangular, CiapCommon, Color, $location, Observable, Classification, Indicator, Marking){
+      $scope.can = $rootScope.can;
+      $scope.Color = Color;
+      $scope.CiapCommon = CiapCommon;
+      $scope.Observable = Observable;
+      $scope.Indicator = Indicator;
+      $scope.sets = [];
+      $scope.show_browser = false;
+      $scope.part_two = false;
+      
+      // toggles for field level markings.
+      $scope.title_toggle = {toggle: 0, clear: 0};
+      $scope.des_toggle = {toggle: 0, clear: 0};
+
+      var listener=$scope.$watch('courseOfAction',function(course_of_action) {
+        if (angular.isDefined(course_of_action)) {
+          listener();
+          $scope.course_of_action = course_of_action;
+        };
+      });
+
+      Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+        $scope.sets = data;
+      },function(res){
+        toastr.error("Unable to load ACS Set List");
+      });
+
+      $scope.start_save = function(course_of_action){
+        $scope.is_saving = true;
+        $scope.part_two = false;
+        $scope.course_of_action.errors = {};
+        if ($rootScope.is_undefined_or_null($scope.course_of_action.title)) {
+          $scope.course_of_action.errors.title = [" can't be blank"];
+        }
+        /*
+        Rules for when CLASSIFICATION is true
+
+        and ACS Set or Classification must be selected. When Classification is above unclassified, 
+        details must be filled out.
+        */
+        if ($rootScope.setting_value('CLASSIFICATION') == true){
+          $scope.course_of_action.stix_markings_attributes = Classification.check_classification_details($scope.course_of_action.stix_markings_attributes);
+          var problems = $scope.course_of_action.stix_markings_attributes.problems;
+          var classification_check = $scope.course_of_action.stix_markings_attributes.classification_check;
+          /*
+          If customized was not clicked and ISA Assertion Structure is not defined.
+          In this case we need to make sure that an ACS Set is selected because an ACS Set is required to have a classification.
+          */
+          var obj_level_index = _.findIndex($scope.course_of_action.stix_markings_attributes, function(sm){
+              return ($rootScope.is_undefined_or_null(sm.remote_object_field) || (angular.isDefined(sm.remote_object_field) && sm.remote_object_field == null)) && angular.isDefined(sm.isa_assertion_structure_attributes);
+            }
+          );
+          if ($rootScope.is_undefined_or_null($scope.course_of_action.stix_markings_attributes[obj_level_index]) && $rootScope.is_undefined_or_null($scope.course_of_action.acs_set_id)) {
+            $scope.course_of_action.errors.acs_set_id = ["You either need to associate an ACS Set or Click Customize and set a Classification"];
+            if (angular.isDefined($scope.course_of_action.stix_markings_attributes[obj_level_index].isa_assertion_structure_attributes)){
+              $scope.course_of_action.stix_markings_attributes[obj_level_index].isa_assertion_structure_attributes.errors.acs_set_id = ["You either need to associate an ACS Set or set a Classification"];
+            }
+            classification_check = true;
+          }
+        }
+        if (Object.keys($scope.course_of_action.errors).length > 0 || classification_check) {
+          $scope.is_saving = false;
+          toastr.error("Unable to save Course of Action");
+          $("html, body").animate({ scrollTop: 0 }, 200);
+          if(classification_check){
+            for (var i = 0; i < problems.length; i++){
+              if(problems[i].field == null){
+                toastr.error("Unable to save due to classification errors in the Object level markings");
+              } else {
+                toastr.error("Unable to save due to classification errors in the " + problems[i].field + " markings");
+              }
+            }
+          }
+          return;
+        }
+        $scope.save(course_of_action, function(){
+          $scope.is_saving = false;
+        });
+      };
+
+      $scope.cancel = function() {
+        if (angular.isDefined($scope.course_of_action.stix_id)){
+          $location.path('/course_of_actions/' + $scope.course_of_action.stix_id);
+        } else {
+          $location.path('/course_of_actions');
+        }
+      };
+      $scope.toggle_browser = function(){
+        $scope.show_browser = !$scope.show_browser;
+      };
+
+      $scope.removeIndicator = function(indicator) {
+        _.remove($scope.course_of_action.indicators, function(i){
+          if (i == indicator) {
+            return i;
+          }
+        });
+      };
+
+      $scope.removePackage = function(package) {
+        _.remove($scope.course_of_action.packages, function(p){
+          if (p == package) {
+            return p;
+          }
+        });
+      };
+
+      $scope.show_suggestions = function(course_of_action){
+        $scope.part_two = !$scope.part_two;
+        $scope.fetchingIndicators = true;
+        $scope.fetchingPackages = true;
+
+        var postobj = {};
+
+        postobj.indicator_stix_ids = _.map(course_of_action.indicators, function(i){
+          return i.stix_id
+        });
+
+        var curr_markings = course_of_action.stix_markings_attributes;
+        if (!$rootScope.is_undefined_or_null(course_of_action.acs_set_id)){
+          Restangular.one('acs_sets').get({id: course_of_action.acs_set_id}).then(function(data){
+            // set it equal to the existing markings
+            if (angular.isDefined(data.stix_markings)){
+              curr_markings = data.stix_markings;
+            }
+          },function(res){
+              toastr.error("Unable to load ACS Set Markings");
+          });
+        }    
+
+        var classification_limit = Marking.get_classification_attributes(curr_markings);
+
+        Restangular.one('indicators/related_by_cbx_indicators/' + classification_limit).customPOST(postobj).then(function(data){
+          $scope.suggested_indicators = data.indicators;
+          $scope.fetchingIndicators = false;
+        },function(res){
+          toastr.error("Unable to load Suggested Indicators");
+        });
+
+        Restangular.one('stix_package/suggested_packages/' + classification_limit).customPOST(postobj).then(function(data){
+          $scope.suggested_packages = data.stix_packages;
+          $scope.fetchingPackages = false;
+        },function(res){
+          toastr.error("Unable to load Suggested Packages");
+        });
+
+      }
+
+      // Functions for part 2.
+
+      // indicator
+      $scope.disabledIndicator = function(indicator) {
+        if ($scope.checkedIndicator(indicator) && $scope.selectOnly) {
+          return true;
+        }
+        return false;
+      }
+
+      $scope.checkedIndicator = function(indicator){
+        return _.findIndex($scope.course_of_action.indicators, function(i){return i.stix_id == indicator.stix_id;}) > -1;
+      };
+
+      $scope.selectIndicator = function(indicator,$event) {
+        var checkbox = $event.target;
+        if (checkbox.checked){
+          if (_.findIndex($scope.course_of_action.indicators, function(i){return i.stix_id == indicator.stix_id}) == -1){
+            $scope.course_of_action.indicators.push(indicator);
+          }
+        } else {
+          $scope.course_of_action.indicators = _.filter($scope.course_of_action.indicators, function(i){return i.stix_id != indicator.stix_id});
+        }
+      };
+
+      // packages
+      $scope.disabledPackage = function(package) {
+        if ($scope.checkedPackage(package) && $scope.selectOnly) {
+          return true;
+        }
+        return false;
+      }
+
+      $scope.checkedPackage = function(package){
+        return _.findIndex($scope.course_of_action.stix_packages, function(p){return p.stix_id == package.stix_id;}) > -1;
+      };
+
+      $scope.selectPackage = function(package,$event) {
+        var checkbox = $event.target;
+        if (checkbox.checked){
+          if (_.findIndex($scope.course_of_action.stix_packages, function(p){return p.stix_id == package.stix_id}) == -1){
+            $scope.course_of_action.stix_packages.push(package);
+          }
+        } else {
+          $scope.course_of_action.stix_packages = _.filter($scope.course_of_action.stix_packages, function(p){return p.stix_id != package.stix_id});
+        }
+      };
+
+    }]
+  };
+});

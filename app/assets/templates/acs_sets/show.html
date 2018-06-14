@@ -1,0 +1,91 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">
+
+<div class="page-header">
+    <h1>
+      <span ng-show="set.color" ng-bind-html='Color.image(set.color)'></span>
+      {{set.name | prefixWithPortionMarking: set.portion_marking}}
+      <span class="pull-right" ng-show="can('manage_acs_sets')">
+        <a ng-href="#/acs_sets/{{set.guid | encodeURIComponent}}/edit" class="btn btn-info no-radius btn-xs"><i class="ace-icon fa fa-pencil-square-o bigger-160"></i> Edit</a>
+      </span>
+    </h1>
+</div>
+
+
+<p class="pull-right"></p>
+
+<div class="profile-user-info profile-user-info-striped">
+    <div class="profile-info-row">
+        <div class="profile-info-name"> Name </div>
+        <div class="profile-info-value">
+            <span id="ACS_Set_Name">{{set.name | prefixWithPortionMarking: set.portion_marking}}</span>
+        </div>
+    </div>
+    <div class="profile-info-row">
+        <div class="profile-info-name"> Created At </div>
+        <div class="profile-info-value">
+            <span>{{set.created_at | date: 'medium'}}</span>
+        </div>
+    </div>
+    <div class="profile-info-row">
+        <div class="profile-info-name"> Last Updated</div>
+        <div class="profile-info-value">
+            <span>{{set.updated_at | date: 'medium'}}</span>
+        </div>
+    </div>
+
+    <div class="profile-info-row" ng-show='set.color'>
+        <div class="profile-info-name"> Associated TLP Color</div>
+        <div class="profile-info-value" ng-bind-html='Color.image(set.color)'></div>
+    </div>
+
+    <div class="profile-info-row" ng-show='set.organizations.length'>
+        <div class="profile-info-name">Restricted to Organizations</div>
+        <div class="profile-info-value">
+            <span ng-repeat="org in set.organizations">
+                <a href="#/organizations/{{org.guid}}">{{org.short_name}}</a>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div ng-show="set.stix_markings.length">
+    <div class="space-12"></div>
+    <markings-table markings="set.stix_markings" show_table="true"></markings-table>
+</div>
+
+<div ng-show="set.indicators.length">
+    <div class="space-12"></div>
+    <indicator-table indicators="set.indicators" show_table="true"></indicator-table>
+</div>
+
+<div ng-show="set.threat_actors.length">
+    <div class="space-12"></div>
+    <threat-actor-table threat_actors="set.threat_actors" show_table="true"></threat-actor-table>
+</div>
+
+<div ng-show="set.course_of_actions.length">
+    <div class="space-12"></div>
+    <course-of-actions-table course_of_actions="set.course_of_actions" show_table=showTable>
+    </course-of-actions-table>
+</div>
+
+<div ng-show="set.ttps.length">
+    <div class="space-12"></div>
+    <ttp-table ttps="set.ttps" show_table="true"></ttp-table>
+</div>
+
+<div ng-show="set.exploit_targets.length">
+    <div class="space-12"></div>
+    <exploit-target-table exploit_targets="set.exploit_targets" show_table="true"></exploit-target-table>
+</div>
+
+<div ng-show="set.stix_packages.length">
+    <div class="space-12"></div>
+    <package-table packages="set.stix_packages" show_table="true"></package-table>
+</div>
+
+<div class="space-12"></div>
+
+</div>
+
+<show-spinner> </show-spinner>

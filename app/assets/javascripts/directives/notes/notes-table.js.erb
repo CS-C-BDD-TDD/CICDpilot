@@ -1,0 +1,42 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('notesTable',function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("notes/notes-table.html",type: :template)%>',
+    scope: {
+      notes: '=',
+      targetClass: "@",
+      targetGuid: "@",
+      portionMarking: '=?'
+    },
+    controller: ['$scope', '$rootScope', 'Restangular', function($scope, $rootScope, Restangular){
+      $scope.can = $rootScope.can;
+      $scope.showTable = true;
+      $scope.current_user = $rootScope.current_user;
+      $scope.currently_selected_row = -1;
+      $scope.create_note = function(note){
+        if (note.note == ''){ return; }
+        note.targetClass = $scope.targetClass;
+        note.targetGuid = $scope.targetGuid;
+        Restangular.all('/notes').post(note).then(function(data){
+          toastr.success("Note created");
+          $scope.new_note = {};
+          $scope.notes.push(data);
+        },function(res){
+          toastr.error("Unable to add note: "+res.data.errors[0]);
+        });
+      };
+      $scope.delete_note = function(note){
+        if (confirm("Remove note?")){
+          Restangular.one('/notes/'+note.guid).remove().then(function(data){
+            toastr.success("Note removed");
+            $scope.notes.splice($scope.notes.indexOf(note), 1)
+          },function(res){
+            toastr.error("Unable to remove note");
+          });
+        }
+      };
+    }]
+  };
+});

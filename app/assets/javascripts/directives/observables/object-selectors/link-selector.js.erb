@@ -1,0 +1,149 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('linkSelector', function(){
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("observables/object-selectors/link-selector.html",type: :template)%>',
+    scope: {
+      links: '=',
+      observableToBeLinked: '=',
+      linkObservableView: '='
+    },
+    controller: ['$scope', 'Restangular', '$rootScope', 'Marking','Observable', function($scope,Restangular,$rootScope,Marking,Observable) {
+      $scope.date_picker_opts = {
+        defaultRanges: true
+      };
+      $scope.q = '';
+      if (angular.isUndefined($scope.offset)) {
+        $scope.offset=0;
+      }
+      if (angular.isUndefined($scope.amount)) {
+        $scope.amount=$rootScope.setting_value('DEFAULT_MAX_RECORDS');
+      }
+
+      // Cleanup
+      $scope.$on('$destroy', function() {
+        $('.daterangepicker').remove();
+      });
+      
+      $scope.dateRangePicker = function(picker) {
+        $scope.date_picker_object = picker;
+        $scope.offset=0;
+        $scope.getLinks($scope.offset);
+      };
+
+      $scope.startSearch = function() {
+        $scope.offset=0;
+        $scope.getLinks($scope.offset);
+      };
+
+      $scope.getLinks = function(offset) {
+        var curr_ind = Observable.fetch_indicator_from_scope($scope);
+        var curr_markings = curr_ind.stix_markings_attributes;
+        if (!$rootScope.is_undefined_or_null(curr_ind.acs_set_id)){
+          Restangular.one('acs_sets').get({id: curr_ind.acs_set_id}).then(function(data){
+            // set it equal to the existing markings
+            if (angular.isDefined(data.stix_markings)){
+              curr_markings = data.stix_markings;
+            }
+            getLinksList(offset, curr_markings);
+          },function(res){
+              toastr.error("Unable to load ACS Set Markings");
+          });
+        } else {
+          getLinksList(offset, curr_markings);
+        }
+      };
+
+      function getLinksList(offset, current_markings){
+        var classification_limit = Marking.get_classification_attributes(current_markings);
+        if (angular.isDefined($scope.metadata)) {
+          $scope.metadata.total_count = null;
+        }
+        Restangular.one("/links").get({
+          ebt: $scope.date_picker_object.getStartDate(),
+          iet: $scope.date_picker_object.getEndDate(),
+          q: $scope.q,
+          amount: $scope.amount,
+          classification_limit: classification_limit,
+          offset: offset
+        }).then(
+          function(data){
+            $scope.links = data.links;
+            $scope.metadata = data.metadata;
+          },
+          function(res){
+            toastr.error("Unable to load Links");
+          }
+        );
+      }
+
+      $scope.setSelected = function() {
+        var so=$scope.observableToBeLinked;
+
+        if (angular.isDefined(so)) {
+          if (so.remote_object_id===this.link.cybox_object_id && so.remote_object_type==='Link') {
+            $scope.observableToBeLinked={};
+          } else {
+            $scope.observableToBeLinked={remote_object_id:this.link.cybox_object_id,remote_object_type:'Link',link:this.link};
+          }
+        }
+      }
+      $scope.classSelected = function() {
+        var so=$scope.observableToBeLinked;
+
+        if (angular.isDefined(so)) {
+          if (so.remote_object_id===this.link.cybox_object_id && so.remote_object_type==='Link') {
+            return "bg-primary";
+          }
+        }
+      }
+      $scope.$watch('date_picker_object',function(object) {
+        if (angular.isDefined(object)) {
+          $scope.getLinks($scope.offset);
+        }
+      });
+      $rootScope.$on('reloadObservableSelect',function(event,type) {if (type === 'Link') {$scope.getLinks($scope.offset)}});
+
+      // setEdit is a special function because it's called by an ng-click within an ng-repeat
+      $scope.setEdit = function() {
+        Restangular.one('/links/'+ this.link.cybox_object_id).get().then(function(data){
+          // If you change anything here you need to also change it in the edit.js.erb in controllers for edit!!!
+          if(angular.isDefined(data.uri.stix_markings)){
+            for(var i = 0; i < data.uri.stix_markings.length; i++){
+              if(angular.isDefined(data.uri.stix_markings[i].remote_object_field) && data.uri.stix_markings[i].remote_object_field == null){
+                data.uri.stix_markings[i].remote_object_field = "uri_normalized";
+                data.stix_markings.push(data.uri.stix_markings[i]);
+              }
+            }
+          }
+          $scope.link = Marking.translate_existing_attributes(data);
+          if (angular.isUndefined($scope.link.label_condition) || $scope.link.label_condition == null || $scope.link.label_condition.length == 0){
+            $scope.link.label_condition = "Equals"; 
+          }
+          $scope.link.uri_attributes = {};
+          $scope.link.uri_attributes.uri_input = $scope.link.uri.uri_input;
+          $scope.link.uri_attributes.uri_condition = $scope.link.uri.uri_condition;
+
+          $scope.$parent.$parent.selected = $scope.link;
+          $scope.$parent.observableToBeLinked={remote_object_id:$scope.link.cybox_object_id,remote_object_type:'Link',link:$scope.link};
+          $scope.linkObservableView = 'edit';
+        },function(res){
+            toastr.error("Unable to load Link");
+        });
+      }
+
+      $scope.$parent.$parent.after_link_save = function() {
+        var match = _.find($scope.$parent.$parent.links,{'cybox_object_id':data.cybox_object_id});
+        var index = _.indexOf($scope.$parent.$parent.links, match);
+        $scope.$parent.$parent.links.splice(index,1,data);
+        $scope.$parent.observableToBeLinked.link=data;
+        $scope.$parent.$parent.showSelectedObservable();
+        if ($rootScope.setting_value('CLASSIFICATION') == true){
+          $rootScope.$emit('reloadObservableSelect', 'Link');
+        }
+      }
+    }],
+    controllerAs: 'linkSelCtrl'
+  }
+});

@@ -1,0 +1,217 @@
+<form class="form-horizontal" role="form">
+  <div class="col-md-12 col-sm-12 widget-container-col ui-sortable">
+    <div class="widget-box ui-sortable-handle">
+      <div class="widget-header">
+        <h5 class="widget-title">
+          Package: {{package.title}}
+        </h5>
+      </div>
+      <div class="widget-body">
+        <div class="widget-main">
+
+          <div class="form-group" ng-class="{'has-error': package.errors.title}">
+            <label class="control-label col-md-3 no-padding-right">Title *</label>
+            <div class="col-md-9">
+              <input type="text" no-enter class="col-md-8" ng-model="package.title">
+              <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="title_toggle.toggle > 0" ng-click="title_toggle.clear = title_toggle.clear + 1">Clear Markings</button>
+              <button class="btn btn-primary btn-sm pull-right" ng-click="title_toggle.toggle = title_toggle.toggle + 1">Custom ISA Markings</button>
+            </div>
+            <div ng-show="package.errors.title" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in package.errors.title" class="col-md-12">Title * {{error}}</span>
+            </div>
+          </div>
+          <field-markings-edit sets="sets" object="package" disablesave="is_saving" editform="editform" fieldname="title" togglebuttons="title_toggle"></field-markings-edit>
+
+          <div class="form-group" ng-show="can('view_pii_fields')" ng-class="{'has-error': package.errors.description}">
+            <label class="control-label col-md-3 no-padding-right">Description</label>
+            <div class="col-md-9">
+              <textarea class="col-md-8" id="form-field-8" placeholder="Description" ng-model="package.description"></textarea>
+              <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="des_toggle.toggle > 0" ng-click="des_toggle.clear = des_toggle.clear + 1">Clear Markings</button>
+              <button class="btn btn-primary btn-sm pull-right" ng-click="des_toggle.toggle = des_toggle.toggle + 1">Custom ISA Markings</button>
+            </div>
+            <div ng-show="package.errors.short_description" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in package.errors.description" class="col-md-12">Description {{error}}</span>
+            </div>
+          </div>
+          <field-markings-edit sets="sets" object="package" disablesave="is_saving" editform="editform" fieldname="description" togglebuttons="des_toggle"></field-markings-edit>
+
+          <div class="form-group" ng-show="can('view_pii_fields')" ng-class="{'has-error': package.errors.short_description}">
+            <label class="control-label col-md-3 no-padding-right">Short Description</label>
+            <div class="col-md-9">
+              <input type="text" no-enter class="col-md-8" placeholder="Short Description" ng-model="package.short_description">
+              <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="short_des_toggle.toggle > 0" ng-click="short_des_toggle.clear = short_des_toggle.clear + 1">Clear Markings</button>
+              <button class="btn btn-primary btn-sm pull-right" ng-click="short_des_toggle.toggle = short_des_toggle.toggle + 1">Custom ISA Markings</button>
+            </div>
+            <div ng-show="package.errors.short_description" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in package.errors.short_description" class="col-md-12">Short description {{error}}</span>
+            </div>
+          </div>
+          <field-markings-edit sets="sets" object="package" disablesave="is_saving" editform="editform" fieldname="short_description" togglebuttons="short_des_toggle"></field-markings-edit>
+
+          <div class="form-group" ng-class="{'has-error': package.errors.package_intent}">
+            <label class="control-label col-md-3 no-padding-right">Package Intent</label>
+            <div class="col-md-9">
+              <select class="col-md-8" ng-model="package.package_intent" ng-init="package.package_intent = 'Indicators'" ng-options="intent for intent in Package.package_intents"/>
+              <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="intent_toggle.toggle > 0" ng-click="intent_toggle.clear = intent_toggle.clear + 1">Clear Markings</button>
+              <button class="btn btn-primary btn-sm pull-right" ng-click="intent_toggle.toggle = intent_toggle.toggle + 1">Custom ISA Markings</button>
+            </div>
+            <div ng-show="package.errors.package_intent" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in package.errors.package_intent" class="col-md-12">Package Intent {{error}}</span>
+            </div>
+          </div>
+          <field-markings-edit sets="sets" object="package" disablesave="is_saving" editform="editform" fieldname="package_intent" togglebuttons="intent_toggle"></field-markings-edit>
+
+          <div class="space-12"></div>
+
+          <acs-associate-form sets="sets" object=package objecttype="Package" disable-save=is_saving editform=editform></acs-associate-form>
+
+          <div class="widget-box">
+            <div class="widget-header" align="center">
+              <a class='fake-link widget-title ng-cloak' ng-click="ais_form = !ais_form" ng-init="ais_form = false">
+                <i class="ace-icon fa" ng-class="ais_form ? 'fa-minus' : 'fa-plus'"></i>
+                AIS Markings for  Package
+              </a>
+            </div>
+            <div ng-show="ais_form">
+
+              <div class="space-12"></div>
+              <div class="form-group" ng-hide="Package.submission_mechanism(package.submission_mechanism) == 'External Source'" tooltip="The Submission Mechanism of which the Indicator was submitted.">
+                <label class="control-label col-md-3">Submission Mechanism</label>
+                <div align="center">
+                  <select class="col-md-8" ng-model="package.submission_mechanism" ng-options="value as label for (value,label) in Package.submission_mechanisms"></select>
+                </div>
+                <div class="help-block inline col-md-12" align="right">
+                  <span ng-repeat="error in package.errors.submission_mechanism" class="col-md-12">Submission Mechanism{{error}}</span>
+                </div>
+              </div>
+              <div class="space-12"></div>
+              <contributing-sources-table package="package" editable="true" show-table="true" showsourcestable="ais_form" is-new-package="!editform">
+              </contributing-sources-table>
+              <div class="space-12"></div>
+
+              <ais-consent-markings-form stix-marking="package.ais_attributes" showsourcestable="ais_form" isedit="editform"></ais-consent-markings-form>
+
+              <div class="space-12"></div>
+            </div>
+          </div>
+          <div>
+            <div class="widget-header widget-header-small">
+              <h4 class="widget-title blue smaller">
+                <i class="ace-icon fa fa-tasks orange"></i>
+                Attached Indicators
+              </h4>
+            </div>
+            <div class="space-6"></div>
+
+            <div class="width-90 center-block" ng-show="package.indicators.length">
+              <div class="ciap_table_scroll_500">
+                <ol class="dd-list">
+                  <li class="dd-item" ng-repeat="indicator in package.indicators">
+                    <div class="dd-handle">
+                      <a href="#/indicators/{{indicator.stix_id}}">{{indicator.title | prefixWithPortionMarking: indicator.portion_marking:indicator.title_c}}</a>
+                      <div class="pull-right action-buttons">
+                        <a class="red" href="" ng-click="removeIndicator(indicator)">
+                          <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+          <div ng-hide="package.indicators.length">
+            No Indicators
+          </div>
+
+          <indicator-browser selected-indicators="package.indicators" classification-direction="down"></indicator-browser>
+
+          <div>
+
+            <div class="space-12"></div>
+            <div class="widget-header widget-header-small">
+              <h4 class="widget-title blue smaller">
+                <i class="ace-icon fa fa-tasks orange"></i>
+                Attached Exploit Targets
+              </h4>
+            </div>
+            <div class="space-6"></div>
+
+            <div class="width-90 center-block" ng-show="package.exploit_targets.length">
+              <div class="ciap_table_scroll_500">
+                <ol class="dd-list">
+                  <li class="dd-item" ng-repeat="exploit_target in package.exploit_targets">
+                    <div class="dd-handle">
+                      <a href="#/exploit_targets/{{exploit_target.stix_id}}">{{exploit_target.stix_id | prefixWithPortionMarking: exploit_target.portion_marking}}</a>
+                      <div class="pull-right action-buttons">
+                        <a class="red" href="" ng-click="removeExploitTarget(exploit_target)">
+                          <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+          <div ng-hide="package.exploit_targets.length">
+            No Exploit Targets
+          </div>
+
+          <exploit-target-browser selected-exploit-targets="package.exploit_targets" classification-direction="down"></exploit-target-browser>
+
+          <div class="space-12"></div>
+
+          <div>
+            <div class="widget-header widget-header-small">
+              <h4 class="widget-title blue smaller">
+                <i class="ace-icon fa fa-tasks orange"></i>
+                Attached Course of Action
+              </h4>
+            </div>
+            <div class="space-6"></div>
+
+            <div class="width-90 center-block" ng-show="package.course_of_actions.length">
+              <div class="ciap_table_scroll_500">
+                <ol class="dd-list">
+                  <li class="dd-item" ng-repeat="course_of_action in package.course_of_actions">
+                    <div class="dd-handle">
+                      <a href="#/course_of_actions/{{course_of_action.stix_id}}">{{course_of_action.title}}</a>
+                      <div class="pull-right action-buttons">
+                        <a class="red" href="" ng-click="removeCoa(course_of_action)">
+                          <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+          <div ng-hide="package.course_of_actions.length">
+            No Courses of Action
+          </div>
+
+          <coa-browser selected-coas="package.course_of_actions" classification-direction="down"></coa-browser>
+
+        </div>
+
+        <div class="clearfix form-actions">
+          <span ng-show="is_saving">
+            <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+          </span>
+          <button ng-disabled="is_saving" class="btn btn-info pull-right ciap_mleft_12" type="button" ng-click="start_save(package)">
+            <i class="fa fa-check"></i>
+            Save
+          </button>
+          <button class="btn btn-default pull-right" type="button" ng-click="cancel()" ng-disabled="is_saving">
+            <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

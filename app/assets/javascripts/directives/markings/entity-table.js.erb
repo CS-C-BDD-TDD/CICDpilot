@@ -1,0 +1,14 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('entityTable',function() {
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("markings/entity-table.html",type: :template)%>',
+        scope: {
+            marking: '='
+        },
+        controller: ['$scope', function($scope){
+            $scope.showTable = true;
+        }]
+    };
+});

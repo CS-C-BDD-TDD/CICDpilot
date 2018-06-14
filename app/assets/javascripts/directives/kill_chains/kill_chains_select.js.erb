@@ -1,0 +1,60 @@
+app.directive('killChainsSelect', function(){
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("kill_chains/kill_chains_select.html",type: :template)%>',
+    scope: {
+      killChainPhases: '='
+    },
+    controller: ['$scope','$rootScope','Restangular', function($scope,$rootScope,Restangular){
+      $scope._ = _;
+      $scope.remove = function(guid) {
+        _.remove($scope.killChainPhases,{'guid':guid});
+      }
+      $scope.add = function(guid) {
+        if (_.findIndex($scope.killChainPhases,{'guid':guid})==-1) {
+          $scope.killChainPhases.push($rootScope.kill_chain_phases[_.findIndex($rootScope.kill_chain_phases,{'guid':guid})]);
+        }
+        $scope.attr=[];
+      }
+
+      $scope.is_default_kill_chain=false;
+      var listener=$scope.$watch('killChainPhases',function(phases) {
+        if (angular.isDefined(phases)) {
+          listener();
+          if (phases.length) {
+            listener=$rootScope.$watch('default_chain_id',function(id) {
+              if (angular.isDefined(id)) {
+                listener();
+                if (phases[0].stix_kill_chain_id == $rootScope.default_chain_id) {
+                  $scope.is_default_kill_chain=true;
+                };
+              };
+            });
+          } else {
+            $scope.is_default_kill_chain=true;
+          }
+        };
+      });
+
+      var getDefaultKillChains = function() {
+        if (angular.isUndefined($rootScope.kill_chain_phases)) {
+          Restangular.one("kill_chains").get({
+            default: true
+          }).then(
+            function(data){
+              var phases=[];
+              $rootScope.default_chain_id=data.stix_kill_chain_phases[0].stix_kill_chain_id;
+              $rootScope.kill_chain_phases=data.stix_kill_chain_phases;
+            },
+            function(res){
+              $rootScope.default_chain_id = null;
+              $rootScope.kill_chain_phases = null;
+              toastr.error("Unable to load Kill Chains");
+            }
+          );
+        }
+      };
+      getDefaultKillChains();
+    }]
+  };
+});

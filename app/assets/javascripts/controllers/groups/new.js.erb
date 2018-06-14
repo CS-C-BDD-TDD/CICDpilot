@@ -1,0 +1,39 @@
+app.controller('GroupsNewController', ['$scope','$location','$rootScope','Restangular',
+  function ($scope, $location, $rootScope, Restangular) {
+    $scope.group={};
+    $scope.group.permissions=[];
+    Restangular.one("permissions").get().then(function(all){
+      $scope.unselected_permissions = all;
+      $scope.heightStyle={ 'min-height' : (all.length*31+6)+'px' };
+      $rootScope.breadcrumbs = [
+                                 {text:'Home',link:'#/',icon:'fa-home'},
+                                 {text:'Groups',link:'#/groups',icon:'fa-group'},
+                                 {text:'New group',link:'#/groups/new'}
+                               ];
+    });
+    $scope.save = function(group){
+      var permission_ids=_.map(group.permissions,function(p) {
+        return p.id;
+      });
+      group.permission_ids=permission_ids;
+      Restangular.all("groups").post(group).then(function(data) {
+        toastr.success("New group created");
+        Restangular.one('users','current').get().then(function(data){
+            $rootScope.current_user = data;
+        });
+        $location.path('/groups/'+data.id);
+      },function(res){
+        toastr.error("Unable to create group");
+        $scope.error=res.data.errors;
+        $("html, body").animate({ scrollTop: 0 }, 200);
+      });
+    };
+    $scope.list_options = {
+                            placeholder: "sortable-placeholder",
+                            connectWith: ".sortable-container"
+                          };
+    $scope.cancel = function() {
+      $location.path('/groups');
+    };
+  }
+]);

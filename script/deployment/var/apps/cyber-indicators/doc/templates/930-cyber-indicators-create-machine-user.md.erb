@@ -1,0 +1,29 @@
+# Creating a machine user
+
+## How to create a machine user
+
+1. Accredited NSD systems may be authorized for write access to the API.
+2. Create a Cyber Indicators account for the system.  (In the navigation menu, click users.  Click the "New" button.)
+3. The username of the user does not need to match an Active Directory username, but rather should be the name of the system which will be using the API.  Be sure to assign the user to a group which has the proper write permissions to support what that machine user will be doing.
+4. After creating the user, click on "Edit".
+5. Click the "Generate API Key" button
+6. The system will generate an API key for the user.  Click the "Click to show" text to shown the API key.  Send this API key to the user in a secure manner
+7. The the user's initial API Key secret.  In the text box below "Change API Key Secret", type in an API Key secret.  Click the "Change API Key Secret" button.  The user's API Key secret is now set.
+8. Securely send the API Key and API Key Secret to the user.  The user will use these credentials to generate an API Key Hash to communicate with the API
+9. The account must be converted to be a machine user.  Only a System Administrator may perform this step.
+10. As a system administrator, run the following as root, substituting the correct USERNAME for what you used in step 3 when creating the user:
+
+```bash
+/var/apps/cyber-indicators/bin/rake machineuser:set['USERNAME']
+```
+
+You can change the user back to a regular user by changing 'set' to 'unset'
+
+## Revoking an API key
+
+API Keys may be revoked from either regular users or machine users by performing the following steps:
+
+1. Click Users
+2. Click the username
+3. Click Edit
+4. Under API Key, click the "Revoke API Key" button

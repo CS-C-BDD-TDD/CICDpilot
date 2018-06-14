@@ -1,0 +1,11 @@
+#!/bin/bash
+LOG=/usr/share/tomcat7/webapps/cyber-indicators/WEB-INF/log/disseminate.log
+date >> $LOG
+count=`ps -ef | grep java | grep disseminate:start | grep -v grep | wc -l`
+run_count=`ps -ef | grep run_dissemination | grep -v grep | grep -v $$ | wc -l`
+if [[ $count -ge 1 ]] || [[ $run_count -ge 1 ]]; then
+  echo "Another dissemination task is currently running.  Skipping." >> $LOG
+else
+  /var/apps/cyber-indicators/bin/rake disseminate:start >> $LOG 2>&1
+fi
+echo "--------------------------------------------------------------------------------" >> $LOG

@@ -1,0 +1,72 @@
+app.controller('AisDashboardMetricsController', ['$scope','$rootScope','Restangular', '$timeout',
+  function ($scope, $rootScope, Restangular, $timeout) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'AIS Metrics Dashboard',link:'#/ais_dashboard/metrics',icon:'fa-list'}];
+    $scope.q = "";
+    $scope.fetching = true;
+    $scope.selected_user = "";
+    $scope.metrics_type = "received_time";
+    $scope.showTable = {chart_l: true, chart_g: true, r_time: false, tlp: false, user: false, hr_queue: false, feed: false};
+
+    $scope.date_picker_opts = {
+      defaultRanges: true
+    };
+
+    $scope.dateRangePicker = function (picker) {
+      $scope.date_picker_object = picker;
+      $scope.getMetrics();
+    };
+
+    Restangular.one('ais_statistics').get().then(function(data){ 
+      $scope.ais_statistics = data.ais_statistics;
+      $scope.metadata = data.metadata;
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load AIS Metrics Dashboard");
+      $scope.fetching = false;
+    });
+
+    Restangular.one('users').get().then(function(data){ 
+      $scope.users = data.users;
+      $scope.metadata = data.metadata;
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load Users");
+      $scope.fetching = false;
+    });    
+
+    $scope.getMetrics = function(){
+      Restangular.one('ais_statistics_metrics').get({
+        field: $scope.metrics_type,
+        ebt: angular.isDefined($scope.date_picker_object) ? $scope.date_picker_object.getStartDate() : '',
+        iet: angular.isDefined($scope.date_picker_object) ? $scope.date_picker_object.getEndDate() : '',
+        user: angular.isDefined($scope.selected_user) ? $scope.selected_user.username : ''
+      }).then(function(data){
+        $scope.ais_statistics_metrics = data;
+        $scope.metadata = data.metadata;
+        $scope.fetching = false;
+      },function(res){
+        toastr.error("Unable to load AIS Metrics Dashboard");
+        $scope.fetching = false;
+      });
+    }
+
+    $scope.convert_to_human = function(string){
+      switch(string){
+        case "received_time":
+          return "Received Time";
+          break;
+        case "dissemination_time":
+          return "Dissemination Time";
+          break;
+        case "dissemination_time_hr":
+          return "Dissemination Time after Human Review";
+          break;
+        default:
+          return "Time";
+      }
+    }
+
+    $scope.getMetrics();
+
+  }
+]);

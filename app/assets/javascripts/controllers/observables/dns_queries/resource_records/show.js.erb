@@ -1,0 +1,11 @@
+app.controller('ResourceRecordsShowController', ['$scope','$location','$routeParams','$rootScope','Restangular',
+  function ($scope, $location, $routeParams, $rootScope, Restangular) {
+    Restangular.one('/resource_records',$routeParams.id).get().then(function(data){
+      $scope.resource_record = data;
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Resource Record',icon:'fa-group'},{text:$scope.resource_record.dns_record_cache,link:'#/resource_records/'+encodeURIComponent($scope.resource_record.guid)}];
+      
+    },function(res){
+      toastr.error("Unable to load Resource Record");
+    });
+  }
+]);

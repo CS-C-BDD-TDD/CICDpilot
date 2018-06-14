@@ -1,0 +1,25 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('DnsRecordsEditController', ['$scope','$routeParams','Restangular','$rootScope','DnsRecord','Gfi','$location','Marking','objectSuggesterService',
+  function($scope,$routeParams,Restangular,$rootScope,DnsRecord,Gfi,$location,Marking,objectSuggesterService) {
+    if (objectSuggesterService.is_data_set()){
+      $scope.dns = objectSuggesterService.get_data();
+    } else {
+      Restangular.one('/dns_records/'+$routeParams.id).get().then(function(data){
+        $scope.dns = Marking.translate_existing_attributes(data);
+        Gfi.init_gfi_edit($scope, $scope.dns);
+        $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'DNS Records',link:'#/dns_records',icon:'fa-group'},{text:DnsRecord.get_value(data),link:'#/dns_records/'+encodeURIComponent(data.cybox_object_id)}];
+      },function(res){
+        toastr.error("Unable to load DNS record");
+      });
+    }
+
+    $scope.cancel = function() {
+      $location.path('/dns_records/'+$routeParams.id);
+    };
+
+    $scope.failed = function() {
+      $("html, body").animate({ scrollTop: 0 }, 200);
+    };
+  }
+]);

@@ -1,0 +1,123 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('dnsQueryForm', function(){
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("observables/dns_queries/form.html",type: :template)%>',
+        scope: {
+            dnsQuery: '=',
+            saved: '=',
+            failed: '=',
+            cancel: '=',
+            editform: '='
+        },
+        controller: ['$scope','$rootScope','Observable','Restangular', 'Classification',
+            function($scope,$rootScope,Observable,Restangular, Classification) {
+                $scope.Observable = Observable;
+                $scope.sets = [];
+                $scope.cybox = "cybox";
+                $scope.current_page = 0;
+
+                Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+                    $scope.sets = data;
+                },function(res){
+                    toastr.error("Unable to load ACS Set List");
+                });
+
+                $scope.removeQuestions = function(obj) {
+                    _.remove($scope.dnsQuery.questions, function(o){
+                        if (o == obj) {
+                            return o;
+                        }
+                    });
+                };
+
+                $scope.removeResourceRecord = function(obj) {
+                    _.remove($scope.dnsQuery.resource_records, function(o){
+                        if (o == obj) {
+                            return o;
+                        }
+                    });
+                };
+                
+                $scope.save = function(){
+                    $scope.is_saving = true;
+                    $scope.dnsQuery.errors = {};
+
+                    var promise;
+                    var save_text;
+
+                    var question_ids = _.map($scope.dnsQuery.questions, function(obj) {
+                        return obj.guid;
+                    });
+
+                    var resource_record_ids = _.map($scope.dnsQuery.resource_records, function(obj) {
+                        return obj.guid;
+                    });
+
+                    $scope.dnsQuery.question_guids = question_ids;
+
+                    $scope.dnsQuery.resource_record_guids = resource_record_ids;
+
+                    /*
+                    Rules for when CLASSIFICATION is true
+
+                    and ACS Set or Classification must be selected. When Classification is above unclassified, 
+                    details must be filled out.
+                    */
+                    if ($rootScope.setting_value('CLASSIFICATION') == true){
+                        $scope.dnsQuery.stix_markings_attributes = Classification.check_classification_details($scope.dnsQuery.stix_markings_attributes);
+                        var problems = $scope.dnsQuery.stix_markings_attributes.problems;
+                        var classification_check = $scope.dnsQuery.stix_markings_attributes.classification_check;
+                    }
+
+                    if (Object.keys($scope.dnsQuery.errors).length > 0 || classification_check) {
+                        $scope.is_saving = false;
+                      
+                        if(classification_check){
+                            for (var i = 0; i < problems.length; i++){
+                                if(problems[i].field == null){
+                                    toastr.error("Unable to save due to classification errors in the Object level markings");
+                                } else {
+                                    toastr.error("Unable to save due to classification errors in the " + problems[i].field + " markings");
+                                }
+                            }
+                        }
+                        return;
+                    }
+
+                    if (angular.isUndefined($scope.dnsQuery.cybox_object_id) || $scope.dnsQuery.cybox_object_id == null) {
+                        promise = Restangular.all("dns_queries").post($scope.dnsQuery);
+                        save_text = "save";
+                    } else {
+                        promise = Restangular.one("dns_queries/" + $scope.dnsQuery.cybox_object_id).customPUT($scope.dnsQuery);
+                        save_text = "update";
+                    }
+
+                    promise.then(
+                            function(data){
+                                toastr.success("DNS Query observable " + save_text + "d");
+                                if (angular.isDefined($scope.saved) && jQuery.isFunction($scope.saved)){
+                                    $scope.saved(data);
+                                }
+                                $scope.is_saving = false;
+                            },
+                            function(res){
+                                toastr.error("Unable to " + save_text + " DNS Query observable");
+                   
+                                if (angular.isDefined(res.data) && angular.isDefined(res.data.errors) ) {
+                                    $scope.dnsQuery.errors = res.data.errors;
+                                    
+                                    $rootScope.show_res_errors(res);
+                                }
+                                if (angular.isDefined($scope.failed) && jQuery.isFunction($scope.failed)){
+                                    $scope.failed(res.data);
+                                }
+                                $scope.is_saving = false;
+                            }
+                    );
+                };
+            }
+        ]
+    };
+});

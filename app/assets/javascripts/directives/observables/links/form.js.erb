@@ -1,0 +1,115 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('linkForm', function(){
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("observables/links/form.html",type: :template)%>',
+        scope: {
+            link: '=',
+            saved: '=',
+            failed: '=',
+            cancel: '=',
+            editform: '=',
+            fromlinker: '='
+        },
+        controller: ['$scope','$rootScope','Observable','Restangular', 'CiapCommon', 'Classification',
+            function($scope,$rootScope,Observable,Restangular, CiapCommon, Classification) {
+                $scope.Observable = Observable;
+                $scope.sets = [];
+                $scope.cybox = "cybox";
+                $scope.conditions = CiapCommon.conditions;
+
+                // Toggles for field level markings
+                $scope.label_toggle = {toggle: 0, clear: 0};
+                $scope.uri_toggle = {toggle: 0, clear: 0};
+
+                Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+                    $scope.sets = data;
+                },function(res){
+                    toastr.error("Unable to load ACS Set List");
+                });
+
+                $scope.save = function(link){
+                    $scope.is_saving = true;
+                    $scope.error = {};
+                    $scope.link.errors = {};
+
+                    var promise;
+                    var save_text;
+
+                    if ($rootScope.is_undefined_or_null($scope.link.uri_attributes.uri_input)) {
+                        toastr.error("URI can't be blank");
+                        $scope.error.uri = [" can't be blank"];
+                    }
+                    if ($rootScope.is_undefined_or_null($scope.link.label)) {
+                        toastr.error("Label can't be blank");
+                        $scope.error.label = [" can't be blank"];
+                    }
+
+                    if (!_.isEmpty($scope.error)){
+                        $scope.is_saving = false;
+                        return;
+                    }
+                    /*
+                    Rules for when CLASSIFICATION is true
+
+                    and ACS Set or Classification must be selected. When Classification is above unclassified, 
+                    details must be filled out.
+                    */
+                    if ($rootScope.setting_value('CLASSIFICATION') == true){
+                        $scope.link.stix_markings_attributes = Classification.check_classification_details($scope.link.stix_markings_attributes);
+                        var problems = $scope.link.stix_markings_attributes.problems;
+                        var classification_check = $scope.link.stix_markings_attributes.classification_check;
+                    }
+
+                    if (Object.keys($scope.link.errors).length > 0 || classification_check) {
+                        $scope.is_saving = false;
+                      
+                        if(classification_check){
+                            for (var i = 0; i < problems.length; i++){
+                                if(problems[i].field == null){
+                                    toastr.error("Unable to save due to classification errors in the Object level markings");
+                                } else {
+                                    toastr.error("Unable to save due to classification errors in the " + problems[i].field + " markings");
+                                }
+                            }
+                        }
+                        return;
+                    }
+
+                    if (angular.isUndefined(link.cybox_object_id) || link.cybox_object_id == null) {
+                        promise = Restangular.all("links").post(link);
+                        save_text = "save";
+                    } else {
+                        promise = Restangular.one("links/" + link.cybox_object_id).customPUT(link);
+                        save_text = "update";
+                    }
+
+                    promise.then(
+                            function(data){
+                                toastr.success("Link record observable "+save_text+"d");
+                                if (angular.isDefined($scope.saved) && jQuery.isFunction($scope.saved)){
+                                    $scope.saved(data);
+                                }
+                                $scope.is_saving = false;
+                                $scope.label_toggle = {toggle: 0, clear: 0};
+                                $scope.uri_toggle = {toggle: 0, clear: 0};
+                                $scope.error = undefined;
+                            },
+                            function(res){
+                                toastr.error("Unable to "+save_text+" Link observable");
+                                if (angular.isDefined(res.data.errors)) {
+                                  $scope.error = res.data.errors;
+                                }
+                                $rootScope.show_res_errors(res);
+                                if (angular.isDefined($scope.failed) && jQuery.isFunction($scope.failed)){
+                                    $scope.failed(res.data);
+                                }
+                                $scope.is_saving = false;
+                            }
+                    );
+                };
+            }
+        ]
+    };
+});

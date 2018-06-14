@@ -1,0 +1,33 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('fieldMarkingsShow',function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("markings/field-markings-show.html",type: :template)%>',
+    scope: {
+      markings: '=',
+      fieldname: '@',
+      fieldtext: '=?'
+    },
+    controller: ['$scope', '$rootScope', '$element', function($scope,$rootScope,$element){
+        $scope.show_classifications = $rootScope.setting_value('CLASSIFICATION');
+        $scope.show_buttons = false;
+
+        if (angular.isUndefined($scope.fieldtext)) {
+          $scope.fieldtext = $element.parent().parent().find('div.profile-info-name').text();
+        }
+
+        // Watch for markings to arrive
+        // If there are markings for the field sent in fieldname, show the button
+        $scope.$watch("markings",function() {
+          if (angular.isDefined($scope.markings)) {
+            if (_.find($scope.markings,{remote_object_field:$scope.fieldname}) || (angular.isDefined($scope.fieldname) && $scope.fieldname == 'field_rep_obj')) {
+              $scope.show_buttons = true;
+            } else {
+              $scope.show_buttons = false;
+            }
+          }
+        });
+    }]
+  };
+});

@@ -1,0 +1,9 @@
+#!/bin/bash --login
+export RAILS_ENV=production
+export RAILS_RELATIVE_URL_ROOT="/cyber-indicators"
+export RAILS_DB_YAML="/etc/cyber-indicators/config/database.yml"
+export RAILS_SECRET_KEY="09187096FDSDSBDSBefdsvdsavlkjdslkj3t@!$^@^&2asasdfsa9f7sa8725093216098716161&//@213454627278::cyb"
+RAILS_CONFIG_ENVIRONMENTS=$RAILS_CONFIG_ENVIRONMENTS bundle
+RAILS_CONFIG_ENVIRONMENTS=$RAILS_CONFIG_ENVIRONMENTS rake assets:clean
+RAILS_CONFIG_ENVIRONMENTS=$RAILS_CONFIG_ENVIRONMENTS rake assets:precompile
+RAILS_CONFIG_ENVIRONMENTS=$RAILS_CONFIG_ENVIRONMENTS bundle exec warble runnable war

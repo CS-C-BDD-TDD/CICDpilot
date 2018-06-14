@@ -1,0 +1,40 @@
+app.controller('AttackPatternsShowController', ['$scope','$routeParams','$rootScope','$location','Restangular',
+  function ($scope, $routeParams, $rootScope, $location, Restangular) {
+    $scope.fetching = true;
+    $scope.can = $rootScope.can;
+
+    Restangular.one("/attack_patterns/"+$routeParams.id).get().then(function(data){
+      $scope.attack_pattern = data;
+      var title = data.title;
+      if (!data.title) {
+        title = data.capec_id;
+      }
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                {text:'All Attack Patterns',link:'#/attack_patterns',icon:'fa-list'},
+                                {text:title,link:'#/attack_patterns/'+encodeURIComponent(data.stix_id),icon:'fa-eye'}];
+      $scope.fetching = false;
+      
+    },function(res){
+      toastr.error(res.data.errors[0]);
+      $scope.fetching = false;
+    });
+
+    $scope.destroy = function(attack_pattern){
+      var justification = prompt("Justification for deleting attack pattern");
+
+      if (justification){
+        $scope.fetching = true;
+
+        Restangular.one("/attack_patterns/"+attack_pattern.stix_id).remove().then(function(data){
+          toastr.success("Attack Pattern removed");
+          $location.path('/attack_patterns');
+          $scope.fetching = false;
+
+        },function(res){
+          toastr.error("Could not remove attack pattern: "+res.data.errors[0]);
+          $scope.fetching = false;
+        });
+      }
+    };
+  }
+]);

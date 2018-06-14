@@ -1,0 +1,14 @@
+<et:Vulnerability>
+<% if vulnerability.title.present? %>
+  <et:Title><%= vulnerability.title %></et:Title>
+<% end %>
+<% if vulnerability.description.present? %>
+  <et:Description><%= vulnerability.description %></et:Description>
+<% end %>
+<% if vulnerability.cve_id.present? && (vulnerability.cve_id =~ /\ACVE-\d\d\d\d-\d+\Z/) %>
+  <et:CVE_ID><%= vulnerability.cve_id %></et:CVE_ID>
+<% end %>
+<% if vulnerability.osvdb_id.present? && (vulnerability.osvdb_id.to_s =~ /\A[1-9]\d*\Z/) %>
+  <et:OSVDB_ID><%= vulnerability.osvdb_id %></et:OSVDB_ID>
+<% end %>
+</et:Vulnerability>

@@ -1,0 +1,27 @@
+Because they don't work
+
+I had three fixutres in three files:
+
+indicators.yml
+
+indicator_1:
+  title: "Indicator Title"
+  description: "Indicator Description"
+  indicator_type: "Benign"
+  stix_id: "NCCIC:indicator-1"
+
+domains.yml
+
+domain_1:
+  name: "www.google.com"
+
+observables.yml
+
+observable_1:
+  indicator: inddicator_1
+  object: domain_1
+
+
+It created the indicator and the observable, but did not create the domain.
+
+Instead, I create the objects directly on the test.  This has the side benfit of putting all the information in front of you, instead of spread among files.

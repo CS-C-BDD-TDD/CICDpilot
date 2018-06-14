@@ -1,0 +1,51 @@
+<div class="widget-box widget-color-blue ui-sortable-handle">
+  <div class="widget-header fake-link" ng-click="showTable = !showTable">
+    <h5 class="widget-title bigger lighter">
+      <span tooltip="Show/Hide Table">
+        <i class="ace-icon fa fa-comment-o"></i>
+        Analyst Notes
+      </span>
+      <span class="ace-icon ciap_fa_icon_sm fa-stack ciap_pleft_6" tooltip="Not Exportable Field">
+      	<i class="fa fa-ban fa-stack-2x"> </i> 
+ 		<i class="fa fa-download fa-stack-1x"> </i> 
+      </span>
+    </h5>
+  </div>
+  <div class="widget-body" ng-show="showTable">
+    <div class="widget-main no-padding">
+      <table class="table table-bordered" ng-show="notes.length > 0" >
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Note</th>
+            <th>User</th>
+          </tr>
+        </thead>
+        <tbody ng-repeat="(id, note) in notes">
+        <tr>
+          <td>{{note.created_at | date: 'medium'}}</td>
+          <td><multi-line-field field="note.note" portionmarking="portionMarking"></multi-line-field></td>
+          <td>
+            {{note.user.username}}
+            <span ng-show="current_user.guid == note.user.guid">
+              <button class="btn btn-minier btn-white btn-warning btn-bold" ng-click="delete_note(note)">
+							  <i class="ace-icon fa fa-trash-o orange"></i> Delete
+							</button>
+            </span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <div ng-show="notes.length == 0" style="font-style: italic; text-align: center; height: 3em;">
+        No notes
+      </div>
+      <div class="widget-box" ng-show="can('create_analyst_notes')">
+        <textarea class="form-control" style="height: 10em;" placeholder="Attach New Note" ng-model="new_note.note" ng-enter="create_note(new_note)"></textarea>
+        <button class="btn btn-info" type="button" ng-click="create_note(new_note)">
+          <i class="ace-icon fa fa-check bigger-110"></i>
+          Save Note
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

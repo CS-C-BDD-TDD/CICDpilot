@@ -1,0 +1,57 @@
+<cybox:Object id="<%=email_message.cybox_object_id%>">
+  <cybox:Properties xsi:type="EmailMessageObj:EmailMessageObjectType">
+    <EmailMessageObj:Header>
+<% if email_message.from.present? && User.has_permission(current_user,'view_pii_fields')%>
+  <% if email_message.from_is_spoofed %>
+      <EmailMessageObj:From category="e-mail" is_spoofed="true">
+  <% else %>
+      <EmailMessageObj:From category="e-mail">
+  <% end %>
+        <AddressObj:Address_Value condition="<%= email_message.from_address.address_condition %>"><%= email_message.from_address.address_value_raw %></AddressObj:Address_Value>
+      </EmailMessageObj:From>
+<% end %>
+<% if email_message.subject.present? && email_message.subject_condition.present? %>
+      <EmailMessageObj:Subject condition="<%=email_message.subject_condition%>"><%=email_message.subject%></EmailMessageObj:Subject>
+<% elsif email_message.subject.present? %>
+      <EmailMessageObj:Subject><%=email_message.subject%></EmailMessageObj:Subject>
+<% end %>
+<% if email_message.email_date.present? %>
+      <EmailMessageObj:Date><%=email_message.email_date.try(:to_atom) %></EmailMessageObj:Date>
+<% end %>
+<% if email_message.message_id.present? %>
+      <EmailMessageObj:Message_ID condition="Equals"><%=email_message.message_id%></EmailMessageObj:Message_ID>
+<% end %>
+<% if email_message.sender.present? && User.has_permission(current_user,'view_pii_fields')%>
+  <% if email_message.sender_is_spoofed %>
+      <EmailMessageObj:Sender category="e-mail" is_spoofed="true">
+  <% else %>
+      <EmailMessageObj:Sender category="e-mail">
+  <% end %>
+        <AddressObj:Address_Value condition="<%= email_message.sender_address.address_condition %>"><%= email_message.sender_address.address_value_raw %></AddressObj:Address_Value>
+      </EmailMessageObj:Sender>
+<% end %>
+<% if email_message.x_mailer.present? && User.has_permission(current_user,'view_pii_fields')%>
+      <EmailMessageObj:X_Mailer condition="Equals"><%=email_message.x_mailer%></EmailMessageObj:X_Mailer>
+<% end %>
+    </EmailMessageObj:Header>
+<% if email_message.raw_body.present? && User.has_permission(current_user,'view_pii_fields')%>
+    <EmailMessageObj:Raw_Body><%=email_message.raw_body%></EmailMessageObj:Raw_Body>
+<% end %>
+<% if email_message.cybox_files.present? %>
+    <EmailMessageObj:Attachments>
+  <% email_message.cybox_files.each do |a| %>
+      <EmailMessageObj:File object_reference="<%=a.cybox_object_id%>" />
+  <% end %>
+    </EmailMessageObj:Attachments>
+<% end %>
+<% if email_message.links.present? %>
+    <EmailMessageObj:Links>
+  <% if email_message.links.present?
+      email_message.links.each do |l| %>
+      <EmailMessageObj:Link object_reference="<%=l.cybox_object_id%>" />
+  <%  end
+     end %>
+    </EmailMessageObj:Links>
+<% end %>
+  </cybox:Properties>
+</cybox:Object>

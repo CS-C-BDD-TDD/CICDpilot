@@ -1,0 +1,82 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+var mainController = app.controller('MainController',['$scope','$rootScope','User','Settings', function($scope,$rootScope,User,Settings) {
+  $rootScope.can = function(permission){
+    return User.can($rootScope.current_user, permission);
+  };
+  $rootScope.canAny = function(perms){
+    return User.canAny($rootScope.current_user, perms);
+  };
+  $rootScope.canAll = function(perms){
+    return User.canAll($rootScope.current_user, perms);
+  };
+  $rootScope.canModify = function(item){
+    if (angular.isUndefined(item)) {return false;}
+    return User.canModify($rootScope.current_user, item);
+  };
+  $rootScope.canDelete = function(item){
+    if (angular.isUndefined(item)) {return false;}
+    return User.canDelete($rootScope.current_user, item);
+  };
+  $rootScope.setting_value = function(s){
+    return Settings.value($rootScope.settings, s);
+  };
+  $rootScope.is_undefined_or_null = function(obj) {
+    return angular.isUndefined(obj) || obj == '' || obj == null;
+  }
+
+  $rootScope.show_res_errors = function(res){
+    if (angular.isDefined(res.data) && angular.isDefined(res.data.errors)) {
+      _.each(res.data.errors,function(e, key){
+        if (e.toString() == "[object Object]"){
+          var toastr_msg = getStringsFromObj(e);
+          toastr.error(toastr_msg);
+        } else {
+          if ((typeof key) == "string" && key.indexOf(".") > -1){
+            key = key.substring(_.lastIndexOf(key,".") + 1, key.length)
+          } else if ((typeof key) == "number") {
+            key = ''
+          }
+          toastr.error(attribute_to_display_name(key) + " " + e);
+        }
+      });
+    }
+  }
+
+  $rootScope.parse_error = function(errors, obj){
+    _.forEach(errors, function(ex) {
+      var index_column = ex.indexOf(":");
+      var index_left = ex.indexOf("[");
+      var index_right = ex.indexOf("]");
+      var key = ex.substring(index_column+2, index_left);
+      var index = ex.substring(index_left+1, index_right);
+      obj[key][index].validation_error = true;
+    })
+
+    return obj;
+  }
+
+  function getStringsFromObj(obj) {
+    if (typeof obj == "string") 
+      return obj;
+    else { 
+      return getStringsFromObj(obj[Object.keys(obj)[0]]);
+    }
+  }
+
+  function attribute_to_display_name(key){
+    switch(key){
+      case "address_value_normalized":
+        return "Address Value";
+      case "domain_normalized":
+        return "Domain Name";
+      case "base":
+        return "";
+      default:
+        return key;
+    }
+  }
+  
+  $('.modal-backdrop').remove();
+  $rootScope.updateHRCount();
+}]);

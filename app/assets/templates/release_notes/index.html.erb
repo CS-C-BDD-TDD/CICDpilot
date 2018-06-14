@@ -1,0 +1,25 @@
+<div style="margin-left: 50px">
+	<% startOl = false %> <!-- Boolean for keeping track of new OL's based upon every release -->
+	<% releaseNotes = File.read("config/releasenotes.txt").split(?\n) %>
+	<% releaseNotes.each do |line| %>
+		<% if line.start_with? "Release" %>
+			<% if startOl == true %>
+				<% startOl = false %> <!-- If old release's OL is still turned on, turn it off for next release -->
+			</ol>
+			<% end %>
+			<% startOl = true %> <ol> <!-- Start every new release with new OL -->
+			<% if line.include? " - " %>
+				<p><h1> <%= line %> </h1></p>
+			<% else %>
+				<p><h2> <%= line %> </h2></p>
+			<% end %>
+		<% else %>
+			<% if line.start_with? "  " %>
+				<p><h5 class="widget-title bigger lighter"> <ul><li><%= line %> </h5></li></ul></p> <!-- UL items are here -->
+			<% else %>
+				<p><h5 class="widget-title bigger lighter"> <li><%= line %> </h5></li></p>
+			<% end %>
+		<% end %>
+	<% end %>
+	<br><br>
+</div>

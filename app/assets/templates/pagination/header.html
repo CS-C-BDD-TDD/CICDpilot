@@ -1,0 +1,25 @@
+    <div class="widget-header" style="color: #fff;background: none repeat scroll 0 0 #307ecc;border-color: #307ecc; filter: none !important;">
+      <div class="col-xs-4">
+        <h5 class="widget-title bigger lighter" ng-show="pagename">
+          <span style="white-space:nowrap;">
+            <i class="ace-icon fa fa-table"></i>
+            {{pagename}}
+          </span>
+          <span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field" ng-show="downloadable == false">
+      		<i class="fa fa-ban fa-stack-2x"> </i> 
+ 			<i class="fa fa-download fa-stack-1x"> </i>
+    	  </span>
+        </h5>
+      </div>
+      <div class="col-xs-4 text-center">
+        <h5 ng-show="total_count && total_count>0">
+          Displaying&nbsp;{{page.first_record(offset)}}&nbsp;to&nbsp;{{page.last_record(offset,per_page,total_count)}}&nbsp;of&nbsp;{{total_count}}
+        </h5>
+        <h5 ng-show="total_count==0">
+          No Records Found
+        </h5>
+        <h5 ng-show="total_count==null">
+          <i class="fa fa-spinner fa-spin"></i> LOADING...
+        </h5>
+      </div>
+    </div>

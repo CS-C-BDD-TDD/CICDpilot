@@ -1,0 +1,17 @@
+<%=
+    stix_package = StixPackage.new
+    stix_package.title = "Single Indicator: #{@indicator.stix_id}"
+    stix_package.description = "Package with single indicator #{@indicator.stix_id} at #{Time.now.to_atom}"
+    stix_package.short_description = "Package with single indicator #{@indicator.stix_id}"
+    stix_package.set_stix_id
+    stix_package.created_at = Time.now
+    stix_package.indicators = [@indicator]
+
+    inherited_markings = nil
+    stix_markings = nil
+    if Setting.CLASSIFICATION == true
+        stix_markings = Marking.clone_markings_into_package(@indicator, stix_package)
+    end
+
+    render "stix_packages/show", stix_package: stix_package, inherited_markings: stix_markings, formats: 'ais'
+%>

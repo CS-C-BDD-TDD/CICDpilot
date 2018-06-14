@@ -1,0 +1,87 @@
+  <div class="widget-box widget-color-blue ui-sortable-handle">
+    <pagination-header metadata="metadata" offset="offset" pagename="'Threat Actors'"></pagination-header>
+    <pagination-footer metadata="metadata" offset="offset" get_records="getThreatActors"></pagination-footer>
+    <div class="dataTables_wrapper form-inline no-footer">
+      <div class="row">
+        <div class="col-xs-4">
+        </div>
+        <div class="col-xs-4">
+          <div style="text-align: center">
+            <div class="input-group">
+              <span class="input-group-addon">
+                <i class="fa fa-calendar"></i>
+              </span>
+              <input date-range-picker style="margin-left: 0px" type="text" class="form-control" options="date_picker_opts" />
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-4">
+          <div style="text-align: right">
+            <search-markings  search-fn="startSearch()" marking-search-params="marking_search_params"></search-markings>
+            <a ng-href="{{buildHref()}}">
+              <button class="btn btn-grey no-radius btn-xs">
+                <i class="ace-icon fa fa-floppy-o bigger-160"></i>
+                Download to CSV
+              </button>
+            </a>
+            <span class="input-icon">
+              <input class="form-control search-query" placeholder="Search Threat Actors..." type="search"
+                     ng-enter="startSearch()" ng-model="q">
+              <i class="ace-icon fa fa-search nav-search-icon" style="margin-left: 4px"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="widget-body">
+      <div class="widget-main no-padding">
+        <table class="table table-striped table-bordered table-hover dataTable">
+          <thead class="thin-border-bottom">
+            <tr>
+              <input type="hidden" ng-model="marking_search_params">
+              <th class="sorting" ng-click="sort('title')" style="width:35%">Title</th>
+              <th style="width:15%">Created By</th>
+              <th class="sorting" ng-click="sort('created_at')" style="width:15%">Date Created</th>
+              <th class="sorting" ng-click="sort('updated_at')" style="width:15%">Last Updated</th>
+              <th style="width:35%">Short Description</th>
+              <th style="width:35%">Identity Name</th>
+            </tr>
+          </thead>
+          <tbody ng-hide="fetching">
+          <tr ng-repeat="threat_actor in threatActors">
+            <td>
+              <a href="#/threat_actors/{{threat_actor.stix_id | encodeURIComponent}}">{{threat_actor.title | prefixWithPortionMarking: threat_actor.portion_marking:threat_actor.title_c}}</a>
+            </td>
+            <td>
+              {{threat_actor.created_by_user.username}}
+            </td>
+            <td>
+              {{threat_actor.created_at | date: 'medium'}}
+            </td>
+            <td>
+              {{threat_actor.updated_at | date: 'medium'}}
+            </td>
+            <td>
+              {{threat_actor.short_description | prefixWithPortionMarking: threat_actor.portion_marking:threat_actor.short_description_c}}
+            </td>
+            <td>
+              {{threat_actor.identity_name | prefixWithPortionMarking: threat_actor.portion_marking:threat_actor.identity_name_c}}
+            </td>
+          </tr>
+          <tr ng-hide="threatActors.length || fetching">
+            <td colspan="6" style="text-align:center">No Results</td>
+          </tr>
+          </tbody>
+          <tbody ng-show="fetching">
+            <tr>
+              <td colspan="6" class="center">
+                <i class="fa fa-spinner fa-spin bigger-300 blue"></i>
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+      </div>
+    </div>
+    <pagination-footer metadata="metadata" offset="offset" get_records="getThreatActors"></pagination-footer>
+  </div>

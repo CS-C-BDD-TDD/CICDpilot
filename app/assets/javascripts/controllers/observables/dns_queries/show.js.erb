@@ -1,0 +1,15 @@
+app.controller('DnsQueriesShowController', ['$scope','$location','$routeParams','$rootScope','Restangular',
+  function ($scope, $location, $routeParams, $rootScope, Restangular) {
+    Restangular.one('/dns_queries',$routeParams.id).get().then(function(data){
+      $scope.dns_query = data;
+      if (angular.isDefined($scope.dns_query) && angular.isDefined($scope.dns_query.ind_course_of_actions)){
+        $scope.dns_query.course_of_actions = $scope.dns_query.course_of_actions.concat($scope.dns_query.ind_course_of_actions);
+      }
+      $scope.showTable = {coa_data: true, collapse: false};
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'DNS Query',link:'#/dns_queries',icon:'fa-group'},{text:$scope.dns_query.cybox_object_id,link:'#/dns_queries/'+encodeURIComponent($scope.dns_query.cybox_object_id)}];
+      
+    },function(res){
+      toastr.error("Unable to load DNS Query");
+    });
+  }
+]);

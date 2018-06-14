@@ -1,0 +1,148 @@
+default: &default
+    create_indicator_observable:
+      display_name: Create Indicators and Observables
+      description: The user can create indicators and observables.
+#    create_campaign:
+#      display_name: Create Campaigns
+#      description: The user can create campaigns.
+    create_analyst_notes:
+      display_name: Create Analyst Notes
+      description: The user can add notes to indicators
+    create_package_report:
+      display_name: Create Packages and Reports
+      description: The user can create packages and reports.
+    modify_organization_items:
+      display_name: Modify Items Created by Someone in My Organization
+      description: The user can modify items created by a member of their organization.
+    delete_organization_items:
+      display_name: Remove Items Created by Someone in My Organization
+      description: The user can delete items created by a member of their organization.
+    modify_all_items:
+      display_name: Modify any Item in the System
+      description: The user can modify items created by any user.
+    delete_all_items:
+      display_name: Remove any Item in the System
+      description: The user can delete items created by any user.
+    set_confidence_level:
+      display_name: Set Unofficial Indicator Confidence Level
+      description: The user can set an unofficial confidence level on an indicator.
+    set_official_confidence_level:
+      display_name: Set Official Indicator Confidence Level
+      description: The user can set the official confidence level on an indicator.
+    tag_item_with_user_tag:
+      display_name: Tag Indicator with User Tag
+      description: The user can tag an indicator with user tags.
+    tag_item_with_system_tag:
+      display_name: Tag Indicator with System Tag
+      description: The user can tag an indicator with system tags.
+    create_remove_system_tags:
+      display_name: Create System Tags
+      description: The user can create and remove system tags.
+    add_indicator_to_threat_actor:
+      display_name: Add and Remove Indicator to/from Threat Actor
+      description: The user can add an Indicator to and remove an Indicator from a Threat Actor.
+    create_remove_threat_actors:
+      display_name: Create and Remove Threat Actors
+      description: The user can create and remove Threat Actors.
+    create_modify_indicator_scoring:
+      display_name: Create and Modify Indicator Scoring
+      description: The User can Create and Modify Scoring for Indicators
+    create_remove_course_of_actions:
+      display_name: Create and Remove Courses of Action
+      description: The user can create and remove Courses of Action.
+    link_indicators_to_course_of_actions:
+      display_name: Add and Remove Indicators to/from Courses of Action
+      description: The user can link an Indicator to and remove links to indicators from a Courses of Action.
+    link_packages_to_course_of_actions:
+      display_name: Add and Remove Stix Packages to/from Courses of Action
+      description: The user can link an Stix Package to and remove links to Stix Packages from a Courses of Action.
+    view_analyst_notes:
+      display_name: View Analyst Notes
+      description: The user can view notes on indicators
+    view_metrics:
+      display_name: View Metrics
+      description: The user can view metrics.
+    view_all_uploads:
+      display_name: View All Uploads
+      description: The user can view the all uploads page.
+    view_user_organization:
+      display_name: View Users, Organizations and Groups
+      description: The user can view users, organizations and groups.
+    create_modify_user_organization:
+      display_name: Create and Modify Users, Organizations and Groups
+      description: The user can create and modify users, organizations and groups.
+    view_uploaded_file_info:
+      display_name: View Original XML of Uploaded Files
+      description: The user can view uploaded file information.
+    mark_items_for_export:
+      display_name: Mark Items for Export to Other Systems
+      description: The user can mark items for export to E3A/Einstein/ECS
+    view_pii_fields:
+      display_name: Allow PII Fields to be Shown
+      description: The user can view/add/modify fields that may contain PII in the application
+    manage_acs_sets:
+      display_name: Create and Modify ACS Sets
+      description: The User can Create/Update/Delete ACS Sets, which all other users can use for ACS attribution
+    human_review:
+      display_name: Perform Human Review
+      description: The User can perform Human Review on incoming STIX files that need to be reviewed for PII before upload into the system
+    download_for_transfer:
+      display_name: Download Data for Transfer to High Side
+      description: The User can create a zip file of packages and indicators in a date range for upload into TS-CIAP
+    upload_for_transfer:
+      display_name: Upload ZIP of data from Low Side (TS-CIAP Only)
+      description: The User can upload a zip file of packages and indicators into TS-CIAP (Only valid for TS-CIAP)
+    create_remove_exploit_targets:
+      display_name: Create and Remove Exploit Targets
+      description: The user can create and remove Exploit Targets.
+    add_vulnerabilities_to_exploit_targets:
+      display_name: Add and Remove Vulnerabilities to/from Exploit Targets
+      description: The user can add an Vulnerabilities to and remove an Vulnerabilities from a Exploit Targets.
+    add_course_of_actions_to_exploit_targets:
+      display_name: Add and Remove Course of Actions to/from Exploit Targets
+      description: The user can add an Course of Actions to and remove an Course of Actions from a Exploit Targets.
+    add_exploit_targets_to_stix_packages:
+      display_name: Add and Remove Exploit Targets to/from Stix Packages
+      description: The user can add an Exploit Target to and remove an Exploit Target from a Stix Package.
+    create_remove_vulernabilities:
+      display_name: Create and Remove Vulnerabilities
+      description: The user can create and remove Vulnerabilities.
+    create_remove_ttps:
+      display_name: Create and Remove TTPs
+      description: The user can create and remove TTPs.
+    create_remove_attack_patterns:
+      display_name: Create and Remove Attack Patterns
+      description: The user can create and remove Attack Patterns.
+    add_exploit_targets_to_ttps:
+      display_name: Add and Remove Exploit Targets to/from TTP
+      description: The user can add an Exploit Targets to and remove an Exploit Targets from a TTP
+    add_attack_patterns_to_ttps:
+      display_name: Add and Remove Attack Patterns to/from TTPs
+      description: The user can add an Attack Patterns to and remove an Attack Patterns from a TTP
+    add_ttp_to_indicators:
+      display_name: Add and Remove TTP to/from Indicators
+      description: The user can add an TTP to and remove an TTP from a Indicators
+    add_ttp_to_stix_packages:
+      display_name: Add and Remove TTPs to/from Stix Package
+      description: The user can add an TTP to and remove an TTP from a Stix Package
+    view_stix_data:
+      display_name: View STIX Data
+      description: The user can view pages containing STIX data
+    view_badge_status:
+      display_name: View Badge Status
+      description: The user can view badges and their statuses
+    create_remove_badge_status:
+      display_name: Create and Remove Badge Status
+      description: The user can create and remove badges and their statuses
+
+dbadmin:
+  <<: *default
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default

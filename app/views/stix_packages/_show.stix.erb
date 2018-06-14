@@ -1,0 +1,351 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<%
+  nslist = Stix::Stix111::Standard.new.get_namespaces
+  slist = Stix::Stix111::Standard.new.get_schema_locations
+  kill_chains = stix_package.kill_chains
+  temp_hashes = Array.new
+%>
+<stix:STIX_Package id="<%= stix_package.stix_id %>" version="1.1.1" <%= nslist.html_safe %> <%= slist.html_safe %>>
+  <stix:STIX_Header>
+    <stix:Title><%= stix_package.title %></stix:Title>
+  <% if stix_package.package_intent.present? %>
+    <stix:Package_Intent xsi:type="stixVocabs:PackageIntentVocab-1.0"><%= stix_package.package_intent %></stix:Package_Intent>
+  <% end %>
+  <% if User.has_permission(current_user, 'view_pii_fields') %>
+    <stix:Description><%= stix_package.description %></stix:Description>
+    <stix:Short_Description><%= stix_package.short_description %></stix:Short_Description>
+  <% end %>
+  <%
+    indicators = stix_indicator_parse_relationships(stix_package.indicators)
+    indicators = indicators.compact
+    indicators = stix_indicator_multi_observable(indicators)
+    indicators.uniq! { |i| i[:stix_id] }
+    coas = stix_package.course_of_actions || []
+    ets = stix_package.exploit_targets || []
+    ttps = stix_package.ttps || []
+    suggested_coas = collect_suggested_coas(indicators)
+    coas.concat(suggested_coas) if suggested_coas.present?
+    indicated_ttps = collect_indicated_ttps(indicators)
+    ttps.concat(indicated_ttps) if indicated_ttps.present?
+    ttps.uniq! { |t| t[:stix_id] }
+    ttps.select { |t| t[:attack_patterns].present? ||
+        t[:exploit_targets].present? }
+    related_ets = collect_related_ets(ttps)
+    ets.concat(related_ets) if related_ets.present?
+    ets.uniq! { |e| e[:stix_id] }
+    potential_coas = collect_potential_coas(ets)
+    coas.concat(potential_coas) if potential_coas.present?
+    coas.uniq!{ |c| c[:stix_id] }
+    observables = indicators.reject { |i| i.observables.blank? }.collect { |i| i.observables.first }.flatten.uniq { |o| o[:cybox_object_id] }
+    observables = collect_embedded_objects(observables)
+    object_markings = collect_object_markings(observables)
+  %>
+  <% if Setting.CLASSIFICATION == true && (defined? inherited_markings) != nil %>
+    <%= render partial: 'stix_markings/show.stix.erb', locals: {stix_markings: inherited_markings, field_markings: object_markings} %>
+  <% else %>
+    <%= render partial: 'stix_markings/show.stix.erb', locals: {stix_object: stix_package, field_markings: object_markings} %>
+  <% end %>
+    <%= render partial: 'information_source/show.stix.erb', locals: {stix_package: stix_package} %>
+  </stix:STIX_Header>
+  <% if observables.present? %>
+  <stix:Observables cybox_major_version="2" cybox_minor_version="1">
+    <%
+      cybox_object_ids = []
+      observables.uniq{|o| o.cybox_object_id}.each do |observable|
+    %>
+    <cybox:Observable id="<%= observable.cybox_object_id %>">
+    <% if observable.object.present? && cybox_object_ids.include?(observable.object.cybox_object_id) %>
+      <cybox:Object idref="<%= observable.object.cybox_object_id %>"/>
+    <%
+      else
+        cybox_object_ids << observable.object.cybox_object_id if observable.object.present?
+    %>
+      <% if observable.dns_query.present? %>
+      <%= render partial: 'dns_queries/show.stix.erb', locals: {dns_query: observable.dns_query} %>
+      <% end %>
+      <% if observable.dns_record.present? %>
+      <%= render partial: 'dns_records/show.stix.erb', locals: {dns_record: observable.dns_record} %>
+      <% end %>
+      <% if observable.domain.present? %>
+      <%= render partial: 'domains/show.stix.erb', locals: {domain: observable.domain} %>
+      <% end %>
+      <% if observable.email_message.present? %>
+      <%= render partial: 'email_messages/show.stix.erb', locals: {email_message: observable.email_message} %>
+      <% end %>
+      <% if observable.file.present? %>
+      <%= render partial: 'files/show.stix.erb', locals: {file: observable.file} %>
+      <% end %>
+      <% if observable.http_session.present? %>
+      <%= render partial: 'http_sessions/show.stix.erb', locals: {http_session: observable.http_session} %>
+      <% end %>
+      <% if observable.hostname.present? %>
+      <%= render partial: 'hostnames/show.stix.erb', locals: {hostname: observable.hostname} %>
+      <% end %>
+      <% if observable.address.present? %>
+      <%= render partial: 'addresses/show.stix.erb', locals: {address: observable.address} %>
+      <% end %>
+      <% if observable.link.present? %>
+      <%= render partial: 'links/show.stix.erb', locals: {link: observable.link} %>
+      <% end %>
+      <% if observable.mutex.present? %>
+      <%= render partial: 'mutexes/show.stix.erb', locals: {mutex: observable.mutex} %>
+      <% end %>
+      <% if observable.network_connection.present? %>
+      <%= render partial: 'network_connections/show.stix.erb', locals: {network_connection: observable.network_connection} %>
+      <% end %>
+      <% if observable.port.present? %>
+      <%= render partial: 'ports/show.stix.erb', locals: {port: observable.port} %>
+      <% end %>
+      <% if observable.registry.present? %>
+      <%= render partial: 'registries/show.stix.erb', locals: {registry: observable.registry} %>
+      <% end %>
+      <% if observable.socket_address.present? %>
+      <%= render partial: 'socket_addresses/show.stix.erb', locals: {socket_address: observable.socket_address} %>
+      <% end %>
+      <% if observable.uri.present? %>
+      <%= render partial: 'uris/show.stix.erb', locals: {uri: observable.uri} %>
+      <% end %>
+    <% end %>
+    </cybox:Observable>
+  <% end %>
+  </stix:Observables>
+<% end %>
+<% if indicators.present? %>
+  <stix:Indicators>
+  <% indicators.uniq{|i| i.stix_id}.each do |indicator| %>
+    <stix:Indicator id="<%= indicator.stix_id %>" version="2.0" xsi:type="indicator:IndicatorType">
+    <% if indicator.title.present? %>
+      <indicator:Title><%= indicator.title %></indicator:Title>
+    <% end %>
+    <% if indicator.indicator_type_first.present? %>
+      <indicator:Type<%= raw indicator.indicator_type_vocab %>><%= indicator.indicator_type_first %></indicator:Type>
+    <% end %>
+    <% if indicator.alternative_id.present? %>
+      <indicator:Alternative_ID><%= indicator.alternative_id %></indicator:Alternative_ID>
+    <% end %>
+    <% if indicator.description.present? %>
+      <indicator:Description><%= indicator.description %></indicator:Description>
+    <% end %>
+    <% if indicator.start_time.present? || indicator.end_time.present? %>
+      <indicator:Valid_Time_Position>
+      <% if indicator.start_time.present? %>
+        <indicator:Start_Time><%= indicator.start_time.try(:to_atom) %></indicator:Start_Time>
+      <% end %>
+      <% if indicator.end_time.present? %>
+        <indicator:End_Time><%= indicator.end_time.try(:to_atom) %></indicator:End_Time>
+      <% end %>
+      </indicator:Valid_Time_Position>
+    <% end %>
+    <% if indicator.observables.present? %>
+      <indicator:Observable idref="<%= indicator.observables.first.cybox_object_id %>"/>
+    <% end %>
+    <% if indicator.ttps.present? %>
+      <% indicator.ttps.each do |ttp| %>
+        <indicator:Indicated_TTP>
+          <stixCommon:TTP idref="<%= ttp[:stix_id] -%>"/>
+        </indicator:Indicated_TTP>
+      <% end %>
+    <% end %>
+    <% if indicator.weather_map_addresses.present? && indicator.weather_map_addresses.first.category_list.present? %>
+      <%
+        temp_hashes ||= Array.new
+        indicator.weather_map_addresses.first.category_list.split("-").each do |cat|
+          temp_hashes << ["NCCIC:TTP-TEMP-#{SecureRandom.uuid}", cat]
+        end
+      %>
+      <indicator:Indicated_TTP>
+        <stixCommon:TTP idref="<%= temp_hashes.last[0] -%>"/>
+      </indicator:Indicated_TTP>
+    <% end %>
+    <% if indicator.weather_map_domains.present? && indicator.weather_map_domains.first.category_list.present? %>
+      <%
+        temp_hashes ||= Array.new
+        indicator.weather_map_domains.first.category_list.split("-").each do |cat|
+          temp_hashes << ["NCCIC:TTP-TEMP-#{SecureRandom.uuid}", cat]
+        end
+      %>
+      <indicator:Indicated_TTP>
+        <stixCommon:TTP idref="<%= temp_hashes.last[0] -%>"/>
+      </indicator:Indicated_TTP>
+    <% end %>
+    <% refs = indicator.kill_chain_refs %>
+    <% if refs.present? %>
+      <indicator:Kill_Chain_Phases>
+        <% refs.each do |kcr| %>
+            <stixCommon:Kill_Chain_Phase phase_id="<%= kcr.stix_kill_chain_phase_id %>" kill_chain_id="<%= kcr.stix_kill_chain_id %>"/>
+        <% end %>
+      </indicator:Kill_Chain_Phases>
+    <% end %>
+    <% if indicator.weather_map_addresses.present? && indicator.weather_map_addresses.first.combined_score.present? %>
+      <indicator:Likely_Impact>
+        <stixCommon:Value><%= indicator.weather_map_addresses.first.combined_score %></stixCommon:Value>
+        <stixCommon:Description>Weather Map address score</stixCommon:Description>
+      </indicator:Likely_Impact>
+    <% end %>
+    <% if indicator.weather_map_domains.present? && indicator.weather_map_domains.first.combined_score.present? %>
+      <indicator:Likely_Impact>
+        <stixCommon:Value><%= indicator.weather_map_domains.first.combined_score %></stixCommon:Value>
+        <stixCommon:Description>Weather Map domain score</stixCommon:Description>
+      </indicator:Likely_Impact>
+    <% end %>
+    <% if indicator.course_of_actions.present? %>
+      <indicator:Suggested_COAs>
+      <% indicator.course_of_actions.each do |coa| %>
+        <indicator:Suggested_COA>
+          <stixCommon:Course_Of_Action idref="<%= coa.stix_id %>" version="1.1.1" xsi:type="coa:CourseOfActionType"/>
+        </indicator:Suggested_COA>
+      <% end %>
+      </indicator:Suggested_COAs>
+    <% end %>
+    <%= render partial: 'stix_markings/show.stix.erb', locals: {stix_object: indicator, top_level_name_space: 'indicator'} %>
+    <% if indicator.confidences.present? %>
+      <%= render partial: 'confidences/show.stix.erb', locals: {type: 'indicator', confidences: indicator.confidences} %>
+    <% end %>
+    <% if indicator.sightings.present? %>
+      <indicator:Sightings sightings_count="<%= indicator.total_sightings %>">
+      <% indicator.sightings.each do | sighting | %>
+      <% if sighting.sighted_at.present? %>
+        <indicator:Sighting timestamp="<%= sighting.sighted_at.try(:to_atom) %>">
+        <% if sighting.description.present? %>
+          <indicator:Description><%= sighting.description %></indicator:Description>
+        <% end %>
+        </indicator:Sighting>
+      <% end %>
+      <% end %>
+      </indicator:Sightings>
+    <% end %>
+    <% if (indicator.related_to_objects.count + indicator.related_by_objects.count) > 0 %>
+      <indicator:Related_Indicators>
+      <% indicator.related_to_objects.each do |related_indicator| %>
+        <% next unless related_indicator.remote_dest_object.present? %>
+        <indicator:Related_Indicator>
+          <%= render partial: 'confidences/show.stix.erb', locals: {type: 'stixCommon', confidences: related_indicator.confidences} %>
+        <% if related_indicator.stix_information_source_id %>
+          <stixCommon:Information_Source><%= related_indicator.stix_information_source_id %></stixCommon:Information_Source>
+        <% end %>
+        <% if related_indicator.relationship_type %>
+          <stixCommon:Relationship><%= related_indicator.relationship_type %></stixCommon:Relationship>
+        <% end %>
+          <stixCommon:Indicator idref="<%= related_indicator.remote_dest_object.stix_id %>" version="2.0" xsi:type="indicator:IndicatorType"/>
+        </indicator:Related_Indicator>
+      <% end %>
+      <% indicator.related_by_objects.each do |related_indicator| %>
+        <% next unless related_indicator.remote_src_object.present? %>
+        <indicator:Related_Indicator>
+          <%= render partial: 'confidences/show.stix.erb', locals: {type: 'stixCommon', confidences: related_indicator.confidences} %>
+        <% if related_indicator.stix_information_source_id %>
+          <stixCommon:Information_Source><%= related_indicator.stix_information_source_id %></stixCommon:Information_Source>
+        <% end %>
+        <% if related_indicator.relationship_type %>
+          <stixCommon:Relationship><%= related_indicator.relationship_type %></stixCommon:Relationship>
+        <% end %>
+          <stixCommon:Indicator idref="<%= related_indicator.remote_src_object.stix_id %>" version="2.0" xsi:type="indicator:IndicatorType"/>
+        </indicator:Related_Indicator>
+      <% end %>
+      </indicator:Related_Indicators>
+    <% end %>
+    </stix:Indicator>
+  <% end %>
+  </stix:Indicators>
+<% end %>
+<% if temp_hashes.any? || kill_chains.any? || ttps.any? %>
+  <stix:TTPs>
+    <%
+      temp_hashes.length.downto(1) do |i|
+        i_category = temp_hashes[i-1]
+        h_category = nil
+        h_category = temp_hashes[i-2] if i-2>=0
+    %>
+    <stix:TTP xsi:type="ttp:TTPType" id="<%= i_category[0] -%>">
+      <ttp:Title><%= i_category[1] %></ttp:Title>
+      <% if h_category.present? %>
+      <ttp:Related_TTPs>
+        <ttp:Related_TTP>
+          <stixCommon:TTP idref="<%= h_category[0] -%>" />
+        </ttp:Related_TTP>
+      </ttp:Related_TTPs>
+      <% end %>
+    </stix:TTP>
+  <% end %>
+  <% if ttps.any? %>
+    <% ttps.uniq{|t| t.stix_id}.each do |t| %>
+    <stix:TTP id="<%= t.stix_id %>" xsi:type="ttp:TTPType">
+      <% if t.attack_patterns.any? %>
+      <ttp:Behavior>
+        <ttp:Attack_Patterns>
+        <% t.attack_patterns.each do |ap| %>
+        <%= render partial: 'attack_patterns/show.stix.erb', locals: {type: 'stix', attack_pattern: ap} %>
+        <% end %>
+        </ttp:Attack_Patterns>
+      </ttp:Behavior>
+      <% end %>
+      <% if t.exploit_targets.any? %>
+      <ttp:Exploit_Targets>
+        <% t.exploit_targets.each do |e| %>
+          <ttp:Exploit_Target>
+            <stixCommon:Exploit_Target idref="<%= e.stix_id %>"/>
+          </ttp:Exploit_Target>
+        <% end %>
+      </ttp:Exploit_Targets>
+      <% end %>
+      <%= render partial: 'stix_markings/show.stix.erb', locals: {stix_object: t, top_level_name_space: 'ttp'} %>
+    </stix:TTP>
+    <% end %>
+  <% end %>
+  <% if kill_chains.any? %>
+    <stix:Kill_Chains>
+      <%
+        kill_chains.each do |kc|
+          args = "id=\"#{kc.stix_kill_chain_id}\""
+          args = args + " definer=\"#{kc.definer}\"" if kc.definer.present?
+          args = args + " name=\"#{kc.kill_chain_name}\"" if kc.kill_chain_name.present?
+        %>
+      <stixCommon:Kill_Chain <%= args.html_safe %>>
+      <% kc.kill_chain_phases.each do |kcp| %>
+        <stixCommon:Kill_Chain_Phase ordinality="<%= kcp.ordinality %>" name="<%= kcp.phase_name %>" phase_id="<%= kcp.stix_kill_chain_phase_id %>" />
+      <% end %>
+      </stixCommon:Kill_Chain>
+      <% end %>
+    </stix:Kill_Chains>
+  <% end %>
+  </stix:TTPs>
+<% end %>
+<% if ets.present? %>
+  <stix:Exploit_Targets>
+  <% ets.uniq{|e| e.stix_id}.each do |et| %>
+    <stixCommon:Exploit_Target id="<%= et.stix_id %>" version="1.1.1" xsi:type="et:ExploitTargetType">
+    <% if et.vulnerabilities.present? %>
+    <% et.vulnerabilities.each do |vulnerability| %>
+      <%= render partial: 'vulnerabilities/show.stix.erb', locals: {vulnerability: vulnerability} %>
+    <% end %>
+    <% end %>
+    <% if et.course_of_actions.present? %>
+      <et:Potential_COAs>
+      <% et.course_of_actions.each do |coa| %>
+        <et:Potential_COA>
+          <stixCommon:Course_Of_Action idref="<%= coa.stix_id %>" version="1.1.1" xsi:type="coa:CourseOfActionType"/>
+        </et:Potential_COA>
+      <% end %>
+      </et:Potential_COAs>
+    <% end %>
+    <%= render partial: 'stix_markings/show.stix.erb', locals: {stix_object: et, top_level_name_space: 'et'} %>
+    </stixCommon:Exploit_Target>
+  <% end %>
+  </stix:Exploit_Targets>
+<% end %>
+<% if coas.present? %>
+  <stix:Courses_Of_Action>
+  <% coas.uniq{|c| c.stix_id}.each do |coa| %>
+    <stix:Course_Of_Action id="<%= coa.stix_id %>" version="1.1.1" xsi:type="coa:CourseOfActionType">
+    <% if coa.title.present? %>
+      <coa:Title><%= coa.title %></coa:Title>
+    <% end %>
+    <% if coa.description.present? %>
+      <coa:Description><%= coa.description %></coa:Description>
+    <% end %>
+  <%= render partial: 'stix_markings/show.stix.erb', locals: {stix_object: coa, top_level_name_space: 'coa'} %>
+    </stix:Course_Of_Action>
+  <% end %>
+  </stix:Courses_Of_Action>
+<% end %>
+</stix:STIX_Package>

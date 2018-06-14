@@ -1,0 +1,40 @@
+if [[ $1 == "-h" ]]; then
+  echo "Syntax:  reindex_weathermap_data [YYYY-MM-DD] [YYYY-MM-DD]"
+  echo ""
+  echo "Specifying dates is optional.  If you do not specify any dates,"
+  echo "this will run from yesterday to today."
+  echo ""
+  echo "You can specify no dates, from date or from and to date."
+  echo ""
+  echo "The from date will always be set to 00:00:00 and the to date"
+  echo "will always be set to 23:59:59, so that the reindex runs as one"
+  echo "would expect."
+  exit
+fi
+
+if [[ $1 ]]; then
+  if [[ $1 =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+    from=$1
+  else
+    echo "From date should be in format YYYY-MM-DD"
+    exit 1
+  fi
+else
+  from=`date +"%Y-%m-%d" --date=yesterday`
+fi
+if [[ $2 ]]; then
+  if [[ $2 =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+    to=$2
+  else
+    echo "To date should be in format YYYY-MM-DD"
+    exit 1
+  fi
+else
+  to=`date +"%Y-%m-%d"`
+fi
+
+types=( Indicator Address WeatherMapData )
+for object in ${types[@]}
+do
+  FROM=$from TO=$to OBJECT=$object COUNT=1000 rake sunspot:reindex:range
+done

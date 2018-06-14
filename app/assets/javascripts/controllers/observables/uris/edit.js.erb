@@ -1,0 +1,20 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('UrisEditController', ['$scope','$routeParams','Restangular','$rootScope','$location','Marking',
+    function($scope,$routeParams,Restangular,$rootScope,$location,Marking) {
+        Restangular.one('/uris/'+$routeParams.id).get().then(function(data){
+            $scope.uri = Marking.translate_existing_attributes(data);
+            $rootScope.breadcrumbs = [{text:'Home',uri:'#/',icon:'fa-home'},{text:'URIs',uri:'#/uris',icon:'fa-group'},{text:data.uri,uri:'#/uris/'+encodeURIComponent(data.cybox_object_id)}];
+        },function(res){
+            toastr.error("Unable to load Uri record");
+        });
+
+        $scope.cancel = function() {
+            $location.path('/uris/'+$routeParams.id);
+        };
+
+        $scope.failed = function() {
+            $("html, body").animate({ scrollTop: 0 }, 200);
+        };
+    }
+]);

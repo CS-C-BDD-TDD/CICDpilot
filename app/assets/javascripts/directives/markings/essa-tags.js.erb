@@ -1,0 +1,173 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('essaTags',function() {
+  return {
+    restrict: 'E',
+    scope: {
+      stixMarking: '='
+    },
+    controller: ['$scope', '$rootScope', 'Indicator', 'Marking', function($scope, $rootScope, Indicator, Marking){
+      var setMulti = function(attribute) {
+          if (angular.isUndefined(attribute) || attribute == null || attribute == [] || attribute == '') {
+              return attribute = [];
+          }
+          else {
+              return attribute = attribute.split(",")
+          }
+      }
+
+      $scope.display = true;
+      $scope.Indicator = Indicator;
+      $scope.Marking = Marking;
+      $scope.settings = $rootScope.settings;
+      $scope.originator_text = false;
+
+      $scope.date_picker_opts = {
+        singleDatePicker: true,
+        startDate: moment()
+      };
+
+      $scope.dateRangePickerPublicReleasedOn = function(picker) {
+          $scope.stixMarking.isa_assertion_structure_attributes.public_released_on = picker.getStartDate();
+      };
+
+      $scope.dateRangePickerDataItemCreatedAt = function(picker) {
+          $scope.stixMarking.isa_marking_structure_attributes.data_item_created_at = picker.getStartDate();
+      };
+
+      $scope.swap = function(model,alertValues) {
+          if (_.findIndex(alertValues,function(chr){return chr == model}) > -1) {
+              toastr.warning("This tag requires additional clarification")
+              return true;
+          }
+          return false;
+      }
+
+      $scope.setFD = function() {
+          if ($scope.stixMarking.isa_assertion_structure_attributes.public_release == true) {
+              if (!_.include($scope.stixMarking.isa_assertion_structure_attributes.cs_formal_determination,'PUBREL')){
+                  $scope.stixMarking.isa_assertion_structure_attributes.cs_formal_determination.push("PUBREL")
+              }
+          }
+          else {
+              _.remove($scope.stixMarking.isa_assertion_structure_attributes.cs_formal_determination,function(n){
+                  return n == 'PUBREL';
+              })
+          }
+      }
+
+      $scope.$watch('stixMarking',function(){
+          if (angular.isDefined($scope.stixMarking) && angular.isDefined($scope.stixMarking.isa_assertion_structure_attributes)){
+              $scope.dsply = $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes[_.findIndex($scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes,function(a){return a.action == 'DSPLY'})]
+              if ($scope.dsply == null) {
+                  $scope.dsply = {action: 'DSPLY',effect: 'deny', scope_is_all: true};
+                  $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes.push($scope.dsply);
+              }
+
+              $scope.legal = $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes[_.findIndex($scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes,function(a){return a.action == 'LEGAL'})]
+              if ($scope.legal == null) {
+                  $scope.legal = {action: 'LEGAL',effect: 'deny', scope_is_all: true};
+                  $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes.push($scope.legal);
+              }
+
+              $scope.idsrc = $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes[_.findIndex($scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes,function(a){return a.action == 'IDSRC'})]
+              if ($scope.idsrc == null) {
+                  $scope.idsrc = {action: 'IDSRC',effect: 'deny', scope_is_all: true};
+                  $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes.push($scope.idsrc);
+              }
+
+              $scope.tenot = $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes[_.findIndex($scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes,function(a){return a.action == 'TENOT'})]
+              if ($scope.tenot == null) {
+                  $scope.tenot = {action: 'TENOT',effect: 'deny', scope_is_all: true};
+                  $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes.push($scope.tenot);
+              }
+
+              $scope.intel = $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes[_.findIndex($scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes,function(a){return a.action == 'INTEL'})]
+              if ($scope.intel == null) {
+                  $scope.intel = {action: 'INTEL',effect: 'deny', scope_is_all: true};
+                  $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes.push($scope.intel);
+              }
+
+              $scope.netdef = $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes[_.findIndex($scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes,function(a){return a.action == 'NETDEF'})]
+              if ($scope.netdef == null) {
+                  $scope.netdef = {action: 'NETDEF',effect: 'deny', scope_is_all: true};
+                  $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes.push($scope.netdef);
+              }
+
+              $scope.tearline = $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes[_.findIndex($scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes,function(a){return a.action == 'TEARLINE'})]
+              if ($scope.tearline == null) {
+                  $scope.tearline = {action: 'TEARLINE',effect: 'deny', scope_is_all: true};
+                  $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes.push($scope.tearline);
+              }
+
+              $scope.opaction = $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes[_.findIndex($scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes,function(a){return a.action == 'OPACTION'})]
+              if ($scope.opaction == null) {
+                  $scope.opaction = {action: 'OPACTION',effect: 'deny', scope_is_all: true};
+                  $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes.push($scope.opaction);
+              }
+
+              $scope.request = $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes[_.findIndex($scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes,function(a){return a.action == 'REQUEST'})]
+              if ($scope.request == null) {
+                  $scope.request = {action: 'REQUEST',effect: 'deny', scope_is_all: true};
+                  $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes.push($scope.request);
+              }
+
+              $scope.anonymousaccess = $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes[_.findIndex($scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes,function(a){return a.action == 'ANONYMOUSACCESS'})]
+              if ($scope.anonymousaccess == null) {
+                  $scope.anonymousaccess = {action: 'ANONYMOUSACCESS',effect: 'deny', scope_is_all: true};
+                  $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes.push($scope.anonymousaccess);
+              }
+
+              $scope.cisauses = $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes[_.findIndex($scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes,function(a){return a.action == 'CISAUSES'})]
+              if ($scope.cisauses == null) {
+                  $scope.cisauses = {action: 'CISAUSES',effect: 'deny', scope_is_all: true};
+                  $scope.stixMarking.isa_assertion_structure_attributes.isa_privs_attributes.push($scope.cisauses);
+              }
+
+              $scope.dsply.effect = ($scope.dsply.effect == 'permit') || ($scope.dsply.effect == true)
+              $scope.legal.effect = ($scope.legal.effect == 'permit') || ($scope.legal.effect == true)
+              $scope.idsrc.effect = ($scope.idsrc.effect == 'permit') || ($scope.idsrc.effect == true)
+              $scope.tenot.effect = ($scope.tenot.effect == 'permit') || ($scope.tenot.effect == true)
+              $scope.intel.effect = ($scope.intel.effect == 'permit') || ($scope.intel.effect == true)
+              $scope.netdef.effect = ($scope.netdef.effect == 'permit') || ($scope.netdef.effect == true)
+              $scope.tearline.effect = ($scope.tearline.effect == 'permit') || ($scope.tearline.effect == true)
+              $scope.opaction.effect = ($scope.opaction.effect == 'permit') || ($scope.opaction.effect == true)
+              $scope.request.effect = ($scope.request.effect == 'permit') || ($scope.request.effect == true)
+              $scope.anonymousaccess.effect = ($scope.anonymousaccess.effect == 'permit') || ($scope.anonymousaccess.effect == true)
+              $scope.cisauses.effect = ($scope.cisauses.effect == 'permit') || ($scope.cisauses.effect == true)
+
+              _.forEach($scope.stixMarking.isa_assertion_structure_attributes.further_sharings,function(fshr){
+                  fshr.effect = (fshr.effect == 'permit') || (fshr.effect == true);
+              });
+
+              $scope.stixMarking.isa_assertion_structure_attributes.cs_countries = setMulti($scope.stixMarking.isa_assertion_structure_attributes.cs_countries);
+              $scope.stixMarking.isa_assertion_structure_attributes.cs_formal_determination = setMulti($scope.stixMarking.isa_assertion_structure_attributes.cs_formal_determination);
+              $scope.stixMarking.isa_assertion_structure_attributes.cs_orgs = setMulti($scope.stixMarking.isa_assertion_structure_attributes.cs_orgs);
+              $scope.stixMarking.isa_assertion_structure_attributes.cs_entity = setMulti($scope.stixMarking.isa_assertion_structure_attributes.cs_entity);
+              $scope.stixMarking.isa_assertion_structure_attributes.cs_cui = setMulti($scope.stixMarking.isa_assertion_structure_attributes.cs_cui);
+              $scope.stixMarking.isa_assertion_structure_attributes.cs_shargrp = setMulti($scope.stixMarking.isa_assertion_structure_attributes.cs_shargrp);
+
+              if (angular.isDefined($scope.stixMarking.isa_marking_structure_attributes) && $scope.stixMarking.isa_marking_structure_attributes.re_originator != "" && $scope.stixMarking.isa_marking_structure_attributes.re_originator != null) {
+                  $scope.originator_text = true;
+              }
+          }
+      })
+
+      $scope.add_further_sharing = function(){
+          $scope.stixMarking.isa_assertion_structure_attributes.further_sharings_attributes.push({scope: "", effect: true});
+      }
+
+      $scope.remove_further_sharing = function(fshr){
+          if (_.has(fshr,'id')){
+              fshr['_destroy'] = '1';
+          } else {
+              _.remove($scope.stixMarking.isa_assertion_structure_attributes.further_sharings_attributes, function(f){
+                  return f == fshr;
+              })
+          }
+      }
+
+    }],
+    templateUrl: '<%=asset_path("markings/essa-tags.html",type: :template)%>'
+  };
+});

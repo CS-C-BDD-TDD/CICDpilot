@@ -1,0 +1,9 @@
+<%- headers = ['URI', 'URI Condition', 'Label', 'Label Condition', 'Created At', 'Last Updated'] %>
+<%= raw CSV.generate_line addPortionMarkingToCSV(headers), :row_sep => '', :force_quotes => true %>
+<%- uriName = String.new %>
+<% @links.each do |link| %>
+  <% if link.uri.uri_normalized != nil then uriName = link.uri.uri_normalized else uriName = link.uri.uri_raw end %>
+  <% if link.uri.uri_condition != nil then uriCondition = link.uri.uri_condition else uriCondition = '' end %>
+  <%- row = [uriName, uriCondition, link.label, link.label_condition, link.created_at, link.updated_at] -%>
+<%= raw CSV.generate_line addPortionMarkingToCSV(nil, row, link), :row_sep => '', :force_quotes => true %>
+<% end %>

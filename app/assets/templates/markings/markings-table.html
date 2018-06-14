@@ -1,0 +1,251 @@
+<div class="widget-box widget-color-blue ui-sortable-handle" ng-show="markings.length > 0">
+  <div class="widget-header fake-link" ng-click="showTable = !showTable">
+    <h5 class="widget-title bigger lighter">
+      <span tooltip="Show/Hide Table">
+        <i class="ace-icon fa fa-cog"></i>
+        Data Markings for {{fieldtext?fieldtext:'Object'}}
+      </span>
+    </h5>
+  </div>
+  <div class="widget-body" ng-show="showTable">
+    <div class="widget-main no-padding">
+      <table class="table table-bordered" >
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Name</th>
+            <th style='width:75%'>Value</th>
+          </tr>
+        </thead>
+        <tbody ng-repeat="marking in markings">
+            <tr ng-show="marking.isa_marking_structure && ((fieldname != null && marking.remote_object_field == fieldname) || (fieldname == null && marking.remote_object_field == null) || (fieldname != null && fieldname == 'field_rep_obj'))">
+                <td>ISA Marking Structure</td>
+                <td>Responsible Entity</td>
+                <td>
+                    <div class="profile-user-info profile-user-info-striped">
+                        <div class="profile-info-row">
+                            <div class="profile-info-name" style="width:30%">Custodian</div>
+                            <div id="ACS_Set_Show_Custodian" class="profile-info-value">
+                                <span>{{marking.isa_marking_structure.re_custodian}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-user-info profile-user-info-striped" ng-show='marking.isa_marking_structure.re_originator'>
+                        <div class="profile-info-row">
+                            <div class="profile-info-name" style="width:30%">Originator</div>
+                            <div id="ACS_Set_Show_Originator" class="profile-info-value">
+                                <span>{{marking.isa_marking_structure.re_originator}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-user-info profile-user-info-striped" ng-show='marking.isa_marking_structure.data_item_created_at'>
+                        <div class="profile-info-row">
+                            <div class="profile-info-name" style="width:30%">Data Item Created At</div>
+                            <div id="ACS_Set_Show_Item_Created_At" class="profile-info-value">
+                                <span>{{marking.isa_marking_structure.data_item_created_at | date: 'mediumDate'}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr ng-show="marking.isa_assertion_structure && ((fieldname != null && marking.remote_object_field === fieldname) || (fieldname == null && marking.remote_object_field == null) || (fieldname != null && fieldname == 'field_rep_obj'))">
+                <td rowspan="2">ISA Assertion Structure</td>
+                <td>Policies</td>
+                <td>
+                    <div class="profile-user-info profile-user-info-striped">
+                        <div class="profile-info-row">
+                            <div class="profile-info-name" style="width:30%">Release to Public</div>
+                            <div id="ACS_Set_Show_Release_To_Public" class="profile-info-value">
+                                <span>{{marking.isa_assertion_structure.public_release.toString() | uppercase}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-show="marking.isa_assertion_structure.isa_privs.length"
+                            ng-repeat="priv in marking.isa_assertion_structure.isa_privs">
+                        <div class="profile-user-info profile-user-info-striped">
+                            <div class="profile-info-row">
+                                <div class="profile-info-name" style="width:30%">{{Marking.translate_privs_action(priv.action)}}</div>
+                                <div id="ACS_Set_Show_{{priv.action}}" class="profile-info-value">
+                                    <span>{{priv.effect.toString() | uppercase}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <span ng-show="marking.isa_assertion_structure.further_sharings.length">
+                    <div class="space-8"></div>
+                    <div style="margin: 0 15px 0 15px;padding-bottom: 5px">Further Sharing Rules</div>
+                    <div style="margin: 0 15px 0 15px;padding: 15px 15px 15px 15px;border: 1px solid #dddddd">
+                        <div ng-repeat="fs in marking.isa_assertion_structure.further_sharings">
+                            <div class="profile-user-info profile-user-info-striped">
+                                <div class="profile-info-row">
+                                    <div class="profile-info-name" style="width:30%">{{fs.scope}}</div>
+                                    <div class="profile-info-value">
+                                        <span>{{fs.effect.toString() | uppercase}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-8"></div>
+                    </span>
+                    <div class="profile-user-info profile-user-info-striped" ng-show="marking.isa_assertion_structure.public_release">
+                        <div class="profile-info-row">
+                            <div class="profile-info-name" style="width:30%">Release Authorizer</div>
+                            <div class="profile-info-value">
+                                <span>{{marking.isa_assertion_structure.public_released_by}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-user-info profile-user-info-striped" ng-show="marking.isa_assertion_structure.public_release">
+                        <div class="profile-info-row">
+                            <div class="profile-info-name" style="width:30%">Release On</div>
+                            <div class="profile-info-value">
+                                <span>{{marking.isa_assertion_structure.public_released_on | date: 'MM/dd/yyyy'}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-show="(marking.isa_assertion_structure.cs_classification != 'U') && show_classifications">
+                        <div class="space-8"></div>
+                        <div style="margin: 0 15px 0 15px;padding-bottom: 5px">Original Classification</div>
+                        <div style="margin: 0 15px 0 15px;padding: 15px 15px 15px 15px;border: 1px solid #dddddd">
+                            <div class="profile-user-info profile-user-info-striped">
+                                <div class="profile-info-row">
+                                    <div class="profile-info-name" style="width:30%">Classified By</div>
+                                    <div class="profile-info-value">
+                                        <span>{{marking.isa_assertion_structure.classified_by}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="profile-user-info profile-user-info-striped">
+                                <div class="profile-info-row">
+                                    <div class="profile-info-name" style="width:30%">Classification Reason</div>
+                                    <div class="profile-info-value">
+                                        <span>{{marking.isa_assertion_structure.classification_reason}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="profile-user-info profile-user-info-striped">
+                                <div class="profile-info-row">
+                                    <div class="profile-info-name" style="width:30%">Classified on</div>
+                                    <div class="profile-info-value">
+                                        <span>{{marking.isa_assertion_structure.classified_on | date: 'MM/dd/yyyy'}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr ng-show="marking.isa_assertion_structure && ((fieldname != null && marking.remote_object_field === fieldname) || (fieldname == null && marking.remote_object_field == null) || (fieldname != null && fieldname == 'field_rep_obj'))">
+                <td>Control Set</td>
+                <td>
+                    <div ng-show="show_classifications" class="profile-user-info profile-user-info-striped" >
+                        <div class="profile-info-row">
+                            <div class="profile-info-name" style="width:30%">Classification</div>
+                            <div class="profile-info-value">
+                                <span>{{marking.isa_assertion_structure.cs_classification | showFullClassification}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-user-info profile-user-info-striped" ng-show="marking.isa_assertion_structure.cs_formal_determination">
+                        <div class="profile-info-row">
+                            <div class="profile-info-name" style="width:30%">Formal Determination</div>
+                            <div id="ACS_Set_Show_Formal_Determination" class="profile-info-value">
+                                <span>{{marking.isa_assertion_structure.cs_formal_determination | addSpaceAfterComma}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-show="!marking.isa_assertion_structure.public_release">
+                        <div class="profile-user-info profile-user-info-striped" ng-show="marking.isa_assertion_structure.cs_cui">
+                            <div class="profile-info-row">
+                                <div class="profile-info-name" style="width:30%">Sensitivity</div>
+                                <div id="ACS_Set_Show_Controlled_Unclassified_Information" class="profile-info-value">
+                                    <span>{{marking.isa_assertion_structure.cs_cui | addSpaceAfterComma}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profile-user-info profile-user-info-striped" ng-show="marking.isa_assertion_structure.cs_shargrp">
+                            <div class="profile-info-row">
+                                <div class="profile-info-name" style="width:30%">Shareability Group</div>
+                                <div id="ACS_Set_Show_Shareability_Group" class="profile-info-value">
+                                    <span>{{marking.isa_assertion_structure.cs_shargrp | addSpaceAfterComma}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profile-user-info profile-user-info-striped" ng-show="marking.isa_assertion_structure.cs_countries">
+                            <div class="profile-info-row">
+                                <div class="profile-info-name" style="width:30%">Affiliated Countries</div>
+                                <div id="ACS_Set_Show_Affiliated_Countries" class="profile-info-value">
+                                    <span>{{marking.isa_assertion_structure.cs_countries | addSpaceAfterComma}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profile-user-info profile-user-info-striped" ng-show="marking.isa_assertion_structure.cs_orgs">
+                            <div class="profile-info-row">
+                                <div class="profile-info-name" style="width:30%">Affiliated Organizations</div>
+                                <div id="ACS_Set_Show_Affiliated_Organizations" class="profile-info-value">
+                                    <span>{{marking.isa_assertion_structure.cs_orgs | addSpaceAfterComma}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profile-user-info profile-user-info-striped" ng-show="marking.isa_assertion_structure.cs_entity">
+                            <div class="profile-info-row">
+                                <div class="profile-info-name" style="width:30%">Affiliated Entities</div>
+                                <div id="ACS_Set_Affiliated_Entities" class="profile-info-value">
+                                    <span>{{marking.isa_assertion_structure.cs_entity | addSpaceAfterComma}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </td>
+            </tr>
+            <tr ng-show="marking.simple_marking_structure && ((fieldname != null && marking.remote_object_field === fieldname) || (fieldname == null && marking.remote_object_field == null) || (fieldname != null && fieldname == 'field_rep_obj'))">
+                <td>Simple Marking Structure</td>
+                <td>Statement</td>
+                <td>{{marking.simple_marking_structure.statement}}</td>
+            </tr>
+            <tr ng-show="marking.tlp_marking_structure && ((fieldname != null && marking.remote_object_field === fieldname) || (fieldname == null && marking.remote_object_field == null) || (fieldname != null && fieldname == 'field_rep_obj'))">
+                <td>TLP Structure</td>
+                <td>Color</td>
+                <td>
+                    <span style='margin-left:10px;display: inline' ng-bind-html='Color.image(marking.tlp_marking_structure.color)'></span>
+                    <span style='margin-left:8px;display: inline'>{{marking.tlp_marking_structure.color}}</span>
+                </td>
+            </tr>
+            <tr ng-show="marking.ais_consent_marking_structure && ((fieldname != null && marking.remote_object_field === fieldname) || (fieldname == null && marking.remote_object_field == null) || (fieldname != null && fieldname == 'field_rep_obj'))">
+                <td>AIS</td>
+                <td>Consent Marking</td>
+                <td>
+                    <div class="profile-user-info profile-user-info-striped">
+                        <div class="profile-info-row">
+                            <div class="profile-info-name" style="width:30%">Proprietary Type</div>
+                            <div class="profile-info-value">
+                                <span>{{marking.ais_consent_marking_structure.proprietary}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-user-info profile-user-info-striped">
+                        <div class="profile-info-row">
+                            <div class="profile-info-name" style="width:30%">Consent</div>
+                            <div class="profile-info-value">
+                                <span>{{marking.ais_consent_marking_structure.consent}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-user-info profile-user-info-striped">
+                        <div class="profile-info-row">
+                            <div class="profile-info-name" style="width:30%">AIS Color</div>
+                            <div class="profile-info-value">
+                                <span style='display: inline' ng-bind-html='Color.image(marking.ais_consent_marking_structure.color)'></span>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

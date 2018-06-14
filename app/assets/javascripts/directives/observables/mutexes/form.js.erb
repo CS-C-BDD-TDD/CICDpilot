@@ -1,0 +1,98 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('mutexForm', function(){
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("observables/mutexes/form.html",type: :template)%>',
+        scope: {
+            mutex: '=',
+            saved: '=',
+            failed: '=',
+            cancel: '=',
+            editform: '='
+        },
+        controller: ['$scope','$rootScope','Observable','Restangular', 'CiapCommon', 'Classification',
+            function($scope,$rootScope,Observable,Restangular, CiapCommon, Classification) {
+                $scope.Observable = Observable;
+                $scope.sets = [];
+                $scope.cybox = "cybox";
+                $scope.conditions = CiapCommon.conditions;
+
+                // Toggles for field level markings
+
+                Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+                    $scope.sets = data;
+                },function(res){
+                    toastr.error("Unable to load ACS Set List");
+                });
+
+                $scope.save = function(mutex){
+                    $scope.is_saving = true;
+                    $scope.mutex.errors = {};
+
+                    var promise;
+                    var save_text;
+
+                    /*
+                    Rules for when CLASSIFICATION is true
+
+                    and ACS Set or Classification must be selected. When Classification is above unclassified, 
+                    details must be filled out.
+                    */
+                    if ($rootScope.setting_value('CLASSIFICATION') == true){
+                        $scope.mutex.stix_markings_attributes = Classification.check_classification_details($scope.mutex.stix_markings_attributes);
+                        var problems = $scope.mutex.stix_markings_attributes.problems;
+                        var classification_check = $scope.mutex.stix_markings_attributes.classification_check;
+                    }
+
+                    if (Object.keys($scope.mutex.errors).length > 0 || classification_check) {
+                        $scope.is_saving = false;
+                        if(classification_check){
+                            for (var i = 0; i < problems.length; i++){
+                                if(problems[i].field == null){
+                                    toastr.error("Unable to save due to classification errors in the Object level markings");
+                                } else {
+                                    toastr.error("Unable to save due to classification errors in the " + problems[i].field + " markings");
+                                }
+                            }
+                        }
+                        return;
+                    }
+
+                    if (angular.isUndefined(mutex.cybox_object_id) || mutex.cybox_object_id == null) {
+                        promise = Restangular.all("mutexes").post(mutex);
+                        save_text = "save";
+                    } else {
+                        promise = Restangular.one("mutexes/" + mutex.cybox_object_id).customPUT(mutex);
+                        save_text = "update";
+                    }
+
+                    promise.then(
+                            function(data){
+                                toastr.success("Mutex record observable "+save_text+"d");
+                                if (angular.isDefined($scope.saved) && jQuery.isFunction($scope.saved)){
+                                    $scope.saved(data);
+                                }
+                                $scope.is_saving = false;
+                            },
+                            function(res){
+                                toastr.error("Unable to "+save_text+" Mutex observable");
+                                if (angular.isDefined(res.data.errors)) {
+                                  $scope.error = res.data.errors;
+                                }
+                                if (angular.isDefined(res.data) && angular.isDefined(res.data.errors) && angular.isDefined(res.data.errors.base)) {
+                                    _.each(res.data.errors.base,function(e){
+                                        toastr.error(e);
+                                    });
+                                }
+                                if (angular.isDefined($scope.failed) && jQuery.isFunction($scope.failed)){
+                                    $scope.failed(res.data);
+                                }
+                                $scope.is_saving = false;
+                            }
+                    );
+                };
+            }
+        ]
+    };
+});

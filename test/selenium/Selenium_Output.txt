@@ -1,0 +1,37 @@
+The log in completed successfully at 10:52:14 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 10:52:22 on 10/27/15, the alert popuped when trying to save with a blank name.
+The log in completed successfully at 10:53:33 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 10:53:41 on 10/27/15, the alert popuped when trying to save with a blank name.
+The log in completed successfully at 10:54:50 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 10:54:58 on 10/27/15, the alert popuped when trying to save with a blank name.
+The log in completed successfully at 10:56:45 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 10:56:53 on 10/27/15, the alert popuped when trying to save with a blank name.
+The log in completed successfully at 11:00:03 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 11:00:11 on 10/27/15, the alert popuped when trying to save with a blank name.
+The log in completed successfully at 11:01:39 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 11:01:46 on 10/27/15, the alert popuped when trying to save with a blank name.
+The log in completed successfully at 11:03:00 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 11:03:08 on 10/27/15, the alert popuped when trying to save with a blank name.
+The log in completed successfully at 11:11:39 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 11:11:47 on 10/27/15, the alert popuped when trying to save with a blank name.
+The log in completed successfully at 11:14:57 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 11:15:05 on 10/27/15, the alert popuped when trying to save with a blank name.
+The log in completed successfully at 11:45:20 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 11:45:28 on 10/27/15, the alert popuped when trying to save with a blank name.
+The log in completed successfully at 11:46:48 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 11:46:56 on 10/27/15, the alert popuped when trying to save with a blank name.
+The log in completed successfully at 11:50:35 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 11:50:42 on 10/27/15, the alert popuped when trying to save with a blank name.
+The log in completed successfully at 11:52:12 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 11:52:19 on 10/27/15, the alert popuped when trying to save with a blank name.
+The log in completed successfully at 11:53:58 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 11:54:06 on 10/27/15, the alert popuped when trying to save with a blank name.
+The log in completed successfully at 12:10:48 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 12:10:55 on 10/27/15, the alert popuped when trying to save with a blank name.
+The log in completed successfully at 12:12:46 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 12:12:54 on 10/27/15, the alert popuped when trying to save with a blank name.
+The log in completed successfully at 12:21:08 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 12:21:16 on 10/27/15, the alert popuped when trying to save with a blank name.
+The log in completed successfully at 12:24:37 on 10/27/15
+The log in completed successfully at 12:25:51 on 10/27/15
+The ACS Set Creation without a name sucessfully completed at 12:25:59 on 10/27/15, the alert popuped when trying to save with a blank name.

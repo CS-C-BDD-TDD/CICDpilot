@@ -1,0 +1,21 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('AisDashboardShowController', ['$scope','$routeParams','$rootScope','$location','Restangular',
+  function ($scope, $routeParams, $rootScope, $location, Restangular) {
+    $scope.fetching = true;
+    $scope.can = $rootScope.can;
+
+    Restangular.one("/ais_statistics/"+$routeParams.id).get().then(function(data){
+      $scope.ais_statistics = data;
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                {text:'AIS Dashboard',link:'#/ais_dashboard',icon:'fa-list'},
+                                {text:data.title,link:'#/ais_dashboard/'+encodeURIComponent(data.guid),icon:'fa-eye'}];
+      $scope.fetching = false;
+
+    },function(res){
+      $rootScope.show_res_errors(res);
+      $scope.fetching = false;
+    });
+
+  }
+]);

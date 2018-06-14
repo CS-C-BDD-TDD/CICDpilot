@@ -1,0 +1,14 @@
+<cybox:Object id="<%=link.cybox_object_id%>">
+  <cybox:Properties type="<%=link.uri.uri_type%>" xsi:type="LinkObj:LinkObjectType">
+  <% if link.uri.uri_raw.present? && link.uri.uri_condition.present? %>
+    <URIObj:Value condition="<%=link.uri.uri_condition%>"><%=link.uri.uri_raw%></URIObj:Value>
+  <% elsif link.uri.uri_raw.present? %>
+  	<URIObj:Value><%=link.uri.uri_raw%></URIObj:Value>
+  <% end %>
+  <% if link.label.present? && link.label_condition.present? %>
+    <LinkObj:URL_Label condition="<%=link.label_condition%>"><%=link.label%></LinkObj:URL_Label>
+  <% elsif link.label.present? %>
+  	<LinkObj:URL_Label><%=link.label%></LinkObj:URL_Label>
+  <% end %>
+  </cybox:Properties>
+</cybox:Object>

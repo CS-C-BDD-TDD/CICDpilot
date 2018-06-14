@@ -1,0 +1,96 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('exportIndicatorNew',function() {
+    return {
+        restrict: 'E',
+        scope: {
+            indicator:'=?',
+            selected: '=?',
+            showHeader: '=?'
+        },
+        templateUrl: '<%=asset_path("exported_indicators/new.html",type: :template)%>',
+        controller: ['$scope', '$rootScope','$location','Restangular','Indicator','Color',function($scope,$rootScope,$location,Restangular,Indicator,Color) {
+           $scope.exported_indicator = {};
+           $scope.Indicator = Indicator;
+           $scope.Color = Color;
+
+           $scope.save = function(exported_indicator){
+                if(angular.isDefined($scope.selected)){
+                    system = $rootScope.is_undefined_or_null(exported_indicator.system);
+                    color = $rootScope.is_undefined_or_null(exported_indicator.color);
+                    
+                    if (system || color){
+                      if(system){
+                        toastr.error("System can't be blank.");
+                      } 
+                      if (color){
+                        toastr.error("Color can't be blank.");
+                      }
+                      return;
+                    }
+
+                    var exported_array = [];
+                    _.forEach($scope.selected, function(indicator){
+                        var ind = _.clone(exported_indicator);
+                        ind.indicator_id = indicator.guid;
+                        exported_array.push(ind);
+                    });
+
+                    Restangular.all('exported_indicators/bulk_inds/bulk').customPUT({exported_ind: exported_array}).then(function(data){
+                        // success toastr
+                        toastr.success(data.base, '', {timeOut: 15000, closeButton: true});
+
+                        // give a toastr with any validation errors
+                        if (angular.isDefined(data.errors)){
+                            _.forEach(data.errors,function(error) {
+                                toastr.error("Unable to add Indicators to " + error, '', {timeOut: 15000, closeButton: true});
+                            })
+                        }
+
+                        $location.path('/exported_indicators/'+encodeURIComponent(exported_indicator.system.toLowerCase()));
+                    },function(res){
+                        if (angular.isDefined(res.data.errors)){
+                            _.forEach(res.data.errors,function(error) {
+                                toastr.error("Unable to Export"+error);
+                            })
+                        }
+                        else {
+                            toastr.error("Unable to Export");
+                        }
+                    });
+                } else {
+                    exported_indicator.indicator_id = $scope.indicator.guid
+                    Restangular.all('exported_indicators').post(exported_indicator).then(function(data){
+                        $location.path('/exported_indicators/'+encodeURIComponent(exported_indicator.system.toLowerCase()));
+                    },function(res){
+                        if (angular.isDefined(res.data.errors)){
+                            _.forEach(res.data.errors,function(error) {
+                            toastr.error("Unable to Export: "+error);
+                            })
+                        }
+                        else {
+                            toastr.error("Unable to Export");
+                        }
+                    });
+                }
+           };
+
+           $scope.getColors = function(object) {
+               if (angular.isDefined(object) &&
+                   angular.isDefined(object.stix_markings)) {
+
+                   for (var i = 0; i < object.stix_markings.length;i++) {
+                       if (angular.isDefined(object.stix_markings[i].tlp_marking_structure) &&
+                           object.stix_markings[i].tlp_marking_structure != null) {
+
+                           return Color.colors.slice(_.findIndex(Color.colors,function(color) {
+                               return color == object.stix_markings[i].tlp_marking_structure.color;
+                           }),Color.colors.size);
+                       }
+                   }
+               }
+               return Color.colors;
+           }
+        }]
+    }
+});

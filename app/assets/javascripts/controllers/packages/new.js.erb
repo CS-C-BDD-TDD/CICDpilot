@@ -1,0 +1,51 @@
+var packagesNewController = app.controller('PackagesNewController',['$scope','$location','$rootScope','Restangular', 'bulkActionsService', 
+  function($scope,$location,$rootScope,Restangular,bulkActionsService) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                              {text:'All Packages',link:'#/packages',icon:'fa-list'},
+                              {text:'New',link:'#/packages/new',icon:'fa-plus'}];
+    $scope.package = {};
+    $scope.package.indicators = bulkActionsService.get() || [];
+    $scope.package.ais_attributes = {};
+    $scope.package.course_of_actions = [];
+    $scope.package.exploit_targets = [];
+    $scope.package.contributing_sources =[];
+    $scope.ais_marking_created = false;
+    $scope.save = function(package, done){
+      var indicator_ids=_.map(package.indicators,function(i) {
+        return i.stix_id;
+      });
+
+      var coa_ids=_.map(package.course_of_actions,function(coa) {
+        return coa.stix_id;
+      });
+      
+      var et_ids=_.map(package.exploit_targets,function(et) {
+        return et.stix_id;
+      });
+
+      package.indicator_stix_ids=indicator_ids;
+      package.contributing_sources_attributes = package.contributing_sources;
+      package.course_of_action_stix_ids = coa_ids;
+      package.exploit_target_stix_ids = et_ids;
+      if(!_.isEmpty(package.ais_attributes) && !$scope.ais_marking_created) //create a new stix marking to hold ais_attributes
+      {
+        index = package.stix_markings_attributes.length;
+        package.stix_markings_attributes[index] = {};
+        package.stix_markings_attributes[index].ais_consent_marking_structure_attributes = package.ais_attributes;
+        //package.stix_markings_attributes[index].ais_consent_marking_structure_attributes = package.ais_attributes;
+        $scope.ais_marking_created = true;
+      }
+      Restangular.all('stix_packages').post(package).then(function(res){
+        toastr.success("New package created");
+        done();
+        $scope.package = data;
+        $location.path('/packages/'+encodeURIComponent($scope.package.stix_id));
+      },function(res){
+        done();
+        toastr.error("Unable to save package");
+        $rootScope.show_res_errors(res);
+        $scope.package.errors = res.data.errors;
+      });
+    };
+  }
+]);

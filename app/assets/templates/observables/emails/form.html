@@ -1,0 +1,229 @@
+<div class="page-header" ng-show="pagenum == 1">
+  <h1> Shareability Rules </h1>
+</div>
+<div class="col-md-12 text-center" ng-show="pagenum == 0">
+  One of the four fields (From, Reply-To, Sender, Subject) must have a value
+</div>
+
+<form name="emailform" class="form-horizontal">
+  <div ng-show="pagenum == 0">
+    <div class="form-group" ng-show="can('view_pii_fields')" ng-class="{'has-error': error.from_normalized}" tooltip="The From field specifies the email address of the sender of the email message">
+      <label class="col-md-4 control-label">From</label>
+      <div class="col-md-8">
+        <address-suggester object="email" field-name="from_input" page-path="/emails/" show-markings="show_markings" portion-marking="from_normalized_c"></address-suggester>
+        <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="from_toggle.toggle > 0" ng-click="from_toggle.clear = from_toggle.clear + 1">Clear Markings</button>
+        <button class="btn btn-primary btn-sm pull-right" ng-click="from_toggle.toggle = from_toggle.toggle + 1" ng-show="show_markings.from_input == 1">Custom ISA Markings</button>
+        <ul ng-show="error.from_normalized" class="help-block">
+          <li ng-repeat="e in error.from_normalized">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+    <field-markings-edit sets="sets" object="email" disablesave="is_saving" editform="editform" fieldname="from_normalized" togglebuttons="from_toggle"></field-markings-edit>
+
+    <div class="form-group" ng-show="can('view_pii_fields')">
+      <label class="col-md-4 control-label">From is spoofed</label>
+      <div class="col-md-8">
+        <input type="checkbox" ng-model="email.from_is_spoofed" name="from_is_spoofed">
+      </div>
+    </div>
+
+    <div class="form-group" ng-show="can('view_pii_fields')" ng-class="{'has-error': error.reply_to_normalized}">
+      <label class="col-md-4 control-label">Reply-To</label>
+      <div class="col-md-8">
+        <address-suggester object="email" field-name="reply_to_input" page-path="/emails/" show-markings="show_markings" portion-marking="reply_to_normalized_c"></address-suggester>
+        <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="reply_toggle.toggle > 0" ng-click="reply_toggle.clear = reply_toggle.clear + 1">Clear Markings</button>
+        <button class="btn btn-primary btn-sm pull-right" ng-click="reply_toggle.toggle = reply_toggle.toggle + 1" ng-show="show_markings.reply_to_input == 1">Custom ISA Markings</button>
+        <ul ng-show="error.reply_to_normalized" class="help-block">
+          <li ng-repeat="e in error.reply_to_normalized">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+    <field-markings-edit sets="sets" object="email" disablesave="is_saving" editform="editform" fieldname="reply_to_normalized" togglebuttons="reply_toggle"></field-markings-edit>
+
+    <div class="form-group" ng-show="can('view_pii_fields')" ng-class="{'has-error': error.sender_normalized}" tooltip="The Sender field specifies the email address of the sender who is acting on behalf of the author listed in the From: field.">
+      <label class="col-md-4 control-label">Sender</label>
+      <div class="col-md-8">
+        <address-suggester object="email" field-name="sender_input" page-path="/emails/" show-markings="show_markings" portion-marking="sender_normalized_c"></address-suggester>
+        <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="sender_toggle.toggle > 0" ng-click="sender_toggle.clear = sender_toggle.clear + 1">Clear Markings</button>
+        <button class="btn btn-primary btn-sm pull-right" ng-click="sender_toggle.toggle = sender_toggle.toggle + 1" ng-show="show_markings.sender_input == 1">Custom ISA Markings</button>
+        <ul ng-show="error.sender_normalized" class="help-block">
+          <li ng-repeat="e in error.sender_normalized">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+    <field-markings-edit sets="sets" object="email" disablesave="is_saving" editform="editform" fieldname="sender_normalized" togglebuttons="sender_toggle"></field-markings-edit>
+
+    <div class="form-group" ng-show="can('view_pii_fields')">
+      <label class="col-md-4 control-label">Sender is spoofed</label>
+      <div class="col-md-8">
+        <input type="checkbox" ng-model="email.sender_is_spoofed" name="sender_is_spoofed">
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{'has-error': error.x_originating_ip}">
+      <label class="col-md-4 control-label">X-Originating-IP</label>
+      <div class="col-md-8">
+        <address-suggester object="email" field-name="x_originating_ip" page-path="/emails/" show-markings="show_markings" portion-marking="x_originating_ip_c"></address-suggester>
+        <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="x_orig_toggle.toggle > 0" ng-click="x_orig_toggle.clear = x_orig_toggle.clear + 1">Clear Markings</button>
+        <button class="btn btn-primary btn-sm pull-right" ng-click="x_orig_toggle.toggle = x_orig_toggle.toggle + 1" ng-show="show_markings.x_originating_ip == 1">Custom ISA Markings</button>
+        <ul ng-show="error.x_originating_ip" class="help-block">
+          <li ng-repeat="e in error.x_originating_ip">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+    <field-markings-edit sets="sets" object="email" disablesave="is_saving" editform="editform" fieldname="x_originating_ip" togglebuttons="x_orig_toggle"></field-markings-edit>
+    
+    
+    <div class="form-group" ng-class="{'has-error': error.subject}">
+      <label class="col-md-4 control-label">Subject</label>
+      <div class="col-md-8">
+        <input type="text" ng-model="email.subject" name="subject" class="col-md-8" placeholder="Email Subject">
+        <ul ng-show="error.subject" class="help-block">
+          <li ng-repeat="e in error.subject">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{'has-error': error.subject_condition}">
+      <label class="col-md-4 control-label">Subject Condition</label>
+      <div class="col-md-8">
+        <select class="col-md-8" ng-model="email.subject_condition" ng-options="condition for condition in conditions"></select>
+        <br/>
+        <ul ng-show="error.subject_condition" class="help-block">
+            <li ng-repeat="e in error.subject_condition">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-md-4 control-label">Email Date</label>
+      <div class="col-md-8">
+        <input date-range-picker style="margin-left: 0px" type="text" class="col-md-4" options="date_picker_opts" value="{{email.email_date?email.email_date.slice(0,10)+'T'+email.email_date.slice(11,19):'' | date:'MM/dd/yyyy HH:mm:ss'}}" />
+
+        <select ng-model="timeoffsethour" ng-init="timeoffsethour = '+00'">
+          <option>-11</option>
+          <option>-10</option>
+          <option>-09</option>
+          <option>-08</option>
+          <option>-07</option>
+          <option>-06</option>
+          <option>-05</option>
+          <option>-04</option>
+          <option>-03</option>
+          <option>-02</option>
+          <option>-01</option>
+          <option>+00</option>
+          <option>+01</option>
+          <option>+02</option>
+          <option>+03</option>
+          <option>+04</option>
+          <option>+05</option>
+          <option>+06</option>
+          <option>+07</option>
+          <option>+08</option>
+          <option>+09</option>
+          <option>+10</option>
+          <option>+11</option>
+        </select>
+        :
+        <select ng-model="timeoffsetmin" ng-init="timeoffsetmin = '00'">
+          <option>00</option>
+          <option>30</option>
+        </select>
+        UTC
+      </div>
+    </div>
+
+    <div class="form-group" ng-show="can('view_pii_fields')" ng-class="{'has-error': error.raw_header}">
+      <label class="col-md-4 control-label">Email Header</label>
+      <div class="col-md-8">
+        <textarea ng-model="email.raw_header" name="name" class="col-md-8" placeholder="Email Header"></textarea>
+        <ul ng-show="error.raw_header" class="help-block">
+          <li ng-repeat="e in error.raw_header">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="form-group" ng-show="can('view_pii_fields')" ng-class="{'has-error': error.raw_body}">
+      <label class="col-md-4 control-label">Email Body</label>
+      <div class="col-md-8">
+        <textarea ng-model="email.raw_body" name="name" class="col-md-8" placeholder="Email Body"></textarea>
+        <ul ng-show="error.raw_body" class="help-block">
+          <li ng-repeat="e in error.raw_body">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{'has-error': error.message_id}">
+      <label class="col-md-4 control-label">Message ID</label>
+      <div class="col-md-8">
+        <input type="text" ng-model="email.message_id" name="name" class="col-md-8" placeholder="Email Message ID">
+        <ul ng-show="error.message_id" class="help-block">
+          <li ng-repeat="e in error.message_id">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="form-group" ng-show="can('view_pii_fields')" ng-class="{'has-error': error.x_mailer}">
+      <label class="col-md-4 control-label">X-Mailer</label>
+      <div class="col-md-8">
+        <input type="text" ng-model="email.x_mailer" name="name" class="col-md-8" placeholder="Email X-Mailer">
+        <ul ng-show="error.x_mailer" class="help-block">
+          <li ng-repeat="e in error.x_mailer">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+
+    
+    <!-- End Page 1 -->
+  </div>
+
+  <div ng-show="pagenum == 1">
+    <acs-associate-form sets="sets" object="email" objecttype="E-Mail Message" disable-save="is_saving" editform="editform" fieldname="cybox"></acs-associate-form>
+    <!-- End page 2 -->
+  </div>
+</form>
+
+<div ng-show="showGFIs && pagenum == 0">
+  <gfi-widget widget-mode="form" gfi="email.gfi" observableScope="gfiScope"></gfi-widget>
+</div>
+
+<div class="row">
+  <div class="col-xs-12">
+    <form class="form-horizontal" role="form" ng-submit="save(email)">
+
+      <div class="clearfix form-actions" ng-show="pagenum == 0">
+        <span ng-show="is_saving">
+            <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+        </span>
+        <div class="col-md-offset-3">
+          <button class="btn btn-info pull-right ciap_mleft_5" type="button" ng-click="pagenum = pagenum + 1">
+            <i class="ace-icon fa fa-arrow-right bigger-110"></i> Next
+          </button>
+          <button class="btn btn-default pull-right ciap_mleft_5" type="button" ng-click="cancel()" ng-disabled="is_saving">
+            <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+          </button>
+        </div>
+      </div>
+
+      <div class="clearfix form-actions" ng-show="pagenum == 1">
+        <span ng-show="is_saving">
+            <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+        </span>
+        <div class="col-md-offset-3">
+          <button class="btn btn-info pull-right ciap_mleft_5" type="submit" ng-disabled="is_saving">
+            <i class="ace-icon fa fa-check bigger-110"></i> Save
+          </button>
+          <button class="btn btn-default pull-right ciap_mleft_5" type="button" ng-click="cancel()" ng-disabled="is_saving">
+            <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+          </button>
+          <button class="btn btn-warning pull-right ciap_mleft_5" type="button" ng-click="pagenum = pagenum - 1">
+            <i class="ace-icon fa fa-arrow-left bigger-110"></i> Back
+          </button>
+        </div>
+      </div>
+
+      <div class="hr hr-24"></div>
+    </form>
+  </div>
+</div>

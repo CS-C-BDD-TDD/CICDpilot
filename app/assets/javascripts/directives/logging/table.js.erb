@@ -1,0 +1,15 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('loggingTable',function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("logging/table.html",type: :template)%>',
+    scope: {
+      logs: '=',
+      tlabel: '='
+    },
+    controller: ['$scope', function($scope){
+      $scope.showTable = true;
+    }]
+  };
+});

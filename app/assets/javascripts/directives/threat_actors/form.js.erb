@@ -1,0 +1,105 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('threatActorForm',function() {
+  return {
+    restrict: 'E',
+    scope: {
+      threatActor: '=',
+      save: '=',
+      editform: '='
+    },
+    templateUrl: '<%=asset_path("threat_actors/form.html",type: :template)%>',
+    controller: ['$scope', '$rootScope', 'Restangular','Indicator','Color', '$location', 'Classification', function($scope, $rootScope, Restangular, Indicator, Color,$location, Classification){
+      $scope.can = $rootScope.can;
+      $scope.Color = Color;
+      $scope.Indicator = Indicator;
+      $scope.sets = [];
+
+      var listener=$scope.$watch('threatActor',function(threat_actor) {
+        if (angular.isDefined(threat_actor)) {
+          listener();
+          $scope.threat_actor = threat_actor;
+        };
+      });
+
+      Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+          $scope.sets = data;
+      },function(res){
+          toastr.error("Unable to load ACS Set List");
+      });
+
+      $scope.start_save = function(threat_actor){
+        $scope.is_saving = true;
+        $scope.threat_actor.errors = {};
+        if ($rootScope.is_undefined_or_null($scope.threat_actor.title)) {
+          $scope.threat_actor.errors.title = [" can't be blank"];
+        }
+        /*
+        Rules for when CLASSIFICATION is true
+
+        and ACS Set or Classification must be selected. When Classification is above unclassified, 
+        details must be filled out.
+        */
+        if ($rootScope.setting_value('CLASSIFICATION') == true){
+          $scope.threat_actor.stix_markings_attributes = Classification.check_classification_details($scope.threat_actor.stix_markings_attributes);
+          var problems = $scope.threat_actor.stix_markings_attributes.problems;
+          var classification_check = $scope.threat_actor.stix_markings_attributes.classification_check;
+          /*
+          If customized was not clicked and ISA Assertion Structure is not defined.
+          In this case we need to make sure that an ACS Set is selected because an ACS Set is required to have a classification.
+          */
+          var obj_level_index = _.findIndex($scope.threat_actor.stix_markings_attributes, function(sm){
+            return ($rootScope.is_undefined_or_null(sm.remote_object_field) || (angular.isDefined(sm.remote_object_field) && sm.remote_object_field == null)) && angular.isDefined(sm.isa_assertion_structure_attributes);
+          })
+          if ($rootScope.is_undefined_or_null($scope.threat_actor.stix_markings_attributes[obj_level_index]) && $rootScope.is_undefined_or_null($scope.threat_actor.acs_set_id)) {
+            $scope.threat_actor.errors.acs_set_id = ["You either need to associate an ACS Set or Click Customize and set a Classification"];
+            if (angular.isDefined($scope.threat_actor.stix_markings_attributes[obj_level_index]) && angular.isDefined($scope.threat_actor.stix_markings_attributes[obj_level_index].isa_assertion_structure_attributes)){
+              $scope.threat_actor.stix_markings_attributes[obj_level_index].isa_assertion_structure_attributes.errors.acs_set_id = ["You either need to associate an ACS Set or set a Classification"];
+            }
+            classification_check = true;
+          }
+        }
+        if (Object.keys($scope.threat_actor.errors).length > 0 || classification_check) {
+            $scope.is_saving = false;
+            toastr.error("Unable to save threat actor");
+            $("html, body").animate({ scrollTop: 0 }, 200);
+            if(classification_check){
+                for (var i = 0; i < problems.length; i++){
+                    if(problems[i].field == null){
+                        toastr.error("Unable to save due to classification errors in the Object level markings");
+                    } else {
+                        toastr.error("Unable to save due to classification errors in the " + problems[i].field + " markings");
+                    }
+                }
+            }
+            return;
+        }
+        $scope.save(threat_actor, function(){
+          $scope.is_saving = false;
+        });
+      };
+
+      $scope.show_browser = false;
+
+      $scope.cancel = function() {
+        if (angular.isDefined($scope.threat_actor.stix_id)){
+          $location.path('/threat_actors/' + $scope.threat_actor.stix_id);
+        } else {
+          $location.path('/threat_actors');
+        }
+      };
+      $scope.toggle_browser = function(){
+        $scope.show_browser = !$scope.show_browser;
+      };
+
+      $scope.removeIndicator = function(indicator) {
+        _.remove($scope.threat_actor.indicators, function(threat_actor_indicator){
+          if (threat_actor_indicator == indicator) {
+            return threat_actor_indicator;
+          }
+        });
+      };
+
+    }]
+  };
+});

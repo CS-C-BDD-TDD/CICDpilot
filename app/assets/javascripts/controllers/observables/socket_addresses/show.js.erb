@@ -1,0 +1,15 @@
+app.controller('SocketAddressesShowController', ['$scope','$location','$routeParams','$rootScope','Restangular',
+  function ($scope, $location, $routeParams, $rootScope, Restangular) {
+    Restangular.one('/socket_addresses',$routeParams.id).get().then(function(data){
+      $scope.socket_address = data;
+      if (angular.isDefined($scope.socket_address) && angular.isDefined($scope.socket_address.ind_course_of_actions)){
+        $scope.socket_address.course_of_actions = $scope.socket_address.course_of_actions.concat($scope.socket_address.ind_course_of_actions);
+      }
+      $scope.showTable = {coa_data: true, collapse: false};
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Socket Address',link:'#/socket_addresses',icon:'fa-group'},{text:$scope.socket_address.cybox_object_id,link:'#/socket_addresses/'+encodeURIComponent($scope.socket_address.cybox_object_id)}];
+      
+    },function(res){
+      toastr.error("Unable to load Socket Address");
+    });
+  }
+]);

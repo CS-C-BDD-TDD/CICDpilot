@@ -1,0 +1,52 @@
+<div class='widget-box'>
+  <div class="widget-header">
+    <h5 class="widget-title">New Sighting</h5>
+  </div>
+  <div class="widget-body">
+    <div class="widget-main">
+      <form class="form-horizontal">
+        <div class="form-group" ng-class="{'has-error': newSighting.errors.sighted_at}">
+          <label class="col-md-2 control-label no-padding-right">
+            Sighted At *
+          </label>
+          <div class="col-md-10">
+            <span class="input-icon input-icon-right"
+                  tooltip="The date and time at which the sighting occurred">
+              <input class="ciap_mleft_0" id="newSighting.sighted_at"
+                     date-range-picker type="text" options="date_picker_opts"
+                     value="{{newSighting.sighted_at | date:'MM/dd/yyyy HH:mm \'UTC\'':'UTC'}}"/>
+              <i class="ace-icon fa fa-calendar"></i>
+            </span>
+          </div>
+           <div ng-show="newSighting.errors.sighted_at" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in newSighting.errors.sighted_at" class="col-md-12">Sighted At {{error}}</span>
+           </div>
+        </div>
+        <div class="form-group"
+             tooltip="A description of the sighting">
+          <label class="col-md-2 control-label no-padding-right">
+            Description</label>
+          <div class="col-md-10">
+            <textarea type="text" class="form-control"
+                      ng-model="newSighting.description"
+                      name="description"></textarea>
+          </div>
+        </div>
+        <div class="form-actions" style="background-color: #ffffff">
+          <div class="btn-toolbar pull-right">
+            <button ng-disabled="is_saving" class="btn btn-info"
+                    type="button" ng-click="saveSighting(newSighting)">
+              <i class="fa fa-check"></i>
+              Save
+            </button>
+            <button ng-disabled="is_saving" class="btn btn-default"
+                    type="button" ng-click="cancelCreateSighting()">
+              <i class="fa fa-times"></i>
+              Cancel
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

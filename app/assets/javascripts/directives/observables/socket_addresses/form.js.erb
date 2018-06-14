@@ -1,0 +1,134 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('socketAddressForm', function(){
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("observables/socket_addresses/form.html",type: :template)%>',
+        scope: {
+            socketAddress: '=',
+            saved: '=',
+            failed: '=',
+            cancel: '=',
+            editform: '='
+        },
+        controller: ['$scope','$rootScope','Observable','Restangular', 'Classification',
+            function($scope,$rootScope,Observable,Restangular, Classification) {
+                $scope.Observable = Observable;
+                $scope.sets = [];
+                $scope.cybox = "cybox";
+                $scope.current_page = 0;
+
+                Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+                    $scope.sets = data;
+                },function(res){
+                    toastr.error("Unable to load ACS Set List");
+                });
+                
+  
+                $scope.save = function(){
+                    $scope.is_saving = true;
+                    $scope.socketAddress.errors = {};
+
+                    var promise;
+                    var save_text;
+
+                    var address_ids = _.map($scope.socketAddress.addresses, function(obj) {
+                        return obj.cybox_object_id;
+                    });
+                    var hostname_ids = _.map($scope.socketAddress.hostnames, function(obj) {
+                        return obj.cybox_object_id;
+                    });
+                    var port_ids = _.map($scope.socketAddress.ports, function(obj) {
+                        return obj.cybox_object_id;
+                    });
+
+                    $scope.socketAddress.address_cybox_object_ids = address_ids;
+                    $scope.socketAddress.hostname_cybox_object_ids = hostname_ids;
+                    $scope.socketAddress.port_cybox_object_ids = port_ids;
+
+                    /*
+                    Rules for when CLASSIFICATION is true
+
+                    and ACS Set or Classification must be selected. When Classification is above unclassified, 
+                    details must be filled out.
+                    */
+                    if ($rootScope.setting_value('CLASSIFICATION') == true){
+                        $scope.socketAddress.stix_markings_attributes = Classification.check_classification_details($scope.socketAddress.stix_markings_attributes);
+                        var problems = $scope.socketAddress.stix_markings_attributes.problems;
+                        var classification_check = $scope.socketAddress.stix_markings_attributes.classification_check;
+                    }
+
+                    if (Object.keys($scope.socketAddress.errors).length > 0 || classification_check) {
+                        $scope.is_saving = false;
+                      
+                        if(classification_check){
+                            for (var i = 0; i < problems.length; i++){
+                                if(problems[i].field == null){
+                                    toastr.error("Unable to save due to classification errors in the Object level markings");
+                                } else {
+                                    toastr.error("Unable to save due to classification errors in the " + problems[i].field + " markings");
+                                }
+                            }
+                        }
+                        return;
+                    }
+
+                    if (angular.isUndefined($scope.socketAddress.cybox_object_id) || $scope.socketAddress.cybox_object_id == null) {
+                        promise = Restangular.all("socket_addresses").post($scope.socketAddress);
+                        save_text = "save";
+                    } else {
+                        promise = Restangular.one("socket_addresses/" + $scope.socketAddress.cybox_object_id).customPUT($scope.socketAddress);
+                        save_text = "update";
+                    }
+
+                    promise.then(
+                            function(data){
+                                toastr.success("Socket Address observable "+save_text+"d");
+                                if (angular.isDefined($scope.saved) && jQuery.isFunction($scope.saved)){
+                                    $scope.saved(data);
+                                }
+                                $scope.is_saving = false;
+                            },
+                            function(res){
+                                toastr.error("Unable to "+save_text+" Socket Address observable");
+                   
+                                if (angular.isDefined(res.data) && angular.isDefined(res.data.errors) ) {
+                                    $scope.socketAddress.errors = res.data.errors;
+                                    
+                                    $rootScope.show_res_errors(res);
+                                }
+                                if (angular.isDefined($scope.failed) && jQuery.isFunction($scope.failed)){
+                                    $scope.failed(res.data);
+                                }
+                                $scope.is_saving = false;
+                            }
+                    );
+                };
+
+                $scope.removeAddress = function(obj) {
+                    _.remove($scope.socketAddress.addresses, function(x){
+                        if (x == obj) {
+                            return x;
+                        }
+                    });
+                };
+
+                $scope.removeHostname = function(obj) {
+                    _.remove($scope.socketAddress.hostnames, function(x){
+                        if (x == obj) {
+                            return x;
+                        }
+                    });
+                };
+
+                $scope.removePort = function(obj) {
+                    _.remove($scope.socketAddress.ports, function(x){
+                        if (x == obj) {
+                            return x;
+                        }
+                    });
+                };
+            }
+        ]
+    };
+});

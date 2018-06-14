@@ -1,0 +1,54 @@
+app.controller('TtpsEditController', ['$scope','$routeParams','$location','$rootScope','Restangular','Marking', 'ttpService',
+  function ($scope, $routeParams, $location, $rootScope, Restangular,Marking, ttpService) {
+
+    if (ttpService.is_data_set()){
+      $scope.ttp = ttpService.get_data();
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                  {text:'All TTPs',link:'#/ttps',icon:'fa-list'},
+                                  {text:$scope.ttp.stix_id,link:'#/ttps/'+encodeURIComponent($scope.ttp.stix_id),icon:'fa-pencil'}];
+    } else {
+      Restangular.one("/ttps/"+$routeParams.id).get().then(function(data){
+        $scope.ttp = Marking.translate_existing_attributes(data);
+        $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                  {text:'All TTPs',link:'#/ttps',icon:'fa-list'},
+                                  {text:data.stix_id,link:'#/ttps/'+encodeURIComponent(data.stix_id),icon:'fa-pencil'}];
+
+      });
+    }
+
+    $scope.save = function(ttp,done){
+      var indicator_ids=_.map(ttp.indicators,function(i) {
+        return i.stix_id;
+      });
+
+      var package_ids=_.map(ttp.stix_packages,function(p) {
+        return p.stix_id;
+      });
+
+       var exploit_target_stix_ids=_.map(ttp.exploit_targets,function(e) {
+        return e.stix_id;
+      });
+
+      var attack_pattern_stix_ids=_.map(ttp.attack_patterns,function(a) {
+        return a.stix_id;
+      });
+
+      ttp.indicator_stix_ids=indicator_ids;
+      ttp.stix_package_stix_ids=package_ids;
+      ttp.attack_pattern_stix_ids = attack_pattern_stix_ids;
+      ttp.exploit_target_stix_ids = exploit_target_stix_ids;
+
+      ttp.id = ttp.stix_id;
+      Restangular.one("ttps/"+$routeParams.id).customPUT(ttp).then(function(data){
+        toastr.success("TTP saved");
+        done();
+        $scope.ttp = data;
+        $location.path('/ttps/'+encodeURIComponent($scope.ttp.stix_id));
+      },function(res){
+        done();
+        toastr.error("Unable to save TTP");
+        $rootScope.show_res_errors(res);
+        $scope.ttp.errors = res.data.errors;
+      });
+    };
+}]);

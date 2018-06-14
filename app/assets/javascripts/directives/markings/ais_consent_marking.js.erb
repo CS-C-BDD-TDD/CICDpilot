@@ -1,0 +1,49 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('aisConsentMarkingsForm',function() {
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("markings/ais_consent_form.html",type: :template)%>',
+        scope: {
+            stixMarking: '=',
+            showsourcestable: '<',
+            isedit: '<'
+        },
+        controller: ['$scope', '$rootScope', function($scope, $rootScope){
+            $scope.deleteais = function(atts){
+                if(!atts)
+                {
+                    return;
+                }
+                if(atts.id)
+                {
+                    atts._destroy = '1';
+                }                
+                atts.color = {};
+                atts.consent = {};
+                atts.proprietary = {};
+            };
+            $scope.cleardelete = function(atts){ //if they deleted the AIS consent field, then entered new data, this will remove the delete flag and turn the operation into a modification 
+                delete atts._destroy;
+            };
+            $scope.colors = [
+            {label: "WHITE", value:"white"},
+            {label: "GREEN", value:"green"},
+            {label: "AMBER", value:"amber"}
+            ];
+
+            $scope.consents = [
+            {label: "NONE", value:"none"},            
+            {label: "USG", value:"usg"},
+            {label: "EVERYONE", value:"everyone"}
+            ];
+            
+            $scope.props = [
+            {label: "TRUE", value:true},
+            {label: "FALSE", value:false}
+            ];
+
+        }]
+
+    }
+});

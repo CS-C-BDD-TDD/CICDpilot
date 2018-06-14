@@ -1,0 +1,15 @@
+<div ng-hide="showheatmapexplanation">
+  <h1>Weather Map Visualization</h1>
+  <p>The Heat Map is a graphical representation of Cyber Weather Map information.  This graphic is updated on a daily basis and depicts IP addresses based on reputation, geo-located traffic, and types of potential threats to federal and civilian networks.  For more information about the Cyber Weather Map and the Heat Map below, please click <a class="fake-link" ng-click="showheatmapexplanation = !showheatmapexplanation">HERE</a>.</p>
+</div>
+
+<div ng-show="showheatmapexplanation">
+  <div class="text-center"><button ng-click="showheatmapexplanation = !showheatmapexplanation">Back to the Weather Map Visualization</button></div>
+  <img ng-src="<%= image_path('heatmap_help.png') %>" style="width: 100%;"/>
+</div>
+
+<img ng-src="<%= Rails.configuration.action_controller.relative_url_root %>//heatmaps/{{current_user.organization.organization_token | finalizeOrgToken}}" />
+
+<br />
+
+{{current_user.organization.organization_token}}

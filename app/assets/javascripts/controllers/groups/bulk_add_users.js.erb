@@ -1,0 +1,89 @@
+app.controller('GroupsBulkAddUsersController', ['$scope','$rootScope','Restangular', '$location', 'bulkActionsService',
+  function ($scope, $rootScope, Restangular, $location, bulkActionsService) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Bulk Add Groups',link:'#/groups',icon:'fa-group'}];
+      $scope.fetching = true;
+      Restangular.one("/groups").get().then(function(data){
+      $scope.groups = data;
+      $scope.selected_users = bulkActionsService.get() || [];
+      $scope.fetching = false;
+    });
+
+    $scope.can = $rootScope.can;
+    $scope.selected_groups = [];
+    
+    // methods for bulk actions
+    $scope.disabled = function(group) {
+       if ($scope.checked(group) && $scope.selectOnly) {
+           return true;
+       }
+       return false;
+    }
+
+    $scope.checked = function(group){
+      return _.findIndex($scope.selected_groups, function(p){return p.guid == group.guid;}) > -1;
+    };
+
+    $scope.selectGroup = function(group,$event) {
+      var checkbox = $event.target;
+      if (checkbox.checked){
+        if (_.findIndex($scope.selected_groups, function(p){return p.guid == group.guid}) == -1){
+          $scope.selected_groups.push(group);
+        }
+      } else {
+        $scope.selected_groups = _.filter($scope.selected_groups, function(p){return p.guid != group.guid});
+      }
+    };
+
+    // bulk add users to groups selected
+    $scope.save_users_into_group = function(){
+      // check if selected_groups is blank so we don't waste cycles
+        
+      if ($scope.selected_groups.length < 1 || $scope.selected_users < 1){
+        toastr.error("You need to select at least 1 group and 1 user.", '', {timeOut: 15000, closeButton: true});
+        return;
+      }
+
+      var post_obj = {};
+
+      post_obj.user_ids = _.map($scope.selected_users,function(u) {
+        return u.id;
+      });
+      
+      // first we need to map the group_ids into an array
+      post_obj.group_ids = _.map($scope.selected_groups, function(p) {
+        return p.id;
+      });
+
+      // then we need to post each user to save.
+      Restangular.one("users/bulk/bulk").customPUT(post_obj).then(function(data) {
+        toastr.success(data.base, '', {timeOut: 15000, closeButton: true});
+
+        // give a toastr with any validation errors
+        if (angular.isDefined(data.errors)){
+          _.forEach(data.errors,function(error) {
+            toastr.error("Unable to add Groups to " + error, '', {timeOut: 15000, closeButton: true});
+          })
+        }
+
+        // finally we reroute them back to the users table
+        $location.path('/users');
+      },function(res){
+        toastr.error("Unable to save users", '', {timeOut: 15000, closeButton: true});
+        $scope.error=res.data.errors;
+        _.forEach($scope.error, function(error){
+          toastr.error(error, '', {timeOut: 15000, closeButton: true});
+        });
+      });
+    }
+
+    $scope.clearSelectedGroups = function(){
+      $scope.selected_groups = [];
+    }
+
+    // cancel back to the users page
+    $scope.cancel = function(){
+      bulkActionsService.set($scope.selected_users);
+      $location.path('/users');
+    }
+  }
+]);

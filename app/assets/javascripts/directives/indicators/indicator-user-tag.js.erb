@@ -1,0 +1,226 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('indicatorUserTag',['$rootScope',function($rootScope) {
+  return {
+    restrict: 'E',
+    scope: {
+      indicator:'=?',
+      selectedtags:'=?'
+    },
+    templateUrl: '<%=asset_path("indicators/indicator-user-tag.html",type: :template)%>',
+
+    controller: ['$scope','Restangular',function($scope,Restangular) {
+      $scope.availableTags = [];
+      $scope.suggestionsIndex = 0;
+      $scope.suggestions = [];
+      $scope.allowBlur = true;
+      $scope.minUserTagLength = 3;
+
+      $scope.onChange = function(tagName) {
+        //reset the list of suggestions if the tagName is length zero && exit
+        if(!tagName.length) {
+          $scope.suggestions = [];
+          return;  
+        }
+
+        $scope.suggestionsIndex = 0;
+
+        userTagsPromise = Restangular.all('user_tags').getList();
+
+        if (angular.isDefined($scope.indicator)){
+          userTagsPromise.then(function(userTags) {
+            $scope.suggestions = _.filter(userTags,function(userTag) {
+              userTagName = userTag.name.toLowerCase(); 
+              return !_.findWhere($scope.indicator.user_tags,{guid: userTag.guid}) && userTagName.match(tagName.toLowerCase());
+            });
+
+          });
+        } else {
+          userTagsPromise.then(function(userTags) {
+            $scope.suggestions = _.filter(userTags,function(userTag) {
+              userTagName = userTag.name.toLowerCase(); 
+              return !_.findWhere($scope.selectedtags,{guid: userTag.guid}) && userTagName.match(tagName.toLowerCase());
+            });
+          });
+        }
+
+      };
+
+      $scope.$watchCollection('indicator.user_tags',function() {
+        $scope.tagName = "";
+      });
+
+      $scope.createUserTag = function(tag) {
+        // if (!($rootScope.can('tag_item_with_user_tag'))) {
+        //   return;
+        // }
+
+        suggestionsMatchingTag = _.filter($scope.suggestions,function(suggestion) {
+          return tag.name == suggestion.name;
+        }).length == 0;
+
+        if (angular.isDefined($scope.indicator)){
+          userTagsOnIndicatorMatchingTag = _.filter($scope.indicator.user_tags,function(user_tag) {
+            return tag.name == user_tag.name;
+          }).length == 0;
+        } else {
+          userTagsOnIndicatorMatchingTag = _.filter($scope.selectedtags,function(user_tag) {
+            return tag.name == user_tag.name;
+          }).length == 0;
+        }
+
+        if (!(suggestionsMatchingTag && userTagsOnIndicatorMatchingTag && tag.name.length >= $scope.minUserTagLength)) {
+          return;
+        }
+
+        Restangular.all("user_tags").post(tag).then(function(userTag){
+          if (angular.isDefined($scope.indicator)){
+            $scope.indicator.user_tags = ($scope.indicator.user_tags||[]).concat(userTag);
+          } else {
+            // add to the array of selected tags so we can display to the user what was selected
+            $scope.selectedtags = $scope.selectedtags.concat(userTag);
+          }
+          toastr.success('User Tag Created');
+        },function(res) {
+          tag.errors = res.data;
+          // tag = userTag;
+          _.each(response.data,function(errors,key) {
+            _.each(errors,function(e) {
+              toastr.error(e);
+            });
+          });
+        });
+
+        resetSuggestions();
+        // console.log("[createUserTag] Created: ",tag.name);
+      };
+
+      function resetSuggestions() {
+        $scope.suggestionsIndex = 0;
+        $scope.suggestions = [];
+        $scope.tagName = "";
+      };
+
+      //This whole event handler is basically dedicated to maintaining an index on the bounds
+      //of the list of suggestions.  When the enter key is pressed, we pluck the indexed
+      //element and add it to the list of indicators.
+      $scope.onKeyup = function(event) {
+        keyCodes = {
+          arrowUp: 38,
+          arrowDown: 40,
+          enter: 13,
+          space: 32,
+          backspace: 8,
+          del: 46,
+        };
+
+        // console.log("[onKeyUp] keyCode: ",event.keyCode);
+
+        // if (!($rootScope.can('tag_item_with_user_tag'))) {
+        //   return;
+        // }        
+        if (angular.isDefined($scope.indicator)){
+          if((event.keyCode == keyCodes.backspace ||
+              event.keyCode == keyCodes.del) && 
+             ($scope.indicator.user_tags.length > 0) && 
+             (($scope.tagName||"").length < 1)) {
+            $scope.indicator.user_tags.splice($scope.indicator.user_tags.length-1,1);
+          };
+
+          if(event.keyCode == keyCodes.enter && $scope.suggestions.length > 0) {
+            suggestion = $scope.suggestions[$scope.suggestionsIndex];
+            $scope.indicator.user_tags = $scope.indicator.user_tags.concat(suggestion);
+            resetSuggestions();
+            // console.log("[onKeyup] Enter.")
+          };
+        } else {
+          if((event.keyCode == keyCodes.backspace ||
+              event.keyCode == keyCodes.del) && 
+             ($scope.selectedtags.length > 0) && 
+             (($scope.tagName||"").length < 1)) {
+            $scope.selectedtags.splice($scope.selectedtags.length-1,1);
+          };
+
+          if(event.keyCode == keyCodes.enter && $scope.suggestions.length > 0) {
+            suggestion = $scope.suggestions[$scope.suggestionsIndex];
+            $scope.selectedtags = $scope.selectedtags.concat(suggestion);
+            resetSuggestions();
+            // console.log("[onKeyup] Enter.")
+          };
+        }
+
+        if(event.keyCode == keyCodes.arrowDown && $scope.suggestions.length > 0) {
+          if($scope.suggestionsIndex >= $scope.suggestions.length-1) {
+            $scope.suggestionsIndex = $scope.suggestions.length-1
+            return;
+          }
+          $scope.suggestionsIndex++;
+          // console.log("[onKeyup] Arrow Down.")
+        };
+
+        if(event.keyCode == keyCodes.arrowUp && $scope.suggestions.length > 0) {
+          if($scope.suggestionsIndex < 1) {
+            $scope.suggestionsIndex = 0;
+            return;
+          }
+          $scope.suggestionsIndex--;
+          // console.log("[onKeyup] Arrow Up.")
+        };
+
+      }
+
+      $scope.onAddClick = function(suggestion) {
+        // if (!($rootScope.can('tag_item_with_user_tag'))) {
+        //   return;
+        // }         
+        if (angular.isDefined($scope.indicator)){
+          $scope.indicator.user_tags = ($scope.indicator.user_tags || []).concat(suggestion);
+        } else {
+          // add to the array of selected tags so we can display to the user what was selected
+          $scope.selectedtags = $scope.selectedtags.concat(suggestion);
+        }
+        resetSuggestions();
+        $scope.allowBlur=true;
+        // console.log("[onSuggestionClick] suggestion: ",suggestion);
+      }
+
+      $scope.onRemoveClick = function(tag) {
+        //Users must have permission to remove user tags from indicators
+        if (!$rootScope.can('tag_item_with_user_tag')) {
+          resetSuggestions();
+          return;
+        }
+
+        if (angular.isDefined($scope.indicator)){
+          index = $scope.indicator.user_tags.indexOf(tag);
+          //Mutate indicator.user_tags less the item@index        
+          $scope.indicator.user_tags.splice(index,1);  
+        } else {
+          // remove from the array of selected tags so we can display to the user what was selected
+          index = $scope.selectedtags.indexOf(tag);
+          $scope.selectedtags.splice(index,1);
+        }
+
+        resetSuggestions();
+        // console.log("[onTagClick] tag: ",tag);
+      }
+
+      $scope.updateSuggestionByMouse = function(index) {
+        $scope.suggestionsIndex=index;
+      }
+
+      $scope.stopBlur = function() {
+        $scope.allowBlur=false;
+      }
+
+      $scope.blur = function() {
+        if ($scope.allowBlur)
+        {
+          resetSuggestions();
+        }
+      }
+    }]
+
+  };
+
+}])

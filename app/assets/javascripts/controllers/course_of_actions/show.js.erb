@@ -1,0 +1,38 @@
+app.controller('CourseOfActionShowController', ['$scope','$routeParams','$rootScope','$location','Restangular', 'Color',
+  function ($scope, $routeParams, $rootScope, $location, Restangular, Color) {
+    $scope.fetching = true;
+    $scope.can = $rootScope.can;
+    $scope.Color = Color;
+
+    Restangular.one("/course_of_actions/"+$routeParams.id).get().then(function(data){
+      $scope.course_of_action = data;
+      if (angular.isDefined($scope.course_of_action) && angular.isDefined($scope.course_of_action.parameter_observables)){
+        $scope.course_of_action.observables = $scope.course_of_action.observables.concat($scope.course_of_action.parameter_observables);
+      }
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                {text:'All Courses of Action',link:'#/course_of_actions',icon:'fa-list'},
+                                {text:data.title,link:'#/course_of_actions/'+encodeURIComponent(data.stix_id),icon:'fa-eye'}];
+      $scope.fetching = false;
+
+    },function(res){
+      toastr.error(res.data.errors[0]);
+      $scope.fetching = false;
+    });
+
+    $scope.destroy = function(course_of_action){
+      var justification = prompt("Justification for deleting Course of Action");
+      if (justification){
+        $scope.fetching = true;
+
+        Restangular.one("/course_of_actions/"+course_of_action.stix_id).remove().then(function(data){
+          toastr.success("Course of Action removed");
+          $location.path('/course_of_actions');
+          $scope.fetching = false;
+        },function(res){
+          toastr.error("Could not remove Course of Action: "+res.data.errors[0]);
+          $scope.fetching = false;
+        });
+      }
+    };
+  }
+]);

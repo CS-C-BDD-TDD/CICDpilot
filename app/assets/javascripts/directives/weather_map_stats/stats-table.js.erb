@@ -1,0 +1,21 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('weatherMapStatsTable', function () {
+  return {
+    restrict: 'E',
+    templateUrl: function (elem, attrs) {
+      if (attrs.countstable) {
+        return '<%=asset_path("weather_map_stats/counts-table.html",type: :template) %>';
+      }
+      else if (attrs.loadstable) {
+        return '<%=asset_path("weather_map_stats/loads-table.html",type: :template) %>';
+      }
+      else {
+        return '<%=asset_path("weather_map_stats/counts-table.html",type: :template) %>';
+      }
+    },
+    scope: {
+      wmdstats: '='
+    }
+  };
+});

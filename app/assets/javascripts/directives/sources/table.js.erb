@@ -1,0 +1,48 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('contributingSourcesTable', function() {
+  return {
+    restrict: 'E',
+    transclude: true,
+    templateUrl: '<%=asset_path("sources/sources_table.html",type: :template)%>',
+    scope: {
+             package: '=',
+             showTable: '=?',
+             editable: '=?', 
+             isNewPackage: '<',
+             showsourcestable: '<'
+
+    },
+    controller: ['$scope', 'Restangular', '$rootScope', 'Marking', 
+      function ($scope, Restangular, $rootScope, Marking) {
+        $scope.Marking = Marking;
+        if($scope.package)
+        {
+          if(!$scope.package.contributing_sources)
+          {
+            $scope.package.contributing_sources = []; 
+          }
+        }
+        $scope.deleteSource = function(source){
+            if(!source.guid)
+            {
+              _.remove($scope.package.contributing_sources, function(sourceToDelete){
+                return sourceToDelete.countries == source.countries && 
+                       sourceToDelete.administrative_areas == source.administrative_areas &&
+                       sourceToDelete.organization_info == source.organization_info &&
+                       sourceToDelete.is_federal == source.is_federal;
+                       
+             });
+            }
+            else
+            {
+              source._destroy = '1';
+            }
+          toastr.success("Contributing source deleted");
+        };
+        $scope.editSource = function(source){
+          $scope.$broadcast('modifySourceEvent', [source, $scope.isNewPackage]); //broadcasts an event when the modify button is clicked, informing the form to show itself
+        }
+    }]           
+  };
+});

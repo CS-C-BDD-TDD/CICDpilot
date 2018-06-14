@@ -1,0 +1,25 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('AddressesEditController', ['$scope','$routeParams','Restangular','$rootScope','Gfi','$location','Marking', 'objectSuggesterService', 
+    function($scope,$routeParams,Restangular,$rootScope,Gfi,$location,Marking,objectSuggesterService) {
+        Restangular.one('/addresses/'+$routeParams.id).get().then(function(data){
+            $scope.address = Marking.translate_existing_attributes(data);
+            Gfi.init_gfi_edit($scope, $scope.address);
+            $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Addresses',link:'#/addresses',icon:'fa-group'},{text:data.address,link:'#/addresses/'+encodeURIComponent(data.cybox_object_id)}];
+        },function(res){
+            toastr.error("Unable to load Address");
+        });
+
+        $scope.cancel = function() {
+            if (objectSuggesterService.is_data_set()){
+                $location.path(objectSuggesterService.get_path());
+            } else {
+                $location.path('/addresses/'+$routeParams.id);
+            }
+        };
+
+        $scope.failed = function() {
+            $("html, body").animate({ scrollTop: 0 }, 200);
+        }
+    }
+]);

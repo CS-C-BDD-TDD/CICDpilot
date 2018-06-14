@@ -1,0 +1,18 @@
+app.controller('PortsShowController', ['$scope','$location','$routeParams','$rootScope','Restangular', 'Port',
+  function ($scope, $location, $routeParams, $rootScope, Restangular, Port) {
+    $scope.fetching = true;
+    $scope.Port = Port;
+    Restangular.one('/ports',$routeParams.id).get().then(function(data){
+      $scope.port = data;
+      if (angular.isDefined($scope.port) && angular.isDefined($scope.port.ind_course_of_actions)){
+        $scope.port.course_of_actions = $scope.port.course_of_actions.concat($scope.port.ind_course_of_actions);
+      }
+      $scope.showTable = {coa_data: true, collapse: false};
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Ports',link:'#/ports',icon:'fa-group'},{text:Port.get_value(data),link:'#/ports/'+encodeURIComponent(data.cybox_object_id)}];
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load Port");
+      $scope.fetching = false;
+    });
+  }
+]);

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+git branch -a | grep -v HEAD | sed s/^..// | while read branch; do
+  echo `git log -1 --pretty=format:"%Cgreen%ci %Creset%h %Cblue%cr%Creset (%cn)" $branch` $branch ; 
+done | sort
+
+#Here's a list of branches that have been merged to the current branch (run after a git pull)
+#git branch -a --merged | grep remotes | grep -v HEAD | sed 's/^..//' | while read branch; do echo `git log -1 --pretty=format:"%Cgreen%ci %Cblue%cr%Creset" $branch` $branch; done | sort
+#Change "--merge" to "--no-merged" to see what branches are *NOT* in the current branch's history.

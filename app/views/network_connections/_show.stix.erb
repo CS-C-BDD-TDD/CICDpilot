@@ -1,0 +1,34 @@
+<cybox:Object id="<%=network_connection.cybox_object_id%>">
+  <cybox:Properties xsi:type="NetworkConnectionObj:NetworkConnectionObjectType">
+    <% if network_connection.layer3_protocol!='' %>
+      <NetworkConnectionObj:Layer3_Protocol condition="Equals"><%= network_connection.layer3_protocol %></NetworkConnectionObj:Layer3_Protocol>
+    <% end %>
+    <% if network_connection.layer4_protocol!='' %>
+      <NetworkConnectionObj:Layer4_Protocol condition="Equals"><%= network_connection.layer4_protocol %></NetworkConnectionObj:Layer4_Protocol>
+    <% end %>
+    <% if network_connection.layer7_protocol!='' %>
+      <NetworkConnectionObj:Layer7_Protocol condition="Equals"><%= network_connection.layer7_protocol %></NetworkConnectionObj:Layer7_Protocol>
+    <% end %>
+    <% if network_connection.source_socket_address_id.present? %>
+      <NetworkConnectionObj:Source_Socket_Address object_reference="<%=network_connection.source_socket_address_id%>">
+      </NetworkConnectionObj:Source_Socket_Address>
+    <% end %>
+    <% if network_connection.dest_socket_address_id.present? %>
+      <NetworkConnectionObj:Destination_Socket_Address object_reference="<%=network_connection.dest_socket_address_id%>"></NetworkConnectionObj:Destination_Socket_Address>
+    <% end %>
+    <% if network_connection.layer_seven_connections.present? and (network_connection.layer_seven_connections.first.http_session.present? or network_connection.layer_seven_connections.first.dns_queries.present?) %>
+      <NetworkConnectionObj:Layer7_Connections>
+        <% if network_connection.layer_seven_connections.first.http_session.present? %>
+        <NetworkConnectionObj:HTTP_Session object_reference="<%=network_connection.layer_seven_connections.first.http_session.cybox_object_id%>">
+          <HTTPSessionObj:HTTP_Request_Response></HTTPSessionObj:HTTP_Request_Response>
+        </NetworkConnectionObj:HTTP_Session>
+        <% end %>
+        <% if network_connection.layer_seven_connections.first.dns_queries.present? %>
+        <% network_connection.layer_seven_connections.first.dns_queries.each do |x| %>
+          <NetworkConnectionObj:DNS_Query object_reference="<%=x.cybox_object_id%>"></NetworkConnectionObj:DNS_Query>
+        <% end %>
+        <% end %>
+      </NetworkConnectionObj:Layer7_Connections>
+    <% end %>
+  </cybox:Properties>
+</cybox:Object>

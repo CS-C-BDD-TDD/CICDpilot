@@ -1,0 +1,52 @@
+app.service('Classification', ['$rootScope', function($rootScope) {
+    return {
+        check_classification_details: function(marking_attributes){
+            marking_attributes.problems = [];
+            marking_attributes.classification_check = false;
+
+            for(var i = 0; i < marking_attributes.length; i++){
+                if (angular.isDefined(marking_attributes[i]) && angular.isDefined(marking_attributes[i].isa_assertion_structure_attributes)){
+                    marking_attributes[i].isa_assertion_structure_attributes.errors = {};
+                    /* 
+                    If customized was clicked ISA Assertion structure will be defined.  When this is true we need to check
+                    if classification was defined.  If it was defined and it is not unclassified, we require that the classification
+                    details are labeled. This means classified_by,classified_on, and classification_reason must be filled out.
+                     */
+
+                    if ($rootScope.is_undefined_or_null(marking_attributes[i].isa_assertion_structure_attributes.cs_classification)){
+                      marking_attributes[i].isa_assertion_structure_attributes.errors.acs_set_id = ["You either need to associate an ACS Set or Click Customize and set a Classification"];
+                        marking_attributes.problems.push({field: marking_attributes[i].remote_object_field});
+                        marking_attributes.classification_check = true;
+                    } else if (marking_attributes[i].isa_assertion_structure_attributes.cs_classification != 'U'
+                      && ($rootScope.is_undefined_or_null(marking_attributes[i].isa_assertion_structure_attributes.classified_by)
+                        || $rootScope.is_undefined_or_null(marking_attributes[i].isa_assertion_structure_attributes.classified_on)
+                        || $rootScope.is_undefined_or_null(marking_attributes[i].isa_assertion_structure_attributes.classification_reason))) {
+                        marking_attributes[i].isa_assertion_structure_attributes.errors.classification_details = ["You must specify Classification details if the object is not unclassified."];
+                        marking_attributes.problems.push({field: marking_attributes[i].remote_object_field});
+                        marking_attributes.classification_check = true;
+                    }
+
+                    if (marking_attributes[i].isa_assertion_structure_attributes.cs_classification != 'U' && !$rootScope.is_undefined_or_null(marking_attributes[i].isa_assertion_structure_attributes.classified_on) && marking_attributes[i].isa_assertion_structure_attributes.classified_on > moment().toISOString()){
+                        marking_attributes[i].isa_assertion_structure_attributes.errors.classification_details = ["Classified On can not be greater than current date."];
+                        marking_attributes.problems.push({field: marking_attributes[i].remote_object_field});
+                        marking_attributes.classification_check = true;
+                    }
+
+                    /*
+                    If the object is public released. It should change the authorizer and 
+                    also the other details and change the classification to unclassified.
+                    */
+                    if (marking_attributes[i].isa_assertion_structure_attributes.public_release == true){
+                        if (marking_attributes[i].isa_assertion_structure_attributes.classified_by != marking_attributes[i].isa_assertion_structure_attributes.public_released_by){
+                            marking_attributes[i].isa_assertion_structure_attributes.classified_by = marking_attributes[i].isa_assertion_structure_attributes.public_released_by;
+                        }
+                        marking_attributes[i].isa_assertion_structure_attributes.classified_on = marking_attributes[i].isa_assertion_structure_attributes.public_released_on;
+                        marking_attributes[i].isa_assertion_structure_attributes.classification_reason = '';
+                        marking_attributes[i].isa_assertion_structure_attributes.cs_classification = 'U';
+                    }
+                }
+            }
+            return marking_attributes;
+        }
+    };
+}]);

@@ -1,0 +1,9 @@
+<cybox:Object id="<%=uri.cybox_object_id%>">
+  <cybox:Properties type="<%=uri.uri_type%>" xsi:type="URIObj:URIObjectType">
+  <% if uri.uri_raw.present? && uri.uri_condition.present? %>
+	<URIObj:Value condition="<%=uri.uri_condition%>"><%=uri.uri_raw%></URIObj:Value>
+  <% elsif uri.uri_raw.present? %>
+	<URIObj:Value><%=uri.uri_raw%></URIObj:Value>
+  <% end %>    
+  </cybox:Properties>
+</cybox:Object>

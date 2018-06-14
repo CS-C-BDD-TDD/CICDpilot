@@ -1,0 +1,5 @@
+pandoc cyber-indicators-api.md -o cyber-indicators-api.docx ;and mv cyber-indicators-api.docx /mnt/shared/
+Open the docx file
+add a table of contents
+add page numbering to the bottom
+save as PDF

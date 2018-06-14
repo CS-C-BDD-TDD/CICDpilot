@@ -1,0 +1,151 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('layerSevenConnectionsBrowser', function(){
+  return {
+    restrict: 'E',
+    scope: {
+      selectedLayerSevenConnections: '=',
+      selectOnly: '=',
+      classificationDirection: '@?'
+    },
+    templateUrl: '<%=asset_path("observables/network_connections/layer_seven_connections/layer-seven-connections-browser.html", type: :template)%>',
+    controller: ['$scope','$rootScope','Restangular','CiapCommon','Marking', function($scope,$rootScope,Restangular,CiapCommon,Marking) {
+      $scope.q = '';
+      $scope.CiapCommon = CiapCommon;
+      $scope.is_saving = false;
+      $scope.layer_seven_connections = [];
+
+      $scope.sortOptions = {
+        'http_session_cache' : 'asc',
+        'dns_queries_cache' : 'asc',
+        'created_at' : 'asc',
+        'updated_at' : 'asc'
+      };
+
+      $scope.searchObjs = function() {
+        $scope.fetching = true;
+        var curr_obj = CiapCommon.fetch_markings_object_from_scope($scope);
+        var curr_markings = curr_obj.stix_markings_attributes;
+        if (!$rootScope.is_undefined_or_null(curr_obj.acs_set_id)){
+          Restangular.one('acs_sets').get({id: curr_obj.acs_set_id}).then(function(data){
+            // set it equal to the existing markings
+            if (angular.isDefined(data.stix_markings)){
+              curr_markings = data.stix_markings;
+            }
+            getObjList(curr_markings);
+          },function(res){
+              toastr.error("Unable to load ACS Set Markings");
+          });
+        } else {
+          getObjList(curr_markings);
+        }        
+      };
+
+      function getObjList(current_markings){
+        var classification_limit = Marking.get_classification_attributes(current_markings);
+        Restangular.one('/layer_seven_connections').get({
+          q: $scope.q,
+          classification_limit: $scope.classificationDirection == "down" ? classification_limit : null,
+          classification_greater: $scope.classificationDirection == "up" ? classification_limit : null
+        }).then(
+          function(data){
+            $scope.layer_seven_connections = data.layer_seven_connections;
+            $scope.fetching = false;
+        },
+          function(res){
+            toastr.error("Unable to load Layer7 Connections");
+            $scope.fetching = false;
+          }
+        );
+      }
+
+      $scope.disabled = function(obj) {
+         if ($scope.checked(obj) || ($scope.selectOnly && $scope.selectedLayerSevenConnections.length > 0)) {
+             return true;
+         }
+         return false;
+      }
+
+      $scope.checked = function(obj){
+        return _.findIndex($scope.selectedLayerSevenConnections, function(i){return i.guid == obj.guid;}) > -1;
+      };
+
+      $scope.sort = function(method) {
+        Restangular.one('/layer_seven_connections').get({q: $scope.q,column: method, direction: $scope.sortOptions[method]}).then(function(data){
+          $scope.layer_seven_connections = data.layer_seven_connections;
+          if ($scope.sortOptions[method] == 'asc') {
+            $scope.sortOptions[method] = 'desc';
+          }
+          else if ($scope.sortOptions[method] == 'desc') {
+            $scope.sortOptions[method] = 'asc';
+          }
+        });
+      }
+
+      $scope.selectObj = function(obj, $event) {
+        var checkbox = $event.target;
+        if (checkbox.checked){
+          if (_.findIndex($scope.selectedLayerSevenConnections, function(i){return i.guid == obj.guid}) == -1){
+            $scope.selectedLayerSevenConnections.push(obj);
+          }
+        } else {
+          $scope.selectedLayerSevenConnections = _.filter($scope.selectedLayerSevenConnections, function(i){return i.guid != obj.guid});
+        }
+      };
+
+      $scope.toggleLayerSevenConnectionsModal = function(){
+        $scope.layer_seven_connection = {http_session: {}, dns_queries: []};
+        $('#layer_seven_connection_creator').modal({backdrop: 'static', keyboard: false});
+      };
+
+      $scope.saveAndAttach = function(){
+        var promise;
+        var save_text;
+        $scope.is_saving = true;
+        $scope.layer_seven_connection.errors = {};
+
+        var http_session_id = $scope.layer_seven_connection.http_session.cybox_object_id;
+        
+        var dns_query_ids = _.map($scope.layer_seven_connection.dns_queries, function(obj) {
+          return obj.cybox_object_id;
+        });
+
+        $scope.layer_seven_connection.http_session_id = http_session_id;
+        $scope.layer_seven_connection.dns_query_cybox_object_ids = dns_query_ids;
+
+        if (angular.isUndefined($scope.layer_seven_connection.guid) || $scope.layer_seven_connection.guid == null) {
+          promise = Restangular.all("layer_seven_connections").post($scope.layer_seven_connection);
+          save_text = "save";
+        } else {
+          promise = Restangular.one("layer_seven_connections/" + $scope.layer_seven_connection.guid).customPUT($scope.layer_seven_connection);
+          save_text = "update";
+        }
+
+        promise.then(
+          function(data){
+            toastr.success("Layer7 Connection Object " + save_text + "d");
+            if ($scope.selectOnly == true){
+              $scope.selectedLayerSevenConnections = [data];
+            } else {
+              $scope.selectedLayerSevenConnections.push(data);
+            }
+            $scope.layer_seven_connections.push(data);
+            $scope.is_saving = false;
+            $('#layer_seven_connection_creator').modal('hide');
+          },
+          function(res){
+            toastr.error("Unable to " + save_text + " Layer7 Connection Object");
+
+            if (angular.isDefined(res.data) && angular.isDefined(res.data.errors) ) {
+              $scope.layer_seven_connection.errors = res.data.errors;
+              
+              $rootScope.show_res_errors(res);
+            }
+            $scope.is_saving = false;
+          }
+        );
+      }
+
+    }]
+  };
+});

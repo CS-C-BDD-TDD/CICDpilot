@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Loads a simple STIX via the API using a curl script. Demonstrates that the
+# API upload is functional.
+
+API_KEY="e1f5a2d392f44f5048f77b83a18367925a9423de1d92dbb612e3d623cee3f9f8"
+
+API_KEY_HASH="19300258e17c9eea5be1549a7e80cb3226978b883867ce2884794ad86c75a139"
+
+curl -v -X POST -H "Content-type: application/xml" -H "api_key: ${API_KEY}" -H "api_key_hash: ${API_KEY_HASH}" --data "@test_stix_api_upload.xml" "http://localhost:3000/uploads"

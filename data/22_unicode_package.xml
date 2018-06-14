@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<stix:STIX_Package timestamp="2014-08-11T14:55:12Z" xmlns:DomainObj="http://stix.mitre.org/domain-1" xmlns:AddrObj="http://cybox.mitre.org/objects#AddressObject-2" xmlns:EmailMessageObj="http://cybox.mitre.org/objects#EmailMessageObject-2" xmlns:FileObj="http://cybox.mitre.org/objects#FileObject-2" xmlns:HTTPSessionObj="http://cybox.mitre.org/objects#HTTPSessionObject-2" xmlns:LinkObj="http://cybox.mitre.org/objects#LinkObject-1" xmlns:MutexObj="http://cybox.mitre.org/objects#MutexObject-2" xmlns:NetworkConnectionObj="http://cybox.mitre.org/objects#NetworkConnectionObject-2" xmlns:PortObj="http://cybox.mitre.org/objects#PortObject-2" xmlns:SocketAddressObj="http://cybox.mitre.org/objects#SocketAddressObject-1" xmlns:URIObj="http://cybox.mitre.org/objects#URIObject-2" xmlns:WinRegistryKeyObj="http://cybox.mitre.org/objects#WinRegistryKeyObject-2" xmlns:cybox="http://cybox.mitre.org/cybox-2" xmlns:cyboxCommon="http://cybox.mitre.org/common-2" xmlns:indicator="http://stix.mitre.org/Indicator-2" xmlns:marking="http://data-marking.mitre.org/Marking-1" xmlns:simpleMarking="http://data-marking.mitre.org/extensions/MarkingStructure#Simple-1" xmlns:stix="http://stix.mitre.org/stix-1" xmlns:stixCommon="http://stix.mitre.org/common-1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="isaguide999191STIXPackage-e2389b9a51b2-5a97decb-b61c-3bc4" version="1.1.1" xmlns:NCCIC="http://www.us-cert.gov/nccic" xmlns:cyboxVocabs="http://cybox.mitre.org/default_vocabularies-2" xmlns:stixVocabs="http://stix.mitre.org/default_vocabularies-1" xmlns:tlpMarking="http://data-marking.mitre.org/extensions/MarkingStructure#TLP-1">
+  <stix:STIX_Header>
+    <stix:Title>All in one package</stix:Title>
+    <stix:Package_Intent xsi:type="stixVocabs:PackageIntentVocab-1.0">Indicators</stix:Package_Intent>
+    <stix:Description>This is an example of every indicator the IB tool generates.
+
+
+      サンリオ: ホーム
+    
+    
+    
+    
+    
+    
+      Adding some newlines
+    
+    
+    
+    
+    
+    Some weird spacing        Tabs.</stix:Description>
+  </stix:STIX_Header>
+</stix:STIX_Package>

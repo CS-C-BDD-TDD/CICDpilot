@@ -1,0 +1,24 @@
+<div class="widget-box">
+    <div class="widget-header">
+        <h5 class="widget-title">
+             Relationship with {{headerTitle}}
+        </h5>
+    </div>
+    <div class="widget-body">
+        <div class="widget-main">
+            <form class="form-horizontal">
+                <confidence-new ng-show="can('set_confidence_level')" object="relationship"></confidence-new>
+
+                <div class="clearfix">
+                    <span class='pull-right'>
+                        <ng-transclude></ng-transclude>
+                        <button class="btn btn-info" type="button" ng-click="save(relationship)">
+                            <i class="fa fa-check"></i>
+                            Save
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

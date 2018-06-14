@@ -1,0 +1,44 @@
+<div class="ciap_padding" ng-if="toggleIsaMarkingsView">
+    <div align="center">
+      <a class='fake-link' ng-model="res_ent" ng-click="res_ent = !res_ent" ng-init="res_ent = true">
+        <i class="ace-icon fa" ng-class="res_ent ? 'fa-minus' : 'fa-plus'"></i>
+        Responsible Entity *
+      </a>
+    </div>
+    <div class="ciap_border_1_solid" ng-show="res_ent">
+        <div class="space-12"></div>
+
+        <div class="form-group" tooltip="The information owner responsible for the resource">
+            <label class="control-label col-md-3 no-padding-right">Custodian *</label>
+            <div class="col-md-7">
+                <select id="ACS_Set_RE_Custodian" class="col-md-12" ng-model="stixMarking.isa_marking_structure_attributes.re_custodian" ng-options="val.id as val.label for val in Marking.re_custodian"></select>
+            </div>
+        </div>
+        <div class="form-group" tooltip="The source of the resource, which may differ from the custodian" ng-class="{'has-error': originator_err}">
+            <label class="control-label col-md-3 no-padding-right">Originator</label>
+            <div class="col-md-7">
+                <select id="ACS_Set_RE_Originator" class="col-md-12" ng-model="stixMarking.isa_marking_structure_attributes.re_originator" ng-options="val.id as val.label for val in Marking.re_originator.values" ng-hide="originator_text"
+                        ng-change="originator_text = !originator_text;originator_err = swap(stixMarking.isa_marking_structure_attributes.re_originator,Marking.re_originator.alertOn)"></select>
+                <div class="input-group" ng-show="originator_text">
+                    <input id="originator" type="text" ng-model="stixMarking.isa_marking_structure_attributes.re_originator" class="col-md-12" />
+                          <span class="input-group-btn" ng-show="originator_text">
+                              <button id="ACS_Set_RE_Originator_X_Button" class="btn btn-danger btn-sm" type="button" ng-click="stixMarking.isa_marking_structure_attributes.re_originator = '';originator_text = false;">x</button>
+                          </span>
+                </div>
+                <div ng-show="originator_err && originator_text" class="help-block inline col-md-12" align="right">
+                    <span class="col-md-12">This originator tag requires specification of additional organizational information</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-3 no-padding-right">Data Item Created Date</label>
+            <div class="col-md-7">
+                      <span class="input-icon input-icon-right" tooltip="The created date and time of the associated resource">
+                          <input class="ciap_mleft_0" id="stixMarking.isa_marking_structure_attributes.data_item_created_at" date-range-picker type="text" options="date_picker_opts" value="{{stixMarking.isa_marking_structure_attributes.data_item_created_at | date:'MM/dd/yyyy'}}"/>
+                          <i class="ace-icon fa fa-calendar"></i>
+                      </span>
+            </div>
+        </div>
+    </div>
+</div>

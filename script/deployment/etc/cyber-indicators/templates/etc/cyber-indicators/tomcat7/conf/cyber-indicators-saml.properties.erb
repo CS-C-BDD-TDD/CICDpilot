@@ -1,0 +1,63 @@
+#A unique identifier for this SAML 2.0 Service Provider application
+IssuerID=<%=ENV['ISSUER_ID']%>
+
+#The URL of the SAML 2.0 Assertion Consumer
+ConsumerUrl=https://<%=ENV['OUR_HOST']%>:<%=ENV['OUR_PORT']%>/cyber-indicators/
+
+#The URL of the SAML 2.0 Identity Provider
+IdPUrl=<%=ENV['IDP_URL']%>
+
+#Identifier given for the Service Provider for SAML 2.0 attributes
+#exchange
+#AttributeConsumingServiceIndex=1701087467
+
+#Specify if SingleLogout is enabled/disabled
+EnableSLO=true
+
+#Specify if SAMLResponse element is signed
+EnableResponseSigning=true
+
+#Specify if SAMLAssertion element is signed
+EnableAssertionSigning=<%=ENV['ENABLE_ASSERTION_SIGNING']%>
+
+#Specify if AuthnRequests and LogoutRequests should be signed
+EnableRequestSigning=true
+
+#Custom credentials class
+SSOAgentCredentialImplClass=org.wso2.carbon.identity.sso.agent.credential.SSOAgentKeyStoreCredential
+
+#KeyStore to cryptographic credentials
+KeyStore=/etc/cyber-indicators/tomcat7/conf/wso2carbon.jks
+
+#Password of the KeyStore
+KeyStorePassword=wso2carbon
+
+#Alias of the IdP's public certificate
+IdPCertAlias=<%=ENV['IDP_CERT_ALIAS']%>
+
+#Alias of the SP's private key
+PrivateKeyAlias=wso2carbon
+
+#Private key password to retrieve the private key used to sign
+#AuthnRequest and LogoutRequest messages
+PrivateKeyPassword=wso2carbon
+
+#This is the attribute name under which the SubjectID value of the SAML
+#assertion is stored
+SubjectIDSessionAttributeName=session.userPrincipal
+
+#This is the attribute name under which the attributes map of the
+#authenticated user is stored
+AttributesMapName=samlAttributesMap
+
+#This is the action sent from the webapp for login
+LoginAction=login
+
+#This is the action sent from the webapp for logout
+LogoutAction=logout
+
+#This is the page directed after login
+HomePage=index.jsp
+
+#This is the page directed after logout
+LogoutPage=logout.jsp

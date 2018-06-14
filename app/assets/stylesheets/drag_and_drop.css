@@ -1,0 +1,25 @@
+.sortable-container {
+        background-color: #FFF;
+        border: 3px solid #000;
+        list-style: none;
+        margin: 0;
+        padding: 0px;
+        min-height: 31px;
+}
+
+.sortable-item {
+        background-color: #FFF;
+        border: 1px solid #000;
+        cursor: move;
+        display: block;
+        font-weight: bold;
+        padding: 5px 0;
+        text-align: center;
+        min-height: 31px;
+        max-height: 31px;
+}
+
+.sortable-placeholder {
+        min-height: 31px;
+        background-color: white;
+}

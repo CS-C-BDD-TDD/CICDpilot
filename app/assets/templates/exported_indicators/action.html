@@ -1,0 +1,34 @@
+<div class="widget-box widget-color-blue ui-sortable-handle" ng-show="exports.length > 0">
+    <div class="widget-header fake-link" ng-click="showTable = !showTable">
+        <h5 class="widget-title bigger lighter">
+      <span tooltip="Show/Hide Table">
+        <i class="ace-icon fa fa-history"></i>
+        Export Action History
+      </span>
+        </h5>
+    </div>
+    <div class="widget-body" ng-show="showTable">
+        <div class="widget-main no-padding">
+            <table class="table table-bordered" >
+                <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>System</th>
+                    <th>Action</th>
+                    <th>Classification Change</th>
+                    <th>User</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="export in exports">
+                        <td>{{export.event_time | date:"medium"}}</td>
+                        <td>{{export.system}}</td>
+                        <td>{{export.audit_subtype}}</td>
+                        <td>{{classification_change(export)}}</td>
+                        <td>{{export.user.username}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

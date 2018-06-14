@@ -1,0 +1,28 @@
+app.controller('SystemTagsShowController',['$scope','$rootScope','$routeParams','Restangular','$location',
+  function($scope,$rootScope,$routeParams,Restangular,$location) {
+    $scope.fetching = true;
+    Restangular.one('/system_tags/'+$routeParams.id).get().then(function(data) {
+      $scope.system_tag = data;
+      $scope.indicatorsRoute = "system_tags/"+$routeParams.id+"/indicators";
+      Restangular.one($scope.indicatorsRoute).get().then(function(data) {
+        $scope.indicators = data.indicators;
+        $scope.metadata = data.metadata;
+      });
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'System Tags',link:'#/system_tags',icon:'fa-thumb-tack'},{text:data.name,link:'#/system_tags/'+$routeParams.id,icon:'fa-home'}];
+      $scope.fetching = false;
+    });
+
+    $scope.delete = function(tag) {
+      $scope.fetching = true;
+      service = Restangular.one("system_tags");
+      service.customDELETE(tag.guid).then(function(res){
+        toastr.success("System Tag deleted.");
+        $location.path('/indicators');
+        $scope.fetching = false;
+      },function(res) {
+        toastr.error("Unable to delete system tag.");
+        $scope.fetching = false;
+      });
+    };
+  }
+]);

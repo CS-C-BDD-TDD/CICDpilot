@@ -1,0 +1,49 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('FilesEditController', ['$scope','$routeParams','Restangular','$rootScope','File','Gfi','$location','Marking',
+    function($scope,$routeParams,Restangular,$rootScope,File,Gfi,$location,Marking) {
+        Restangular.one('/files/'+$routeParams.id).get().then(function(data){
+            // If you change anything here you also need to change it in the observable select directive, set edit!!!!
+            // we need to add in the spoof the file hashes stix markings into the stix_markings array for editing
+            if(!$rootScope.is_undefined_or_null(data.md5_stix_markings)){
+                data.md5_stix_markings[0].remote_object_field = "md5";
+                data.stix_markings.push(data.md5_stix_markings[0]);
+            }
+            if(!$rootScope.is_undefined_or_null(data.sha1_stix_markings)){
+                data.sha1_stix_markings[0].remote_object_field = "sha1";
+                data.stix_markings.push(data.sha1_stix_markings[0]);
+            }
+            if(!$rootScope.is_undefined_or_null(data.sha256_stix_markings)){
+                data.sha256_stix_markings[0].remote_object_field = "sha256";
+                data.stix_markings.push(data.sha256_stix_markings[0]);
+            }
+            if(!$rootScope.is_undefined_or_null(data.ssdeep_stix_markings)){
+                data.ssdeep_stix_markings[0].remote_object_field = "ssdeep";
+                data.stix_markings.push(data.ssdeep_stix_markings[0]);
+            }
+            // end add
+            $scope.file = Marking.translate_existing_attributes(data);
+            Gfi.init_gfi_edit($scope, $scope.file);
+            $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Files',link:'#/files',icon:'fa-group'},{text:File.get_value(data),link:'#/files/'+encodeURIComponent(data.cybox_object_id)}];
+            if ($rootScope.is_undefined_or_null($scope.file.file_name_condition)) {
+               $scope.file.file_name_condition = "Equals";
+            }
+            if ($rootScope.is_undefined_or_null($scope.file.file_path_condition)) {
+               $scope.file.file_path_condition = "Equals";
+            }
+            if ($rootScope.is_undefined_or_null($scope.file.size_in_bytes_condition)) {
+               $scope.file.size_in_bytes_condition = "Equals";
+            }
+        },function(res){
+            toastr.error("Unable to load File");
+        });
+
+        $scope.cancel = function() {
+            $location.path('/files/'+$routeParams.id);
+        };
+
+        $scope.failed = function() {
+            $("html, body").animate({ scrollTop: 0 }, 200);
+        }
+    }
+]);

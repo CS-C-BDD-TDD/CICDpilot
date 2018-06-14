@@ -1,0 +1,99 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('emailTable', function() {
+  return {
+    restrict: 'E',
+    templateUrl: function(elem,attrs) {
+      return attrs.indexpage ? '<%=asset_path("observables/emails/advanced_table.html",type: :template)%>' :
+                               '<%=asset_path("observables/emails/table.html",type: :template)%>';
+    },
+    scope: {
+             emails: '=',
+             metadata: '=',
+             fetching: '='
+           },
+    controller: ['$scope', 'Restangular', '$rootScope', function($scope,Restangular,$rootScope) {
+      $scope.can = $rootScope.can;
+      $scope.date_picker_opts = {
+        defaultRanges: true
+      };
+      $scope.q = '';
+      $scope.marking_search_params = {};
+
+      $scope.showTable=true;
+      if (angular.isUndefined($scope.offset)) {
+        $scope.offset=0;
+      }
+      if (angular.isUndefined($scope.amount)) {
+        $scope.amount=$rootScope.setting_value('DEFAULT_MAX_RECORDS');
+      }
+      $scope.sortOptions = {
+        'from_normalized': 'desc',
+        'reply_to_normalized': 'desc',
+        'sender_normalized': 'desc',
+        'subject': 'desc',
+        'subject_condition': 'desc',
+        'created_at': 'desc',
+        'updated_at': 'desc'
+      };
+      $scope.sortMethod = '';
+
+      // Cleanup
+      $scope.$on('$destroy', function() {
+        $('.daterangepicker').remove();
+      });
+      
+      $scope.dateRangePicker = function(picker) {
+        $scope.date_picker_object = picker;
+        $scope.offset=0;
+        $scope.getEmailMessages($scope.offset);
+      };
+
+      $scope.sort = function(method) {
+        $scope.sortMethod = method;
+        $scope.sortOptions[method]=($scope.sortOptions[method]=='desc')?'asc':'desc';
+        $scope.offset=0;
+        $scope.getEmailMessages($scope.offset);
+      };
+
+      $scope.startSearch = function() {
+        $scope.offset=0;
+        $scope.getEmailMessages($scope.offset);
+      };
+
+      $scope.getEmailMessages = function(offset) {
+        if (angular.isDefined($scope.metadata)) {
+          delete($scope.metadata);
+        }
+        $scope.fetching = true;
+        Restangular.one('/email_messages').get({
+          ebt: $scope.date_picker_object.getStartDate(),
+          iet: $scope.date_picker_object.getEndDate(),
+          q: $scope.q,
+          column: $scope.sortMethod,
+          direction: $scope.sortOptions[$scope.sortMethod],
+          amount: $scope.amount,
+          offset: offset,
+          marking_search_params: $scope.marking_search_params
+        }).then(
+          function(data){
+            $scope.emails = data.email_messages;
+            $scope.metadata = data.metadata;
+            $scope.fetching = false;
+          },
+          function(res){
+            $scope.emails = null;
+            $scope.metadata={total_count: 0};
+            toastr.error("Unable to load Email Messages");
+            $scope.fetching = false;
+          }
+        );
+      };
+
+      $scope.buildHref = function() {
+      	return $rootScope.buildCSVHref($scope, "email_messages");
+      };
+
+    }]
+  };
+});

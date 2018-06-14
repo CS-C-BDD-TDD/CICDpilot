@@ -1,0 +1,87 @@
+  <div class="widget-body">
+    <div class="widget-main no-padding">
+      <table class="table table-striped table-bordered table-hover dataTable" style="border-collapse: inherit">
+        <thead class="thin-border-bottom">
+        <tr>
+          <th ng-class="{'sorting':addresses.length > 1}"  ng-click="sort('ip_value_calculated_start')">IP Address</th>
+          <th ng-class="{'sorting':addresses.length > 1}" ng-click="sort('iso_country_code')">ISO Country Code</th>
+          <th ng-show="SYSTEM_MODE == 'CIAP'">
+            <span tooltip="Using only Commercial sources (threat feeds) a reputation score is calculated and presented as a numeric representation of how bad an indicator is believed to be (scale of 1 to 10; 10 is the worst).">
+              .COM Reputation Score
+            </span>
+          </th>
+          <th ng-show="SYSTEM_MODE == 'CIAP'">
+            <span tooltip="Using only Government sources (EINSTEIN Data, Behavior Based Indicators from federal agencies, etc.), a reputation score is calculated and presented as a numeric representation of how bad an indicator is believed to be (scale of 1 to 10; 10 is the worst).">
+              .GOV Reputation Score
+            </span>
+          </th>
+          <th ng-class="{'sorting':addresses.length > 1}" ng-click="sort('combined_score')">
+            <span ng-show="SYSTEM_MODE == 'CIAP'" tooltip="Numeric representation of how bad an indicator is believed to be (scale of 1 to 10, 10 is the worst) using available commercial and Government sources as input to the score.">
+              Composite Reputation Score
+            </span>
+            <span ng-hide="SYSTEM_MODE == 'CIAP'" tooltip="Numeric representation of how bad an indicator is believed to be (scale of 1 to 10, 10 is the worst) using available commercial and Government sources as input to the score.">
+              Reputation Score
+            </span>
+          </th>
+          <th ng-show="SYSTEM_MODE == 'CIAP'">Agencies Sensors Seen On</th>
+          <th ng-class="{'sorting':addresses.length > 1}" ng-click="sort('first_date_seen')">
+            <span tooltip="Time/Date of the first appearance of the indicator on Government sensors (EINSTEIN).">
+              First Date Seen (Gov Sensor)
+            </span>
+          </th>
+          <th ng-class="{'sorting':addresses.length > 1}" ng-click="sort('last_date_seen')">
+            <span tooltip="Time/Date of most recent appearance of the indicator on Government sensors (EINSTEIN).">
+              Last Date Seen (Gov Sensor)
+            </span>
+          </th>
+          <th ng-class="{'sorting':addresses.length > 1}" ng-click="sort('category_list')">
+            <span tooltip="Type(s) of threat/malicious activity (e.g. Spam, Malware, etc).">
+              Threat Category List
+            </span>
+          </th>
+          <th ng-class="{'sorting':addresses.length > 1}" ng-click="sort('updated_at')">
+            <span tooltip="Time/Date of the upload of the data to CIR. Score calculation is calculated daily.">
+              Timestamp
+            </span>
+          </th>
+        </tr>
+        </thead>
+        <tbody ng-hide="fetching">
+        <tr ng-repeat="address in addresses">
+          <td ng-show="metadata">
+            <a class="fake-link" ng-click="get_or_create_indicator(address)">{{address.address | prefixWithPortionMarking: address.portion_marking : address.address_c : "U"}}</a>
+          </td>
+          <td ng-hide="metadata">
+            <a ng-href="#/addresses/{{address.cybox_object_id | encodeURIComponent}}">{{address.address | prefixWithPortionMarking: address.portion_marking : address.address_c : "U"}}</a>
+          </td>
+          <td>{{address.iso_country_code}}</td>
+          <td ng-show="SYSTEM_MODE == 'CIAP'">{{address.com_threat_score}}</td>
+          <td ng-show="SYSTEM_MODE == 'CIAP'">{{address.gov_threat_score}}</td>
+
+          <td>{{address.combined_score | number:0}}</td>
+          <td ng-show="SYSTEM_MODE == 'CIAP'">{{address.agencies_sensors_seen_on}}</td>
+          <td>{{address.first_date_seen | date: 'medium'}}</td>
+          <td>{{address.last_date_seen | date: 'medium'}}</td>
+          <td><span style="white-space: pre-line;">{{address.category_list | hyphen2nl}}</span></td>
+          <td>{{address.updated_at | date: 'medium'}}</td>
+        </tr>
+        </tbody>
+        <tbody ng-hide="addresses.length || fetching">
+        <tr>
+          <td colspan="{{(SYSTEM_MODE == 'CIAP')?10:7}}" class="center">
+            No Results
+          </td>
+        </tr>
+        </tbody>
+        <tbody ng-show="fetching">
+        <tr>
+          <td colspan="{{(SYSTEM_MODE == 'CIAP')?10:7}}" class="center">
+            <i class="fa fa-spinner fa-spin bigger-300 blue"></i>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+

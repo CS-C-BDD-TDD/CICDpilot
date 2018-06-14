@@ -1,0 +1,16 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('MutexesIndexController', ['$scope','$rootScope','Restangular',
+  function ($scope, $rootScope, Restangular) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Mutexes',link:'#/mutexes',icon:'fa-group'}];
+    $scope.fetching = true;
+    Restangular.one('/mutexes').get().then(function(data){
+      $scope.mutexes = data.mutexes;
+      $scope.metadata = data.metadata;
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load Mutexes");
+      $scope.fetching = false;
+    });
+  }
+]);

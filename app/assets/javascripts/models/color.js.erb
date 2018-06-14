@@ -1,0 +1,78 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.service('Color', ['$sce',function($sce) {
+
+  return {
+    colors: <%= TlpStructure::COLORS %>,
+
+/*  image(color)
+
+    Returns an HTML img tag with the src path referencing the appropriate color png file
+
+    MUST be called from ng-bind-html directive in order to work, otherwise html will not be rendered
+
+    Example:
+        <td ng-bind-html="Color.image(color)"></td>
+*/
+
+    image: function(color) {
+        switch(color){
+            case "White":
+            case "white":
+                return $sce.trustAsHtml("<img src='<%= image_path("tlp/white.png") %>' alt='" + this.displayText(color) + "' title='" + this.displayText(color) + "' />");
+                break;
+            case "Green":
+            case "green":
+                return $sce.trustAsHtml("<img src='<%= image_path("tlp/green.png") %>' alt='" + this.displayText(color) + "' title='" + this.displayText(color) +  "' />");
+                break;
+            case "Amber":
+            case "amber":
+                return $sce.trustAsHtml("<img src='<%= image_path("tlp/amber.png") %>' alt='" + this.displayText(color) + "' title='" + this.displayText(color) +  "' />");
+                break;
+            case "Red":
+            case "red":
+                return $sce.trustAsHtml("<img src='<%= image_path("tlp/red.png") %>' alt='" + this.displayText(color) + "' title='" + this.displayText(color) + "'/>");
+                break;
+            case "Black":
+            case "black":
+                return $sce.trustAsHtml("<img src='<%= image_path("tlp/black.png") %>' alt='" + this.displayText(color) + "' title='" + this.displayText(color) + "'/>");
+            default:
+                return;
+        }
+    },
+    imagePath: function(color) {
+        switch(color){
+            case "White":
+            case "white":
+                return "<%= image_path("tlp/white.png") %>";
+                break;
+            case "Green":
+            case "green":
+                return "<%= image_path("tlp/green.png") %>";
+                break;
+            case "Amber":
+            case "amber":
+                return "<%= image_path("tlp/amber.png") %>";
+                break;
+            case "Red":
+            case "red":
+                return "<%= image_path("tlp/red.png") %>";
+                break;
+            case "Black":
+            case "black":
+                return "<%= image_path("tlp/black.png") %>";
+                break;
+            default:
+                return;
+        }
+    },
+    displayText: function(color)  {
+        if (_.contains(this.colors,color)){
+            return color.charAt(0).toUpperCase() + color.substring(1);
+        }
+        else {
+            return "Not Yet Attributed"
+        }
+    }
+  };
+}]);

@@ -1,0 +1,194 @@
+app.controller('ThreatActorsBulkAddIndicatorsController', ['$scope','$rootScope','Restangular', '$location', 'bulkActionsService', 'Marking',
+  function ($scope, $rootScope, Restangular, $location, bulkActionsService, Marking) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Bulk Add to Threat Actors',link:'#/threat_actors',icon:'fa-list'}];
+    $scope.fetching = true;
+
+    $scope.selected_indicators = bulkActionsService.get() || [];
+    $scope.portion_markings = [];
+    $scope.selected_indicators.forEach(function(indicator) {
+      if (!$rootScope.is_undefined_or_null(indicator.portion_marking)) {
+        $scope.portion_markings.push(indicator.portion_marking);
+      }
+    });
+    $scope.classification_greater = Marking.get_highest_classification($scope.portion_markings);
+
+    Restangular.one('/threat_actors').get({
+      classification_greater: $scope.classification_greater
+    }).then(function(data){
+      $scope.threat_actors = data.threat_actors;
+      $scope.metadata = data.metadata;
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load Threat Actors");
+      $scope.fetching = false;
+    });
+
+    $scope.can = $rootScope.can;
+    $scope.q = '';
+    $scope.sortMethod = '';
+    $scope.selected_threat_actors = [];
+
+    $scope.date_picker_opts = {
+      defaultRanges: true
+    };
+
+    $scope.sortOptions = {
+      'title': 'desc',
+      'username': 'desc',
+      'short_description': 'desc',
+      'created_at': 'desc'
+    };
+
+    if (angular.isUndefined($scope.offset)) {
+      $scope.offset=0;
+    }
+    if (angular.isUndefined($scope.amount)) {
+      $scope.amount=$rootScope.setting_value('DEFAULT_MAX_RECORDS');
+    }
+
+    // Cleanup
+    $scope.$on('$destroy', function() {
+      $('.daterangepicker').remove();
+    });
+      
+    $scope.dateRangePicker = function(picker) {
+      $scope.date_picker_object = picker;
+      $scope.offset=0;
+      $scope.getThreatActors($scope.offset);
+    };
+
+    $scope.$watch("search", function(search) {
+      if (angular.isDefined(search)) {
+        $scope.q = search;
+        $scope.getThreatActors($scope.offset);
+      }
+    });
+
+    $scope.sort = function(method) {
+      $scope.sortMethod = method;
+      $scope.sortOptions[method]=($scope.sortOptions[method]=='desc')?'asc':'desc';
+      $scope.offset=0;
+      $scope.getThreatActors($scope.offset);
+    };
+
+    $scope.startSearch = function() {
+      $scope.offset=0;
+      $scope.getThreatActors($scope.offset);
+    };
+
+    $scope.getThreatActors = function(offset) {
+      if (angular.isDefined($scope.metadata)) {
+        delete($scope.metadata);
+      }
+      $scope.showTable = false;
+      $scope.fetching= true;
+      Restangular.one("threat_actors").get({
+        ebt: angular.isDefined($scope.date_picker_object) ? $scope.date_picker_object.getStartDate() : '',
+        iet: angular.isDefined($scope.date_picker_object) ? $scope.date_picker_object.getEndDate() : '',
+        q: $scope.q,
+        column: $scope.sortMethod,
+        direction: $scope.sortOptions[$scope.sortMethod],
+        amount: $scope.amount,
+        offset: offset,
+        classification_greater: $scope.classification_greater
+      }).then(
+        function(data){
+          $scope.threatActors = data.threat_actors;
+          $scope.metadata = data.metadata;
+          if (data.metadata['total_count'] > 0) {
+            $scope.showTable = true;
+          }
+          $scope.fetching = false;
+        },
+        function(res){
+          $scope.threatActors = null;
+          $scope.metadata = { total_count: 0 };
+          toastr.error("Unable to load Threat Actors");
+          if (angular.isDefined(res)){
+              $rootScope.show_res_errors(res);
+          }
+          $scope.fetching = false;
+        }
+      );
+    };
+    
+    // methods for bulk actions
+    $scope.disabled = function(threat_actor) {
+       if ($scope.checked(threat_actor) && $scope.selectOnly) {
+           return true;
+       }
+       return false;
+    }
+
+    $scope.checked = function(threat_actor){
+      return _.findIndex($scope.selected_threat_actors, function(ta){return ta.stix_id == threat_actor.stix_id;}) > -1;
+    };
+
+    $scope.selectThreatActor = function(threat_actor,$event) {
+      var checkbox = $event.target;
+      if (checkbox.checked){
+        if (_.findIndex($scope.selected_threat_actors, function(ta){return ta.stix_id == threat_actor.stix_id}) == -1){
+          $scope.selected_threat_actors.push(threat_actor);
+        }
+      } else {
+        $scope.selected_threat_actors = _.filter($scope.selected_threat_actors, function(ta){return ta.stix_id != threat_actor.stix_id});
+      }
+    };
+
+    // bulk add indicators to threat_actor selected
+    $scope.addIndicatorsToExistingThreatActors = function(selected_threat_actors){
+      // so now that we are ready to save these all we need is id's.
+      var post_obj = {};
+
+      // need to make sure they can modify threat actors so filter out threat actors that are not allowed to be edited.
+      $scope.selected_threat_actors = _.filter($scope.selected_threat_actors, function(threat_actor){
+        return $rootScope.canModify(threat_actor);
+      });
+
+      post_obj.threat_actors_stix_ids = _.map($scope.selected_threat_actors,function(p) {
+        return p.stix_id;
+      });
+
+      post_obj.indicator_stix_ids = _.map($scope.selected_indicators,function(i) {
+        return i.stix_id;
+      });
+
+      Restangular.all('threat_actors/bulk_ind/bulk').customPUT(post_obj).then(function(data){
+          toastr.success(data.base, '', {timeOut: 15000, closeButton: true});
+
+          // give a toastr with any validation errors
+          if (angular.isDefined(data.errors)){
+            _.forEach(data.errors,function(error) {
+                toastr.error("Unable to add Indicators to " + error, '', {timeOut: 15000, closeButton: true});
+            })
+          }
+          // redirect us back to the indicators index page after finish.
+          $location.path('/indicators');
+        },function(res) {
+          if (angular.isDefined(res)){
+            $rootScope.show_res_errors(res);
+          }
+          else {
+            toastr.error("There was a problem adding the Indicator(s)");
+          }
+        }
+      );
+    }
+
+    // bulk add indicators to new threat_actors
+    $scope.addToNewThreatActor = function(selected_threat_actors){
+      bulkActionsService.set($scope.selected_indicators);
+      $location.path('/threat_actors/new');
+    }
+
+    $scope.clearSelectedThreatActors = function(){
+      $scope.selected_threat_actors = [];
+    }
+
+    // cancel back to the indicators page
+    $scope.cancel = function(){
+      bulkActionsService.set($scope.selected_indicators);
+      $location.path('/indicators');
+    }
+  }
+]);

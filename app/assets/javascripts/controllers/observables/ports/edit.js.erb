@@ -1,0 +1,20 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('PortsEditController', ['$scope','$routeParams','Restangular','$rootScope','$location','Marking','Port',
+    function($scope,$routeParams,Restangular,$rootScope,$location,Marking, Port) {
+        Restangular.one('/ports/'+$routeParams.id).get().then(function(data){
+            $scope.port = Marking.translate_existing_attributes(data);
+            $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Ports',link:'#/ports',icon:'fa-group'},{text:Port.get_value(data),link:'#/ports/'+encodeURIComponent(data.cybox_object_id)}];
+        },function(res){
+            toastr.error("Unable to load Port");
+        });
+
+        $scope.cancel = function() {
+            $location.path('/ports/'+$routeParams.id);
+        };
+
+        $scope.failed = function() {
+            $("html, body").animate({ scrollTop: 0 }, 200);
+        }
+    }
+]);

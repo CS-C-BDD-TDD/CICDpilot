@@ -1,0 +1,150 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">
+
+<div class="page-header">
+  <h1>
+    <span ng-show="httpsession.user_agent">
+      {{httpsession.user_agent | prefixWithPortionMarking: httpsession.portion_marking}}
+    </span>
+    <span ng-show="httpsession.domain_name && !httpsession.user_agent">
+      {{httpsession.domain_name | prefixWithPortionMarking: httpsession.portion_marking}}
+    </span>
+    <span ng-show="!httpsession.domain_name && !httpsession.user_agent">
+      {{httpsession.cybox_object_id | prefixWithPortionMarking: httpsession.portion_marking}}
+    </span>
+    <small ng-show="httpsession.read_only">
+      <span style="margin-left: 10px" class="label label-warning arrowed arrowed-right">
+        <span class="white">Read Only</span>
+      </span>
+    </small>
+    <small ng-show="httpsession.is_ciscp">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">CISCP</span>
+      </span>
+    </small>
+    <small ng-show="httpsession.is_mifr">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">MIFR</span>
+      </span>
+    </small>    
+    <span class="pull-right">
+      <a ng-href="#/http_sessions/{{httpsession.cybox_object_id | encodeURIComponent}}/edit" class="btn btn-info no-radius btn-xs" ng-show="canModify(httpsession) && httpsession.read_only == false"><i class="ace-icon fa fa-pencil-square-o bigger-160"></i> Edit</a>
+    </span>
+  </h1>
+  <div class="space-18"></div>
+  <span class="pull-left" ng-show="canAny(['create_remove_badge_status','view_badge_status'])">
+    <badge-statuses-table badge-statuses="httpsession.badge_statuses" audits="httpsession.audits" parent-id="httpsession.guid" parent-class="HttpSession"></badge-statuses-table>
+  </span>
+  <div class="space-18"></div>
+</div>
+
+<p class="pull-right">
+</p>
+
+<div class="profile-user-info profile-user-info-striped">
+  <div class="profile-info-row">
+    <div class="profile-info-name"> User Agent </div>
+    <div class="profile-info-value">
+      <span>{{httpsession.user_agent | prefixWithPortionMarking: httpsession.portion_marking:httpsession.user_agent_c}}</span>
+      <field-markings-show markings="httpsession.stix_markings" fieldname="user_agent"></field-markings-show>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> User Agent Condition </div>
+    <div class="profile-info-value">
+      <span>{{httpsession.user_agent_condition}}</span>
+    </div>
+  </div>
+  
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Domain Name </div>
+    <div class="profile-info-value">
+      <span>{{httpsession.domain_name | prefixWithPortionMarking: httpsession.portion_marking:httpsession.domain_name_c}}</span>
+      <field-markings-show markings="httpsession.stix_markings" fieldname="domain_name"></field-markings-show>
+    </div>
+  </div>
+  
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Port </div>
+    <div class="profile-info-value">
+      <span>{{httpsession.port | prefixWithPortionMarking: httpsession.portion_marking:httpsession.port_c}}</span>
+      <field-markings-show markings="httpsession.stix_markings" fieldname="port"></field-markings-show>
+    </div>
+  </div>
+  
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Referer </div>
+    <div class="profile-info-value">
+      <span>{{httpsession.referer | prefixWithPortionMarking: httpsession.portion_marking:httpsession.referer_c}}</span>
+      <field-markings-show markings="httpsession.stix_markings" fieldname="referer"></field-markings-show>
+    </div>
+  </div>
+  
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Pragma </div>
+    <div class="profile-info-value">
+      <span>{{httpsession.pragma | prefixWithPortionMarking: httpsession.portion_marking:httpsession.pragma_c}}</span>
+      <field-markings-show markings="httpsession.stix_markings" fieldname="pragma"></field-markings-show>
+    </div>
+  </div>
+  
+  <div class="profile-info-row" ng-show='httpsession.feeds'>
+    <div class="profile-info-name"> Disseminated Feeds </div>
+    <div class="profile-info-value">
+      <span>{{httpsession.feeds}}</span>
+    </div>
+  </div>  
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Created 
+    	<span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+      		<i class="fa fa-ban fa-stack-2x"> </i> 
+ 			<i class="fa fa-download fa-stack-1x"> </i> 
+    	</span>
+    </div>
+    <div class="profile-info-value">
+      <span>{{httpsession.created_at | date:"medium"}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Total Sightings </div>
+    <div class="profile-info-value">
+      <span>{{httpsession.total_sightings}}</span>
+    </div>
+  </div>
+  <downgrade-request-ids observable="httpsession"></downgrade-request-ids>
+</div>
+
+<div ng-show="httpsession.stix_markings.length">
+  <div class="space-12"></div>
+  <markings-table markings="httpsession.stix_markings"></markings-table>
+</div>
+
+<div class="space-12"></div>
+
+<div ng-show="httpsession.indicators.length">
+  <indicator-table indicators="httpsession.indicators"></indicator-table>
+</div>
+
+<div class="space-12" ng-show="httpsession.course_of_actions.length"></div>
+<course-of-actions-table course-of-actions="httpsession.course_of_actions" show-table=showTable addrelated="false" ng-show="httpsession.course_of_actions.length"></course-of-actions-table>
+
+<div class="space-12" ng-show="httpsession.layer_seven_connections.length"></div>
+
+<div ng-show="httpsession.layer_seven_connections.length">
+  <layer-seven-connections-table layer-seven-connections="httpsession.layer_seven_connections"></layer-seven-connections-table>
+</div>
+
+<div ng-show="httpsession.stix_packages.length > 0">
+  <div class="space-12"></div>
+  <package-table packages="httpsession.stix_packages"></package-table>
+</div>
+
+<div class="space-12"></div>
+<audits-table audits="httpsession.audits"></audits-table>
+
+<div class="space-12"></div>
+</div>
+
+<show-spinner> </show-spinner>

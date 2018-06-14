@@ -1,0 +1,21 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('SocketAddressesEditController', ['$scope','$routeParams','Restangular','$rootScope','$location','Marking', 
+    function($scope,$routeParams,Restangular,$rootScope,$location,Marking) {
+        Restangular.one('/socket_addresses/'+$routeParams.id).get().then(function(data){
+            $scope.socket_address = Marking.translate_existing_attributes(data);
+            
+            $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Socket Address',link:'#/socket_addresses',icon:'fa-group'},{text:data.socket_address,link:'#/socket_addresses/'+encodeURIComponent(data.cybox_object_id)}];
+        },function(res){
+            toastr.error("Unable to load Socket Address");
+        });
+
+        $scope.cancel = function() {
+            $location.path('/socket_addresses/'+$routeParams.id);
+        };
+
+        $scope.failed = function() {
+            $("html, body").animate({ scrollTop: 0 }, 200);
+        }
+    }
+]);

@@ -1,0 +1,26 @@
+<div class="tags multi_tag_attributes">
+  <div class="col-lg-9 ciap_pleft_6" ng-show="attribute.length" >
+    <span ng-repeat="val in attribute track by $index" class="tag label label-margin label-info ciap_lheight_9">
+      {{val}}
+      <button class="close"
+              type="button"
+              ng-click="remove($index)">
+        <i class="fa fa-times white"></i>
+      </button>
+    </span>
+  </div>
+  <div ng-hide="attribute.length" class="col-lg-9 ciap_pleft_6">
+        <span class='label label-margin label-inverse'>
+            NONE
+        </span>
+  </div>
+</div>
+
+<div class="space-8"></div>
+
+<div class="col-md-9 ciap_mtop_10">
+  <select class="col-md-12" ng-model='attr'
+          ng-options="val.id as val.label for val in ::optionsForSelect"
+          ng-change="add(attr)"
+      ></select>
+</div>

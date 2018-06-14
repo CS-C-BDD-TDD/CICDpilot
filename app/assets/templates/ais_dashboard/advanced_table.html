@@ -1,0 +1,266 @@
+<div class="widget-box widget-color-blue ui-sortable-handle">
+  <pagination-header metadata="metadata" offset="offset" pagename="'AIS Dashboard'"></pagination-header>
+  <pagination-footer metadata="metadata" offset="offset" get_records="getAisData"></pagination-footer>
+  <div class="dataTables_wrapper form-inline no-footer">
+    <div class="row ciap_pall_5 ciap_bgc_header_first">
+      <span class="ciap_mleft_10 pull-right">
+      </span>
+      
+      <span class="ciap_mleft_10 pull-right">
+        <button class="btn btn-danger no-radius btn-xs" ng-click="clearFilters()">
+          <i class="ace-icon fa fa-trash-o bigger-160"></i>
+          Clear All Filters
+        </button>
+      </span>
+      <!-- End row -->
+    </div>
+  </div>
+  <div class="widget-body">
+    <div class="widget-main no-padding">
+      <!-- To achieve fixed headers we made two tables. one for the headers and one for the table content.  in this way you need to make sure that the width classes are matched on both the body and the headers. The only issue is that there is a blank space above the scroll bar.  As a solution we made a fake table-->
+      
+      <!-- wrap the headers with two divs, one will be the full width so that we can fill in the background color. -->
+      <div class="ciap_bgc_header_first" ng-cloak>
+        <!-- The second is so we can minus the size of the scroll bar so that the headers line up with the body content. We use style here instead of class because we need to calculate the width with javascript incase page size changes.-->
+        <div id="first_header" class="ciap_float_left">
+          <table class="table table-striped table-bordered table-hover dataTable table-fixed">
+            <thead class="thin-border-bottom">
+              <tr id="advindfirstrow" role="row">
+                <th class="sorting ciap_width_6" ng-click="sort('stix_package_original_id')">Package ID (Original)</th>
+                <th class="sorting ciap_width_6" ng-click="sort('stix_package_stix_id')">Package ID (Sanitized)</th>
+                <th class="sorting ciap_width_6" ng-click="sort('received_time')">Received Time</th>
+                <th class="sorting ciap_width_3" ng-click="sort('indicator_amount')"># Indicators</th>
+                <th class="sorting ciap_width_2" ng-click="sort('flare_in_status')">FLARE In</th>
+                <th class="sorting ciap_width_2" ng-click="sort('ciap_status')">CIAP</th>
+                <th class="sorting ciap_width_2" ng-click="sort('ecis_status')">ECIS</th>
+                <th class="sorting ciap_width_2" ng-click="sort('flare_out_status')">FLARE Out</th>
+                <th class="sorting ciap_width_6" ng-click="sort('feeds')">Outgoing Feed(s)</th>
+                <th class="sorting ciap_width_6" ng-click="sort('dissemination_time')">Dissemination Time</th>
+                <th class="ciap_width_6">HR</th>
+                <th class="sorting ciap_width_2" ng-click="sort('ecis_status_hr')">ECIS</th>
+                <th class="sorting ciap_width_2" ng-click="sort('flare_out_status_hr')">FLARE Out</th>
+                <th class="sorting ciap_width_6" ng-click="sort('dissemination_time_hr')">Dissemination Time</th>
+              </tr>
+
+              <tr id="advindsecondrow" role="row">
+                <!-- Package ID (Original)-->
+                <th>
+                  <span class="input-icon ciap_width_100">
+                    <input class="form-control search-query" placeholder="Search..." type="search" ng-enter="startSearch()" ng-model="original_q">
+                    <i class="ace-icon fa fa-search nav-search-icon ciap_mleft_5"></i>
+                  </span>
+                </th>
+                <!-- Package ID (Sanitized) -->
+                <th>
+                  <span class="input-icon ciap_width_100">
+                    <input class="form-control search-query" placeholder="Search..." type="search" ng-enter="startSearch()" ng-model="sanitized_q">
+                    <i class="ace-icon fa fa-search nav-search-icon ciap_mleft_5"></i>
+                  </span>
+                </th>
+                <!-- Received Time -->
+                <th>
+                  <div class="input-group">
+                    <span class="input-group-addon">
+                      <i class="fa fa-calendar"></i>
+                    </span>
+                    <input id="received_time_filter" date-range-picker type="text" class="ciap_mleft_0 ciap_width_100" picker="dateRangePickerR" options="date_picker_opts_r" />
+                  </div>
+                </th>
+                <!-- # Indicators -->
+                <th>
+                  <span class="input-icon ciap_width_100">
+                    <input class="form-control search-query" placeholder="Search..." type="search" ng-enter="startSearch()" ng-model="indicator_amount_q">
+                    <i class="ace-icon fa fa-search nav-search-icon ciap_mleft_5"></i>
+                  </span>
+                </th>
+                <!-- FLARE In -->
+                <th>
+                  <select class="ciap_width_100" ng-model="flare_in_status_q" ng-change="startSearch()">
+                    <option value=""></option>
+                    <option value="true">Success</option>
+                    <option value="false">Failure</option>
+                  </select>
+                </th>
+                <!-- CIAP-->
+                <th>
+                  <select class="ciap_width_100" ng-model="ciap_status_q" ng-change="startSearch()">
+                    <option value=""></option>
+                    <option value="true">Success</option>
+                    <option value="false">Failure</option>
+                  </select>
+                </th>
+                <!-- ECIS -->
+                <th>
+                  <select class="ciap_width_100" ng-model="ecis_status_q" ng-change="startSearch()">
+                    <option value=""></option>
+                    <option value="true">Success</option>
+                    <option value="false">Failure</option>
+                  </select>
+                </th>
+                <!-- FLARE Out-->
+                <th>
+                  <select class="ciap_width_100" ng-model="flare_out_status_q" ng-change="startSearch()">
+                    <option value=""></option>
+                    <option value="true">Success</option>
+                    <option value="false">Failure</option>
+                  </select>
+                </th>
+                <!-- Outgoing Feed(s) -->
+                <th>
+                  <span class="input-icon ciap_width_100">
+                    <input class="form-control search-query" placeholder="Search..." type="search" ng-enter="startSearch()" ng-model="feeds_q">
+                    <i class="ace-icon fa fa-search nav-search-icon ciap_mleft_5"></i>
+                  </span>
+                </th>
+                <!-- Dissemination Time -->
+                <th>
+                  <div class="input-group">
+                    <span class="input-group-addon">
+                      <i class="fa fa-calendar"></i>
+                    </span>
+                    <input id="dissemination1_filter" date-range-picker type="text" class="ciap_mleft_0 ciap_width_100" picker="dateRangePickerD" options="date_picker_opts_d" />
+                  </div>
+                </th>
+                <!-- HR -->
+                <th>
+                  <select class="ciap_width_100" ng-model="hr_count_q" ng-change="startSearch()">
+                    <option value=""></option>
+                    <option value="N">Not Reviewed</option>
+                    <option value="I">In Progress</option>
+                    <option value="R">Rejected</option>
+                    <option value="A">Approved</option>
+                  </select>
+                </th>
+                <!-- ECIS -->
+                <th>
+                  <select class="ciap_width_100" ng-model="ecis_hr_status_q" ng-change="startSearch()">
+                    <option value=""></option>
+                    <option value="true">Success</option>
+                    <option value="false">Failure</option>
+                  </select>
+                </th>
+                <!-- FLARE Out -->
+                <th>
+                  <select class="ciap_width_100" ng-model="flare_out_hr_status_q" ng-change="startSearch()">
+                    <option value=""></option>
+                    <option value="true">Success</option>
+                    <option value="false">Failure</option>
+                  </select>
+                </th>
+                <!-- Dissemination Time -->
+                <th>
+                  <div class="input-group">
+                    <span class="input-group-addon">
+                      <i class="fa fa-calendar"></i>
+                    </span>
+                    <input id="dissemination2_filter" date-range-picker type="text" class="ciap_mleft_0 ciap_width_100" picker="dateRangePickerDhr" options="date_picker_opts_dhr" />
+                  </div>
+                </th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        
+        <!-- fake table to fill in headers -->
+        <div id="fakerowwidth" class="ciap_float_left">
+          <table class="table table-striped table-bordered table-hover dataTable table-fixed">
+            <thead class="thin-border-bottom">
+              <tr id="fakerowone" role="row">
+                <th></th>
+              </tr>
+              <tr id="fakerowtwo" role="row">
+                <th></th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+
+      <!-- This is the content table.  We add the overflow property and specify the max height on this css class -->
+      <div class="ciap_fixed_headers_table">
+        <table class="table table-striped table-bordered table-hover dataTable table-fixed ciap_width_100">
+          <tbody ng-hide="fetching">
+            <tr id="advrows" ng-repeat="(id,data) in aisDashboardData" ng-show="aisDashboardData.length">
+              <!-- Package ID (Original) -->
+              <td class="ciap_width_6">
+                <a ng-href="#/ais_dashboard/{{data.guid}}">{{data.stix_package_original_id}}</a>
+              </td>
+              <!-- Package ID (Sanitized) -->
+              <td class="ciap_width_6">
+                <a ng-href="#/packages/{{data.stix_package_stix_id}}">{{data.stix_package_stix_id}}</a>
+              </td>
+              <!-- Received Time -->
+              <td class="ciap_width_6">
+                {{data.received_time | date: 'medium'}}
+              </td>
+              <!-- # Indicators -->
+              <td class="ciap_width_3 center">
+                {{data.indicator_amount}}
+              </td>
+              <!-- FLARE In -->
+              <td class="ciap_width_2 center">
+                <i class="fa" ng-class="{'fa-times red': !data.flare_in_status, 'fa-check green': data.flare_in_status}" ng-show="data.flare_in_status != null"></i>
+              </td>
+              <!-- CIAP -->
+              <td class="ciap_width_2 center">
+                <i class="fa" ng-class="{'fa-times red': !data.ciap_status, 'fa-check green': data.ciap_status}" ng-show="data.ciap_status != null"></i>
+              </td>
+              <!-- ECIS -->
+              <td class="ciap_width_2 center">
+                <i class="fa" ng-class="{'fa-times red': !data.ecis_status, 'fa-check green': data.ecis_status}" ng-show="data.ecis_status != null"></i>
+              </td>
+              <!-- FLARE Out -->
+              <td class="ciap_width_2 center">
+                <i class="fa" ng-class="{'fa-times red': !data.flare_out_status, 'fa-check green': data.flare_out_status}" ng-show="data.flare_out_status != null"></i>
+              </td>
+              <!-- Outgoing Feed(s) -->
+              <td class="ciap_width_6 center">
+                {{data.feeds}}
+              </td>
+              <!-- Dissemination Time -->
+              <td class="ciap_width_6">
+                {{data.dissemination_time | date: 'medium'}}
+              </td>
+              <!-- HR -->
+              <td class="ciap_width_6 center">
+                {{data.human_review_count}}
+              </td>
+              <!-- ECIS -->
+              <td class="ciap_width_2 center">
+                <i class="fa" ng-class="{'fa-times red': !data.ecis_status_hr, 'fa-check green': data.ecis_status_hr}" ng-show="data.ecis_status_hr != null"></i>
+              </td>
+              <!-- FLARE Out -->
+              <td class="ciap_width_2 center">
+                <i class="fa" ng-class="{'fa-times red': !data.flare_out_status_hr, 'fa-check green': data.flare_out_status_hr}" ng-show="data.flare_out_status_hr != null"></i>
+              </td>
+              <!-- Dissemination Time -->
+              <td class="ciap_width_6">
+                {{data.dissemination_time_hr | date: 'medium'}}
+              </td>
+            </tr>
+          </tbody>
+
+          <tbody ng-show="fetching">
+            <tr>
+              <td colspan="14" class="center">
+                <i class="fa fa-spinner fa-spin bigger-300 blue"></i>
+              </td>
+            </tr>
+          </tbody>
+
+          <tbody ng-hide="aisDashboardData.length || fetching">
+            <tr>
+              <td colspan="14" class="center">
+                No Results
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+      </div>
+    </div>
+  </div>
+  <pagination-footer metadata="metadata" offset="offset" get_records="getAisData"></pagination-footer>
+</div>
+
+<div class="space-10"></div>

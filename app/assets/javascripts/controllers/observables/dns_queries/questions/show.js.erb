@@ -1,0 +1,11 @@
+app.controller('QuestionsShowController', ['$scope','$location','$routeParams','$rootScope','Restangular',
+  function ($scope, $location, $routeParams, $rootScope, Restangular) {
+    Restangular.one('/questions',$routeParams.id).get().then(function(data){
+      $scope.question = data;
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Question',icon:'fa-group'},{text:($scope.question.qname_cache||$scope.question.guid),link:'#/questions/'+encodeURIComponent($scope.question.guid)}];
+      
+    },function(res){
+      toastr.error("Unable to load Question");
+    });
+  }
+]);

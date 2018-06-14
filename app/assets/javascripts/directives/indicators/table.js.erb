@@ -1,0 +1,355 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('indicatorTable', function(){
+  return {
+    restrict: 'E',
+    templateUrl: function(elem,attrs) {
+      return attrs.indexpage ? '<%=asset_path("indicators/advanced_table.html",type: :template)%>' :
+                               '<%=asset_path("indicators/table.html",type: :template)%>';
+    },
+    scope: {
+             indicators: '=?',
+             metadata: '=?',
+             indicatorsRoute: '=?',
+             tags: '=?',
+             search: '=?',
+             fetching: '=?',
+             filtered: '=?'
+           },
+    controller: ['$scope','Restangular','$rootScope','Indicator', 'bulkActionsService', '$location', 'Observable', '$window', function($scope,Restangular,$rootScope,Indicator, bulkActionsService,$location, Observable, $window) {
+      $scope.angular = angular;
+      $scope.Indicator = Indicator;
+      $scope.Observable = Observable;
+      $scope.showTable = true;
+
+      $scope.can = $rootScope.can;
+      $scope.SYSTEM_MODE = $rootScope.SYSTEM_MODE;
+
+      $scope.q = '';
+      $scope.titleq = '';
+      $scope.referenceq = '';
+      $scope.observableq = '';
+      $scope.threatActorQ = '';
+      $scope.observable_type = '';
+      $scope.indicator_type = '';
+      $scope.selected_tags = {"user_tags": [], "system_tags": []};
+      $scope.selected_indicators = bulkActionsService.get() || [];
+      $scope.humanOnly = false;
+      $scope.is_open = new Array();
+      $scope.filtered = false;
+      $scope.marking_search_params = {};
+      
+      // Cleanup
+      $scope.$on('$destroy', function() {
+        $('.daterangepicker').remove();
+      });
+      
+      $scope.date_picker_opts = {
+        defaultRanges: true
+      };
+      
+      $scope.sortOptions = {
+        'title' : 'desc',
+        'indicator_type' : 'desc',
+        'observable_type' : 'desc',
+        'observable_value' : 'desc',
+        'updated_at' : 'desc',
+        'object_type' : 'desc'
+      };
+      $scope.sortMethod = '';
+      $scope.is_ais = false;
+
+      if (angular.isUndefined($scope.offset)) {
+        $scope.offset=0;
+      }
+      if (angular.isUndefined($scope.amount)) {
+        $scope.amount=$rootScope.setting_value('DEFAULT_MAX_RECORDS');
+      }
+
+      $scope.dateRangePicker = function(picker) {
+        $scope.date_picker_object = picker;
+        $scope.offset=0;
+        $scope.filtered=true;
+        $scope.getIndicators($scope.offset);
+      };
+
+      $scope.$watch("indicators", function() {
+        if (angular.isDefined($scope.indicators)) {
+          parseThreatActorValues($scope.indicators);
+        }
+      });
+      
+      $scope.$watch("search", function(search) {
+        if (angular.isDefined(search)) {
+          $scope.q = search;
+          $scope.getIndicators($scope.offset);
+        }
+      });
+
+      $scope.open = function($event) {
+        $event.preventDefault();
+        $event.stopPropagation();
+      };
+
+      $scope.sort = function(method) {
+        $scope.sortMethod = method;
+        $scope.sortOptions[method]=($scope.sortOptions[method]=='desc')?'asc':'desc';
+        $scope.offset=0;
+        $scope.getIndicators($scope.offset);
+      };
+
+      $scope.startSearch = function() {
+        $scope.offset=0;
+        $scope.filtered=true;
+        $scope.getIndicators($scope.offset);
+      };
+
+      $scope.filterIndicators = function() {
+        $scope.offset=0;
+        $scope.filtered=true;
+        $scope.getIndicators($scope.offset);
+      }
+
+      $scope.analyst_only = function(){
+          $scope.humanOnly = !$scope.humanOnly;
+          $scope.getIndicators();
+      }
+
+      $scope.getAisFlag = function(){
+        $scope.is_ais = !$scope.is_ais;
+        $scope.getIndicators($scope.offset);
+      }
+
+      $scope.getIndicators = function(offset) {
+        $scope.fetching = true;
+        if (angular.isDefined($scope.metadata)) {
+          delete($scope.metadata);
+        }
+        Restangular.one($scope.indicatorsRoute || "indicators").get({
+          ebt: angular.isDefined($scope.date_picker_object) ? $scope.date_picker_object.getStartDate() : '',
+          iet: angular.isDefined($scope.date_picker_object) ? $scope.date_picker_object.getEndDate() : '',
+          indicator_type: $scope.indicator_type,
+          q: $scope.q,
+          title_q: $scope.titleq,
+          reference_q: $scope.referenceq,
+          observable_q: $scope.observableq,
+          threat_actor_q: $scope.threatActorQ,
+          column: $scope.sortMethod,
+          direction: $scope.sortOptions[$scope.sortMethod],
+          amount: $scope.amount,
+          offset: offset,
+          exclude_weather_map: $scope.humanOnly,
+          observable_type: $rootScope.correctObservableType($scope.observable_type),
+          is_ais: $scope.is_ais,
+          marking_search_params: $scope.marking_search_params
+        }).then(
+          function(data){
+            $scope.indicators = data.indicators;
+            $scope.metadata = data.metadata;
+            $scope.fetching= false;
+          },
+          function(res){
+            $scope.indicators = null;
+            $scope.metadata={total_count: 0};
+            toastr.error("Unable to load Indicators");
+            $scope.fetching= false;
+          }
+        );
+      };
+      
+      $scope.buildHref = function() {
+      	return $rootScope.buildCSVHref($scope, "indicators");
+      };
+      
+      function parseThreatActorValues(indicators) {
+      	_.each(indicators, function(indicator){
+      		if (indicator.threat_actor_id && indicator.threat_actor_title) {
+      			var threat_actor_ids = indicator.threat_actor_id.split(',');
+      			var threat_actor_titles = indicator.threat_actor_title.split(',');
+      	
+      			indicator.threat_actor_values = [];
+      			for (var i = 0; i < threat_actor_ids.length; i++) {
+      				var threat_actor_value = {};
+      				threat_actor_value.threat_actor_id = threat_actor_ids[i].trim();
+      				threat_actor_value.threat_actor_title = threat_actor_titles[i].trim();
+      				indicator.threat_actor_values.push(threat_actor_value);
+      			}
+      		}
+      	});
+      }
+
+      $scope.clearFilters = function(){
+        // clear the search boxes
+        $scope.titleq = '';
+        $scope.referenceq = '';
+        $scope.observableq = '';
+        $scope.threatActorQ = '';
+
+        // clear the select boxes
+        $scope.observable_type = '';
+        $scope.indicator_type = '';
+        
+        $scope.sortMethod = '';
+        
+        // clear the date range picker if it is set
+        if (angular.isDefined($scope.date_picker_object) && typeof($scope.date_picker_object.clickClear) != "undefined"){
+          $scope.date_picker_object.clickClear();
+        }
+
+        $scope.date_picker_object = {
+          startDate: null,
+          endDate: null,
+          getStartDate: function() { return ''; },
+          getEndDate: function() { return ''; }
+        };
+        
+        $scope.marking_search_params = {};
+
+        $scope.startSearch();
+      }
+      
+      $scope.getScrollBarWidth = function() {
+          var outer = document.createElement("div");
+          outer.style.visibility = "hidden";
+          outer.style.width = "100px";
+          outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
+
+          document.body.appendChild(outer);
+
+          var widthNoScroll = outer.offsetWidth;
+          // force scrollbars
+          outer.style.overflow = "scroll";
+
+          // add innerdiv
+          var inner = document.createElement("div");
+          inner.style.width = "100%";
+          outer.appendChild(inner);        
+
+          var widthWithScroll = inner.offsetWidth;
+
+          // remove divs
+          outer.parentNode.removeChild(outer);
+
+          return widthNoScroll - widthWithScroll;
+      }
+
+      $scope.initPage = function(){
+        angular.element('#fakerowwidth').css('width', $scope.getScrollBarWidth() + 'px');
+        angular.element('#fakerowone').css('height', angular.element('#advindfirstrow').height());
+        angular.element('#fakerowtwo').css('height', angular.element('#advindsecondrow').height());
+        angular.element('#first_header').css('width', '100%');
+        angular.element('#first_header').css('width', '-=' + $scope.getScrollBarWidth()+ 'px');
+        angular.element('#first_header').css('width', '-=1px');
+        //setTimeout(checkToResize, 1000);
+      }
+
+      // ugh for some reason if you load the width/heights too early it wont be right.....
+      // you need the page to like fully load before setting things or else things get messed up
+      // document.ready/ng-init/other initalizers are too soon
+      var checkToResize = function(){
+        if (angular.isDefined(angular.element('#advrows')[0]) && (angular.element('#advrows')[0]).innerHTML.length > 0){
+          $scope.initPage();
+        } else {
+          setTimeout(checkToResize, 1000);
+        }
+      }
+
+      setTimeout(checkToResize, 100);
+
+      $window.onresize = function(){
+        if (angular.isDefined(angular.element('#advrows')[0]) && (angular.element('#advrows')[0]).innerHTML.length > 0){
+          $scope.initPage();
+        }
+      }
+
+      // methods for bulk actions
+      $scope.disabled = function(indicator) {
+         if ($scope.checked(indicator) && $scope.selectOnly) {
+             return true;
+         }
+         return false;
+      }
+
+      $scope.checked = function(indicator){
+        return _.findIndex($scope.selected_indicators, function(i){return i.stix_id == indicator.stix_id;}) > -1;
+      };
+
+      $scope.selectIndicator = function(indicator,$event) {
+        var checkbox = $event.target;
+        if (checkbox.checked){
+          if (_.findIndex($scope.selected_indicators, function(i){return i.stix_id == indicator.stix_id}) == -1){
+            $scope.selected_indicators.push(indicator);
+          }
+        } else {
+          $scope.selected_indicators = _.filter($scope.selected_indicators, function(i){return i.stix_id != indicator.stix_id});
+        }
+      };
+
+      $scope.clearSelectedIndicators = function(){
+        $scope.selected_indicators = [];
+      }
+
+      $scope.add_to_tags = function(){
+        // so now that we are ready to save these all we need is id's.
+        // so lets look at user tags first
+        var post_obj = {};
+
+        post_obj.user_tag_ids = _.map($scope.selected_tags.user_tags,function(ut) {
+          return ut.guid;
+        });
+
+        post_obj.system_tag_ids = _.map($scope.selected_tags.system_tags,function(st) {
+          return st.guid;
+        });
+
+        post_obj.ind_stix_ids = _.map($scope.selected_indicators,function(indicator) {
+          return indicator.stix_id;
+        });
+
+        Restangular.all('indicators/bulk_tags/bulk').customPUT(post_obj).then(function(data){
+            // for options override we need to have it as 3rd param
+            toastr.success(data.base, '', {timeOut: 15000, closeButton: true});
+
+            // reinit params once we have a success.
+            $scope.selected_tags.user_tags = [];
+            $scope.selected_tags.system_tags = [];
+            $scope.selected_indicators = [];
+            
+            $scope.getIndicators(0);
+          },function(res){
+            if (angular.isDefined(res.data.errors)){
+                _.forEach(res.data.errors,function(error) {
+                    toastr.error("Unable to add Tags to " + error);
+                })
+            }
+            else {
+                toastr.error("Unable to add Tags");
+            }
+          }
+        );
+      };
+
+      $scope.add_to_threat_new_actor = function(){
+        bulkActionsService.set($scope.selected_indicators);
+        $location.path('/threat_actors/new');
+      }
+
+      $scope.add_to_existing_threat_actor = function(){
+        bulkActionsService.set($scope.selected_indicators);
+        $location.path('/threat_actors/bulk');
+      }
+
+      $scope.add_to_new_package = function(){
+        bulkActionsService.set($scope.selected_indicators);
+        $location.path('/packages/new');
+      }
+
+      $scope.add_to_existing_package = function(){
+        bulkActionsService.set($scope.selected_indicators);
+        $location.path('/packages/bulk');
+      }
+      // end bulk actions
+
+    }]
+  };
+});

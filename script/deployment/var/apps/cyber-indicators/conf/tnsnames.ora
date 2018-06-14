@@ -1,0 +1,9 @@
+XE =
+  (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = db)(PORT = 1521))
+      (CONNECT_DATA = 
+        (SERVER = DEDICATED)
+        (SERVICE_NAME = XE)
+      )
+  )
+

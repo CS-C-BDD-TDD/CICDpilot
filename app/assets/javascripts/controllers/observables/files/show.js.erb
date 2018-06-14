@@ -1,0 +1,33 @@
+app.controller('FilesShowController', ['$scope','$location','$routeParams','$rootScope','Restangular','File',
+  function ($scope, $location, $routeParams, $rootScope, Restangular, File) {
+    $scope.fetching = true;
+    Restangular.one("/files",$routeParams.id).get().then(function(data){
+      $scope.file = data;
+      if (angular.isDefined($scope.file) && angular.isDefined($scope.file.ind_course_of_actions)){
+        $scope.file.course_of_actions = $scope.file.course_of_actions.concat($scope.file.ind_course_of_actions);
+      }
+      $scope.showGFIs = $rootScope.setting_value('CLASSIFICATION');
+      $scope.showTable = {coa_data: true, collapse: false};
+      $scope.File = File;
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Files',link:'#/files',icon:'fa-group'},{text:data.file_name,link:'#/files/'+encodeURIComponent(data.cybox_object_id)}];
+      
+      // we need to spoof the hash marking so they show up on the table
+      if(!$rootScope.is_undefined_or_null(data.md5_stix_markings)){
+        data.md5_stix_markings[0].remote_object_field = "md5";
+      }
+      if(!$rootScope.is_undefined_or_null(data.sha1_stix_markings)){
+        data.sha1_stix_markings[0].remote_object_field = "sha1";
+      }
+      if(!$rootScope.is_undefined_or_null(data.sha256_stix_markings)){
+        data.sha256_stix_markings[0].remote_object_field = "sha256";
+      }
+      if(!$rootScope.is_undefined_or_null(data.ssdeep_stix_markings)){
+        data.ssdeep_stix_markings[0].remote_object_field = "ssdeep";
+      }
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load File");
+      $scope.fetching = false;
+    });
+  }
+]);

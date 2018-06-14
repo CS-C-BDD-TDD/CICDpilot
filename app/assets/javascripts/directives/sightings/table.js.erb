@@ -1,0 +1,29 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('sightingTable', function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("sightings/table.html",type: :template)%>',
+    scope: {
+      indicator: '=',
+      showTable: '@'
+    },
+    controller: ['$scope', 'Restangular', 'Sighting', '$rootScope',
+      function ($scope, Restangular, Sighting, $rootScope) {
+      $scope.deleteSighting = function(sighting){
+        Restangular.one('sightings',sighting.guid).remove().then(
+            function(data){
+              toastr.success(Sighting.getDisplayName(sighting) + " Deleted");
+              _.remove($scope.indicator.sightings, function(indicatorSighting) {
+                return indicatorSighting.guid == sighting.guid;
+              });
+            },
+            function(res){
+              toastr.error("Unable to Delete Sighting");
+            }
+        );
+      }
+    }]
+  };
+});
+

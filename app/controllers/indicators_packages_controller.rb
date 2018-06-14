@@ -1,0 +1,3 @@
+class IndicatorsPackagesController < ApplicationController
+
+end

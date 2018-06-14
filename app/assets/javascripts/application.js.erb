@@ -1,0 +1,241 @@
+//= require jquery.min
+//= require jquery_ujs
+//= require jquery-ui
+//= require toastr
+//= require ace/bootstrap
+//= require angular
+//= require angular-route
+//= require angular-animate
+//= require ui-bootstrap-tpls-0.11.0
+//= require sortable
+// lodash needs to be included before restangular (if you're using it!)
+//= require lodash
+//= require restangular
+
+
+// ace requirements
+//= require ace/elements.scroller
+//= require ace/elements.colorpicker
+//= require ace/elements.fileinput
+//= require ace/elements.typeahead
+//= require ace/elements.wysiwyg
+//= require ace/elements.spinner
+//= require ace/elements.treeview
+//= require ace/elements.wizard
+//= require ace/elements.aside
+//= require ace/ace
+//= require ace/ace.sidebar
+//= require ace/ace.sidebar-scroll-1
+//= require ace/ace.submenu-hover
+//= require ace/ace.widget-box
+//= require ace/ace.widget-on-reload
+
+//= require_self
+//= require_tree ./config
+//= require_tree ./controllers
+//= require_tree ./directives
+//= require_tree ./lib
+//= require_tree ./models
+//= require_tree ./filters
+//= require_tree ./services
+//= require es5-shim/es5-shim.min
+//= require es5-shim/es5-sham.min
+//= require angular-file-upload/angular-file-upload.min.js
+//= require moment
+//= require daterangepicker
+//= require truncate
+//= require angular-scrollable-table
+
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+// File angularFilters contains the filter necessary to encode URI's
+var app = angular.module('cyber.indicators',[
+  'ngRoute',
+  'ngAnimate',
+  'ui.sortable',
+  'ui.bootstrap',
+  'truncate',
+  'angularFilters',
+  'angularFileUpload',
+  'restangular',
+  'scrollable-table'
+]);
+
+app.run(['Restangular', function(Restangular){
+  Restangular.setBaseUrl('<%=Rails.configuration.action_controller.relative_url_root%>');
+  Restangular.setDefaultHeaders({'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')});
+
+  Restangular.addResponseInterceptor(function(element,operation,what,url,response,deferred){
+      var ca = document.cookie.split(';');
+      for(var i=0; i<ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0)==' ') c = c.substring(1);
+          if (c.indexOf('error_message') == 0) var message = c.substring('error_message'.length,c.length);
+      }
+      if (angular.isDefined(message)){
+          message = decodeURIComponent(message).replace(new RegExp('=','g'),'').split('+').join(' ');
+          toastr.error(message);
+      }
+
+      return element;
+  })
+}]);
+
+// Load current user, load current settings
+app.run(['$rootScope', 'Restangular','$location','$anchorScroll', '$window', function($rootScope, Restangular,$location,$anchorScroll,$window){
+  $rootScope.SYSTEM_MODE = SYSTEM_MODE;
+
+  // redirect to Users page if user does not have permission to view stix data
+  $rootScope.redirectToUsersPage = function(next) {
+    if (!$rootScope.can('view_stix_data') && !next.match('/users') && !next.match('/groups') && !next.match('/organizations')) {
+      $location.path('/users');
+    }
+  }
+
+  // get current user permissions on route change, redirect if necessary
+  $rootScope.$on('$locationChangeStart', function(event, next, current) {
+    if (angular.isUndefined($rootScope.current_user)) {
+      Restangular.one('users','current').get().then(function(data){
+        $rootScope.current_user = data;
+        $rootScope.redirectToUsersPage(next);
+      })
+    } else {
+      $rootScope.redirectToUsersPage(next);
+    }
+  });
+
+  //Function to scroll to an HTML id attribute on the current page, will not work for changing to a different page
+  $rootScope.scrollTo = function(id) {
+      var old = $location.hash();
+      $location.hash(id);
+      $anchorScroll();
+      $location.hash(old);
+  }
+
+  Restangular.setErrorInterceptor(function(response,deferred,responseHandler){
+      if (response.status === 401) {
+          toastr.error("Your session has expired, you will be logged out");
+          $window.location.replace("<%= Rails.configuration.action_controller.relative_url_root + auth_login_path %>");
+      }
+  });
+
+  // since were searching using solr we need to fix it to the fulltext name
+  $rootScope.correctObservableType = function(type){
+    if(type == null){
+      return '';
+    }
+    switch(type.toLowerCase()){
+      case "dnsquery":
+        return "DNS Query";
+      case "dnsrecord":
+        return "DNS Record";
+      case "emailmessage":
+        return "Email Message";
+      case "httpsession":
+        return "HTTP Session";
+      case "networkconnection":
+        return "Network Connection";
+      case "socketaddress":
+        return "Socket Address";
+      case "uri":
+        return "URI";
+      default:
+        return type;
+    }
+  };
+  
+  //Function to build the href for building a .CSV file for indicators, packages, and observables.
+  $rootScope.buildCSVHref = function(localScope, type) {
+      var ebt = localScope.date_picker_object.getStartDate();
+      var iet = localScope.date_picker_object.getEndDate();
+     
+      var url = '/cyber-indicators/' + type + '?';
+      url += ('amount=' + localScope.amount + '&');
+
+      // don't pass column, direction if no column has been sorted
+      if (localScope.sortMethod != '') {
+      	url += ('column=' + localScope.sortMethod + '&direction=' + localScope.sortOptions[localScope.sortMethod] + '&');
+      }
+
+      if (type != 'stix_packages') {
+        url += ('ebt=' + ebt + '&iet=' + iet + '&');
+      }
+      if (type == 'indicators') {
+        url += ('indicator_type=' + ((localScope.indicator_type == null) ? '' : localScope.indicator_type) + '&');
+        url += ('title_q=' + ((localScope.titleq == null) ? '' : localScope.titleq) + '&');
+        url += ('reference_q=' + ((localScope.referenceq == null) ? '' : localScope.referenceq) + '&');
+        url += ('observable_q=' + ((localScope.observableq == null) ? '' : localScope.observableq) + '&');
+        url += ('threat_actor_q=' + ((localScope.threatActorQ == null) ? '' : localScope.threatActorQ )+ '&');
+        url += ('observable_type=' + ((localScope.observable_type == null) ? '' : $rootScope.correctObservableType(localScope.observable_type)) + '&');
+        url += ('is_ais=' + ((localScope.is_ais == null) ? '' : localScope.is_ais) + '&');
+      }
+      else if (type == 'stix_packages') {
+      	if (localScope.date_picker_object_created != null) {
+          var created_ebt = localScope.date_picker_object_created.getStartDate();
+          var created_iet = localScope.date_picker_object_created.getEndDate();
+          url += ('created_ebt=' + created_ebt + '&created_iet=' + created_iet + '&');
+        }
+        if (localScope.date_picker_object_updated != null) {
+          var updated_ebt = localScope.date_picker_object_updated.getStartDate();
+          var updated_iet = localScope.date_picker_object_updated.getEndDate();
+          url += ('updated_ebt=' + updated_ebt + '&updated_iet=' + updated_iet + '&');
+        }
+        url += ('title_q=' + ((localScope.title_q == null) ? '' : localScope.title_q) + '&');
+        url += ('created_by_q=' + ((localScope.created_by_q == null) ? '' : localScope.created_by_q) + '&');
+        url += ('short_desc_q=' + ((localScope.short_desc_q == null) ? '' : localScope.short_desc_q) + '&');
+      }
+      url += ('offset=' + localScope.offset + '&');
+      url += ('marking_search_params=' + ((localScope.marking_search_params == null) ? '' : JSON.stringify(localScope.marking_search_params)) + '&');
+      url += ('q=' + localScope.q);
+      url += ('&format=csv');
+      	
+      return url;
+  };
+    $rootScope.updateHRCount = function(){
+        Restangular.one('human_reviews').get({count: 1,in_progress: 1}).then(
+            function(data){
+                $rootScope.human_review_count = data.count;
+            },
+            function(res){
+                if (res.status != 403) {
+                    toastr.error("Could Not Update Human Review Count");
+                }
+            });
+    };
+
+  $rootScope.pad = function(num) {
+    if (num < 10) {
+      return "0" + num;
+    }
+    return num;
+  };
+
+  // Ping the backend every 30 seconds
+  setInterval(function() {
+    Restangular.one("ping_session").get().then(function() {
+      // If successful, to nothing
+    },function() {
+      // If failure, must be an issue connecting to the DB, redirect to failure screen
+      window.location='/503.html';
+    });
+  }, 30 * 1000);
+
+  $rootScope.convert_date_to_date_time = function(date) {
+    var current_time = moment();
+    var time=$rootScope.pad(current_time.hours())+':00:00';
+    var timezone_offset=- new Date().getTimezoneOffset()/60;
+    var offset='';
+    if (timezone_offset<0) {
+      offset+='-';
+      timezone_offset=-timezone_offset;
+    } else {
+      offset+='+';
+    }
+    offset+=$rootScope.pad(timezone_offset)+"00";
+    return date + " " + time + offset;
+  }
+}]);
+
+app.config(['$locationProvider', function($locationProvider) {
+    $locationProvider.hashPrefix('');
+}]);

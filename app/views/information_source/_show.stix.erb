@@ -1,0 +1,69 @@
+<stix:Information_Source>
+  <% if stix_package.contributing_sources.blank? && stix_package.submission_mechanism.present? %>
+    <% contributing_sources = [ContributingSource.new] %> 
+  <% else %>
+      <% contributing_sources = stix_package.contributing_sources %>
+  <% end %>
+  <% if contributing_sources.present? %>
+      <stixCommon:Contributing_Sources>
+        <% contributing_sources.each do |cs| %>
+            <stixCommon:Source>
+              <% if cs.organization_names.present? || cs.countries.present? || cs.administrative_areas.present? %>
+                  <stixCommon:Identity xsi:type="stix-ciq:CIQIdentity3.0InstanceType">
+                    <stix-ciq:Specification>
+                      <% if cs.organization_names.present? %>
+                          <xpil:PartyName>
+                            <xnl:OrganisationName>
+                              <% cs.organization_names.each do |name| %>
+                                  <xnl:NameElement><%= name %></xnl:NameElement>
+                              <% end %>
+                            </xnl:OrganisationName>
+                          </xpil:PartyName>
+                      <% end %>
+                      <% if cs.countries.present? || cs.administrative_areas.present? %>
+                          <xpil:Addresses>
+                            <xpil:Address>
+                              <% if cs.countries.present? %>
+                                  <xal:Country>
+                                    <% cs.countries.each do |country| %>
+                                        <xal:NameElement xal:NameCode='<%= country %>' xal:NameCodeType="ISO_3166-1_alpha-2"></xal:NameElement>
+                                    <% end %>
+                                  </xal:Country>
+                              <% end %>
+                              <% if cs.administrative_areas.present? %>
+                                  <xal:AdministrativeArea>
+                                    <% cs.administrative_areas.each do |area| %>
+                                        <% if !area.end_with? "XX" %>
+                                        	<xal:NameElement xal:NameCode="<%= area %>" xal:NameCodeType='ISO_3166-2'></xal:NameElement>
+                                        <% end %>
+                                    <% end %>
+                                  </xal:AdministrativeArea>
+                              <% end %>
+                            </xpil:Address>
+                          </xpil:Addresses>
+                      <% end %>
+                      <% if cs.organization_info.present? %>
+                          <xpil:OrganisationInfo xpil:IndustryType="<%= (cs.organization_info)*" | "%>"></xpil:OrganisationInfo>
+                      <% end %>
+                    </stix-ciq:Specification>
+                  </stixCommon:Identity>
+              <% end %>
+              <% if stix_package.submission_mechanism.present? %>
+                  <stixCommon:Tools>
+                    <% stix_package.submission_mechanism.each do |submech| %>
+                        <cyboxCommon:Tool>
+                          <cyboxCommon:Metadata>
+                            <cyboxCommon:Value><%= submech %></cyboxCommon:Value>
+                          </cyboxCommon:Metadata>
+                        </cyboxCommon:Tool>
+                    <% end %>
+                  </stixCommon:Tools>
+              <% end %>
+            </stixCommon:Source>
+        <% end %>
+      </stixCommon:Contributing_Sources>
+  <% end %>
+  <stixCommon:Time>
+    <cyboxCommon:Produced_Time><%= stix_package.created_at.try(:to_atom) || Time.now.to_atom %></cyboxCommon:Produced_Time>
+  </stixCommon:Time>
+</stix:Information_Source>

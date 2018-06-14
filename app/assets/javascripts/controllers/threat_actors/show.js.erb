@@ -1,0 +1,31 @@
+app.controller('ThreatActorsShowController', ['$scope','$routeParams','$rootScope','$location','Restangular','Color',
+  function ($scope, $routeParams, $rootScope, $location, Restangular,Color,Package) {
+    $scope.fetching = true;
+    $scope.can = $rootScope.can;
+    $scope.Color = Color;
+    Restangular.one("/threat_actors/"+$routeParams.id).get().then(function(data){
+      $scope.threat_actor = data;
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                {text:'All Threat Actors',link:'#/threat_actors',icon:'fa-list'},
+                                {text:data.title,link:'#/threat_actors/'+encodeURIComponent(data.stix_id),icon:'fa-eye'}];
+      $scope.fetching = false;
+    },function(res){
+      toastr.error(res.data.errors[0]);
+      $scope.fetching = false;
+    });
+    $scope.destroy = function(threat_actor){
+      var justification = prompt("Justification for deleting threat actor");
+      if (justification){
+        $scope.fetching = true;
+        Restangular.one("/threat_actors/"+threat_actor.stix_id).remove().then(function(data){
+          toastr.success("Threat actor removed");
+          $location.path('/threat_actors');
+          $scope.fetching = false;
+        },function(res){
+          toastr.error("Could not remove threat actor: "+res.data.errors[0]);
+          $scope.fetching = false;
+        });
+      }
+    };
+  }
+]);

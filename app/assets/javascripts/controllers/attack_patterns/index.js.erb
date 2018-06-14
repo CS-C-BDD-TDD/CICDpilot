@@ -1,0 +1,15 @@
+app.controller('AttackPatternsIndexController', ['$scope','$rootScope','Restangular',
+  function ($scope, $rootScope, Restangular) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'All Attack Patterns',link:'#/attack_patterns',icon:'fa-list'}];
+    $scope.fetching = true;
+    $scope.attack_patterns = [];
+    Restangular.one('attack_patterns').get().then(function(data){ 
+      $scope.attack_patterns = data.attack_patterns;
+     $scope.metadata = data.metadata;
+      $scope.fetching= false;
+    },function(res){
+      toastr.error("Unable to load Attack Patterns");
+      $scope.fetching= false;
+    }); 
+  }
+]);

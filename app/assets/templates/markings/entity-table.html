@@ -1,0 +1,86 @@
+<div class="widget-box widget-color-blue no-border ui-sortable-handle" ng-show="marking">
+  <div class="widget-header fake-link" ng-click="showTable = !showTable">
+    <h5 class="widget-title bigger lighter">
+      <i class="ace-icon fa fa-cog"></i>
+      Entity Markings
+    </h5>
+  </div>
+  <div class="widget-body no-border" ng-show="showTable">
+    <div class="widget-main">
+
+      <div class="profile-user-info profile-user-info-striped">
+        <div class="profile-info-row">
+          <div class="profile-info-name" style="width: 250px"> Distinguished Name </div>
+          <div class="profile-info-value">
+            <span>{{marking.distinguished_name}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="profile-user-info profile-user-info-striped">
+        <div class="profile-info-row">
+          <div class="profile-info-name" style="width: 250px"> Entity Class </div>
+          <div class="profile-info-value">
+            <span>{{marking.entity_class}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="profile-user-info profile-user-info-striped">
+        <div class="profile-info-row">
+          <div class="profile-info-name" style="width: 250px"> Entity Type </div>
+          <div class="profile-info-value">
+            <span>{{marking.entity_type}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="profile-user-info profile-user-info-striped">
+        <div class="profile-info-row">
+          <div class="profile-info-name" style="width: 250px"> Administrative Organization </div>
+          <div class="profile-info-value">
+            <span>{{marking.admin_org}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="profile-user-info profile-user-info-striped">
+        <div class="profile-info-row">
+          <div class="profile-info-name" style="width: 250px"> Duty Organization </div>
+          <div class="profile-info-value">
+            <span>{{marking.duty_org}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="profile-user-info profile-user-info-striped">
+        <div class="profile-info-row">
+          <div class="profile-info-name" style="width: 250px"> Country </div>
+          <div class="profile-info-value">
+            <span>{{marking.country}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-user-info profile-user-info-striped">
+        <div class="profile-info-row">
+          <div class="profile-info-name" style="width: 250px"> Access Groups: </div>
+          <div class="profile-info-value">
+            <span>{{marking.access_groups | addSpaceAfterComma}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="profile-user-info profile-user-info-striped">
+        <div class="profile-info-row">
+          <div class="profile-info-name" style="width: 250px"> Created At: </div>
+          <div class="profile-info-value">
+            <span>{{marking.created_at | date:"medium"}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="profile-user-info profile-user-info-striped">
+        <div class="profile-info-row">
+          <div class="profile-info-name" style="width: 250px"> Last Modified: </div>
+          <div class="profile-info-value">
+            <span>{{marking.updated_at | date:"medium"}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

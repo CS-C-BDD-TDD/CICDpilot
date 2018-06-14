@@ -1,0 +1,23 @@
+app.controller('UrisShowController', ['$scope','$location','$routeParams','$rootScope','Restangular',
+  function ($scope, $location, $routeParams, $rootScope, Restangular) {
+    $scope.fetching = true;
+    Restangular.one("/uris",$routeParams.id).get().then(function(data){
+      $scope.uri = data;
+      if (angular.isDefined($scope.uri) && angular.isDefined($scope.uri.ind_course_of_actions)){
+        $scope.uri.course_of_actions = $scope.uri.course_of_actions.concat($scope.uri.ind_course_of_actions);
+      }
+      $scope.showTable = {coa_data: true, collapse: false};
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'URIs',link:'#/uris',icon:'fa-group'},{text:data.uri,link:'#/uris/'+encodeURIComponent(data.cybox_object_id)}];
+      $scope.fetching = false;
+      // We need to fill in the URI for the Link to display properly
+      _.forEach($scope.uri.links,function(link) {
+        link.uri={};
+        link.uri.uri=$scope.uri.uri;
+        link.uri.uri_condition=$scope.uri.uri_condition;
+      });
+    },function(res){
+      toastr.error("Unable to load URI");
+      $scope.fetching = false;
+    });
+  }
+]);

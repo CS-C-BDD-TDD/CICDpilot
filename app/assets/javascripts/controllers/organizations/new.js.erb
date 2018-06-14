@@ -1,0 +1,20 @@
+app.controller('OrganizationsNewController', ['$scope','$location','$rootScope','Restangular', 'Marking',
+  function ($scope, $location, $rootScope, Restangular, Marking) {
+    $scope.organization={};
+    $scope.Marking = Marking;
+    $scope.save = function(organization){
+      Restangular.all('/organizations').post(organization).then(function(data){
+        toastr.success('New organization created');
+        $location.path('/organizations/'+data.guid);
+      },function(res){
+        toastr.error("Unable to create organization");
+        $scope.error=res.data.errors;
+        $("html, body").animate({ scrollTop: 0 }, 200);
+      });
+    };
+
+    $scope.cancel = function() {
+      $location.path('/organizations');
+    };
+  }
+]);

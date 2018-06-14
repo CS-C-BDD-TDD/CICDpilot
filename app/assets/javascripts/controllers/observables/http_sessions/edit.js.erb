@@ -1,0 +1,23 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('HttpSessionsEditController', ['$scope','$routeParams','Restangular','$rootScope','HttpSession','$location','Marking',
+  function($scope,$routeParams,Restangular,$rootScope,HttpSession,$location,Marking) {
+    Restangular.one('/http_sessions/'+$routeParams.id).get().then(function(data){
+      $scope.httpsession = Marking.translate_existing_attributes(data);
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Http Sessions',link:'#/http_sessions',icon:'fa-group'},{text:HttpSession.get_value(data),link:'#/http_sessions/'+encodeURIComponent(data.cybox_object_id)}];
+      if ($rootScope.is_undefined_or_null($scope.httpsession.user_agent_condition)) {
+        $scope.httpsession.user_agent_condition = "Equals"; 
+      }
+    },function(res){
+      toastr.error("Unable to load Http Session");
+    });
+
+    $scope.cancel = function() {
+      $location.path('/http_sessions/'+$routeParams.id);
+    };
+
+    $scope.failed = function() {
+      $("html, body").animate({ scrollTop: 0 }, 200);
+    }
+  }
+]);

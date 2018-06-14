@@ -1,0 +1,68 @@
+<form class="form-horizontal">
+    <div class="col-md-12">
+        <div class="form-group" ng-class="{'has-error': error['uri']}">
+            <label class="col-md-4 control-label">Link URI*</label>
+            <div class="col-md-8">
+                <input type="text" ng-model="link.uri_attributes.uri_input" name="link_label" class="col-md-8" placeholder="Link URI" auto-focus ng-disabled="link.cybox_object_id.length || link.uri_attributes.cybox_object_id.length">
+                <i ng-show="editform" class="ace-icon fa fa-info-circle fa-3x ciap_mleft_25" tooltip="The custom isa marking for this field is a object level marking, it can only be edited from the URI Form."></i>
+                <button ng-disabled="editform" class="btn btn-primary btn-sm pull-right" ng-click="uri_toggle.toggle = uri_toggle.toggle + 1">Custom ISA Markings</button>
+                <ul ng-show="error['uri']" class="help-block">
+                    <li ng-repeat="e in error['uri']">This Link URI {{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="link" disablesave="is_saving" editform="editform" fieldname="uri_normalized" fieldtext="'URI Object'" togglebuttons="uri_toggle"></field-markings-edit>
+
+        <div class="form-group">
+            <label class="col-md-4 control-label">URI Condition *</label>
+            <div class="col-md-8">
+                <select class="col-md-8" ng-model="link.uri_attributes.uri_condition" ng-options="condition for condition in conditions" ng-disabled="link.cybox_object_id.length || link.uri_attributes.cybox_object_id.length"></select>
+                <br/>
+            </div>
+        </div>
+
+        <div class="form-group" ng-class="{'has-error': error.label}">
+            <label class="col-md-4 control-label">Link Label*</label>
+            <div class="col-md-8">
+                <input type="text" ng-model="link.label" name="link_label" class="col-md-8" placeholder="Link Label">
+                <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="label_toggle.toggle > 0" ng-click="label_toggle.clear = label_toggle.clear + 1">Clear Markings</button>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="label_toggle.toggle = label_toggle.toggle + 1">Custom ISA Markings</button>
+                <ul ng-show="error.label" class="help-block">
+                    <li ng-repeat="e in error.label">This Label {{e}}</li>
+                </ul>
+            </div>
+        </div>
+
+        <field-markings-edit sets="sets" object="link" disablesave="is_saving" editform="editform" fieldname="label" fieldtext="'Label'" togglebuttons="label_toggle"></field-markings-edit>
+
+        <div class="form-group">
+            <label class="col-md-4 control-label">Label Condition *</label>
+            <div class="col-md-8">
+                <select class="col-md-8" ng-model="link.label_condition" ng-options="condition for condition in conditions"></select>
+                <br/>
+            </div>
+        </div>     
+        
+        <acs-associate-form sets="sets" object="link" objecttype="Link" disable-save="is_saving" editform="editform" fieldname="cybox" fromlinker="fromlinker"></acs-associate-form>
+    </div>
+</form>
+<div class="row">
+    <div class="col-xs-12" >
+        <form class="form-horizontal" role="form" ng-submit="save(link)">
+            <div class="clearfix form-actions">
+                <span ng-show="is_saving">
+                    <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+                </span>
+                <div class="col-md-offset-3">
+                    <button class="btn btn-info" ng-disabled="is_saving" type="submit">
+                        <i class="ace-icon fa fa-check bigger-110"></i> Save
+                    </button>
+                    <button class="btn btn-default" ng-disabled="is_saving" type="button" ng-click="cancel()">
+                        <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                    </button>
+                </div>
+            </div>
+            <div class="hr hr-24"></div>
+        </form>
+    </div>
+</div>

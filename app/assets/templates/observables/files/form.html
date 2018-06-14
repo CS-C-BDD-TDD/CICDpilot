@@ -1,0 +1,151 @@
+<form class="form-horizontal">
+    <div class="">
+        <div class="form-group" ng-class="{'has-error': error.file_name}">
+            <label class="col-md-4 control-label">File Name</label>
+            <div class="col-md-8">
+                <input type="text" ng-model="file.file_name" name="file_name" class="col-md-8" placeholder="File Name" auto-focus>
+                <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="name_toggle.toggle > 0" ng-click="name_toggle.clear = name_toggle.clear + 1">Clear Markings</button>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="name_toggle.toggle = name_toggle.toggle + 1">Custom ISA Markings</button>
+                <ul ng-show="error.file_name" class="help-block">
+                    <li ng-repeat="e in error.file_name">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="file" disablesave="is_saving" editform="editform" fieldname="file_name" togglebuttons="name_toggle"></field-markings-edit>
+        <div class="form-group" ng-class="{'has-error': error.file_name_condition}">
+            <label class="col-md-4 control-label">File Name Condition</label>
+            <div class="col-md-8">
+                <select class="col-md-8" ng-model="file.file_name_condition" ng-options="condition for condition in name_conditions">
+                    <option>{{condition}}</option>
+                </select>
+                <br/>
+                <ul ng-show="error.file_name_condition" class="help-block">
+                    <li ng-repeat="e in error.file_name_condition">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="form-group" ng-class="{'has-error': error.file_path}">
+            <label class="col-md-4 control-label">File Path</label>
+            <div class="col-md-8">
+                <input type="text" ng-model="file.file_path" name="file_path" class="col-md-8" placeholder="File Path">
+                <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="path_toggle.toggle > 0" ng-click="path_toggle.clear = path_toggle.clear + 1">Clear Markings</button>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="path_toggle.toggle = path_toggle.toggle + 1">Custom ISA Markings</button>
+                <ul ng-show="error.file_path" class="help-block">
+                    <li ng-repeat="e in error.file_path">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="file" disablesave="is_saving" editform="editform" fieldname="file_path" togglebuttons="path_toggle"></field-markings-edit>
+        <div class="form-group" ng-class="{'has-error': error.file_path_condition}">
+            <label class="col-md-4 control-label">File Path Condition</label>
+            <div class="col-md-8">
+                <select class="col-md-8" ng-model="file.file_path_condition" ng-options="condition for condition in name_conditions">
+                    <option>{{condition}}</option>
+                </select>
+                <br/>
+                <ul ng-show="error.file_path_condition" class="help-block">
+                    <li ng-repeat="e in error.file_path_condition">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="form-group" ng-class="{'has-error': error.size_in_bytes}">
+            <label class="col-md-4 control-label">Size in Bytes</label>
+            <div class="col-md-8">
+                <input type="text" ng-model="file.size_in_bytes" only-digits name="size_in_bytes" class="col-md-8" placeholder="Size in Bytes">
+                <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="size_toggle.toggle > 0" ng-click="size_toggle.clear = size_toggle.clear + 1">Clear Markings</button>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="size_toggle.toggle = size_toggle.toggle + 1">Custom ISA Markings</button>
+                <ul ng-show="error.size_in_bytes" class="help-block">
+                    <li ng-repeat="e in error.size_in_bytes">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="file" disablesave="is_saving" editform="editform" fieldname="size_in_bytes" togglebuttons="size_toggle"></field-markings-edit>
+        <div class="form-group" ng-class="{'has-error': error.size_in_bytes_condition}">
+            <label class="col-md-4 control-label">Size in Bytes Condition</label>
+            <div class="col-md-8">
+                <select class="col-md-12" ng-model="file.size_in_bytes_condition" ng-options="condition for condition in size_conditions">
+                    <option>{{condition}}</option>
+                </select>
+                <br/>
+                <ul ng-show="error.size_in_bytes_condition" class="help-block">
+                    <li ng-repeat="e in error.size_in_bytes_condition">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="form-group" ng-class="{'has-error': md5.error || error.md5}">
+            <label class="col-md-4 control-label">MD5 Hash</label>
+            <div class="col-md-8">
+                <input type="text" only-hex ng-model="md5.simple_hash_value" name="md5" class="col-md-8" maxlength="32" placeholder="MD5 Hash">
+                <i class="ace-icon fa fa-info-circle fa-3x ciap_mleft_25" tooltip="The custom isa marking for this field is a object level marking."></i>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="md5_toggle.toggle = md5_toggle.toggle + 1">Custom ISA Markings</button>
+                <ul ng-show="md5.error" class="help-block">
+                    <li>{{md5.error}}</li>
+                </ul>
+                <ul ng-show="error.md5" class="help-block">
+                    <li ng-repeat="e in error.md5">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="file" disablesave="is_saving" editform="editform" fieldname="md5" togglebuttons="md5_toggle"></field-markings-edit>
+        <div class="form-group" ng-class="{'has-error': sha1.error}">
+            <label class="col-md-4 control-label">SHA1 Hash</label>
+            <div class="col-md-8">
+                <input type="text" only-hex ng-model="sha1.simple_hash_value" name="sha1" class="col-md-8" maxlength="40" placeholder="SHA1 Hash">
+                <i class="ace-icon fa fa-info-circle fa-3x ciap_mleft_25" tooltip="The custom isa marking for this field is a object level marking."></i>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="sha1_toggle.toggle = sha1_toggle.toggle + 1">Custom ISA Markings</button>
+                <ul ng-show="sha1.error" class="help-block">
+                    <li>{{sha1.error}}</li>
+                </ul>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="file" disablesave="is_saving" editform="editform" fieldname="sha1" togglebuttons="sha1_toggle"></field-markings-edit>
+        <div class="form-group" ng-class="{'has-error': sha256.error}">
+            <label class="col-md-4 control-label">SHA256 Hash</label>
+            <div class="col-md-8">
+                <input type="text" only-hex ng-model="sha256.simple_hash_value" name="sha256" class="col-md-8" maxlength="64" placeholder="SHA256 Hash">
+                <i class="ace-icon fa fa-info-circle fa-3x ciap_mleft_25" tooltip="The custom isa marking for this field is a object level marking."></i>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="sha256_toggle.toggle = sha256_toggle.toggle + 1">Custom ISA Markings</button>
+                <ul ng-show="sha256.error" class="help-block">
+                    <li>{{sha256.error}}</li>
+                </ul>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="file" disablesave="is_saving" editform="editform" fieldname="sha256" togglebuttons="sha256_toggle"></field-markings-edit>
+        <div class="form-group" ng-class="{'has-error': error['file_hashes.ssdeep']}">
+            <label class="col-md-4 control-label">SSDEEP Hash</label>
+            <div class="col-md-8">
+                <input type="text" ng-model="ssdeep.fuzzy_hash_value" name="ssdeep" class="col-md-8" placeholder="SSDEEP Hash">
+                <i class="ace-icon fa fa-info-circle fa-3x ciap_mleft_25" tooltip="The custom isa marking for this field is a object level marking."></i>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="ssdeep_toggle.toggle = ssdeep_toggle.toggle + 1">Custom ISA Markings</button>
+                <ul ng-show="error['file_hashes.ssdeep']" class="help-block">
+                    <li ng-repeat="e in error['file_hashes.ssdeep']">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="file" disablesave="is_saving" editform="editform" fieldname="ssdeep" togglebuttons="ssdeep_toggle"></field-markings-edit>
+        <acs-associate-form sets="sets" object="file" objecttype="File" disable-save="is_saving" editform="editform" fieldname="cybox" toggle_isa_markings_view="toggleIsaMarkingsView"></acs-associate-form>
+    </div>
+</form>
+<div ng-show="showGFIs">
+  <gfi-widget widget-mode="form" gfi="file.gfi" observableScope="gfiScope"></gfi-widget>
+</div>
+<div class="row">
+    <div class="col-xs-12">
+        <form class="form-horizontal" role="form" ng-submit="save(file)">
+            <div class="clearfix form-actions">
+                <span ng-show="is_saving">
+                    <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+                </span>
+                <div class="col-md-offset-3">
+                    <button class="btn btn-info" ng-disabled="is_saving" type="submit">
+                        <i class="ace-icon fa fa-check bigger-110"></i> Save
+                    </button>
+                    <button class="btn btn-default" type="button" ng-disabled="is_saving" ng-click="cancel()">
+                        <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                    </button>
+                </div>
+            </div>
+            <div class="hr hr-24"></div>
+        </form>
+    </div>
+</div>

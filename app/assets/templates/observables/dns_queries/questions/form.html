@@ -1,0 +1,64 @@
+<form class="form-horizontal">
+  <div class="widget-body">
+    <div class="widget-main">
+      <div class="form-group" ng-class="{'has-error': question.errors.qclass}" tooltip="The QClass field specifies the class of resource records being requested.">
+        <label class="control-label col-md-3 no-padding-right">QClass</label>
+        <div class="col-md-9">
+            <input type="text" class="col-md-8" id="qclass_textbox" ng-model="question.qclass" auto-focus></input>
+        </div>
+        <div ng-show="question.errors.qclass" class="help-block inline col-md-12" align="right">
+          <span ng-repeat="error in question.errors.qclass" class="col-md-12">QClass {{error}}</span>
+        </div>
+      </div>
+
+      <div class="form-group" ng-class="{'has-error': question.errors.qtype}" tooltip="The QType specifies the type of DNS query performed, in terms of the requested DNS record type.">
+        <label class="control-label col-md-3 no-padding-right">QType</label>
+        <div class="col-md-9">
+            <select class="col-md-8" id="question_qtype_select" ng-model="question.qtype" ng-options="name for name in DnsRecord.dns_record_types">
+            </select>
+        </div>
+        <div ng-show="question.errors.qtype" class="help-block inline col-md-12" align="right">
+          <span ng-repeat="error in question.errors.qtype" class="col-md-12">QType {{error}}</span>
+        </div>
+      </div>
+
+      <!-- Uri Browser -->
+      <div>
+        <div class="widget-header widget-header-small">
+            <h4 class="widget-title blue smaller">
+                <i class="ace-icon fa fa-tasks orange"></i>
+                QName / Attached Uris
+            </h4>
+        </div>
+
+        <div class="space-6"></div>
+
+        <div class="width-90 center-block" ng-show="question.uris.length">
+          <div class="ciap_table_scroll_500">
+          <ol class="dd-list">
+            <li class="dd-item" ng-repeat="uri in question.uris">
+              <div class="dd-handle">
+                <a href="#/uris/{{uri.cybox_object_id}}">{{uri.uri | prefixWithPortionMarking: uri.portion_marking}}</a>
+                <div class="pull-right action-buttons">
+                    <a class="red" href="" ng-click="removeUri(uri)">
+                        <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                    </a>
+                </div>
+              </div>
+            </li>
+          </ol>
+          </div>
+        </div>
+      </div>
+
+      <div ng-hide="question.uris.length">
+      No Attached Uris
+      </div>
+
+      <uri-browser selected-uris="question.uris"></uri-browser>
+      <div class="space-12"></div>
+      <!-- Uri Browser End-->
+    </div>
+  </div>
+  <!-- End Part 1 -->
+</form>

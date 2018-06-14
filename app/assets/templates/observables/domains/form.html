@@ -1,0 +1,59 @@
+<form class="form-horizontal">
+    <div class="">
+        <div class="form-group" ng-class="{'has-error': error.name}">
+            <label class="col-md-4 control-label">Domain *</label>
+            <div class="col-md-8">
+                <input type="text" domain-input domain-input-domain="domain.name_input" domain-input-text="domainInputText" domain-input-status="domainInputStatus" ng-model="domain.name_input" name="name_input" class="col-md-8" placeholder="Domain Name" auto-focus ng-disabled="domain.cybox_object_id.length">
+                <i class="ace-icon fa fa-info-circle fa-3x ciap_mleft_25" tooltip="The field level marking for this field is defined by the object level marking."></i> 
+                <span ng-show="domain.name_input">
+                  <ul ng-show="domainInputStatus == 'invalid'">
+                      <li>{{domainInputText}}</li>
+                  </ul>
+                  <ul ng-show="domainInputStatus == 'error'">
+                      <li>{{domainInputText}}</li>
+                  </ul>
+                </span>
+                <ul ng-show="error.name" class="help-block">
+                    <li ng-repeat="e in error.name">This Domain and Domain Condition {{e}}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="">
+        <div class="form-group" ng-class="{'has-error': error.name_condition}">
+            <label class="col-md-4 control-label">Domain Condition *</label>
+            <div class="col-md-8">
+                <select class="col-md-8" ng-model="domain.name_condition" ng-options="condition for condition in conditions" ng-disabled="domain.cybox_object_id.length"></select>
+                <br/>
+                <ul ng-show="error.name_condition" class="help-block">
+                    <li ng-repeat="e in error.name_condition">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <acs-associate-form sets="sets" object="domain" objecttype="Domain" disable-save="is_saving" editform="editform" fieldname="cybox"></acs-associate-form>
+    </div>
+</form>
+<div ng-show="showGFIs">
+  <gfi-widget widget-mode="form" gfi="domain.gfi" observableScope="gfiScope"></gfi-widget>
+</div>
+<div class="row">
+    <div class="col-xs-12">
+        <form class="form-horizontal" role="form" ng-submit="save(domain)">
+            <div class="clearfix form-actions">
+                <span ng-show="is_saving">
+                    <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+                </span>
+                <div class="col-md-offset-3">
+                    <button class="btn btn-info" ng-disabled="is_saving" type="submit">
+                        <i class="ace-icon fa fa-check bigger-110"></i> Save
+                    </button>
+                    <button class="btn btn-default" ng-disabled="is_saving" type="button" ng-click="cancel()">
+                        <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                    </button>
+                </div>
+            </div>
+            <div class="hr hr-24"></div>
+        </form>
+    </div>
+</div>

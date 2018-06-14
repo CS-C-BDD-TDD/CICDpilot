@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Loads a WeatherMap heatmap image via the API using a curl script. Demonstrates
+# that the API heatmap upload is functional. Note that ONLY a mchine user can
+# do database updates like this.
+
+API_KEY="7a3c834c1f07d46f2384b52df686fb24de499bff14c48112750b0d55c7b7e126"
+
+API_KEY_HASH="f9e274e528d0733b4454a91bb8db2edc30b78fe356fe9f2f87f527aca06d57fb"
+
+curl -v -k -X POST -H "Content-type: text/csv" -H "api_key: ${API_KEY}" -H "api_key_hash: ${API_KEY_HASH}" --data-binary @"/home/afinch/code/cyber-indicators/weathermap.csv" "https://127.0.0.1:3000/cyber-indicators/ipreputation"

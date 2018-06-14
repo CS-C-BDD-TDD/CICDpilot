@@ -1,0 +1,213 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">
+
+<div class="page-header">
+  <h1>
+    {{Email.get_value(email)}}
+    <small ng-show="email.read_only">
+      <span style="margin-left: 10px" class="label label-warning arrowed arrowed-right">
+        <span class="white">Read Only</span>
+      </span>
+    </small>
+    <small ng-show="email.is_ciscp">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">CISCP</span>
+      </span>
+    </small>
+    <small ng-show="email.is_mifr">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">MIFR</span>
+      </span>
+    </small>    
+    <span class="pull-right">
+      <a ng-href="#/emails/{{email.cybox_object_id | encodeURIComponent}}/edit" class="btn btn-info no-radius btn-xs" ng-show="canModify(email) && email.read_only == false"><i class="ace-icon fa fa-pencil-square-o bigger-160"></i> Edit</a>
+    </span>
+  </h1>
+  <div class="space-18"></div>
+  <span class="pull-left" ng-show="canAny(['create_remove_badge_status','view_badge_status'])">
+    <badge-statuses-table badge-statuses="email.badge_statuses" audits="email.audits" parent-id="email.guid" parent-class="EmailMessage"></badge-statuses-table>
+  </span>
+  <div class="space-18"></div>
+</div>
+
+<div class="profile-user-info profile-user-info-striped">
+  <div class="profile-info-row" ng-show="can('view_pii_fields')" >
+      <div class="profile-info-name"> Cybox Object ID </div>
+      <div class="profile-info-value">
+          <span>{{email.cybox_object_id}}</span>
+      </div>
+  </div>
+  
+  <div class="profile-info-row" ng-show='email.feeds'>
+    <div class="profile-info-name"> Disseminated Feeds </div>
+    <div class="profile-info-value">
+      <span>{{email.feeds}}</span>
+    </div>
+  </div>  
+
+  <div class="profile-info-row" ng-show="can('view_pii_fields')" >
+    <div class="profile-info-name"> From </div>
+    <div class="profile-info-value">
+      <span>{{email.from_normalized | prefixWithPortionMarking: email.portion_marking:email.from_normalized_c}}</span>
+      <field-markings-show markings="email.stix_markings" fieldname="from_normalized" object_level="true"></field-markings-show>
+    </div>
+  </div>
+
+  <div class="profile-info-row" ng-show="can('view_pii_fields')" >
+    <div class="profile-info-name"> From is spoofed </div>
+    <div class="profile-info-value" ng-show="email.from_normalized">
+      <span>{{email.from_is_spoofed}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row" ng-show="can('view_pii_fields')" >
+    <div class="profile-info-name"> Reply-To </div>
+    <div class="profile-info-value">
+      <span>{{email.reply_to_normalized | prefixWithPortionMarking: email.portion_marking:email.reply_to_normalized_c}}</span>
+      <field-markings-show markings="email.stix_markings" fieldname="reply_to_normalized" object_level="true"></field-markings-show>
+    </div>
+  </div>
+
+  <div class="profile-info-row" ng-show="can('view_pii_fields')" >
+    <div class="profile-info-name"> Sender </div>
+    <div class="profile-info-value">
+      <span>{{email.sender_normalized | prefixWithPortionMarking: email.portion_marking:email.sender_normalized_c}}</span>
+      <field-markings-show markings="email.stix_markings" fieldname="sender_normalized" object_level="true"></field-markings-show>
+    </div>
+  </div>
+
+  <div class="profile-info-row" ng-show="can('view_pii_fields')" >
+    <div class="profile-info-name"> Sender is spoofed </div>
+    <div class="profile-info-value" ng-show="email.sender_normalized">
+      <span>{{email.sender_is_spoofed}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Subject </div>
+    <div class="profile-info-value">
+      <span>{{email.subject | prefixWithPortionMarking: email.portion_marking:email.subject_c}}</span>
+      <field-markings-form sets="sets" object="email" fieldname="subject"></field-markings-form>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Subject Condition </div>
+    <div class="profile-info-value">
+      <span>{{email.subject_condition}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Email Date </div>
+    <div class="profile-info-value">
+      <span>{{email.email_date | date:"medium" | prefixWithPortionMarking: email.portion_marking:email.email_date_c}}</span>
+      <field-markings-form sets="sets" object="email" fieldname="email_date"></field-markings-form>
+    </div>
+  </div>
+
+  <div class="profile-info-row" ng-show="can('view_pii_fields')" >
+    <div class="profile-info-name"> Email Header </div>
+    <div class="profile-info-value">
+      <span>{{email.raw_header | prefixWithPortionMarking: email.portion_marking:email.raw_header_c}}</span>
+      <field-markings-form sets="sets" object="email" fieldname="raw_header"></field-markings-form>
+    </div>
+  </div>
+
+  <div class="profile-info-row" ng-show="can('view_pii_fields')" >
+    <div class="profile-info-name"> Email Body </div>
+    <div class="profile-info-value">
+      <span>{{email.raw_body | prefixWithPortionMarking: email.portion_marking:email.raw_body_c}}</span>
+      <field-markings-form sets="sets" object="email" fieldname="raw_body"></field-markings-form>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Message ID </div>
+    <div class="profile-info-value">
+      <span>{{email.message_id | prefixWithPortionMarking: email.portion_marking:email.message_id_c}}</span>
+      <field-markings-form sets="sets" object="email" fieldname="message_id"></field-markings-form>
+    </div>
+  </div>
+
+  <div class="profile-info-row" ng-show="can('view_pii_fields')" >
+    <div class="profile-info-name"> X-Mailer </div>
+    <div class="profile-info-value">
+      <span>{{email.x_mailer | prefixWithPortionMarking: email.portion_marking:email.xmailer_c}}</span>
+      <field-markings-form sets="sets" object="email" fieldname="x_mailer"></field-markings-form>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> X-Originating-IP </div>
+    <div class="profile-info-value">
+      <span>{{email.x_originating_ip | prefixWithPortionMarking: email.portion_marking:email.x_originating_ip_c}}</span>
+      <field-markings-show markings="email.stix_markings" fieldname="x_originating_ip"></field-markings-show>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Created
+      <span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+          <i class="fa fa-ban fa-stack-2x"> </i> 
+      <i class="fa fa-download fa-stack-1x"> </i> 
+      </span> 
+    </div>
+    <div class="profile-info-value">
+      <span>{{email.created_at | date:"medium"}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Total Sightings </div>
+    <div class="profile-info-value">
+      <span>{{email.total_sightings}}</span>
+    </div>
+  </div>
+  <downgrade-request-ids observable="email"></downgrade-request-ids>
+</div>
+
+<div ng-show="email.stix_markings.length">
+  <div class="space-12"></div>
+  <markings-table markings="email.stix_markings"></markings-table>
+</div>
+
+<div ng-show="email.indicators.length">
+  <div class="space-12"></div>
+  <indicator-table indicators="email.indicators"></indicator-table>
+</div>
+
+<div class="space-12"></div>
+<div>
+  <link-linker links="email.links" email="email"></link-linker>
+</div>
+
+<div class="space-12"></div>
+<div>
+  <file-linker files="email.cybox_files" email="email"></file-linker>
+</div>
+
+<div class="space-12" ng-show="email.addresses.length"></div>
+<div ng-show="email.addresses.length">
+  <address-table addresses="email.addresses"></address-table>
+</div>
+
+<div class="space-12" ng-show="email.course_of_actions.length"></div>
+<course-of-actions-table course_of_actions="email.course_of_actions" show_table=showTable addrelated="false" ng-show="email.course_of_actions.length"></course-of-actions-table>
+
+<div ng-show="email.stix_packages.length > 0">
+  <div class="space-12"></div>
+  <package-table packages="email.stix_packages"></package-table>
+</div>
+
+<div class="space-12" ng-show="showGFIs"></div>
+<div ng-show="showGFIs">
+  <gfi-widget widget-mode="show" gfi="email.gfi"></gfi-widget>
+</div>
+
+<div class="space-12"></div>
+<audits-table audits="email.audits"></audits-table>
+<div class="space-12"></div>
+
+</div>
+
+<show-spinner> </show-spinner>

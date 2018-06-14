@@ -1,0 +1,34 @@
+app.controller('ThreatActorsEditController', ['$scope','$routeParams','$location','$rootScope','Restangular','Marking',
+  function ($scope, $routeParams, $location, $rootScope, Restangular,Marking) {
+    Restangular.one("/threat_actors/"+$routeParams.id).get().then(function(data){
+      $scope.threat_actor = Marking.translate_existing_attributes(data);
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                {text:'All Threat Actors',link:'#/threat_actors',icon:'fa-list'},
+                                {text:data.title,link:'#/threat_actors/'+encodeURIComponent(data.stix_id),icon:'fa-pencil'}];
+
+    });
+    $scope.save = function(threat_actor,done){
+      var indicator_stix_ids=_.map(threat_actor.indicators,function(i) {
+        return i.stix_id;
+      });
+      threat_actor.indicator_stix_ids=indicator_stix_ids;
+      var indicators =  threat_actor.indicators;
+      delete threat_actor.indicators;
+      threat_actor.id = threat_actor.stix_id;
+      Restangular.one("threat_actors/"+$routeParams.id).customPUT(threat_actor).then(function(data){
+        toastr.success("Threat actor saved");
+        $scope.threat_actor = data;
+        $location.path('/threat_actors/'+encodeURIComponent($scope.threat_actor.stix_id));
+      },function(res){
+        toastr.error("Unable to save threat actor");
+        if (angular.isDefined(res.data) && angular.isDefined(res.data.errors) && angular.isDefined(res.data.errors.base)) {
+            _.each(res.data.errors.base,function(e){
+                toastr.error(e);
+            });
+        }
+        threat_actor.indicators = indicators;
+        $scope.threat_actor.errors = res.data.errors;
+      });
+        done();
+    };
+}]);

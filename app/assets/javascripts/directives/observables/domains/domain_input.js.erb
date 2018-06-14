@@ -1,0 +1,34 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('domainInput', function(){
+  return {
+    restrict: 'A',
+    scope: {
+      domainInputDomain: '=',
+      domainInputStatus: '=',
+      domainInputText: '='
+    },
+    controller: ['$scope', 'Restangular', function($scope, Restangular) {
+      $scope.domainInputStatus = "valid";
+      $scope.domainInputText = '';
+      $scope.$watch('domainInputDomain', function(newValue, oldValue){
+        if (newValue){
+          Restangular.one("domains/valid").get({domain: newValue}).then(
+            function(data){
+              $scope.domainInputStatus = data.status;
+              if ($scope.domainInputStatus == 'invalid'){
+                $scope.domainInputText = "Invalid Domain Name";
+              } else if ($scope.domainInputStatus == 'valid'){
+                $scope.domainInputText = "";
+              }
+            },
+            function(res, status){
+              $scope.domainInputStatus = "error";
+              $scope.domainInputText = "Error checking domain name";
+            }
+          );
+        }
+      });
+    }]
+  }
+});

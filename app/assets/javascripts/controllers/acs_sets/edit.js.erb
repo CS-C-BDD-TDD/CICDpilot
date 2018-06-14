@@ -1,0 +1,24 @@
+app.controller('AcsSetsEditController', ['$scope','$rootScope','$routeParams','Restangular','$location','Marking',
+    function ($scope, $rootScope, $routeParams, Restangular,$location,Marking) {
+        Restangular.one('acs_sets',$routeParams.id).get().then(function(data){
+            $scope.set = data;
+
+            $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'ACS Sets',link:'#/acs_sets',icon:'fa-thumb-tack'},{text:$scope.set.name,link:'#/acs_sets/'+$scope.set.guid,icon:'fa-thumb-tack'}];
+
+            $scope.set = Marking.translate_existing_attributes($scope.set);
+        },function(res){
+            toastr.error("Unable to load ACS Set");
+            $location.path('/acs_sets/');
+        });
+
+        $scope.save = function(done) {
+            Restangular.one("acs_sets",$scope.set.guid).customPUT($scope.set).then(function(data){
+                done();
+                $location.path('/acs_sets/'+data.guid);
+                toastr.success("ACS Set successfully updated");
+            },function(res){
+                done();
+                toastr.error(res.data.errors.join(", "));
+            });
+        }
+    }]);

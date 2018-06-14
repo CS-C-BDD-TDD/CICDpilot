@@ -1,0 +1,96 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('dnsRecordTable', function() {
+  return {
+    restrict: 'E',
+    templateUrl: function(elem,attrs) {
+      return attrs.indexpage ? '<%=asset_path("observables/dns_records/advanced_table.html",type: :template)%>' :
+                               '<%=asset_path("observables/dns_records/table.html",type: :template)%>';
+    },
+    scope: {
+             dnsRecords: '=',
+             metadata: '=',
+             fetching: '='
+           },
+    controller: ['$scope', 'Restangular', '$rootScope', function($scope,Restangular,$rootScope) {
+      $scope.date_picker_opts = {
+        defaultRanges: true
+      };
+      $scope.q = '';
+      $scope.marking_search_params = {};
+
+      $scope.showTable=true;
+      if (angular.isUndefined($scope.offset)) {
+        $scope.offset=0;
+      }
+      if (angular.isUndefined($scope.amount)) {
+        $scope.amount=$rootScope.setting_value('DEFAULT_MAX_RECORDS');
+      }
+      $scope.sortOptions = {
+        'address_value_normalized': 'desc',
+        'address_class': 'desc',
+        'domain_normalized': 'desc',
+        'entry_type': 'desc',
+        'created_at': 'desc',
+        'updated_at': 'desc'
+      };
+      $scope.sortMethod = '';
+
+      // Cleanup
+      $scope.$on('$destroy', function() {
+        $('.daterangepicker').remove();
+      });
+      
+      $scope.dateRangePicker = function(picker) {
+        $scope.date_picker_object = picker;
+        $scope.offset=0;
+        $scope.getDnsRecords($scope.offset);
+      };
+
+      $scope.sort = function(method) {
+        $scope.sortMethod = method;
+        $scope.sortOptions[method]=($scope.sortOptions[method]=='desc')?'asc':'desc';
+        $scope.offset=0;
+        $scope.getDnsRecords($scope.offset);
+      };
+
+      $scope.startSearch = function() {
+        $scope.offset=0;
+        $scope.getDnsRecords($scope.offset);
+      };
+
+      $scope.getDnsRecords = function(offset) {
+        if (angular.isDefined($scope.metadata)) {
+          delete($scope.metadata);
+        }
+        $scope.fetching= true;
+        Restangular.one('/dns_records').get({
+          ebt: $scope.date_picker_object.getStartDate(),
+          iet: $scope.date_picker_object.getEndDate(),
+          q: $scope.q,
+          column: $scope.sortMethod,
+          direction: $scope.sortOptions[$scope.sortMethod],
+          amount: $scope.amount,
+          offset: offset,
+          marking_search_params: $scope.marking_search_params
+        }).then(
+          function(data){
+            $scope.dnsRecords = data.dns_records;
+            $scope.metadata = data.metadata;
+            $scope.fetching= false;
+          },
+          function(res){
+            $scope.dnsRecords = null;
+            $scope.metadata={total_count: 0};
+            toastr.error("Unable to load DNS Records");
+            $scope.fetching= false;
+          }
+        );
+      };
+      
+      $scope.buildHref = function() {
+      	return $rootScope.buildCSVHref($scope, "dns_records");
+      };
+    }]
+  };
+});

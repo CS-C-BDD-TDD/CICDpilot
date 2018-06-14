@@ -1,0 +1,234 @@
+################################################################################
+# Configure the Necessary Queue and Topic objects
+################################################################################
+# queue.<JNDI-lookup-name> = <queue-name>
+# topic.<JNDI-lookup-name> = <topic-name>
+################################################################################
+#
+# ==============================================================================
+# GDLAB Integration Environment (CIAP) Topics
+# ------------------------------------------------------------------------------
+# topic.senderTopicLookup = ecis02
+# topic.receiverTopicLookup = flare01
+# ------------------------------------------------------------------------------
+# GDLAB Integration Environment (ECIS) Topics
+# ------------------------------------------------------------------------------
+# topic.senderTopicLookup = flare01
+# topic.receiverTopicLookup = ecis02
+# ==============================================================================
+#
+# ==============================================================================
+# DTE AIS Integration Environment (CIAP) Topics
+# ------------------------------------------------------------------------------
+# topic.senderTopicLookup = /Indicators/StixDissemination
+# topic.receiverTopicLookup = /Ciap/PooledInbound
+# ------------------------------------------------------------------------------
+# DTE AIS Integration Environment (ECIS) Topics
+# ------------------------------------------------------------------------------
+# topic.senderTopicLookup = /Indicators/AisStatistics
+# topic.receiverTopicLookup = /Indicators/StixDissemination
+# ==============================================================================
+#
+# ==============================================================================
+# DTE Formal Test Environment (CIAP) Topics
+# ------------------------------------------------------------------------------
+# topic.senderTopicLookup = /Indicators/StixDissemination
+# topic.receiverTopicLookup = /Ciap/PooledInbound
+# ------------------------------------------------------------------------------
+# DTE Formal Test Environment (ECIS) Topics
+# topic.senderTopicLookup = /Indicators/AisStatistics
+# topic.receiverTopicLookup = /Indicators/StixDissemination
+# ==============================================================================
+#
+# ==============================================================================
+# Production (CIAP) Topics
+# ------------------------------------------------------------------------------
+# topic.senderTopicLookup = <StixDissemination Channel Name>
+# topic.receiverTopicLookup = <StixIngestion or PooledInbound Channel Name>
+# ------------------------------------------------------------------------------
+# Production (ECIS) Topics
+# ------------------------------------------------------------------------------
+# topic.senderTopicLookup = <AisStatistics Channel Name>
+# topic.receiverTopicLookup = <StixDissemination Channel Name>
+# ==============================================================================
+#
+################################################################################
+# Configure the username and password
+################################################################################
+# queue.username = <username>
+# queue.password = <password>
+################################################################################
+#
+# ==============================================================================
+# GDLAB Integration Environment (CIAP) Username and Password
+# ------------------------------------------------------------------------------
+# queue.username = clientTest
+# queue.password = testClient!1234
+# ------------------------------------------------------------------------------
+# GDLAB Integration Environment (ECIS) Username and Password
+# ------------------------------------------------------------------------------
+# queue.username = clientTest
+# queue.password = testClient!1234
+# ==============================================================================
+#
+# ==============================================================================
+# DTE AIS Integration Environment (CIAP) Username and Password
+# ------------------------------------------------------------------------------
+# queue.username = dmsciap
+# queue.password = Testing!12345
+# ------------------------------------------------------------------------------
+# DTE AIS Integration Environment (ECIS) Username and Password
+# ------------------------------------------------------------------------------
+# queue.username = dmsecis
+# queue.password = Testing!12345
+# ==============================================================================
+#
+# ==============================================================================
+# DTE Formal Test Environment (CIAP) Username and Password
+# ------------------------------------------------------------------------------
+# queue.username = fteciap
+# queue.password = Testing!12345
+# ------------------------------------------------------------------------------
+# DTE Formal Test Environment (ECIS) Username and Password
+# ------------------------------------------------------------------------------
+# queue.username = fteecis
+# queue.password = Testing!12345
+# ==============================================================================
+#
+# ==============================================================================
+# Production (CIAP) Username and Password
+# ------------------------------------------------------------------------------
+# queue.username = <CIAP DMS Username>
+# queue.password = <CIAP DMS Password>
+# ------------------------------------------------------------------------------
+# Production (ECIS) Username and Password
+# ------------------------------------------------------------------------------
+# queue.username = <ECIS DMS Username>
+# queue.password = <ECIS DMS Password>
+# ==============================================================================
+#
+################################################################################
+# Configure the Necessary Connection Factory Servers in the Server List
+################################################################################
+# queue.serverlist=<factory-server-1> <factory-server-2> <factory-server-3> ...
+################################################################################
+#
+# ==============================================================================
+# GDLAB Integration Environment (CIAP) Cluster List
+# ------------------------------------------------------------------------------
+# queue.serverlist=gdlabSSL gdlabNonSSL
+# ------------------------------------------------------------------------------
+# GDLAB Integration Environment (ECIS) Cluster List
+# ------------------------------------------------------------------------------
+# queue.serverlist=gdlabSSL gdlabNonSSL
+# ==============================================================================
+#
+# ==============================================================================
+# DTE AIS Integration Environment (CIAP) Cluster List
+# ------------------------------------------------------------------------------
+# queue.serverlist=dmssdevum1ClientCertSSL dmssdevum1AnonymousSSL dmssdevum1NonSSL
+# ------------------------------------------------------------------------------
+# DTE AIS Integration Environment (ECIS) Cluster List
+# ------------------------------------------------------------------------------
+# queue.serverlist=dmsddevum1ClientCertSSL dmsddevum1AnonymousSSL dmsddevum1NonSSL
+# ==============================================================================
+#
+# ==============================================================================
+# DTE Formal Test Environment (CIAP) Cluster List
+# ------------------------------------------------------------------------------
+# queue.serverlist=fteDsbMoeUm1ClientCertSSL fteDsbMoeUm2ClientCertSSL fteDsbMoeUm3ClientCertSSL fteDsbMoeUm1AnonymousSSL fteDsbMoeUm2AnonymousSSL fteDsbMoeUm3AnonymousSSL fteDsbMoeUm1NonSSL fteDsbMoeUm2NonSSL fteDsbMoeUm3NonSSL
+# ------------------------------------------------------------------------------
+# DTE Formal Test Environment (ECIS) Cluster List
+# ------------------------------------------------------------------------------
+# queue.serverlist=fteDsbEwahUm1ClientCertSSL fteDsbEwahUm2ClientCertSSL fteDsbEwahUm3ClientCertSSL fteDsbEwahUm1AnonymousSSL fteDsbEwahUm2AnonymousSSL fteDsbEwahUm3AnonymousSSL fteDsbEwahUm1NonSSL fteDsbEwahUm2NonSSL fteDsbEwahUm3NonSSL
+# ==============================================================================
+#
+# ==============================================================================
+# Production Cluster (CIAP) List
+# ------------------------------------------------------------------------------
+# queue.serverlist=<List of JNDI connection factory lookup names separated by spaces>
+# ------------------------------------------------------------------------------
+# Production Cluster (ECIS) List
+# ------------------------------------------------------------------------------
+# queue.serverlist=<List of JNDI connection factory lookup names separated by spaces>
+# ==============================================================================
+#
+################################################################################
+# Configure the Necessary Connection Factories
+################################################################################
+# connectionfactory.<JNDI-lookup-name> = <URI>
+################################################################################
+#
+# ==============================================================================
+# GDLAB Integration Environment (CIAP) Connection Factories
+# ------------------------------------------------------------------------------
+# connectionfactory.gdlabSSL=amqps://integration03.unobtanium.us-cert.gov:5671?transport.contextProtocol=TLSv1.2&transport.keyAlias=cyber-indicators&jms.forceSyncSend=true
+# connectionfactory.gdlabNonSSL=amqp://integration03.unobtanium.us-cert.gov:5672?jms.forceSyncSend=true
+# ------------------------------------------------------------------------------
+# GDLAB Integration Environment (ECIS) Connection Factories
+# ------------------------------------------------------------------------------
+# connectionfactory.gdlabSSL=amqps://integration03.unobtanium.us-cert.gov:5671?transport.contextProtocol=TLSv1.2&transport.keyAlias=cyber-indicators&jms.forceSyncSend=true
+# connectionfactory.gdlabNonSSL=amqp://integration03.unobtanium.us-cert.gov:5672?jms.forceSyncSend=true
+# ==============================================================================
+#
+# ==============================================================================
+# DTE AIS Integration Environment (CIAP) Connection Factories
+# ------------------------------------------------------------------------------
+# connectionfactory.dmssdevum1ClientCertSSL=amqps://dmssdevum1.sec.dte.cert.org:9002?transport.contextProtocol=TLSv1.2&transport.keyAlias=cyber-indicators&jms.forceSyncSend=true
+# connectionfactory.dmssdevum1AnonymousSSL=amqps://dmssdevum1.sec.dte.cert.org:9003?transport.contextProtocol=TLSv1.2&jms.forceSyncSend=true
+# connectionfactory.dmssdevum1NonSSL=amqp://dmssdevum1.sec.dte.cert.org:9001?jms.forceSyncSend=true
+# ------------------------------------------------------------------------------
+# DTE AIS Integration Environment (ECIS) Connection Factories
+# ------------------------------------------------------------------------------
+# connectionfactory.dmsddevum1ClientCertSSL=amqps://dmsddevum1.sec.dte.cert.org:9002?transport.contextProtocol=TLSv1.2&transport.keyAlias=cyber-indicators&jms.forceSyncSend=true
+# connectionfactory.dmsddevum1AnonymousSSL=amqps://dmsddevum1.sec.dte.cert.org:9003?transport.contextProtocol=TLSv1.2&jms.forceSyncSend=true
+# connectionfactory.dmsddevum1NonSSL=amqp://dmsddevum1.sec.dte.cert.org:9001?jms.forceSyncSend=true
+# ==============================================================================
+#
+# ==============================================================================
+# DTE Formal Test Environment (CIAP) Connection Factories
+# ------------------------------------------------------------------------------
+# connectionfactory.fteDsbMoeUm1ClientCertSSL=amqps://fte-dsb-moe-um1.sec.dte.cert.org:9002?transport.contextProtocol=TLSv1.2&transport.keyAlias=cyber-indicators&jms.forceSyncSend=true
+# connectionfactory.fteDsbMoeUm2ClientCertSSL=amqps://fte-dsb-moe-um2.sec.dte.cert.org:9002?transport.contextProtocol=TLSv1.2&transport.keyAlias=cyber-indicators&jms.forceSyncSend=true
+# connectionfactory.fteDsbMoeUm3ClientCertSSL=amqps://fte-dsb-moe-um3.sec.dte.cert.org:9002?transport.contextProtocol=TLSv1.2&transport.keyAlias=cyber-indicators&jms.forceSyncSend=true
+# connectionfactory.fteDsbMoeUm1AnonymousSSL=amqps://fte-dsb-moe-um1.sec.dte.cert.org:9003?transport.contextProtocol=TLSv1.2&jms.forceSyncSend=true
+# connectionfactory.fteDsbMoeUm2AnonymousSSL=amqps://fte-dsb-moe-um2.sec.dte.cert.org:9003?transport.contextProtocol=TLSv1.2&jms.forceSyncSend=true
+# connectionfactory.fteDsbMoeUm3AnonymousSSL=amqps://fte-dsb-moe-um3.sec.dte.cert.org:9003?transport.contextProtocol=TLSv1.2&jms.forceSyncSend=true
+# connectionfactory.fteDsbMoeUm1NonSSL=amqp://fte-dsb-moe-um1.sec.dte.cert.org:9001?jms.forceSyncSend=true
+# connectionfactory.fteDsbMoeUm2NonSSL=amqp://fte-dsb-moe-um2.sec.dte.cert.org:9001?jms.forceSyncSend=true
+# connectionfactory.fteDsbMoeUm3NonSSL=amqp://fte-dsb-moe-um3.sec.dte.cert.org:9001?jms.forceSyncSend=true
+# ------------------------------------------------------------------------------
+# DTE Formal Test Environment (ECIS) Connection Factories
+# ------------------------------------------------------------------------------
+# connectionfactory.fteDsbEwahUm1ClientCertSSL=amqps://fte-dsb-ewah-um1.sec.dte.cert.org:9002?transport.contextProtocol=TLSv1.2&transport.keyAlias=cyber-indicators&jms.forceSyncSend=true
+# connectionfactory.fteDsbEwahUm2ClientCertSSL=amqps://fte-dsb-ewah-um2.sec.dte.cert.org:9002?transport.contextProtocol=TLSv1.2&transport.keyAlias=cyber-indicators&jms.forceSyncSend=true
+# connectionfactory.fteDsbEwahUm3ClientCertSSL=amqps://fte-dsb-ewah-um3.sec.dte.cert.org:9002?transport.contextProtocol=TLSv1.2&transport.keyAlias=cyber-indicators&jms.forceSyncSend=true
+# connectionfactory.fteDsbEwahUm1AnonymousSSL=amqps://fte-dsb-ewah-um1.sec.dte.cert.org:9003?transport.contextProtocol=TLSv1.2&jms.forceSyncSend=true
+# connectionfactory.fteDsbEwahUm2AnonymousSSL=amqps://fte-dsb-ewah-um2.sec.dte.cert.org:9003?transport.contextProtocol=TLSv1.2&jms.forceSyncSend=true
+# connectionfactory.fteDsbEwahUm3AnonymousSSL=amqps://fte-dsb-ewah-um3.sec.dte.cert.org:9003?transport.contextProtocol=TLSv1.2&jms.forceSyncSend=true
+# connectionfactory.fteDsbEwahUm1NonSSL=amqp://fte-dsb-ewah-um1.sec.dte.cert.org:9001?jms.forceSyncSend=true
+# connectionfactory.fteDsbEwahUm2NonSSL=amqp://fte-dsb-ewah-um2.sec.dte.cert.org:9001?jms.forceSyncSend=true
+# connectionfactory.fteDsbEwahUm3NonSSL=amqp://fte-dsb-ewah-um3.sec.dte.cert.org:9001?jms.forceSyncSend=true
+# ==============================================================================
+#
+# ==============================================================================
+# Production (CIAP) Connection Factories
+# ------------------------------------------------------------------------------
+# connectionfactory.<CamelCase Short Hostname for Server 1><ClientCertSSL or other identifier>=amqps://<FQDN for Server 1>:<Port for Client Cert SSL>?transport.contextProtocol=TLSv1.2&transport.keyAlias=cyber-indicators&jms.forceSyncSend=true
+# connectionfactory.<CamelCase Short Hostname for Server 2><ClientCertSSL or other identifier>=amqps://<FQDN for Server 2>:<Port for Client Cert SSL>?transport.contextProtocol=TLSv1.2&transport.keyAlias=cyber-indicators&jms.forceSyncSend=true
+# connectionfactory.<CamelCase Short Hostname for Server 3><ClientCertSSL or other identifier>=amqps://<FQDN for Server 3>:<Port for Client Cert SSL>?transport.contextProtocol=TLSv1.2&transport.keyAlias=cyber-indicators&jms.forceSyncSend=true
+# connectionfactory.<CamelCase Short Hostname for Server 1><AnonymousSSL or other identifier>=amqps://<FQDN for Server 1>:<Port for Anonymous SSL>?transport.contextProtocol=TLSv1.2&jms.forceSyncSend=true
+# connectionfactory.<CamelCase Short Hostname for Server 2><AnonymousSSL or other identifier>=amqps://<FQDN for Server 2>:<Port for Anonymous SSL>?transport.contextProtocol=TLSv1.2&jms.forceSyncSend=true
+# connectionfactory.<CamelCase Short Hostname for Server 3><AnonymousSSL or other identifier>=amqps://<FQDN for Server 3>:<Port for Anonymous SSL>?transport.contextProtocol=TLSv1.2&jms.forceSyncSend=true
+# ------------------------------------------------------------------------------
+# Production (ECIS) Connection Factories
+# ------------------------------------------------------------------------------
+# connectionfactory.<CamelCase Short Hostname for Server 1><ClientCertSSL or other identifier>=amqps://<FQDN for Server 1>:<Port for Client Cert SSL>?transport.contextProtocol=TLSv1.2&transport.keyAlias=cyber-indicators&jms.forceSyncSend=true
+# connectionfactory.<CamelCase Short Hostname for Server 2><ClientCertSSL or other identifier>=amqps://<FQDN for Server 2>:<Port for Client Cert SSL>?transport.contextProtocol=TLSv1.2&transport.keyAlias=cyber-indicators&jms.forceSyncSend=true
+# connectionfactory.<CamelCase Short Hostname for Server 3><ClientCertSSL or other identifier>=amqps://<FQDN for Server 3>:<Port for Client Cert SSL>?transport.contextProtocol=TLSv1.2&transport.keyAlias=cyber-indicators&jms.forceSyncSend=true
+# connectionfactory.<CamelCase Short Hostname for Server 1><AnonymousSSL or other identifier>=amqps://<FQDN for Server 1>:<Port for Anonymous SSL>?transport.contextProtocol=TLSv1.2&jms.forceSyncSend=true
+# connectionfactory.<CamelCase Short Hostname for Server 2><AnonymousSSL or other identifier>=amqps://<FQDN for Server 2>:<Port for Anonymous SSL>?transport.contextProtocol=TLSv1.2&jms.forceSyncSend=true
+# connectionfactory.<CamelCase Short Hostname for Server 3><AnonymousSSL or other identifier>=amqps://<FQDN for Server 3>:<Port for Anonymous SSL>?transport.contextProtocol=TLSv1.2&jms.forceSyncSend=true
+# ==============================================================================
+#
+################################################################################

@@ -1,0 +1,74 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+app.controller('UploadZipController', ['$scope','$rootScope', 'FileUploader', '$location', function($scope, $rootScope, FileUploader, $location) {
+  <% url = (Rails.configuration.action_controller.relative_url_root||"") + "/uploadzip" %>
+  $scope.uploader = new FileUploader({url: "<%= url %>", queueLimit: 1});
+
+  $scope.uploader.onBeforeUploadItem = function(fileItem) {
+    $scope.is_uploading = true;
+    $scope.live_updates = false;
+  };
+
+  $scope.uploader.onAfterAddingFile = (function(item,filter,options){
+    if ($scope.uploader.queue.length > 1) {
+      $scope.uploader.queue.shift();
+    }
+  });
+  $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                {text:'Upload Zip',link:'#/uploadzip', icon:'fa-file-archive-o'}];
+
+  var source;
+
+  var close_event_source=function() {
+    if (angular.isDefined(source)) {
+      source.close();
+      window.removeEventListener("hashchange", close_event_source, false);
+    }
+  };
+
+  $scope.uploader.onCompleteItem = function(fileItem,response,status,headers) {
+    if (angular.isDefined(response.errors) && response.errors.length > 0){
+      _.each(response.errors, function(e){
+          toastr.error(e);
+      });
+      $scope.is_uploading = false;
+      $location.path('/uploadzip/');
+      return;
+    }
+    if ("<%= Rails.env.production? %>" == "false") {
+      $scope.is_uploading = false;
+      $location.path('/uploads/'+(encodeURIComponent(response.id)||""));
+    } else {
+      $scope.live_updates = true;
+      $scope.total="Total --collecting data--";
+      $scope.remaining="Remaining --collecting data--";
+      $scope.status="";
+      source = new EventSource('/cyber-indicators/uploadzip?continue=1');
+      window.addEventListener("hashchange", close_event_source, false);
+      source.onmessage = function (ev) {
+        if (!ev) {
+          source.close();
+        } else {
+          if (ev.data.indexOf('Total')==0) {
+            $scope.$evalAsync(function() {
+              $scope.total=ev.data;
+            });
+          } else if (ev.data.indexOf('close')==0) {
+            source.close();
+            $scope.$evalAsync(function() {
+              $scope.is_uploading = false;
+            });
+            $location.path('/uploads/'+(encodeURIComponent(response.id)||""));
+          } else if (ev.data.indexOf('Remaining')==0) {
+            $scope.$evalAsync(function() {
+              $scope.remaining=ev.data;
+            });
+          } else {
+            $scope.$evalAsync(function() {
+              $scope.status=ev.data;
+            });
+          }
+        };
+      };
+    };
+  };
+}]);

@@ -1,0 +1,35 @@
+<cybox:Object id="<%=file.cybox_object_id%>">
+  <cybox:Properties xsi:type="FileObj:FileObjectType">
+  <% if file.file_name.present? && file.file_name_condition.present? %>
+    <FileObj:File_Name condition="<%=file.file_name_condition%>"><%=file.file_name%></FileObj:File_Name>
+  <% elsif file.file_name.present? %>
+    <FileObj:File_Name><%=file.file_name%></FileObj:File_Name>
+  <% end %>
+<% if file.file_path.present? && file.file_path_condition.present? %>
+    <FileObj:File_Path condition="<%=file.file_path_condition%>"><%=file.file_path%></FileObj:File_Path>
+<% elsif file.file_path.present? %>
+    <FileObj:File_Path><%=file.file_path%></FileObj:File_Path>
+<% end %>
+<% if file.size_in_bytes.present? && file.size_in_bytes_condition.present? %>
+    <FileObj:Size_In_Bytes condition="<%=file.size_in_bytes_condition%>"><%=file.size_in_bytes%></FileObj:Size_In_Bytes>
+<% elsif file.size_in_bytes.present? %>
+    <FileObj:Size_In_Bytes><%=file.size_in_bytes%></FileObj:Size_In_Bytes>
+<% end %>
+<% if !file.file_hashes.empty? %>
+    <FileObj:Hashes>
+  <% file.file_hashes.each do |hash| %>
+      <cyboxCommon:Hash>
+    <% if hash.hash_type != 'Unknown' %>
+        <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0"><%=hash.hash_type%></cyboxCommon:Type>
+    <% end %>
+    <% if hash.hash_type=='SSDEEP' %>
+        <cyboxCommon:Fuzzy_Hash_Value condition="<%=hash.hash_condition%>"><%=hash.fuzzy_hash_value%></cyboxCommon:Fuzzy_Hash_Value>
+    <% else %>
+        <cyboxCommon:Simple_Hash_Value condition="<%=hash.hash_condition%>"><%=hash.simple_hash_value%></cyboxCommon:Simple_Hash_Value>
+    <% end %>
+      </cyboxCommon:Hash>
+  <% end %>
+    </FileObj:Hashes>
+<% end %>
+  </cybox:Properties>
+</cybox:Object>

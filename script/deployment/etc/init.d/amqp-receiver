@@ -1,0 +1,173 @@
+#!/bin/bash
+#
+# amqp-receiver      This shell script takes care of starting and stopping amqp-receiver
+#
+# chkconfig: - 81 19
+#
+### BEGIN INIT INFO
+# Provides: amqp-receiver
+# Required-Start: $network $syslog
+# Required-Stop: $network $syslog
+# Default-Start:
+# Default-Stop:
+# Description: Service to receive from AMQP for the cyber-indicators service.
+# Short-Description: start and stop amqp-receiver
+### END INIT INFO
+
+NAME="$(basename $0)"
+unset ISBOOT
+if [ "${NAME:0:1}" = "S" -o "${NAME:0:1}" = "K" ]; then
+    NAME="${NAME:3}"
+    ISBOOT="1"
+fi
+
+# For SELinux we need to use 'runuser' not 'su'
+if [ -x "/sbin/runuser" ]; then
+    SU="/sbin/runuser -s /bin/sh"
+else
+    SU="/bin/su -s /bin/sh"
+fi
+
+# Get instance specific config file
+if [ -r "/etc/sysconfig/cyber-indicators" ]; then
+    . /etc/sysconfig/cyber-indicators
+fi
+
+# Get instance specific config file
+if [ -r "/etc/sysconfig/amqp-receiver" ]; then
+    . /etc/sysconfig/amqp-receiver
+fi
+
+# Command to start the AMQP Receiver rake task
+AMQP_RECEIVER_CMD="/var/apps/cyber-indicators/bin/amqp-receiver &"
+
+# AMQP Receiver program name
+AMQP_RECEIVER_PROG="${NAME}"
+
+# Define the amqp-receiver username (defaults to the tomcat user)
+AMQP_RECEIVER_USER="${AMQP_RECEIVER_USER:-tomcat}"
+
+# Define the amqp-receiver group (defaults to the amqp-receiver user's group)
+AMQP_RECEIVER_GROUP="${AMQP_RECEIVER_GROUP:-`id -gn $AMQP_RECEIVER_USER`}"
+
+# Define the amqp-receiver log file
+AMQP_RECEIVER_LOG="${AMQP_RECEIVER_LOG:-/var/log/${NAME}-initd.log}"
+
+# Define the pid file name
+export AMQP_RECEIVER_PID="${AMQP_RECEIVER_PID:-/var/run/${NAME}.pid}"
+
+RETVAL="0"
+
+function log_failure_msg() {
+	echo "[Failure] $@"
+}
+
+function log_success_msg() {
+	echo "[Success] $@"
+}
+
+function start() {
+	echo -n "Starting ${AMQP_RECEIVER_PROG}: "
+	if [ "$RETVAL" != "0" ]; then
+		log_failure_msg
+		return
+	fi
+	if [ ! -d "/var/lock/subsys" ] || [ -f "/var/lock/subsys/${NAME}" ]; then
+        if [ -f "${AMQP_RECEIVER_PID}" ]; then
+            read kpid < ${AMQP_RECEIVER_PID}
+            if [ -n "$kpid" ] && [ -d "/proc/${kpid}" ]; then
+                log_success_msg
+                RETVAL="0"
+                return
+            fi
+        fi
+    fi
+
+    # fix permissions on the log and pid files
+    touch $AMQP_RECEIVER_PID 2>&1 || RETVAL="4"
+    if [ "$RETVAL" -eq "0" -a "$?" -eq "0" ]; then
+      chown ${AMQP_RECEIVER_USER}:${AMQP_RECEIVER_GROUP} $AMQP_RECEIVER_PID
+    fi
+
+    if [ "$?" != "0" ]; then
+    RETVAL="4"
+    fi
+
+    echo "SU: $SU"
+    echo "AMQP_RECEIVER_USER: $AMQP_RECEIVER_USER"
+    echo "AMQP_RECEIVER_CMD: $AMQP_RECEIVER_CMD"
+    echo "AMQP_RECEIVER_LOG: $AMQP_RECEIVER_LOG"
+    [ "$RETVAL" -eq "0" ] && $SU - $AMQP_RECEIVER_USER -c "${AMQP_RECEIVER_CMD}" >> ${AMQP_RECEIVER_LOG} 2>&1 || RETVAL="4"
+    if [ "$RETVAL" -eq "0" ]; then
+        log_success_msg
+        if [ -d "/var/lock/subsys" ]; then
+            touch /var/lock/subsys/${NAME}
+        fi
+    else
+        log_failure_msg "Error code ${RETVAL}"
+    fi
+}
+
+function stop() {
+    echo -n "Stopping ${AMQP_RECEIVER_PROG}: "
+    if [ ! -d "/var/lock/subsys" ] || [ -f "/var/lock/subsys/${NAME}" ]; then
+        if [ "$RETVAL" -eq "0" ]; then
+            count="0"
+            if [ -f "${AMQP_RECEIVER_PID}" ]; then
+                read kpid < ${AMQP_RECEIVER_PID}
+                if [ -n "$kpid" ]; then
+                    kill -15 $kpid  # Send TERM signal
+                    until [ "$(ps --pid $kpid | grep -c $kpid)" -eq "0" ] || [ "$count" -gt "10" ]; do
+                        if [ "$SHUTDOWN_VERBOSE" = "true" ]; then
+                            echo "waiting for process $kpid to exit"
+                        fi
+                        sleep 1
+                        let count="${count}+1"
+                    done
+                    if [ "$count" -gt "10" ]; then
+                        kill -9 $kpid   # Use the force. Send KILL signal to finish him if not dead after ten seconds.
+                    fi
+                    log_success_msg
+                fi
+            fi
+            if [ -d "/var/lock/subsys" ]; then
+                rm -f "/var/lock/subsys/${NAME}"
+            fi
+            if [ -f "${AMQP_RECEIVER_PID}" ]; then
+                rm -f  "${AMQP_RECEIVER_PID}"
+            fi
+        else
+            log_failure_msg
+            RETVAL="4"
+        fi
+    else
+        log_success_msg
+        RETVAL="0"
+    fi
+}
+
+function usage()
+{
+    echo "Usage: $0 {start|stop|restart}"
+    RETVAL="2"
+}
+
+# See how we were called.
+RETVAL="0"
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+      usage
+      ;;
+esac
+
+exit $RETVAL

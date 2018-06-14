@@ -1,0 +1,81 @@
+<form class="form-horizontal">
+  <div class="widget-body">
+    <div class="widget-main">
+
+      <!-- Add HTTP Session browser w/ single select here-->
+      <div>
+        <div class="widget-header widget-header-small">
+            <h4 class="widget-title blue smaller">
+                <i class="ace-icon fa fa-tasks orange"></i>
+                Attached HTTP Session
+            </h4>
+        </div>
+
+        <div class="space-6"></div>
+
+        <div class="width-90 center-block" ng-show="layerSevenConnection.http_session.guid">
+          <div class="ciap_table_scroll_500">
+          <ol class="dd-list">
+            <li class="dd-item">
+              <div class="dd-handle">
+                <a href="#/http_session/{{layerSevenConnection.http_session.cybox_object_id}}">{{layerSevenConnection.http_session.cybox_object_id | prefixWithPortionMarking: layerSevenConnection.http_session.portion_marking}}</a>
+                <div class="pull-right action-buttons">
+                    <a class="red" href="" ng-click="removeHttpSession()">
+                        <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                    </a>
+                </div>
+              </div>
+            </li>
+          </ol>
+          </div>
+        </div>
+      </div>
+
+      <div ng-hide="layerSevenConnection.http_session.guid">
+      No Attached HTTP Session
+      </div>
+
+      <http-sessions-browser selected-http-session="layerSevenConnection.http_session"></http-sessions-browser>
+
+      <div class="space-12"></div>
+
+      <div>
+        <div class="widget-header widget-header-small">
+            <h4 class="widget-title blue smaller">
+                <i class="ace-icon fa fa-tasks orange"></i>
+                Attached DNS Queries
+            </h4>
+        </div>
+
+        <div class="space-6"></div>
+
+        <div class="width-90 center-block" ng-show="layerSevenConnection.dns_queries.length">
+          <div class="ciap_table_scroll_500">
+          <ol class="dd-list">
+            <li class="dd-item" ng-repeat="dns_query in layerSevenConnection.dns_queries">
+              <div class="dd-handle">
+                <a href="#/dns_queries/{{dns_query.cybox_object_id}}">{{dns_query.cybox_object_id | prefixWithPortionMarking: dns_query.portion_marking}}</a>
+                <div class="pull-right action-buttons">
+                    <a class="red" href="" ng-click="removeDnsQuery(dns_query)">
+                        <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                    </a>
+                </div>
+              </div>
+            </li>
+          </ol>
+          </div>
+        </div>
+      </div>
+
+      <div ng-hide="layerSevenConnection.dns_queries.length">
+      No Attached DNS Queries
+      </div>
+
+      <dns-queries-browser selected-dns-queries="layerSevenConnection.dns_queries"></dns-queries-browser>
+
+      <div class="space-12"></div>
+
+    </div>
+  </div>
+  <!-- End Part 1 -->
+</form>

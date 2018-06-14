@@ -1,0 +1,236 @@
+# Upgrade the Application.
+
+If you have a working instance of the Cyber Indicators application, you can upgrade it to a newer version.
+
+You will require:
+
+* Unlocked dbadmin schema.
+
+<%if ENV['IMPORTANT']%>
+!Important! The application's database is external to the application server.  You must coordinate with the manager of the application's database to unlock the schema.
+<%end%>
+
+## Install the Upgraded Application Package
+
+**Stop the cyber-indicators service.**
+
+```bash
+service cyber-indicators stop
+```
+
+**Uninstall the application.**
+
+```bash
+yum -y remove cyber-indicators
+```
+
+<%if ENV['EXAMPLE']%>
+!Example!
+
+```bash
+[root@application-server ~]$ yum -y remove cyber-indicators
+Loaded plugins: fastestmirror
+Setting up Remove Process
+Resolving Dependencies
+--> Running transaction check
+---> Package cyber-indicators.x86_64 0:p0 will be erased
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+==========================================================================================================================================================================
+ Package                              Arch                       Version                              Repository                                                     Size
+==========================================================================================================================================================================
+Removing:
+ cyber-indicators                     x86_64                     p0                      @/cyber-indicators-p0.x86_64                     103 M
+
+Transaction Summary
+==========================================================================================================================================================================
+Remove        1 Package(s)
+
+Installed size: 103 M
+Downloading Packages:
+Running rpm_check_debug
+Running Transaction Test
+Transaction Test Succeeded
+Running Transaction
+  Erasing    : cyber-indicators-p0.x86_64                                                                                                                1/1
+  Verifying  : cyber-indicators-p0.x86_64                                                                                                                1/1
+
+Removed:
+  cyber-indicators.x86_64 0:master-p55f47f2
+
+Complete!
+```
+<%end%>
+
+**Install the new application.**
+
+```bash
+cd [PATH_TO_NEW_CYBER_INDICATORS_RPM]
+yum -y install [NAME_OF_NEW_CYBER_INDICATORS_RPM]
+```
+
+**Initialize the application System Configuration.**
+
+```bash
+TNS_ADMIN=[TNS_ADMIN] /var/apps/cyber-indicators/bin/initialize-sysconfig
+```
+
+**Update the application database.**
+
+```bash
+RAILS_ENV=dbadmin /var/apps/cyber-indicators/bin/rake db:migrate
+```
+
+<%if ENV['IMPORTANT']%>
+!Important! The RAILS_ENV should match the environment permitted to execute schema changes in the /etc/cyber-indicators/config/database.yml.  By default, this value is 'dbadmin'.
+
+!Important! The RAILS_ENV can be assigned only two values "dbadmin" or "production".  Please refer to the example /etc/cyber-indicators/config/database.yml.
+<%end%>
+
+<%if ENV['EXAMPLE']%>
+!Example!  /etc/cyber-indicators/config/database.yml:
+
+```yaml
+production:
+  adapter: oracle_enhanced
+  database: example_database
+  username: example_username
+  password: example_password
+dbadmin:
+  adapter: oracle_enhanced
+  database: example_database
+  username: example_username
+  password: example_password
+```
+<%end%>
+
+<%if ENV['NOTE']%>
+!Note!  In this example, RAILS_ENV would be assigned "dbadmin", which corresponds to the "dbadmin" section identifier in this file.  The only section identifiers permitted for the Cyber Indicators application are "production" and "dbadmin".
+<%end%>
+
+**Grant application permissions.**
+
+```bash
+RAILS_ENV=dbadmin /var/apps/cyber-indicators/bin/rake db:grant
+```
+<%if ENV['IMPORTANT']%>
+!Important! The RAILS_ENV should match the environment permitted to execute schema changes in the /etc/cyber-indicators/config/database.yml.  By default, this value is 'dbadmin'.
+
+!Important! The RAILS_ENV can be assigned only two values "dbadmin" or "production".  Please refer to the example /etc/cyber-indicators/config/database.yml.
+<%end%>
+
+<%if ENV['EXAMPLE']%>
+!Example!  /etc/cyber-indicators/config/database.yml:
+
+```yaml
+production:
+  adapter: oracle_enhanced
+  database: example_database
+  username: example_username
+  password: example_password
+dbadmin:
+  adapter: oracle_enhanced
+  database: example_database
+  username: example_username
+  password: example_password
+```
+<%end%>
+
+<%if ENV['NOTE']%>
+!Note!  In this example, RAILS_ENV would be assigned "dbadmin", which corresponds to the "dbadmin" section identifier in this file.  The only section identifiers permitted for the Cyber Indicators application are "production" and "dbadmin".
+<%end%>
+
+**Apply synonyms to the application user.**
+
+```bash
+/var/apps/cyber-indicators/bin/rake db:synonyms
+```
+
+<%if ENV['EXAMPLE']%>
+!Example!  /etc/cyber-indicators/config/database.yml:
+
+```yaml
+production:
+  adapter: oracle_enhanced
+  database: example_database_name
+  username: example_appuser_username
+  password: example_appuser_password
+dbadmin:
+  adapter: oracle_enhanced
+  database: example_database_name
+  username: example_dbadmin_username
+  password: example_dbadmin_password
+```
+<%end%>
+
+<%if ENV['NOTE']%>
+!Note!  In this example, RAILS_ENV would be assigned "production", which corresponds to the "production" section identifier in this file.  The only section identifiers permitted for the Cyber Indicators application are "production" and "dbadmin".
+<%end%>
+
+**Update the groups and permissions**
+
+```bash
+/var/apps/cyber-indicators/bin/rake groups:update
+```
+
+**If this is a CIR system, turn off SSO**
+
+```bash
+MODE=CIR /var/apps/cyber-indicators/sbin/set-username-and-password-authentication
+```
+
+**If this system is using ICAM authentication, change necessary settings**
+
+```bash
+/var/apps/cyber-indicators/sbin/set-icam-authentication
+```
+
+**Update settings.yml**
+
+Update /etc/cyber-indicators/config/settings.yml with the information contained in Appendix I - Proper settings for each Server Type
+
+**Start the application.**
+
+```bash
+service cyber-indicators start
+```
+
+<%if ENV['NOTE']%>
+!Note! If in Active Directory mode, and previously working users start getting "You do not have an account on this system",
+
+Run the following to fix and restat cyber indicators:
+
+```bash
+/var/apps/cyber-indicators/sbin/set-kerberos-authentication
+service cyber-indicators restart
+```
+<%end%>
+
+<%if ENV['TROUBLESHOOTING']%>
+## [Troubleshooting] ORA-01882: timezone region not found in the localhost log.
+
+The server operating system timezone configuration is incorrect.
+
+```bash
+mv /etc/localtime /etc/localtime.old
+ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
+```
+
+!Note! You should replace your time zone with the correct time zone for your region.
+
+Restart the application service.
+
+```bash
+service cyber-indicators restart
+```
+<%end%>
+
+**Rebuild the SOLR Indexes (if necessary)**
+
+```bash
+/var/apps/cyber-indicators/bin/solr-reindex
+```
+
+!Note! On ECIS and CIR, this process will take less than 15 minutes.  On CIAP, this process will take several hours to complete.

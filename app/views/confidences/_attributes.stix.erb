@@ -1,0 +1,9 @@
+<stixCommon:Value xsi:type="stixVocabs:HighMediumLowVocab-1.0"><%= confidence.value.capitalize %></stixCommon:Value>
+<stixCommon:Description><%= confidence.description  %></stixCommon:Description>
+<% if confidence.source.present? %>
+<stixCommon:Source>
+  <stixCommon:Identity>
+    <stixCommon:Name><%= confidence.source %></stixCommon:Name>
+  </stixCommon:Identity>
+</stixCommon:Source>
+<% end %>

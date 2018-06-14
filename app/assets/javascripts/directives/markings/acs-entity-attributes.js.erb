@@ -1,0 +1,50 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('acsEntityAttributes',function() {
+    return {
+        restrict: 'E',
+        scope: {
+            object: '='
+        },
+        templateUrl: '<%=asset_path("markings/acs-entity-attributes.html",type: :template)%>',
+        controller: ['$scope', '$rootScope', 'Marking','$element', function($scope, $rootScope, Marking, $element){
+            $scope.Marking = Marking;
+            $scope.display = true;
+
+            $scope.$watch('object',function(newVal,oldVal) {
+                if (angular.isDefined($scope.object)) {
+                    if (angular.isUndefined($scope.object.isa_entity_cache) || $scope.object.isa_entity_cache == null) {
+                        $scope.marking = {
+                            entity_class: 'PE',
+                            admin_org: 'USA.DHS.US-CERT',
+                            country: 'USA',
+                            duty_org: 'USA.DHS.US-CERT',
+                            entity_type: 'GOV',
+                            access_groups: []
+                        };
+                    }
+                    else {
+                        $scope.marking = $scope.object.isa_entity_cache
+                        if ($scope.marking.access_groups != null ) {
+                            $scope.marking.access_groups= $scope.marking.access_groups.split(",");
+                        }
+                        else {
+                            $scope.marking.access_groups = [];
+                        }
+                    }
+                    $scope.object.isa_entity_cache_attributes = $scope.marking;
+                }
+            });
+
+            $scope.setATO = function() {
+                if ($scope.marking.entity_class == 'PE') {
+                    $scope.marking.ato_status = true;
+                }
+                else {
+                    $scope.marking.ato_status = false;
+                }
+            }
+
+        }]
+    }
+});

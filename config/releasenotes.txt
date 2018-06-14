@@ -1,0 +1,402 @@
+Release 6.9.3
+New Features
+   Created a page that the application redirects the user to in case the connection to the database is unavailable.
+   Separate “save” and “done” functionality for human review. Create bulk actions and separate dissemination.
+Feature Enhancements
+   Human review functionality allows for continuous load. Speeds up page loading and allows the user to start using the feature as soon as possible. 
+Bug Fixes
+   IMART 3125: STIX_VALIDATION rules inconsistencies across the components. A file that successfully uploads and validates in the External FLAREclientGUI, FLAREIn, and the DMS Components, but fails to parse in CIAP. 
+   IMART 3126: AIS Dashboard issues. When files are being process by the system the AIS Dashboard is not being populated with the information from FLAREIn, FLAREOut, CIAP, ECIS, Outgoing Feeds, and dissemination time. The fields are being populated sporadically or not at all.
+   IMART 3127: Sightings not working properly. When an xml with sighting information is ingested into the system it is not updating properly.
+   Human review file uploads even when the package fails to be ingested into CIAP. The file should fail CIAP with an Error message "file already exists” and the HR table should not populate.
+Release 6.9.2
+New Features
+   Added a Final Version tag into AMQP Headers
+Feature Enhancements
+   XML is saved in the background prior to ingestion to improve performance
+   The maximum number of STIX XML processing jobs and JSON processing jobs is changeable via a configuration setting
+Bug Fixes
+   Uploading an XML which contained a Course of Action which already existed in the system produced an error message when “Overwrite Existing” was not checked despite the fact that the file was uploaded and added to human review. Will now produce a warning instead of an error.
+   Information was incorrectly displayed when adding or modifying a Custom ISA Marking with an Indicator, Package, Vulnerability, Attack Pattern, Course of Action, or Observable
+Release 6.9.1
+Feature Enhancements
+   Faster Ingestion of STIX files
+Bug Fixes
+   Unable to search for Vulnerabilities when a predefined ACS was added to Exploit Targets
+Release 6.8.1 / 6.8.2 / 6.8.3
+New Features
+   Sanitized IDs are associated with the original ID so that users can track the changes to the ID
+   When users submit XML through FLARE, the original ID as well as the sanitized ID will be sent in order to improve traceability
+   Users can see all menu options front and center across the landing page
+   New indicators will be updated with a confidence if one is found
+   Outgoing XMLs will be automatically updated with the most recent official confidence
+   Indicators will be matched by their association to observable objects
+   If two indicators share an observable, users will be able to see their aggregated sightings
+   Users can see the badges associated with an object’s packages by scrolling down to the Packages table on that object’s page.  Users can see the badge’s status by mousing over the badge.
+   A system badge’s title cannot be modified, but users can still edit the status.
+Release 6.7.3
+New Features
+   Users can create and edit badges on various objects. Badges contain a title and status.
+   When a file is received from FLARE, users can see which feed the file came from, in the “Source Feed” field on the Package Page.
+   When a file is disseminated, users can see which feeds the package and its sub-objects went out on, in the “Dissemination Feed” field on the show pages for Packages and other objects.
+   Users can disseminate MIFR, which sends the unaltered MIFR to CISCP and the AIS XML created from a MIFR to AIS and FEDGOV feeds.
+Bug Fixes
+   Fixed POA&M security issue STEVulnID_003_Source Code
+Release 6.7.2
+New Features
+   Add CISCP tag to Legacy data
+   Add MIFR Tag to legacy data
+   Search AIS Markings
+   Search ISA Markings
+   Ingest MIFR XML and store original XML
+   AIS Metrics Generation
+   AVP Upload Validation
+   UI to Support STIX Marking Searching
+   Official Confidence in AIS XML
+   Create AIS XML from ingested MIFR Data
+   AIS Dashboard UI
+   AIS Statistics API Endpoint
+Release 6.7.0 / 6.7.1
+New Features
+   Add CISCP Tag to legacy data
+   Add MIFR Tag to legacy data
+   Added the capabilities to ingest MIFR XML and the ability to store the original file
+   Added the capabilities to search STIX Markings (AIS and ISA) using the API
+   Added AIS support for the AIS Dashboard 
+Release 6.6.2 / 6.6.3 (10/25/17)
+New Features
+   Trickle Down CISCP from STIX Package to sub objects
+   CISCP file identification is now configurable
+   Package filter by username, multiple usernames with disjunction
+   Field level Search on Package table
+   Network Connection expansion
+   Identification and Dissemination of CISCP document on CISCP feed
+   UI Metrics page
+   Send STIX ID Mapping as JSON to configurable endpoint
+   DNS Record expansion
+   AIS Consent Marking in UI
+   UI Support for Information Source
+   Permission created to restrict access to user management
+Release 6.6.1 (8/1/17)
+New Features
+   Update Email Message details page to allow Links to be linked there
+   Update Email Message details page to allow File Attachments to be linked there
+   Display "Page Loading" Notification on all pages
+   Support of the following new Cybox Object
+      DNS Query
+   Added condition attributes to various objects
+   Add Valid Time Range to indicator
+Release 6.6.0 (7/5/17)
+New Features
+   Support of the following new Cybox Objects
+      Socket Address
+   Email Message now uses Address Cybox Object
+   Add support for timestamp fields to also ingst a precision value
+   Ingest Confidence Source
+Release 6.5.5 (6/7/17)
+New Features
+   Address Cybox Objects has new fields and category values
+   The following Cybox Objects have been updated to use the updated Address object
+      Whois
+      Socket Address
+      DNS Record
+      Email Message
+Release 6.5.4 (5/15/17)
+New Features
+   Support of TTPs and associating them with Indicators and Packages
+   Support of Attack Patterns for TTPs
+   Support of the following new Cybox Objects
+      Port
+      Hostname
+Release 6.5.3 (4/20/17)
+New Features
+   Create/Update Courses of Action and associate them with Indicators and Packages
+   Create/Update Exploit Targets and associate them with Courses of Action and Packages
+   Added a Pending Human Review Files Counter to the Main Menu
+Release 6.5.0 (2/13/17)
+New Features
+   Added the ability to filter a list of all indicators from the Indicators’ Table based on selected fields
+   Added the ability to filter a list of all indicators by whether or not they are related to AIS
+   Added the capability to assign multiple users to multiple groups at one time from the Users' Table
+   Added the capability to perform bulk actions on selected Indicators from the Indicators Table
+Release 6.4.5 (1/19/17)
+New Features
+   Added new capability to create and delete Threat Actors
+   Added new capability to add and remove indicators to/from Threat Actors
+   Added a new capability to create and modify Indicator Scoring
+   Added three new optional fields to the Indicator’s attachments feature upon uploading to an indicator, the fields include; Reference Document Number,  Reference Document Title, and Reference Link-URl
+   Added a new feature to the Indicator page that allows for manual input of timestamp of a Sighting.
+   Added a new icon to the UI to indicated what fields are not downloadable to STIX
+   New File Restriction limited what file extension can be uploaded into the CIAP and TS CIAP upload functions to include Upload Transfer Zip, Package Upload, and Indicator Attachment upload
+   Added new feature to the Mark for Export to (E3A, E2, ECS) table to include:  the ability to modify indicators attribute, Detask (temporarily remove from table), and the ability to download a CSV file for Domain and Email observable only (feature is specifically for TS-CIAP)
+Release 6.4.3 / 6.4.4 (12/08/16) CIAP / TS-CIAP: Part 4-5 of 6
+New Features
+   XML ingestion and assignment of field level markings
+   Deconfliction: Deconfliction rules are applied on all upload paths, both the standard Upload and the Bulk Package Upload feature.
+   TS-CIAP: Classification on object level now mandatory.
+   TS-CIAP: Portion marking on display tables and lists in the UI.
+   TS-CIAP: Classification rules applied when creating ind/pkg/obs, establishing association between objects and editing objects.
+Bug Fixes
+   Cancel button on objects, network connection dropdown, ID fields won’t save text; this has been fixed.
+Release 6.3.14.2 Patch Release (11/15/16)
+New Features
+   Namespace Sanitization: On AIS Dissemination, update the namespaces in outgoing STIX XML files to only include official AIS namespaces.
+   CUST/ORIG Fields: Implemented changes to the riles for the handling of CUST and ORIGG fields during dissemination.
+Release 6.3.14.1 Patch Release (10/4/16)
+Bug Fixes
+   Human Review Change: To handle large data sets.
+   AIS Dissemination: Fixes am issue with field-level markings for the Originator field during dissemination which was only an issue in rare cases.
+Release 6.4.2 (9/30/16 - TS-CIAP Part 3 of 5: Not Deployed)
+New Features
+   Field-Level Markings: Implement markings for individual fields. Part 1 of a 2-sprint initiative to implement this feature.
+Release 6.4.1 (9/9/16 - TS-CIAP Part 2 of 5: Not Deployed)
+New Features
+   Bulk Package Upload: Added the capability for TS-CIAP to upload all packages/indicators contained within a zip file.
+   ACS 3.0: Added ACS 30 classification-related attributes.
+   GFI Fields: Added the existing list of GFI fields.
+   De-Confliction Strategy: For the Bulk Package Upload, which is for low-side data being migrated to high-side, if incoming objects are already in TS-CIAP as Top Secret, then create duplicates for the new objects. All objects in conflict, both new and existing, will be made read-only.
+Release 6.4.0 (8/24/16 - TS-CIAP Part 1 of 5: Not Deployed)
+New Features
+   Bulk Package Download: Added the capability to download all packages/indicators within a specified date range into a single zip file. 
+   Portion Marking: Added portion marking, plus ISA Markings, for Packages and Indicators. Portion markings are displayed according to the Security Classification Guide.
+   Portion Marking for Observables: Markings for observable/objects are inherited from associated indicators.
+   Justification: Any time a classification is changed, the user must provide a change justification.
+   Banner: A banner showing the classification level appears at the top of every page.
+Release 6.3.14 (8/9/16)
+New Features
+   WeatherMap Domains: Added support for a domain feed with reputation scores and associated information, as well as display features and metrics.
+   Human Review: Implemented user-requested usability changes, including a new Confirm button and minor changes to the existing UI.
+   Logging API: This feature allows applications to submit summary operational data to CIAP instances to support the upcoming AIS Dashboard feature.
+   ISA Marking Identifier: This field is now being sanitized since the original may contain information that allows the source of the data to be identified.
+   Profiles: This element is removed during dissemination.
+   FLARE Publish API: The system can be configured to disseminate STIX XML files via the FLARE Publish API (new), SFTP transfer or both.
+Bug Fixes
+   When the timestamps in a STIX XML file are changed to reflect the creation of a new, altered file, the timestamps in Sighting objects should not be changed.
+   Implemented changes related to the dissemination of CVT tokens.
+   Implemented changes related to the dissemination of the Originator token.
+   Added logic to skip invalid Confidence elements, i.e. - Confidence elements that do not use the HighMediumLow vocab mandated by the AIS Profile.
+   Fixed date range issue that caused some inaccuracy in dissemination metrics.
+Release 6.3.13 (7/26/16)
+Dissemination Engine
+   Hot fix for the 256K file limit offically released in 6.3.13. See 6.3.12.1 for further details.
+   Removed dependency on the ECIS API. It will now operate properly even if ECIS is down.
+   Upon dissemination, the value of the Submission Mechanism element will be converted to "AIS".
+   ISA Token Changes for the FEDGOV Feed: 1) Formal determinations of NO-PII-PRESENT and PII-NECESSARY-TO-UNDERSTAND-THREAT are removed; 2) Sanitize the ISA Marking Identifier element; 3) Change Custodian to USA.DHS.US-CERT; 4) Remove all ISA field-level markings not produced by the AIS Consent Marking conversion; 5) Remove the Access Privilege with an Action of NETDEF; 6) Ensure that an Acccess Privilege with Action of CISAUSES, scope ALL and Effect PERMIT exists; and 7) Insert a Formal determination of INFORMATION-DIRECTLY-RELATED-TO-CYBERSECURITY-THREAT.
+   Upon dissemination, the "Source" comment will be removed from the XML.
+   Upon dissemination, the "Profiles" element is removed from the XML.
+UI Changes
+   On Create/Edit, the "Released By" field of an ISA Marking will only accept valid tokens from a drop-down listbox. Previously, this was a free-form field.
+   ISA Markings and TLP Markings have been moved out of ACS Sets. ISA Assertion Marking values can still be assigned via ACS Sets.
+   Added the Link CYBOX Observable, which is a combination of a URL and a Label; this can be added to an Email Message.
+   FO Stats Page: This is a metrics page that shows stats for all system tags that begin with "FO".
+Uploads
+   The AIS Consent value is restricted to "EVERYONE" when Proprietary is true. aAny uploaded file for which this is not true will be rejected.
+   Files that contain ISA Markings that do not conform to the ISA 3.0 spec will be rejected.
+   Files that contain AIS Markings, but do not have all fields complete and/or do not include a Submission Mechanism value, will be rejected.
+   If an uploaded XML file contains bad STIX/CYBOX IDs (containing spaces, '/' or '\') then the system will generate a new STIX/CYBOX ID and replace the original values with the new value wherever it may be found in the file.
+AIS Flow
+   Files will be replicated from CIAP to ECIS if they contain an AIS Marking.
+   STIX and CYBOX IDs will be sanitized on ECIS wherever they may appear within a STIX XML file.
+   When incoming STIX XML files are changed, the timestamp attributes of all objects other than the Sighting object will be updated.
+   When alterations are performed on XML, if a STIX MArking is left empty, i.e. - containing no Marking Structures, then the entire Marking will be removed.
+   Upon sanitization, the ISA Marking Identifier will match the STIX ID of the enclosing Marking.
+   Within ECIS, all IDs within XML files received from FLARE will have their IDs santized, even if the IDs begin with the "NCCIC" prefix.
+Bug Fixes
+   File hashes were not saving for new files. Fixed.
+   Existing system tags were removed when editing an Indicator. Fixed.
+   Attachments are now audited.
+   Unable to remove saved Hash values from a File. Fixed.
+   Attachment links in Indicators were not working. Fixed.
+Release 6.3.12.1 (7/12/16)
+New Feature
+   Production fix on ECIS to address a dissemination issue that prevented XML
+files larger than 256K from being disseminated. This fix also corrects the cascade of memory errors that the defect spawned.
+Release 6.3.12 (7/7/16)
+New Features
+   AIS Dissemination Reporting: Added a report to show information about disseminated STIX XML files, including the feeds to which the files are disseminated.
+   AIS Field Level ACS Markings: Added field-level ACS markings to provide guidance on the sharing of originator information.
+   Package Search: Added a Package Search capability to the Main Search Box.
+   VERIFY_PEER: This setting is now operational and can be used in communications between CIAP instances.
+   Edit DNS Record Observables: Added capability to edit DNS Record observables.
+Bug Fixes
+   AIS: Now sanitizes object_reference attributes in CYBOX objects.
+   XML Generation: Fixed TTP elements in generated STIX XML. Currently, TTP elements are generated from WeatherMap data.
+   System Tags Page: Fixed STIX XML generation from the System Tags page.
+Release 6.3.11 (6/14/16)
+New Features
+   Brought the system into conformance with the ACS 3.0 standard.
+   Added WeatherMap Stats page to show metrics such as the number of WeatherMap observables converted into indicators, as well as an overview of recent feed activity.
+   Added the capability to edit the following types of complex observables: Email, File, HTTP Session and Network Connection.
+   Updated XML ingestion feature to handle indicators that use idrefs to reference their associated observables. This brings the system into conformance with a STIX best practice.
+   Updated ISA Markings to conform to May 25, 2016 brokering determinations.
+Bug Fixes
+   Fixed dependency issue in which ICAM integration broke the WeatherMap feed indexing capability. Both features are now fully operational.
+   After clicking on a link and leaving the Search Results page, the Backspace button will now return the user to a functional Search Results page instead of a blank page.
+   Fixed pagination on the All Uploads page.
+   Search Changes: There have been numerous search fixes based on comments from users, including the capability to search on indicator description and reference ID.
+   Prevented the creation of empty heatmap objects created automatically when the WeatherMap heatmap upload feature is run for a non-existent file.
+   Fix System Tags page so the STIX download capability generates valid STIX XML when any indicator includes related indicators.
+   Fixed problem with CSV downloads that includes Network Connection objects.
+   Fixed UI issue where data "crunches" to the left on the Edit Relationships page.
+Release 6.3.10 (5/17/16)
+New Features
+   ICAM Integration: Provides support for centrally managed authentication services.
+   Package Intent: When creating/editing packages, standard package intent values are available from a drop-down list.
+   WeatherMap: Added threat category to address search index (as text).
+   WeatherMap: Added threat category as sortable column.
+   Submission Mechanism: Can no longer be set via the UI.
+   AIS: Reject STIX XML files in the AIS Profile  that have malformed Information Source elements. 
+Bug Fixes
+   STIX Generation: Fixed schema locations in generated STIX XML.
+   CVS Download: Added better handling of empty fields when generating CSV.
+   File Hashes: Added length validation for MD5, SHA1 and SHA256 hashes.
+   Search: Search for exact URIs that are delimited by semicolon has been fixed.
+Release 6.3.9 (5/3/16)
+AIS Changes
+   Amber indicators from commercial sources will only be disseminated to government destinations. 
+   Corrected bad XPATH definition that may appear in incoming STIX XML files.
+   Changed STIX XML generation to eliminate duplicate embeds of objects.
+WeatherMap
+   Data Purge: Increased purge speed so that a full day of data can be removed from the SOLR index in seconds instead of 30 - 45 minutes. Used as part of the 60-day rolling data set feature.
+   Analyst Only Button: Removed. Now that WeatherMap data rows are Observables rather than Indicators, the button is no longer needed.
+Relaxing Data Completeness Rules
+   File Display Name: Will be the Filename if available; otherwise the MD5, the first 15 characters (plus "...") of the SHA1, the first 15 characters of the SHA256 (plus "..."), or the CYBOX object ID.
+   File Hash: A file can be uploaded with a File Hash that is not accompanied by a File Hash Type. The system will try to determine the hash type; if unable to do so, a File Hash Type of "Unknown" will be displayed.
+   Indicator Title: If no Title is provided, the STIX ID will be used as the Title.
+   Email Message: The CYBOX Object ID will be used as the display name if From, Reply To , Sender and Subject are not provided.
+   Mutex: The CYBOX Object ID will be used as the display name if Mutex Name is not provided.
+   HTTP Session: User Agent is no longer a required field. If provided, the User Agent will be used as the display name, otherwise the Hostname or the CYBOX Object ID.
+   Network Connection: Destination Socket Address is no longer a required field. For display name, the CYBOX Object ID will be used if there is no Destination Socket Address.
+   Registry Object: No longer has any required fields. The CYBOX Object ID will be used as the name if no other fields are available.
+Bug Fixes
+   It is once again valid to search on partial IP addresses.
+   Can now search domain names with letter/number combinations.
+   Reinstated the “Edit” and “Delete” buttons on the “Indicator” show page. 
+Release 6.3.8 (4/7/16)
+New Features
+   Added new fields to the Network Connection object to conform to the expanded AIS Profile.
+   Added new fields to the HTTP Session object to conform to the expanded AIS Profile.
+   Search enhancements and changes.
+   Dissemination Engine: File names now incorporate microseconds.
+   For ESSA Storefront, provide total count in the HTTP Header “Location” for search results retrieved via the API.
+   Dissemination Engine: Added a cleanup task to remove PII after 24 hours.
+   Added a metrics report for Searches.
+   On Upload page, show “human_review” as an option if an incoming file needs Human Review.
+Bug Fixes
+   Fixed a critical replication issue that caused a Human Review file to be replicated once for every field-level acceptance.
+   Correct invalid STIX XML generated for an FO set System Tag.
+   General changes to generated STIX XML to ensure STIX/CYBOX validation.
+   Fixed a search issue involving numbers within domain names.
+   Now accepts (and ignores) empty kill chain phase references appearing in STIX files generated by the STIX Editor.
+Release 6.3.7; Includes Release 6.3.6 (3/8/16)
+New Features
+   Added HUMAN_REVIEW_ENABLED setting to control whether the Human Review feature is accessible.
+   Added ID sanitization for incoming STIX XML files.
+   Added Human Review sanitization for incoming STIX XML files.
+   Enhanced replication capabilities between application instances.
+   Added Dissemination Engine to handle publishing of STIX XML files.
+   Updated STIX ingestion and output to support Observables within their own section of a STIX Package.
+   Added support for ACS 2.1 STIX markings.
+   Added support for the AIS Consent Marking.
+   Added capability to define the Submission Mechanism for incoming STIX files.
+   Changed Human Review so that, upon approval, review edits are applied directly back to the original STIX XML.
+   Added XSLT transformations to allow disseminated STIX XML files to be converted to the AIS or ISA Profiles as needed.
+   Added attachments to Indicators.
+Release 6.3.5 (2/4/16)
+New Features
+   Added support for STIX Kill Chains.
+Bug Fixes
+   Fixed bug preventing recent Release Notes entries from being shown.
+   Fixed bug with reuse of existing observables when an XML file is uploaded, which addressed a "duplicate" issue that users reported.
+   Security Change: Session timeout defaults to 60 minutes, not eight hours.
+Release 6.3.4 (1/13/16)
+New Features
+   Added the Human Review feature, which allows authorized users to edit externally received STIX XML files that may contain PII.
+   Added the Issue Submission feature to make it easier for users to report problems, identify issues and submit suggestions.
+   Added a CSV download capability to most display tables.
+   IP addresses may now be searched via CIDR block.
+Bug Fixes
+   Fixed minor glitches with the WeatherMap user interface.
+Release 6.3.3 (12/29/15)
+WeatherMap Changes
+   Refactors WeatherMap data to be Observables rather than Indicators.
+   Reduces space for database storage and search engine indexes.
+   Reduces data loading time and data indexing time.
+Release 6.3.2; Includes Release 6.3.1 (11/25/15)
+User-Requested Search Enhancements
+   URI Search from main Search component; URI character searching was implemented for the URI display table, but not on the main Search component.
+   Email Address searching.
+   IP Address Range search via CIDR block syntax.
+User-Requested Changes
+   Add a Release Notes page.
+   Add the “Reference” column to the List Indicators and Search Results pages.
+   Ensure that the list of suggested tags closes when not needed.
+WeatherMap Changes
+   Changes to perform WeatherMap search engine indexing more efficiently.
+   Allow WeatherMap Indicators to share a common ACS set.
+   Sort data initially on the WeatherMap Data page so it shows the most recent data first.
+   Fix paging on the WeatherMap Data page when sorting is in use.
+AIS Changes
+   Enhanced support for references in STIX XML.
+   Support file hashes appearing in STIX without a specified hash type.
+   Provide a default title for Indicators and Packages with no specified title.
+Release 6.3 - AIS (10/27/15)
+Bug Fixes
+   Fixed a problem affecting a user’s Change Password capability on instances configured for password authentication.
+   Fixed UI glitch involving the interaction of the mouse with tags.
+   Fixed a bug where the “Overwrite” option for STIX Uploads sometimes created duplicate objects.
+AIS Phase 2 Features
+   Support for the AIS Profile.
+   Configurable STIX-based Replication between CIAP instances (e.g. – between ECIS and CIAP).
+   Added a default Title for STIX Packages uploaded with blank titles (the package’s STIX ID).
+   Added a default Title for STIX Indicators uploaded with blank titles (the indicator’s STIX ID).
+   Changes to STIX Upload status codes to provide more insight into the end result for API users.
+Required Password-Related Security Enhancements.
+Release 6.2.1 (9/3/15)
+Changes to STIX Markings
+   Re-factored internal representation of STIX markings to support new features.
+   Implemented ACS Sets for STIX markings; included support for TLP.
+   Automatically apply default markings when a CISCP Indicator is entered via the API.
+Bug Fixes
+   Fixed bug where a File Observable could be saved with no fields filled out.
+   Fixed a bug with WeatherMap heatmap replication.
+   Fixed a bug with system tags.
+   Fix Change Password feature so users can change their own password on instances that support password authentication.
+Show the default WeatherMap heatmap when a user’s organization is not defined.
+Release 6.2 – WeatherMap (8/14/15)
+Added support to the API for ingesting WeatherMap data feeds.
+Added API for receiving static heatmap images from the WeatherMap system.
+Added capability to transfer WeatherMap data between CIR/CIAP instances.
+Restrict viewing of WeatherMap data and heatmaps based on a user’s organization.
+Release 6.1 – User Enhancements	(7/7/15)
+Added ACS 2.0 Entity Attributes for users.
+Added capability to transfer STIX documents between CIAP instances.
+Indicator Type Changes
+   Allow STIX documents without an indicator type set.
+   Allow indicator type to be changed without unlinking observables.
+   Show warning when indicator type does not match for attached observable.
+For the UI, most display tables are expanded by default.
+Added the ability to search by system tags.
+System tags are no longer case sensitive.
+Various other small UI fixes.
+Release 6.0.2 (6/16/15)
+The application displays the version number at the bottom of the page.
+MD5 Changes
+   Added an MD5 Search to both the Main Search component and the File List page.
+   The MD5 is now shown on list-oriented display tables for all files which have an MD5.
+Bug Fixes
+   Fixed bug with some valid API calls returning 400 errors.
+   The same IP Address cannot be added to the system twice.
+   File name search will work when searching for files with a dot, e.g. – “setup.exe”.
+User Account Changes
+   If a user account has expired, users will receive a more descriptive error message.
+   Fixed bug with ActiveDirectory user accounts expiring.
+Release 6.0.1 (05/26/15)
+API Search Changes
+   Recording attributes for searches executed by the Flare Relay via the Search API.
+   Return search results in STIX 1.1.1 XML format for searches executed via the API.
+   Added the capability to return a Bulk Response to a search query.
+Added support for ESSA ACS 2.0 Resource Attribute markings.
+Added a Bulk Query capability.
+Release 6.0 - Initial (05/05/15)
+A general reorganizing of the application around the conceptual objects represented in the STIX and CYBOX XML standards.

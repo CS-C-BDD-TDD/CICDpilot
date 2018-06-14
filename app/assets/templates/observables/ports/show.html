@@ -1,0 +1,115 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">  
+
+<div class="page-header">
+  <h1>
+      {{Port.get_value(port)}}
+    <small ng-show="port.read_only">
+      <span style="margin-left: 10px" class="label label-warning arrowed arrowed-right">
+        <span class="white">Read Only</span>
+      </span>
+    </small>
+    <small ng-show="port.is_ciscp">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">CISCP</span>
+      </span>
+    </small>
+    <small ng-show="port.is_mifr">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">MIFR</span>
+      </span>
+    </small>    
+    <span class="pull-right">
+        <a ng-href="#/ports/{{port.cybox_object_id | encodeURIComponent}}/edit" class="btn btn-info no-radius btn-xs" ng-show="canModify(port) && port.read_only == false"><i class="ace-icon fa fa-pencil-square-o bigger-160"></i> Edit</a>
+    </span>
+  </h1>
+  <div class="space-18"></div>
+  <span class="pull-left" ng-show="canAny(['create_remove_badge_status','view_badge_status'])">
+    <badge-statuses-table badge-statuses="port.badge_statuses" audits="port.audits" parent-id="port.guid" parent-class="Port"></badge-statuses-table>
+  </span>
+  <div class="space-18"></div>
+</div>
+
+<p class="pull-right">
+</p>
+
+<div class="profile-user-info profile-user-info-striped">
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Port </div>
+    <div class="profile-info-value">
+      <div style="display: inline; margin-left: 1px;margin-right: 3px;">
+          <span>{{port.port | prefixWithPortionMarking: port.portion_marking:port.port_c}}</span>
+          <field-markings-show markings="port.stix_markings" fieldname="port"></field-markings-show>
+      </div>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Layer 4 Protocol </div>
+    <div class="profile-info-value">
+      <div style="display: inline; margin-left: 1px;margin-right: 3px;">
+        <span>
+          {{port.layer4_protocol | prefixWithPortionMarking: port.portion_marking:port.layer4_protocol_c}}
+        </span>
+        <field-markings-show markings="port.stix_markings" fieldname="layer4_protocol"></field-markings-show>
+      </div>
+    </div>
+  </div>
+  
+  <div class="profile-info-row" ng-show='port.feeds'>
+    <div class="profile-info-name"> Disseminated Feeds </div>
+    <div class="profile-info-value">
+      <span>{{port.feeds}}</span>
+    </div>
+  </div>
+  
+  
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Created 
+    	<span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+      		<i class="fa fa-ban fa-stack-2x"> </i> 
+ 			<i class="fa fa-download fa-stack-1x"> </i> 
+    	</span>
+    </div>
+    <div class="profile-info-value">
+      <span>{{port.created_at | date:"medium"}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Total Sightings </div>
+    <div class="profile-info-value">
+      <span>{{port.total_sightings}}</span>
+    </div>
+  </div>
+  <downgrade-request-ids observable="port"></downgrade-request-ids>
+</div>
+
+<div ng-show="port.stix_markings.length">
+  <div class="space-12"></div>
+  <markings-table markings="port.stix_markings"></markings-table>
+</div>
+
+<div class="space-12" ng-show="port.indicators.length"></div>
+<div ng-show="port.indicators.length">
+  <indicator-table indicators="port.indicators"></indicator-table>
+</div>
+
+<div class="space-12" ng-show="port.course_of_actions.length"></div>
+<course-of-actions-table course_of_actions="port.course_of_actions" show_table=showTable addrelated="false" ng-show="port.course_of_actions.length"></course-of-actions-table>
+
+<div class="space-12" ng-show="port.socket_addresses.length"></div>
+<div ng-show="port.socket_addresses.length">
+  <socket-address-table socket_addresses="port.socket_addresses"></socket-address-table>
+</div>
+
+<div ng-show="port.stix_packages.length > 0">
+  <div class="space-12"></div>
+  <package-table packages="port.stix_packages"></package-table>
+</div>
+
+<div class="space-12"></div>
+<audits-table audits="port.audits"></audits-table>
+<div class="space-12"></div>
+
+</div>
+
+<show-spinner> </show-spinner>

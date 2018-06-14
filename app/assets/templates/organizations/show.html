@@ -1,0 +1,89 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}"> 
+
+<div class="page-header">
+  <h1>
+    {{organization.short_name}} - {{organization.long_name}}
+    <span class="pull-right" ng-show="{{can('create_modify_user_organization')}}">
+      <a ng-href="#/organizations/{{organization.guid | encodeURIComponent}}/edit" class="btn btn-info no-radius btn-xs"><i class="ace-icon fa fa-pencil-square-o bigger-160"></i> Edit</a>
+    </span>
+  </h1>
+</div>
+
+<p class="pull-right">
+</p>
+
+<div class="profile-user-info profile-user-info-striped">
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Short Name </div>
+    <div class="profile-info-value">
+      <span>{{organization.short_name}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Long Name </div>
+    <div class="profile-info-value">
+      <span>{{organization.long_name}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Contact Info </div>
+    <div class="profile-info-value">
+      <span>{{organization.contact_info}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Organization Token </div>
+    <div class="profile-info-value">
+      <span>{{organization.organization_token}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Created Date </div>
+    <div class="profile-info-value">
+      <span>{{organization.created_at | date:"medium"}}</span>
+    </div>
+  </div>
+</div>
+
+<div class="space-12"></div>
+
+<div class="widget-box widget-color-blue ui-sortable-handle">
+    <div class="widget-header">
+      <h5 class="widget-title bigger lighter">
+        <i class="ace-icon fa fa-table"></i>
+        Users
+      </h5>
+    </div>
+    <div class="widget-body">
+      <div class="widget-main no-padding">
+        <table class="table table-striped table-bordered table-hover">
+          <thead class="thin-border-bottom">
+            <tr>
+              <th>Username</th>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="user in organization.users | orderBy:'username'">
+              <td>
+                <a ng-href="#/users/{{user.id}}">{{user.username}}</a> <span class="label label-sm label-warning" ng-show="user.disabled_at">Account Disabled</span>
+              </td>
+              <td>
+                {{user.first_name}} {{user.last_name}}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<audits-table audits="organization.audits"></audits-table>
+
+</div>
+
+<show-spinner> </show-spinner>

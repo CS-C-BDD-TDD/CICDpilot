@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Auth</title>
+    <%= stylesheet_link_tag "ace/bootstrap", media: "all" %>
+    <%= stylesheet_link_tag "ace/font-awesome", media: "all" %>
+    <%= stylesheet_link_tag "ace/ace", media: "all" %>
+    <%= stylesheet_link_tag "ace/ace-fonts", media: "all" %>
+    <%= stylesheet_link_tag "application", media: "all" %>
+    <%= csrf_meta_tags %>
+  </head>
+  <!-- <body class="login-layout blur-login"> -->
+  <body class="login-layout dark">
+    <%= yield %>
+    <%= javascript_include_tag "application" %>
+  </body>
+</html>

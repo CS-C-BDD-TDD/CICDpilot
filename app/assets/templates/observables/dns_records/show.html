@@ -1,0 +1,188 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">
+
+<div class="page-header">
+  <h1>
+    {{dns.address | prefixWithPortionMarking: dns.portion_marking}} {{dns.domain}}
+    <small ng-show="dns.read_only">
+      <span style="margin-left: 10px" class="label label-warning arrowed arrowed-right">
+        <span class="white">Read Only</span>
+      </span>
+    </small>
+    <small ng-show="dns.is_ciscp">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">CISCP</span>
+      </span>
+    </small>
+    <small ng-show="dns.is_mifr">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">MIFR</span>
+      </span>
+    </small>    
+    <span class="pull-right">
+      <a ng-href="#/dns_records/{{dns.cybox_object_id | encodeURIComponent}}/edit" class="btn btn-info no-radius btn-xs" ng-show="canModify(dns) && dns.read_only == false"><i class="ace-icon fa fa-pencil-square-o bigger-160"></i> Edit</a>
+    </span>
+  </h1>
+  <div class="space-18"></div>
+  <span class="pull-left" ng-show="canAny(['create_remove_badge_status','view_badge_status'])">
+    <badge-statuses-table badge-statuses="dns.badge_statuses" audits="dns.audits" parent-id="dns.guid" parent-class="DnsRecord"></badge-statuses-table>
+  </span>
+  <div class="space-18"></div>
+</div>
+
+<p class="pull-right">
+</p>
+
+<div class="profile-user-info profile-user-info-striped">
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Address Value </div>
+    <div class="profile-info-value">
+      <span>{{dns.address | prefixWithPortionMarking: dns.portion_marking:dns.address_c}}</span>
+      <field-markings-show markings="dns.stix_markings" fieldname="address_value_normalized"></field-markings-show>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Address Class </div>
+    <div class="profile-info-value">
+      <span>{{dns.address_class | prefixWithPortionMarking: dns.portion_marking:dns.address_class_c}}</span>
+      <field-markings-form sets="sets" object="dns" fieldname="address_class"></field-markings-form>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Domain Name </div>
+    <div class="profile-info-value">
+      <span>{{dns.domain | prefixWithPortionMarking: dns.portion_marking:dns.domain_c}}</span>
+      <field-markings-show markings="dns.stix_markings" fieldname="domain_normalized"></field-markings-show>
+    </div>
+  </div>
+  
+  <div class="profile-info-row" ng-show='dns.feeds'>
+    <div class="profile-info-name"> Disseminated Feeds </div>
+    <div class="profile-info-value">
+      <span>{{dns.feeds}}</span>
+    </div>
+  </div>  
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Entry Type </div>
+    <div class="profile-info-value">
+      <span>{{dns.entry_type | prefixWithPortionMarking: dns.portion_marking:dns.entry_type_c}}</span>
+      <field-markings-form sets="sets" object="dns" fieldname="entry_type"></field-markings-form>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Queried Date </div>
+    <div class="profile-info-value">
+      <span>{{dns.queried_date | date:"medium" | prefixWithPortionMarking: dns.portion_marking:dns.queried_date_c}}</span>
+      <field-markings-form sets="sets" object="dns" fieldname="queried_date"></field-markings-form>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Record Name </div>
+    <div class="profile-info-value">
+      <span>{{dns.record_name | prefixWithPortionMarking: dns.portion_marking:dns.record_name_c}}</span>
+      <field-markings-form sets="sets" object="dns" fieldname="record_name"></field-markings-form>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Record Type </div>
+    <div class="profile-info-value">
+      <span>{{dns.record_type | prefixWithPortionMarking: dns.portion_marking:dns.record_type_c}}</span>
+      <field-markings-form sets="sets" object="dns" fieldname="record_type"></field-markings-form>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> TTL </div>
+    <div class="profile-info-value">
+      <span>{{dns.ttl | prefixWithPortionMarking: dns.portion_marking:dns.ttl_c}}</span>
+      <field-markings-form sets="sets" object="dns" fieldname="ttl"></field-markings-form>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Flags </div>
+    <div class="profile-info-value">
+      <span>{{dns.flags | prefixWithPortionMarking: dns.portion_marking:dns.flags_c}}</span>
+      <field-markings-form sets="sets" object="dns" fieldname="flags"></field-markings-form>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Data Length </div>
+    <div class="profile-info-value">
+      <span>{{dns.data_length | prefixWithPortionMarking: dns.portion_marking:dns.data_length_c}}</span>
+      <field-markings-form sets="sets" object="dns" fieldname="data_length"></field-markings-form>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Created
+    	<span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+      		<i class="fa fa-ban fa-stack-2x"> </i> 
+ 			<i class="fa fa-download fa-stack-1x"> </i> 
+    	</span> 
+    </div>
+    <div class="profile-info-value">
+      <span>{{dns.created_at | date:"medium"}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Total Sightings </div>
+    <div class="profile-info-value">
+      <span>{{dns.total_sightings}}</span>
+    </div>
+  </div>
+  <downgrade-request-ids observable="dns"></downgrade-request-ids>
+</div>
+
+<div ng-show="dns.stix_markings.length">
+  <div class="space-12"></div>
+  <markings-table markings="dns.stix_markings"></markings-table>
+</div>
+
+<div class="space-12" ng-show="dns.indicators.length"></div>
+<div ng-show="dns.indicators.length">
+  <indicator-table indicators="dns.indicators"></indicator-table>
+</div>
+<div class="space-12" ng-show="dns.addresses.length"></div>
+
+<div ng-show="dns.addresses.length">
+  <address-table addresses="dns.addresses"></address-table>
+</div>
+
+<div class="space-12" ng-show="dns.domains.length"></div>
+<div ng-show="dns.domains.length">
+  <domain-table domains="dns.domains"></domain-table>
+</div>
+
+<div class="space-12" ng-show="dns.resource_records.length"></div>
+<div ng-show="dns.resource_records.length">
+  <resource-record-table resource-records="dns.resource_records"></resource-record-table>
+</div>
+
+<div class="space-12" ng-show="dns.course_of_actions.length"></div>
+<course-of-actions-table course_of_actions="dns.course_of_actions" show_table=showTable addrelated="false" ng-show="dns.course_of_actions.length"></course-of-actions-table>
+
+<div ng-show="dns.stix_packages.length > 0">
+  <div class="space-12"></div>
+  <package-table packages="dns.stix_packages"></package-table>
+</div>
+
+<div class="space-12" ng-show="showGFIs && dns.gfi"></div>
+<div ng-show="showGFIs">
+  <gfi-widget widget-mode="show" gfi="dns.gfi"></gfi-widget>
+</div>
+
+<div class="space-12"></div>
+<audits-table audits="dns.audits"></audits-table>
+<div class="space-12"></div>
+
+</div>
+
+<show-spinner> </show-spinner>

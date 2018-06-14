@@ -1,0 +1,84 @@
+<div class='widget-box'>
+  <div class="widget-header">
+    <h4 class="widget-title">{{isModification ? "Edit Source" : "New Source" }}</h4>
+  </div>
+  <div class="widget-body">
+    <div class="widget-main">
+      <form class="form-horizontal">
+        <div class="form-group" style="padding:12px 100px 2px 100px">
+          <div style="border: 1px solid #d9d9d9">
+            <h5 style="margin: 6px 0 0 12px" class='smaller'>Organization Names for Contributing Source*</h5>
+            <div style="margin-top: 5px"
+                 ng-repeat="fshr in newSource.organization_names track by $index"
+                 class="row">
+              <div class="col-lg-2 col-md-2"></div>
+              <div class="col-lg-8 col-md-8">
+                <div class="row">
+                  <div class="col-lg-1 col-md-1 no-padding-right">
+                    <span class="badge badge-danger" style="margin-top: 8px" tooltip="Remove Organization Name">
+                      <a href="" class="fake-link center white" ng-click="remove_on($index)">
+                        <i class="fa fa-remove"></i>
+                      </a>
+                    </span>
+                  </div>
+                  <div class="col-lg-8 col-md-8 no-padding-left">
+                    <input type="text" class="form-control" ng-model="newSource.organization_names[$index]"/>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-2 col-md-2"></div>
+            </div>
+            <div class="space-8"></div>
+            <div class="center">
+              <a href="" class="fake-link" ng-click="add_on()">
+                <i class="fa fa-plus-circle"></i>
+                Add Organization Name
+              </a>
+            </div>
+            <div class="space-8"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="control-label col-md-3 no-padding-right">Locations*</label>
+          <div class="col-md-7">
+            <multi-location attribute='newSource.administrative_areas' countries="Marking.cs_countries_a2"
+                            administrative-areas="Marking.cs_admin_areas"></multi-location>
+          </div>
+        </div>
+
+        <div class="form-group"
+             tooltip="Information about the organization">
+          <label class="control-label col-md-3 no-padding-right">
+            Organization Information*</label>
+          <div class="col-md-7">
+            <multi-select attribute="newSource.organization_info" options-for-select="Marking.organization_info"></multi-select>
+          </div>
+
+
+        </div>
+
+        <div class="form-group"
+             tooltip="Check if this is a federal organization" >
+          <label class="control-label col-md-3 no-padding-right">Federal Organization</label>
+          <div class="col-md-7">
+            <input type="checkbox" ng-model="newSource.is_federal" name="is_federal">
+          </div>
+        </div>
+        <div class="btn-toolbar" align="center">
+          <button ng-disabled="is_saving" class="btn btn-info"
+                  type="button" ng-click="saveSource()">
+            <i class="fa fa-check"></i>
+            {{isModification? 'Save' : 'Add'}}
+          </button>
+          <button ng-disabled="is_saving" class="btn btn-default"
+                  type="button" ng-click="cancelCreateSource()">
+            <i class="fa fa-times"></i>
+            Cancel
+          </button>
+          <div class="space-4"></div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

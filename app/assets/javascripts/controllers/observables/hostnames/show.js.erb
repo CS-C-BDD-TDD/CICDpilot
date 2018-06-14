@@ -1,0 +1,17 @@
+app.controller('HostnamesShowController', ['$scope','$location','$routeParams','$rootScope','Restangular',
+  function ($scope, $location, $routeParams, $rootScope, Restangular) {
+    $scope.fetching = true;
+    Restangular.one('/hostnames',$routeParams.id).get().then(function(data){
+      $scope.hostname = data;
+      if (angular.isDefined($scope.hostname) && angular.isDefined($scope.hostname.ind_course_of_actions)){
+        $scope.hostname.course_of_actions = $scope.hostname.course_of_actions.concat($scope.hostname.ind_course_of_actions);
+      }
+      $scope.showTable = {coa_data: true, collapse: false};
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Hostnames',link:'#/hostnames',icon:'fa-group'},{text:data.hostname,link:'#/hostnames/'+encodeURIComponent(data.cybox_object_id)}];
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load Hostname");
+      $scope.fetching = false;
+    });
+  }
+]);

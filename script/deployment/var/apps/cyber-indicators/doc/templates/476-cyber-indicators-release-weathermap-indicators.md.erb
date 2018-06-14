@@ -1,0 +1,109 @@
+# (Optional) Replicating Weather Map Heat Maps
+
+This section describes how to configure the automated release of weather map indicators between Cyber Indicators systems.
+
+## Prerequisites
+
+* Two Cyber Indicators instances at the same version.
+* Network connectivity over TCP/IP port 443 and 8443 between the two instances.
+* A machine user API account on both the source and target.
+
+!Note! Please see the API guide for how to provision an API machine account.
+
+!Note! The source system is the system you are copying information from.
+
+!Note! The target system is the system you are copying information to.
+
+## (Optional) Configure Weather Map Heat Map replication.
+
+*Configure the weather map heat map replication*
+
+!Note! Please change the URL to the correct hostname and port in production
+
+```bash
+export URL=https://target_hostname:8443/cyber-indicators/heatmaps
+export TYPE=heatmap
+export API_KEY=TARGET_API_KEY
+export API_KEY_HASH=TARGET_API_KEY_HASH
+rake replication:create
+```
+
+!Example! Configuring the Weather Map Heat Map Replication between CIAP and CIR systems.
+
+```bash
+export URL=https://cir_hostname:8443/cyber-indicators/heatmaps
+export TYPE=heatmap
+export API_KEY=CIR_MACHINE_API_ACCOUNT_API_KEY
+export API_KEY_HASH=CIR_MACHINE_API_ACCOUNT_API_KEY_HASH
+rake replication:create
+```
+
+## (Optional) Replication Commands
+
+This is for reference.
+
+* Show the created replications
+
+```bash
+rake replication:list
+```
+
+* Test connectivity to the target system
+
+```bash
+rake replication:test
+```
+
+!Note! This only tests basic HTTP connectivity to the target system.
+
+!Note! After running this command you may re-list the replications.  Replications that will work have a status of OK.
+
+* Test POST connectivity
+
+```bash
+rake replication:test:post
+```
+
+!Note! Replications that did not succeed with rake replication:test will not be tested.
+
+!Note! This is a representative replication test.  Replications that are marked as OK after this test are usable for replication.
+
+* Remove a specific replication
+
+```bash
+ID=NUMBER_FROM_LIST rake replication:destroy
+```
+
+* Remove all replications
+
+```bash
+rake replication:destroy_all
+```
+
+## Manually uploading weather map indicators from a file
+
+A system administrator can upload weather map indicators directly to a Cyber Indicators installation from a CSV file on the command line.  The true or false passed in the command line specifies whether to attempt to replicate the indicators to any replication targets which may be set up (CIR).
+
+!Note! Importing weather map data from the command line turns off search indexing.  The Weather Map search results will not be present until the search indexer is run again
+
+!Note! Be sure your JAVA_HOME environment variable is set
+
+Import a .csv, .csv.gz, .tar.gz or .tgz file as machine_user_01, and attempt replication to other servers
+
+```bash
+rake weather:import:file[name_of_csv_file.csv, machine_user_01, true]
+```
+
+Import all .csv and .csv.gz files in a directory as machine_user_02, and do not replicate to other servers
+
+```bash
+rake weather:import:dir[/path/to/dir/, machine_user_02, false]
+```
+
+### Setting up automatic ingest
+
+Using the commands shown above, it's possible to configure the system to automatically import weather map data which is placed into a directory.  Here is a sample addition to run the import every day at 2:30 AM
+
+```bash
+30 2 * * * rake weather:import:dir[/path/to/dir/, machine_user_03, true]
+```

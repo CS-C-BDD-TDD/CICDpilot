@@ -1,0 +1,128 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">
+
+<div class="page-header">
+  <h1>
+      {{hostname.hostname | prefixWithPortionMarking: hostname.portion_marking}}
+    <small ng-show="hostname.read_only">
+      <span style="margin-left: 10px" class="label label-warning arrowed arrowed-right">
+        <span class="white">Read Only</span>
+      </span>
+    </small>
+    <small ng-show="hostname.is_ciscp">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">CISCP</span>
+      </span>
+    </small>
+    <small ng-show="hostname.is_mifr">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">MIFR</span>
+      </span>
+    </small>    
+    <span class="pull-right">
+        <a ng-href="#/hostnames/{{hostname.cybox_object_id | encodeURIComponent}}/edit" class="btn btn-info no-radius btn-xs" ng-show="canModify(hostname) && hostname.read_only == false"><i class="ace-icon fa fa-pencil-square-o bigger-160"></i> Edit</a>
+    </span>
+  </h1>
+  <div class="space-18"></div>
+  <span class="pull-left" ng-show="canAny(['create_remove_badge_status','view_badge_status'])">
+    <badge-statuses-table badge-statuses="hostname.badge_statuses" audits="hostname.audits" parent-id="hostname.guid" parent-class="Hostname"></badge-statuses-table>
+  </span>
+  <div class="space-18"></div>
+</div>
+
+<p class="pull-right">
+</p>
+
+<div class="profile-user-info profile-user-info-striped">
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Hostname </div>
+    <div class="profile-info-value">
+      <div style="display: inline; margin-left: 1px;margin-right: 3px;">
+          <span>{{hostname.hostname | prefixWithPortionMarking: hostname.portion_marking:hostname.hostname_c}}</span>
+          <field-markings-show markings="hostname.stix_markings" fieldname="hostname_normalized"></field-markings-show>
+      </div>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Hostname Condition </div>
+    <div class="profile-info-value">
+      <span>{{hostname.hostname_condition}}</span>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Naming System </div>
+    <div class="profile-info-value">
+      <div style="display: inline; margin-left: 1px;margin-right: 3px;">
+        <span>
+          {{hostname.naming_system | prefixWithPortionMarking: hostname.portion_marking:hostname.naming_system_c}}
+        </span>
+        <field-markings-show markings="hostname.stix_markings" fieldname="naming_system"></field-markings-show>
+      </div>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Is Domain Name </div>
+    <div class="profile-info-value">
+      <div style="display: inline; margin-left: 1px;margin-right: 3px;">
+        <span>{{hostname.is_domain_name}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-info-row" ng-show='hostname.feeds'>
+    <div class="profile-info-name"> Disseminated Feeds </div>
+    <div class="profile-info-value">
+      <span>{{hostname.feeds}}</span>
+    </div>
+  </div>
+  
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Created 
+    	<span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+      		<i class="fa fa-ban fa-stack-2x"> </i> 
+ 			<i class="fa fa-download fa-stack-1x"> </i> 
+    	</span>
+    </div>
+    <div class="profile-info-value">
+      <span>{{hostname.created_at | date:"medium"}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Total Sightings </div>
+    <div class="profile-info-value">
+      <span>{{hostname.total_sightings}}</span>
+    </div>
+  </div>
+  <downgrade-request-ids observable="hostname"></downgrade-request-ids>
+</div>
+
+<div ng-show="hostname.stix_markings.length">
+  <div class="space-12"></div>
+  <markings-table markings="hostname.stix_markings"></markings-table>
+</div>
+
+<div class="space-12" ng-show="hostname.indicators.length"></div>
+<div ng-show="hostname.indicators.length">
+  <indicator-table indicators="hostname.indicators"></indicator-table>
+</div>
+
+<div class="space-12" ng-show="hostname.course_of_actions.length"></div>
+<course-of-actions-table course_of_actions="hostname.course_of_actions" show_table=showTable addrelated="false" ng-show="hostname.course_of_actions.length"></course-of-actions-table>
+
+<div class="space-12" ng-show="hostname.socket_addresses.length"></div>
+<div ng-show="hostname.socket_addresses.length">
+  <socket-address-table socket_addresses="hostname.socket_addresses"></socket-address-table>
+</div>
+
+<div ng-show="hostname.stix_packages.length > 0">
+  <div class="space-12"></div>
+  <package-table packages="hostname.stix_packages"></package-table>
+</div>
+
+<div class="space-12"></div>
+<audits-table audits="hostname.audits"></audits-table>
+<div class="space-12"></div>
+
+</div>
+
+<show-spinner> </show-spinner>

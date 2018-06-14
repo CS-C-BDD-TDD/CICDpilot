@@ -1,0 +1,124 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">  
+
+<div class="page-header">
+  <h1>
+    {{threat_actor.title | prefixWithPortionMarking: threat_actor.portion_marking}}
+    <small ng-show="threat_actor.read_only">
+      <span style="margin-left: 10px" class="label label-primary arrowed arrowed-right">
+        <span class="white">Read Only</span>
+      </span>
+    </small>
+    
+    <!--
+    # For future implementation. Not ready as we are not ingesting Threat Actors
+    #<small ng-show="threat_actor.is_ciscp">
+    #  <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+    #    <span class="white">CISCP</span>
+    #  </span>
+    #</small>   
+    #<small ng-show="threat_actor.is_mifr">
+    #  <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+    #    <span class="white">MIFR</span>
+    #  </span>                 
+    #</small>   
+    -->
+        
+    <span class="pull-right">
+      <a ng-href="#/threat_actors/{{threat_actor.stix_id | encodeURIComponent}}/edit" class="btn btn-info no-radius btn-xs" ng-show="canModify(threat_actor) && threat_actor.read_only == false"><i class="ace-icon fa fa-pencil-square-o bigger-160"></i> Edit</a>
+      <button class="btn btn-danger no-radius btn-xs" ng-show="canDelete(threat_actor)" ng-click="destroy(threat_actor)"><i class="ace-icon fa fa-trash-o bigger-160"></i> Delete</button>
+    </span>
+  </h1>
+  <div class="space-18"></div>
+  <span class="pull-left" ng-show="canAny(['create_remove_badge_status','view_badge_status'])">
+    <badge-statuses-table badge-statuses="threat_actor.badge_statuses" audits="threat_actor.audits" parent-id="threat_actor.guid" parent-class="ThreatActor"></badge-statuses-table>
+  </span>
+  <div class="space-18"></div>
+</div>
+
+<p class="pull-right">
+</p>
+
+<div class="profile-user-info profile-user-info-striped">
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Title </div>
+    <div class="profile-info-value">
+      <span>{{threat_actor.title | prefixWithPortionMarking: threat_actor.portion_marking:threat_actor.title_c}}</span>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Description </div>
+    <div class="profile-info-value">
+      <multi-line-field field="threat_actor.description" portionmarking="threat_actor.portion_marking" cachemarking="threat_actor.description_c"></multi-line-field>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Short Description </div>
+    <div class="profile-info-value">
+      <multi-line-field field="threat_actor.short_description" portionmarking="threat_actor.portion_marking" cachemarking="threat_actor.short_description_c"></multi-line-field>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Identity Name </div>
+    <div class="profile-info-value">
+      <span>{{threat_actor.identity_name}}</span>
+    </div>
+  </div>
+  
+  <div class="profile-info-row" ng-show='threat_actor.feeds'>
+    <div class="profile-info-name"> Disseminated Feeds </div>
+    <div class="profile-info-value">
+      <span>{{threat_actor.feeds}}</span>
+    </div>
+  </div>  
+  
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Creator </div>
+    <div class="profile-info-value">
+      <span>{{threat_actor.created_by_user.username}}</span>
+    </div>
+  </div>
+  <div class="profile-info-row" ng-show="threat_actor.color">
+    <div class="profile-info-name"> Color </div>
+    <div class="profile-info-value">
+      <span ng-bind-html='Color.image(threat_actor.color)'></span>
+    </div>
+  </div>
+  <div class="profile-info-row" ng-show="threat_actor.acs_set.guid">
+    <div class="profile-info-name"> ACS Set </div>
+    <div class="profile-info-value">
+      <a ng-href="#/acs_sets/{{threat_actor.acs_set.guid}}">{{threat_actor.acs_set.name | prefixWithPortionMarking: threat_actor.acs_set.portion_marking}}</a>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Created </div>
+    <div class="profile-info-value">
+      <span>{{threat_actor.created_at | date: 'medium'}}</span>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Updated </div>
+    <div class="profile-info-value">
+      <span>{{threat_actor.updated_at | date: 'medium'}}</span>
+    </div>
+  </div>
+</div>
+
+<div class="space-12"></div>
+
+<div ng-show="threat_actor.stix_markings.length">
+   <markings-table markings="threat_actor.stix_markings"></markings-table>
+</div>
+
+<div class="space-12"></div>
+
+<indicator-table indicators="threat_actor.indicators" ng-show="threat_actor.indicators"></indicator-table>
+
+<div class="space-12"></div>
+
+<audits-table audits="threat_actor.audits"></audits-table>
+
+<div class="space-12"></div>
+
+</div>
+
+<show-spinner> </show-spinner>

@@ -1,0 +1,35 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('resourceRecordForm', function(){
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("observables/dns_queries/resource_records/form.html",type: :template)%>',
+        scope: {
+            resourceRecord: '='
+        },
+        controller: ['$scope','$rootScope','Observable','Restangular', 'Classification','ResourceRecord',
+            function($scope,$rootScope,Observable,Restangular, Classification,ResourceRecord) {
+                $scope.Observable = Observable;
+                $scope.ResourceRecord = ResourceRecord;
+
+                var initializer = $scope.$watch("resourceRecord", function() {
+                    if (angular.isDefined($scope.resourceRecord)) {
+                        if (angular.isUndefined($scope.resourceRecord.dns_records)) {
+                            $scope.resourceRecord.dns_records = [];
+                        }
+
+                        initializer();
+                    }
+                });
+
+                $scope.removeDnsRecord = function(obj) {
+                    _.remove($scope.resourceRecord.dns_records, function(o){
+                        if (o == obj) {
+                            return o;
+                        }
+                    });
+                };
+            }
+        ]
+    };
+});

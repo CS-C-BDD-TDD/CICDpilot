@@ -1,0 +1,27 @@
+/*
+ * Required by Ace Admin
+ */
+
+.system-tag {
+  background-color: #9585bf !important;
+}
+
+.user-tag {
+  background-color: #abbac3 !important;
+}
+
+.tags .label .close-label {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #000000;
+  font-weight: bold;
+  line-height: 1;
+  opacity: 0.8;
+  text-shadow: 0 1px 0 #ffffff;
+}
+
+.label-margin {
+  margin-right: 10px;
+}
+

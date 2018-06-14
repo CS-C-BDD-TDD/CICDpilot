@@ -1,0 +1,33 @@
+How to run flare transfer
+
+The file 'flare_transfer' and the 'lib' directory must be kept together.
+
+The file 'transfer.yml' can be placed anywhere.
+
+The transfer.yml file contains the following information:
+
+	log_file:          The full path to a logging file
+	remote_user:       The username on the remote system that will be used to transfer the files
+	remote_hostname:   The hostname of the remote system
+	remote_directory:  The directory on the remote system to grab the files from
+	local_directory:   The directory on the local system to place the files into
+	ciap_api_key:      The CIAP API key value
+	ciap_api_key_hash: The CIAP API key hash value
+	ciap_url_preamble: The hostname/port for the CIAP URL (example: https://localhost:3000)
+	email_from:        Who should the email come from
+	email_to:          Comma separated list of addresses to send the email to
+	email_message:     The one-line body of the email
+
+The email_message can contain the following which will be replaced by their proper values:
+
+	%time%      - the current time
+	%directory% - the directory the files are copied to
+	%hostname%  - the hostname where the files are copied to
+	%count%     - the number of files that were transferred
+
+Example:
+	email_message: At %time% in %directory% on %hostname%, %count% files were found.
+
+To run the flare transfer:
+
+	FLARE_TRANSFER_YML_PATH=/path/to/transfer.yml /path/to/flare_transfer

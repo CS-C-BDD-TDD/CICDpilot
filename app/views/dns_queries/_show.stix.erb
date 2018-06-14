@@ -1,0 +1,57 @@
+<cybox:Object id="<%= dns_query.cybox_object_id %>">
+  <cybox:Properties xsi:type="DNSQueryObj:DNSQueryObjectType">
+    <% if dns_query.questions.present?%>
+      <% dns_query.questions.each do |q| %>
+      <DNSQueryObj:Question>
+        <% if q.uris.present? %>
+          <% q.uris.each do |u| %>
+          <DNSQueryObj:QName object_reference="<%=u.cybox_object_id%>"></DNSQueryObj:QName>
+          <% end %>
+        <% end %>
+        <% if q.qtype.present? %>
+          <DNSQueryObj:QType><%=q.qtype%></DNSQueryObj:QType>
+        <% end %>
+        <% if q.qclass.present? %>
+          <DNSQueryObj:QClass><%=q.qclass%></DNSQueryObj:QClass>
+        <% end %>
+      </DNSQueryObj:Question>
+      <% end %>
+    <% end %>
+
+    <% if dns_query.answer_resource_records.present?%>
+      <DNSQueryObj:Answer_Resource_Records>
+      <% dns_query.answer_resource_records.each do |rr| %>
+        <% if rr.dns_records.present? %>
+          <% rr.dns_records.each do |d| %>
+          <DNSQueryObj:Resource_Record object_reference="<%=d.cybox_object_id%>"></DNSQueryObj:Resource_Record>
+          <% end %>
+        <% end %>
+      <% end %>
+      </DNSQueryObj:Answer_Resource_Records>
+    <% end %>
+
+    <% if dns_query.authority_resource_records.present?%>
+      <DNSQueryObj:Authority_Resource_Records>
+      <% dns_query.authority_resource_records.each do |rr| %>
+        <% if rr.dns_records.present? %>
+          <% rr.dns_records.each do |d| %>
+          <DNSQueryObj:Resource_Record object_reference="<%=d.cybox_object_id%>"></DNSQueryObj:Resource_Record>
+          <% end %>
+        <% end %>
+      <% end %>
+      </DNSQueryObj:Authority_Resource_Records>
+    <% end %>
+    
+    <% if dns_query.additional_records.present?%>
+      <DNSQueryObj:Additional_Records>
+      <% dns_query.additional_records.each do |rr| %>
+        <% if rr.dns_records.present? %>
+          <% rr.dns_records.each do |d| %>
+          <DNSQueryObj:Resource_Record object_reference="<%=d.cybox_object_id%>"></DNSQueryObj:Resource_Record>
+          <% end %>
+        <% end %>
+      <% end %>
+      </DNSQueryObj:Additional_Records>
+    <% end %>
+  </cybox:Properties>
+</cybox:Object>

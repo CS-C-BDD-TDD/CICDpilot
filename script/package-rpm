@@ -1,0 +1,13 @@
+#!/bin/bash --login
+export RAILS_ENV=production
+export RAILS_RELATIVE_URL_ROOT="/cyber-indicators"
+export RAILS_DB_YAML="/etc/cyber-indicators/config/database.yml"
+export RAILS_SECRET_KEY="09187096FDSDSBDSBefdsvdsavlkjdslkj3t@!$^@^&2asasdfsa9f7sa8725093216098716161&//@213454627278::cyb"
+export RAILS_CONFIG_ENVIRONMENTS="/etc/cyber-indicators/config/environments"
+export RAILS_SETTINGS_YAML="/etc/cyber-indicators/config/settings.yml"
+export RAILS_SECRETS_YAML="/etc/cyber-indicators/config/secrets.yml"
+
+bundle
+rake assets:clean
+rake assets:precompile
+bundle exec warble runnable war

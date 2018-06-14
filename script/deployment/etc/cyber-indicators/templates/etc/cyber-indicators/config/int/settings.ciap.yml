@@ -1,0 +1,5 @@
+# NOTE:  In this file are the lines that are different from the
+# default (production) settings.yml file
+  SSO_AD: false
+  BANNER_TEXT: CIAP (Integration01)
+  BANNER_TEXT_COLOR: 000000

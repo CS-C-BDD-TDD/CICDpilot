@@ -1,0 +1,11 @@
+app.controller('WeatherMapAddressesController', ['$scope','$rootScope','Restangular','paginationService',
+  function ($scope, $rootScope, Restangular,paginationService) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'}];
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Weather Map Addresses',link:'#/weathermapaddresses',icon:'fa-thumb-tack'}];
+    $scope.fetching = true;
+    Restangular.one('/weather_map_addresses').get().then(function(data){
+      $scope.addresses = data.addresses;
+      $scope.metadata = data.metadata;
+      $scope.fetching = false;
+    });
+}]);

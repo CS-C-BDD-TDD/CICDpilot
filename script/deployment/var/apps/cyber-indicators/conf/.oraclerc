@@ -1,0 +1,6 @@
+export LD_LIBRARY_PATH=/usr/lib/oracle/11.2/client64/lib/
+export TNS_ADMIN=/etc/
+export ORACLE_HOME=/usr/lib/oracle/11.2/client64/
+export ORACLE_SID=XE
+export NLS_LANG=AMERICAN_AMERICA.WE8MSWIN1252
+export PATH=$PATH:/usr/lib/oracle/11.2/client64/bin

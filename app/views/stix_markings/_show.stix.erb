@@ -1,0 +1,103 @@
+<% stix_object ||= nil %>
+<% stix_markings ||= [] %>
+<% field_markings ||= nil %>
+<% top_level_name_space ||= 'stix' %>
+<% if stix_object.present? || stix_markings.present? %>
+    <% if stix_object.present? && stix_markings.blank? %>
+        <% stix_markings = get_markings_for_stix_xml(stix_object) if
+               stix_object.stix_markings.present? ||
+                   (stix_object.respond_to?(:acs_set) &&
+                       stix_object.acs_set.present?) %>
+    <% end %>
+    <% stix_markings.concat(field_markings) if field_markings.present? %>
+    <% stix_markings = stix_markings.flatten.uniq %>
+    <% if stix_markings.present? %>
+    <<%= top_level_name_space %>:Handling>
+      <% reject_markings_of_blank_things(stix_markings).uniq {|sm| sm.stix_id }.each do |marking| %>
+      <% ais_consent = [] %>
+      <% if marking.controlled_structure.present? %>
+      <marking:Marking id="<%= marking.stix_id %>">
+        <marking:Controlled_Structure><%= marking.controlled_structure %></marking:Controlled_Structure>
+        <% if marking.tlp_marking_structure %>
+        <marking:Marking_Structure color="<%= marking.tlp_marking_structure.color.to_s.upcase %>" xsi:type="tlpMarking:TLPMarkingStructureType" />
+        <% end %>
+        <% if marking.simple_marking_structure %>
+        <marking:Marking_Structure xsi:type="simpleMarking:SimpleMarkingStructureType">
+          <simpleMarking:Statement><%= marking.simple_marking_structure.statement %></simpleMarking:Statement>
+        </marking:Marking_Structure>
+        <% end %>
+        <% if marking.isa_marking_structure %>
+        <marking:Marking_Structure xsi:type="edh2cyberMarking:ISAMarkingsType" isam_version="2.0" id="<%=marking.isa_marking_structure.stix_id %>">
+          <edh2:Identifier>isa:guide.19001.<%= marking.isa_marking_structure.guid %></edh2:Identifier>
+          <% marking.isa_marking_structure.data_item_created_at = Time.now unless
+                 marking.isa_marking_structure.data_item_created_at &&
+                     marking.isa_marking_structure.data_item_created_at.present? %>
+          <edh2:CreateDateTime><%= marking.isa_marking_structure.data_item_created_at.try(:to_atom) %></edh2:CreateDateTime>
+          <edh2:ResponsibleEntity><%= marking.isa_marking_structure.responsible_entity %></edh2:ResponsibleEntity>
+        </marking:Marking_Structure>
+        <% end %>
+        <% if marking.isa_assertion_structure %>
+        <% is_default = (stix_object.blank? || stix_object.class == StixPackage) ? raw('default_marking="' + marking.isa_assertion_structure.is_default_marking.to_s  + '" ') : '' %>
+        <marking:Marking_Structure xsi:type="edh2cyberMarkingAssert:ISAMarkingsAssertionType" isam_version="2.0" id="<%=marking.isa_assertion_structure.stix_id %>" <%= is_default %>>
+           <edh2:PolicyRef>urn:isa:policy:acs:ns:3.0?privdefault=<%= marking.isa_assertion_structure.privilege_default %>&amp;sharedefault=<%= marking.isa_assertion_structure.sharing_default || 'permit' %></edh2:PolicyRef>
+           <edh2:AuthRef>urn:isa:authority:ais</edh2:AuthRef>
+        <% marking.isa_assertion_structure.isa_privs.each do |priv| %>
+           <edh2:AccessPrivilege>
+             <edh2:privilegeAction><%= priv.action %></edh2:privilegeAction>
+             <edh2:privilegeScope><%= priv.scope %></edh2:privilegeScope>
+             <edh2:ruleEffect><%= priv.effect %></edh2:ruleEffect>
+           </edh2:AccessPrivilege>
+        <% end %>
+        <% marking.isa_assertion_structure.further_sharings.each do |shar| %>
+          <edh2:FurtherSharing>
+            <edh2:sharingScope><%= shar.scope %></edh2:sharingScope>
+            <edh2:ruleEffect><%= shar.effect %></edh2:ruleEffect>
+          </edh2:FurtherSharing>
+        <% end %>
+        <% unless marking.isa_assertion_structure.control_set.blank? %>
+          <edh2:ControlSet><%= marking.isa_assertion_structure.control_set %></edh2:ControlSet>
+        <% end %>
+        <% if Setting.CLASSIFICATION == true && marking.isa_assertion_structure.cs_classification != 'U' %>
+          <edh2:OriginalClassification>
+            <edh2:classifiedBy><%= marking.isa_assertion_structure.classified_by.gsub(/[^a-zA-Z\d\.\:\_\-]/,'_') %></edh2:classifiedBy>
+            <edh2:classifiedOn><%= marking.isa_assertion_structure.classified_on.try(:to_atom_date_only) %></edh2:classifiedOn>
+            <edh2:classificationReason><%= marking.isa_assertion_structure.classification_reason %></edh2:classificationReason>
+          </edh2:OriginalClassification>
+        <% end %>
+        <% if marking.isa_assertion_structure.public_release %>
+          <edh2:PublicRelease>
+            <edh2:releasedBy><%= marking.isa_assertion_structure.public_released_by.gsub(/[^a-zA-Z\d\.\:\_\-]/,'_') %></edh2:releasedBy>
+          <% unless marking.isa_assertion_structure.public_released_on.nil? %>
+            <edh2:releasedOn><%= marking.isa_assertion_structure.public_released_on.strftime("%Y-%m-%d") %></edh2:releasedOn>
+          <% end %>
+          </edh2:PublicRelease>
+        <% end %>
+        </marking:Marking_Structure>
+        <% end %>
+        <% ais_consent << {controlled_structure: marking.controlled_structure,marking: marking.ais_consent_marking_structure} if marking.ais_consent_marking_structure.present? %>
+      </marking:Marking>
+    <% end %>
+    <% ais_consent.each do |consent| %>
+      <marking:Marking>
+        <marking:Controlled_Structure><%= consent[:controlled_structure] %></marking:Controlled_Structure>
+        <marking:Marking_Structure xsi:type="AIS:AISMarkingStructure">
+        <% content_for :consent_attrs, flush: true do %>
+          <AIS:AISConsent consent="<%= consent[:marking].consent.upcase %>"></AIS:AISConsent>
+          <AIS:TLPMarking color="<%= consent[:marking].color.upcase %>"></AIS:TLPMarking>
+        <% end %>
+        <% if consent[:marking].proprietary %>
+          <AIS:Is_Proprietary CISA_Proprietary="true">
+            <%= yield :consent_attrs %>
+          </AIS:Is_Proprietary>
+        <% else %>
+          <AIS:Not_Proprietary CISA_Proprietary="false">
+            <%= yield :consent_attrs %>
+          </AIS:Not_Proprietary>
+        <% end %>
+        </marking:Marking_Structure>
+      </marking:Marking>
+    <% end %>
+  <% end %>
+    </<%= top_level_name_space %>:Handling>
+  <% end %>
+<% end %>

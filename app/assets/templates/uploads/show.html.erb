@@ -1,0 +1,82 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">  
+
+<div class="page-header">
+   <h1>{{"Uploaded File " + upload.id + ": " + upload.file_name | prefixWithPortionMarking: upload.portion_marking}}</h1>
+</div>
+
+<div class="profile-user-info profile-user-info-striped" style="width: 50%; margin-left: 0;">
+  <div class="profile-info-row">
+    <div class="profile-info-name">File&nbsp;Name</div>
+    <div class="profile-info-value">
+      <span>{{upload.file_name}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name">Status</div>
+    <div class="profile-info-value" ng-hide="upload.zip_status.length">
+      <span>{{translateStatus(upload.status)}}</span>
+    </div>
+    <div class="profile-info-value" ng-show="upload.zip_status.length">
+      <span>{{upload.zip_status}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name">Options</div>
+    <div class="profile-info-value">
+      <span>{{makeOptions(upload)}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name">Upload&nbsp;ID</div>
+    <div class="profile-info-value">
+      <span>{{upload.id}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name">Size</div>
+    <div class="profile-info-value">
+      <span>{{upload.file_size}} bytes</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row" ng-show="upload.original_input[0].input_category=='Zip File'">
+    <div class="profile-info-name">Zip Upload Status</div>
+    <div class="profile-info-value">
+      <span>{{upload.original_input[0].input_sub_category}}</span>
+    </div>
+  </div>
+</div>
+
+<div ng-show="upload.errors.length" class="space-6"></div>
+
+<errors-table errors="upload.errors" tlabel="'Errors'" ng-show="upload.errors.length"></errors-table>
+
+<div ng-show="upload.warnings.length" class="space-6"></div>
+
+<errors-table errors="upload.warnings" tlabel="'Warnings'" ng-show="upload.warnings.length"></errors-table>
+
+<div ng-show="upload.stix_packages.length" class="space-12"></div>
+
+<package-table packages="upload.stix_packages" ng-show="upload.stix_packages.length" show-table=true from-uploads=true></package-table>
+
+<div ng-show="upload.indicators.length" class="space-12"></div>
+
+<indicator-table ng-show="upload.indicators.length" indicators="upload.indicators"></indicator-table>
+
+<div class="space-12"></div>
+
+<errors-table errors="upload.avp_message.avp_errors" tlabel="'AVP Errors'"></errors-table>
+
+<div class="space-12"></div>
+
+<errors-table errors="upload.avp_message.prohibited" tlabel="'AVP Prohibited'"></errors-table>
+
+<div class="space-12"></div>
+
+</div>
+
+<show-spinner> </show-spinner>

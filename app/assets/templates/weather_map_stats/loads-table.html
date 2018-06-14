@@ -1,0 +1,12 @@
+<table ng-class="wmdstats.length > 10 ? 'ciap_display_block' : ''" class="table table-striped table-bordered table-hover dataTable ciap_overflow_x">
+  <thead class="thin-border-bottom">
+  <tr ng-show="wmdstats">
+    <th ng-repeat="stat in wmdstats">{{stat.date | date:'MM/dd/yyyy'}}</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr ng-show="wmdstats">
+    <td ng-repeat="stat in wmdstats">{{stat.count}}</td>
+  </tr>
+  </tbody>
+</table>

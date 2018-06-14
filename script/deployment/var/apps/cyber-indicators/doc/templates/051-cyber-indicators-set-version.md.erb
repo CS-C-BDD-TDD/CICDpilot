@@ -1,0 +1,20 @@
+# Displaying the Version Number in the Application
+
+The application will display its version number at the bottom of the webpage once logged in.  You can override this by setting the environment variable VERSION.  Set the environment variable inside of /etc/sysconfig/cyber-indicators
+
+Edit the application system configuration file.
+
+```bash
+/etc/sysconfig/cyber-indicators
+```
+
+<% if ENV['EXAMPLE'] %>
+
+!Example! Change the VERSION environment variable
+
+```bash
+# VERSION: Specify the version number shown to the users
+VERSION=vEXAMPLE
+```
+
+<% end %>

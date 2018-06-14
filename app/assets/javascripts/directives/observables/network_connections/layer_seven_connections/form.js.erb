@@ -1,0 +1,41 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('layerSevenConnectionForm', function(){
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("observables/network_connections/layer_seven_connections/form.html",type: :template)%>',
+        scope: {
+            layerSevenConnection: '='
+        },
+        controller: ['$scope','$rootScope','Observable','Restangular', 'Classification',
+            function($scope,$rootScope,Observable,Restangular, Classification) {
+                $scope.Observable = Observable;
+
+                var initializer = $scope.$watch("layerSevenConnection", function() {
+                    if (angular.isDefined($scope.layerSevenConnection)) {
+                        if (angular.isUndefined($scope.layerSevenConnection.dns_queries)) {
+                            $scope.layerSevenConnection.dns_queries = [];
+                        }
+                        if (angular.isUndefined($scope.layerSevenConnection.http_session)) {
+                            $scope.layerSevenConnection.http_session = null;
+                        }
+
+                        initializer();
+                    }
+                });
+
+                $scope.removeHttpSession = function() {
+                    $scope.layerSevenConnection.http_session = null;
+                };
+
+                $scope.removeDnsQuery = function(obj) {
+                    _.remove($scope.layerSevenConnection.dns_queries, function(o){
+                        if (o == obj) {
+                            return o;
+                        }
+                    });
+                };
+            }
+        ]
+    };
+});

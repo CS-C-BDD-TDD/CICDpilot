@@ -1,0 +1,16 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('EmailsIndexController', ['$scope','$rootScope','Restangular',
+  function ($scope, $rootScope, Restangular) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Email Messages',link:'#/emails',icon:'fa-group'}];
+    $scope.fetching = true;
+    Restangular.one('/email_messages').get().then(function(data){
+      $scope.emails = data.email_messages;
+      $scope.metadata = data.metadata;
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load Email Messages");
+      $scope.fetching = false;
+    });
+  }
+]);

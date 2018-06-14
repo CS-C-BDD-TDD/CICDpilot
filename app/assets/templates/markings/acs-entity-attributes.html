@@ -1,0 +1,70 @@
+  <h5 class="widget-title smaller" style="margin: 0px;display: inline;">ACS Tags</h5>
+  <span class="widget-toolbar">
+    <a class="fake-link" ng-click="display = !display;">
+      <i class="ace-icon fa fa-plus" ng-show="!display"></i>
+      <i class="ace-icon fa fa-minus" ng-show="display"></i>
+    </a>
+  </span>
+
+  <div class="space-16" style="border-top: 1px solid #d9d9d9;overflow: inherit"></div>
+
+  <div ng-show="display" tooltip="The Distinguished Name from the Entity’s Public Key Identifier (PKI) certificate">
+    <div class="form-group">
+      <label class="control-label col-md-3 no-padding-right">Distinguished Name</label>
+      <div class="col-md-7">
+        <input type="text" class="col-md-12" ng-model="marking.distinguished_name"/>
+      </div>
+    </div>
+
+    <div class="form-group" tooltip="An Entity can be either a Person (PE) or a Non-Person Entity (NPE), such as an external software system">
+      <label class="control-label col-md-3 no-padding-right">Entity Class</label>
+      <div class="col-md-7">
+        <select class="col-md-12" ng-model="marking.entity_class" ng-options="i for i in ['PE','NPE']" ng-change="setATO()"></select>
+      </div>
+    </div>
+
+    <div class="form-group" ng-show="marking.entity_class == 'NPE'">
+      <label class="control-label col-md-3 no-padding-right">Authority to Operate</label>
+      <div class="col-md-7" tooltip="Applies to Non-Person Entities (NPEs) and governs whether they have the authority to access data">
+        <input name="switch-field-1" ng-init='marking.ato_status = false' class="ace ace-switch ace-switch-5" ng-model="marking.ato_status" type="checkbox">
+        <span class="lbl"></span>
+        </input>
+      </div>
+    </div>
+
+    <div class="form-group" tooltip="Specifies the type of affiliation an Entity has with its Admin org, such as “MIL”, “GOV”, etc">
+      <label class="control-label col-md-3 no-padding-right">Entity Type</label>
+      <div class="col-md-7">
+        <select class="col-md-12" ng-model="marking.entity_type" ng-options="val.id as val.label for val in Marking.cs_entity"></select>
+      </div>
+    </div>
+
+    <div class="form-group" tooltip="The employment organization or, in the case of a non-Federal individual, the sponsoring organization">
+      <label class="control-label col-md-3 no-padding-right">Administrative Organization</label>
+      <div class="col-md-7">
+        <select class="col-md-12" ng-model="marking.admin_org" ng-options="val.id as val.label for val in Marking.entity_orgs"></select>
+      </div>
+    </div>
+
+    <div class="form-group" tooltip="The organization being represent by an Entity, which may differ from the Admin org">
+      <label class="control-label col-md-3 no-padding-right">Duty Organization</label>
+      <div class="col-md-7">
+        <select class="col-md-12" ng-model="marking.duty_org" ng-options="val.id as val.label for val in Marking.entity_orgs"></select>
+      </div>
+    </div>
+
+    <div class="form-group" tooltip="The Country setting specifies an Entity’s association with a particular country">
+      <label class="control-label col-md-3 no-padding-right">Country</label>
+      <div class="col-md-7">
+        <select class="col-md-12" ng-model="marking.country" ng-options="val.id as val.label for val in Marking.cs_countries"></select>
+      </div>
+    </div>
+
+
+    <div class="form-group" tooltip="Specifies a particular group of which the entity is a member which, through the application of policy rules, may allow access to sensitive or shared resources">
+      <label class="control-label col-md-3 no-padding-right">Access Group</label>
+      <div class="col-md-7">
+        <multi-select attribute="marking.access_groups" options-for-select="Marking.access_groups"></multi-select>
+      </div>
+    </div>
+  </div>

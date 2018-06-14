@@ -1,0 +1,66 @@
+<div class="page-header">
+  <h1>Create Organization</h1>
+</div>
+
+<form class="form-horizontal">
+  <div class="col-md-12">
+    <div class="form-group">
+      <label class="col-md-4 control-label">Short Name *</label>
+      <div class="col-md-6" ng-class="error.short_name ? 'has-error' : ''">
+        <input type="text" ng-model="organization.short_name" name="short_name" class="form-control" placeholder="Short Name">
+        <ul ng-show="error.short_name">
+          <li ng-repeat="e in error.short_name">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-md-4 control-label">Long Name *</label>
+      <div class="col-md-6" ng-class="error.long_name ? 'has-error' : ''">
+        <input type="text" ng-model="organization.long_name" name="long_name" class="form-control" placeholder="Long Name">
+        <ul ng-show="error.long_name">
+          <li ng-repeat="e in error.long_name">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-md-4 control-label">Contact Info</label>
+      <div class="col-md-6" ng-class="error.contact_info ? 'has-error' : ''">
+        <input type="text" ng-model="organization.contact_info" name="contact_info" class="form-control" placeholder="Contact Info">
+        <ul ng-show="error.contact_info">
+          <li ng-repeat="e in error.contact_info">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-md-4 control-label">Organization Token</label>
+      <div class="col-md-6" ng-class="error.organization_token ? 'has-error' : ''">
+        <select class="col-md-12" ng-model="organization.organization_token" ng-options="val.id as val.label for val in Marking.cs_orgs">
+        </select>
+        <ul ng-show="error.organization_token">
+          <li ng-repeat="e in error.organization_token">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</form>
+
+<div class="row">
+  <div class="col-xs-12">
+    <form class="form-horizontal" role="form" ng-submit="save(organization)">
+      <div class="clearfix form-actions">
+        <div class="col-md-offset-5 col-md-6">
+          <button class="btn btn-info" type="submit">
+            <i class="ace-icon fa fa-check bigger-110"></i> Save
+          </button>
+          <a class="btn" ng-click="cancel()">
+            <i class="ace-icon fa fa-trash-o"></i> Cancel
+          </a>
+        </div>
+      </div>
+      <div class="hr hr-24"></div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,52 @@
+<form class="form-horizontal">
+    <div class="">
+        <div class="form-group" ng-class="{'has-error': error.address}">
+            <label class="col-md-4 control-label">IP Address *</label>
+            <div class="col-md-8">
+                <input type="text" ng-model="address.address_input" name="name" class="col-md-8" placeholder="IP Address" auto-focus ng-disabled="address.cybox_object_id.length">
+                <i class="ace-icon fa fa-info-circle fa-3x ciap_mleft_25" tooltip="The field level marking for this field is defined by the object level marking."></i> 
+                <ul ng-show="error.address" class="help-block">
+                <li ng-repeat="e in error.address">This Address {{e}}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="">
+        <div class="form-group" ng-class="{'has-error': error.address_condition}">
+            <label class="col-md-4 control-label">Address Condition *</label>
+            <div class="col-md-8">
+                <select class="col-md-8" ng-model="address.address_condition" ng-options="condition for condition in conditions" ng-disabled="address.cybox_object_id.length"></select>
+                <br/>
+                <ul ng-show="error.address_condition" class="help-block">
+                    <li ng-repeat="e in error.address_condition">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <acs-associate-form sets="sets" object="address" objecttype="Address" disable-save="is_saving" editform="editform" fieldname="cybox"></acs-associate-form>
+    </div>
+</form>
+
+<div ng-show="showGFIs">
+  <gfi-widget widget-mode="form" gfi="address.gfi" observableScope="gfiScope"></gfi-widget>
+</div>
+<div class="row">
+    <div class="col-xs-12">
+        <form class="form-horizontal" role="form" ng-submit="save(address)">
+            <div class="clearfix form-actions">
+                <span ng-show="is_saving">
+                    <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+                </span>
+                <div class="col-md-offset-3">
+                    <button class="btn btn-info" ng-disabled="is_saving" type="submit">
+                        <i class="ace-icon fa fa-check bigger-110"></i> Save
+                    </button>
+                    <button class="btn btn-default" ng-disabled="is_saving" type="button" ng-click="cancel()">
+                        <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                    </button>
+                </div>
+            </div>
+            <div class="hr hr-24"></div>
+        </form>
+    </div>
+</div>

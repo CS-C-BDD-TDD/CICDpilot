@@ -1,0 +1,36 @@
+app.directive('confidenceTable', function(){
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("confidence/table.html",type: :template)%>',
+        scope: {
+            confidences: '=',
+            showTable: '@'
+        },
+        transclude: true,
+        controller: ['$scope','$transclude', function($scope,$transclude){
+            $scope.defaultHeader = true;
+            $transclude(function(clone){
+                if (clone.contents().length > 0) {
+                    $scope.defaultHeader = false;
+                }
+            });
+            $scope.characterLimit = 100;
+
+            $scope.$watch("confidences", function(newVal,oldVal){
+                if (angular.isDefined($scope.confidences)){
+                    var official = true;
+                    $scope.fonts = [];
+                    for (var i=0;i<$scope.confidences.length;i++) {
+                       if ($scope.confidences[i].is_official && official) {
+                           official = false;
+                           $scope.confidences[i].font = "{'font-weight':'bold'}";
+                       }
+                       else {
+                           $scope.confidences[i].font = "{'font-weight':'normal'}";
+                       }
+                    }
+                }
+            });
+        }]
+    };
+});

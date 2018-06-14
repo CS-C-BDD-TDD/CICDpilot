@@ -1,0 +1,181 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">
+
+<div class="page-header">
+  <h1>
+    {{File.get_value(file)}}
+    <small ng-show="file.read_only">
+      <span style="margin-left: 10px" class="label label-warning arrowed arrowed-right">
+        <span class="white">Read Only</span>
+      </span>
+    </small>
+    <small ng-show="file.is_ciscp">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">CISCP</span>
+      </span>
+    </small>
+    <small ng-show="file.is_mifr">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">MIFR</span>
+      </span>
+    </small>    
+    <span class="pull-right">
+      <a ng-href="#/files/{{file.cybox_object_id | encodeURIComponent}}/edit" class="btn btn-info no-radius btn-xs" ng-show="canModify(file) && file.read_only == false"><i class="ace-icon fa fa-pencil-square-o bigger-160"></i> Edit</a>
+    </span>
+  </h1>
+  <div class="space-18"></div>
+  <span class="pull-left" ng-show="canAny(['create_remove_badge_status','view_badge_status'])">
+    <badge-statuses-table badge-statuses="file.badge_statuses" audits="file.audits" parent-id="file.guid" parent-class="CyboxFile"></badge-statuses-table>
+  </span>
+  <div class="space-18"></div>
+</div>
+
+<p class="pull-right">
+</p>
+
+<div class="profile-user-info profile-user-info-striped">
+  <div class="profile-info-row">
+    <div class="profile-info-name"> File Name </div>
+    <div class="profile-info-value">
+      <span>{{file.file_name | prefixWithPortionMarking: file.portion_marking:file.file_name_c}}</span>
+      <field-markings-show markings="file.stix_markings" fieldname="file_name"></field-markings-show>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> File Name Condition </div>
+    <div class="profile-info-value">
+      <span>{{file.file_name_condition}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> File Path </div>
+    <div class="profile-info-value">
+      <span>{{file.file_path | prefixWithPortionMarking: file.portion_marking:file.file_path_c}}</span>
+      <field-markings-show markings="file.stix_markings" fieldname="file_path"></field-markings-show>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> File Path Condition </div>
+    <div class="profile-info-value">
+      <span ng-show="file.file_path">{{file.file_path_condition}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Size in Bytes </div>
+    <div class="profile-info-value">
+      <span>{{file.size_in_bytes | prefixWithPortionMarking: file.portion_marking:file.size_in_bytes_c}}</span>
+      <field-markings-show markings="file.stix_markings" fieldname="size_in_bytes"></field-markings-show>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Size in Bytes Condition </div>
+    <div class="profile-info-value">
+      <span ng-show="file.size_in_bytes">{{file.size_in_bytes_condition}}</span>
+    </div>
+  </div>
+  
+  <div class="profile-info-row" ng-show='file.feeds'>
+    <div class="profile-info-name"> Disseminated Feeds </div>
+    <div class="profile-info-value">
+      <span>{{file.feeds}}</span>
+    </div>
+  </div>  
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> MD5 </div>
+    <div class="profile-info-value">
+      <span>{{file.md5 | prefixWithPortionMarking: file.portion_marking:file.md5_c}}</span>
+      <field-markings-show markings="file.md5_stix_markings" fieldname="md5"></field-markings-show>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> SHA1 </div>
+    <div class="profile-info-value">
+      <span>{{file.sha1 | prefixWithPortionMarking: file.portion_marking:file.sha1_c}}</span>
+      <field-markings-show markings="file.sha1_stix_markings" fieldname="sha1"></field-markings-show>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> SHA256 </div>
+    <div class="profile-info-value">
+      <span>{{file.sha256 | prefixWithPortionMarking: file.portion_marking:file.sha256_c}}</span>
+      <field-markings-show markings="file.sha256_stix_markings" fieldname="sha256"></field-markings-show>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> SSDEEP </div>
+    <div class="profile-info-value">
+      <span>{{file.ssdeep | prefixWithPortionMarking: file.portion_marking:file.ssdeep_c}}</span>
+      <field-markings-show markings="file.ssdeep_stix_markings" fieldname="ssdeep"></field-markings-show>
+    </div>
+  </div>
+
+  <div class="profile-info-row" ng-show="file.unknown">
+    <div class="profile-info-name"> Unknown Hash Type </div>
+    <div class="profile-info-value">
+      <span>{{file.unknown | prefixWithPortionMarking: file.portion_marking:file.unknown_c}}</span>
+      <field-markings-show markings="file.stix_markings" fieldname="unknown"></field-markings-show>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Created 
+    	<span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+      		<i class="fa fa-ban fa-stack-2x"> </i> 
+ 			<i class="fa fa-download fa-stack-1x"> </i> 
+    	</span>
+    </div>
+    <div class="profile-info-value">
+      <span>{{file.created_at | date:"medium"}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Total Sightings </div>
+    <div class="profile-info-value">
+      <span>{{file.total_sightings}}</span>
+    </div>
+  </div>
+  <downgrade-request-ids observable="file"></downgrade-request-ids>
+</div>
+
+<div ng-show="file.stix_markings.length">
+  <div class="space-12"></div>
+  <markings-table markings="file.stix_markings"></markings-table>
+</div>
+
+<div ng-show="file.indicators.length">
+  <div class="space-12"></div>
+  <indicator-table indicators="file.indicators"></indicator-table>
+</div>
+
+<div ng-show="file.email_messages.length">
+  <div class="space-12"></div>
+  <email-table emails="file.email_messages"></email-table>
+</div>
+
+<div class="space-12" ng-show="file.course_of_actions.length"></div>
+<course-of-actions-table course_of_actions="file.course_of_actions" show_table=showTable addrelated="false" ng-show="file.course_of_actions.length"></course-of-actions-table>
+
+<div ng-show="file.stix_packages.length > 0">
+  <div class="space-12"></div>
+  <package-table packages="file.stix_packages"></package-table>
+</div>
+
+<div class="space-12" ng-show="showGFIs"></div>
+<div ng-show="showGFIs">
+  <gfi-widget widget-mode="show" gfi="file.gfi"></gfi-widget>
+</div>
+<div class="space-12"></div>
+<audits-table audits="file.audits"></audits-table>
+
+</div>
+
+<show-spinner> </show-spinner>

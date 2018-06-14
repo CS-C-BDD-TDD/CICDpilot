@@ -1,0 +1,10 @@
+#!/bin/bash
+echo "Setting authentication mode to ICAM..."
+/var/apps/cyber-indicators/bin/initialize-system-settings
+/var/apps/cyber-indicators/bin/initialize-application-webserver-with-icam
+BASIC=false TEMPLATE=/etc/cyber-indicators/templates/etc/cyber-indicators/config/authenticators.yml.erb OUTFILE=/etc/cyber-indicators/config/authenticators.yml /var/apps/cyber-indicators/bin/rake db:template:create
+found=`grep 'export CATALINA_OPTS="${CATALINA_OPTS} -Dorg.apache.tomcat.util.http.ServerCookie.FWD_SLASH_IS_SEPARATOR=false"' /usr/share/tomcat7/bin/setenv.sh | wc -l`
+if [ $found == 0 ]; then
+  echo 'export CATALINA_OPTS="${CATALINA_OPTS} -Dorg.apache.tomcat.util.http.ServerCookie.FWD_SLASH_IS_SEPARATOR=false"' >> /usr/share/tomcat7/bin/setenv.sh
+fi
+/var/apps/cyber-indicators/bin/enforce-application-permissions

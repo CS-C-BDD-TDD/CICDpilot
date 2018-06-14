@@ -1,0 +1,110 @@
+  <div class="widget-box widget-color-blue ui-sortable-handle">
+    <div class="widget-header">
+      <h5 class="widget-title bigger lighter">
+        <a class="fake-link white" ng-click="set_visibility()">
+          <span tooltip="Show/Hide Links">
+            <i class="ace-icon fa fa-table"></i>
+            Links
+          </span>
+        </a>
+      </h5>
+      <button tooltip="Link" type="button" class="btn btn-white btn-info btn-xs pull-right ciap_mleft_5 ciap_mright_5 ciap_mtop_5" ng-click="set_view(2)">
+        <i class="fa fa-link bigger-180 ace-icon" ng-cloak></i>
+      </button>
+      <button tooltip="Add + Link" type="button" class="btn btn-white btn-info btn-xs pull-right ciap_mleft_5 ciap_mright_5 ciap_mtop_5" ng-click="set_view(1)">
+        <i class="fa fa-plus bigger-180 ace-icon" ng-cloak></i>
+      </button>
+      <button tooltip="View" type="button" class="btn btn-white btn-info btn-xs pull-right ciap_mleft_5 ciap_mright_5 ciap_mtop_5" ng-click="set_view(0)">
+        <i class="fa fa-eye bigger-180 ace-icon" ng-cloak></i>
+      </button>
+    </div>
+    <div class="widget-body" ng-show="showTable && view==0">
+      <div class="widget-main no-padding">
+        <table class="table table-striped table-bordered table-hover">
+          <thead class="thin-border-bottom">
+            <tr>
+              <th>URI</th>
+              <th>URI Condition</th>
+              <th>Label</th>
+              <th>Label Condition</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody ng-hide="fetching">
+            <tr ng-repeat="link in links">
+              <td>
+                <a class="fake-link" ng-href="#/links/{{link.cybox_object_id | encodeURIComponent}}">{{link.uri_attributes.uri | prefixWithPortionMarking: link.uri_attributes.portion_marking}}</a>
+              </td>
+              <td>
+                {{link.uri_attributes.uri_condition}}
+              </td>
+              <td>
+                {{link.label | prefixWithPortionMarking: link.portion_marking:link.label_c}}
+              </td>
+              <td>
+                {{link.label_condition}}
+              </td>
+              <td>
+                {{link.created_at | date: 'medium'}}
+              </td>
+            </tr>
+            <tr ng-hide="links.length">
+              <td colspan="5" style="text-align:center">No Results</td>
+            </tr>
+          </tbody>
+          <tbody ng-show="fetching">
+            <tr>
+              <td colspan="3" class="center">
+                <i class="fa fa-spinner fa-spin bigger-300 blue"></i>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="widget-body" ng-show="showTable && view==1">
+      <div class="page-header">
+        <h1>Create and Link Link Observable</h1>
+      </div>
+
+      <link-form link='link' saved='saved' failed='failed' cancel='cancel' editform='false' fromlinker='true'></link-form>
+    </div>
+
+    <div class="widget-body" ng-show="showTable && view==2">
+      <div>
+        <div class="widget-header widget-header-small ">
+          <h4 class="widget-title blue smaller"><i class="ace-icon fa fa-tasks orange"></i> Attached Links </h4>
+        </div>
+        <div class="space-6"></div>
+
+        <div class="width-90 center-block" ng-show="links.length">
+          <div class="ciap_table_scroll_500">
+            <ol class="dd-list">
+              <li class="dd-item" ng-repeat="link in links">
+                <div class="dd-handle">
+                  <a ng-href="#/links/{{link.cybox_object_id}}">{{link.uri_attributes.uri | prefixWithPortionMarking: link.uri_attributes.portion_marking}} "{{link.label | prefixWithPortionMarking:link.portion_marking:link.label_c}}"</a>
+                  <div class="pull-right action-buttons">
+                    <a class="red" href="" ng-click="remove_link(link)"> <i class="ace-icon fa fa-trash-o bigger-130"></i> </a>
+                  </div>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
+      <!-- Add Link Browser here -->
+      <div ng-hide="links.length" style="text-align: center">
+        No Links
+      </div>
+
+      <link-browser selected-links="links" accessor="accessor" modified="modified"></link-browser>
+
+      <div class="col-md-offset-3">
+        <button class="btn btn-info pull-right ciap_mleft_5" ng-click="apply_changes(false)" ng-disabled="!modified">
+          <i class="ace-icon fa fa-check bigger-110"></i> Apply Changes
+        </button>
+      </div>
+      <div class="space-24"></div>
+    </div>
+  </div>

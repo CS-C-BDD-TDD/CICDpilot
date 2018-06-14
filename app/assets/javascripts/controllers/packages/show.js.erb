@@ -1,0 +1,79 @@
+app.controller('PackagesShowController', ['$scope','$routeParams','$rootScope','$location','Restangular','Color','Package', 'Marking', 
+  function ($scope, $routeParams, $rootScope, $location, Restangular,Color,Package,Marking) {
+    $scope.fetching = true;
+    $scope.can = $rootScope.can;
+    $scope.Color = Color;
+    $scope.Package = Package;
+    $scope.linker = {selected_coas: []};
+    $scope.showTable = {coa_data: true, collapse: false};
+    Restangular.one("/stix_packages/"+$routeParams.id).get().then(function(data){
+      // you need this here because of how we gather the markings from scope
+      $scope.package = Marking.translate_existing_attributes(data);
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                {text:'All Packages',link:'#/packages',icon:'fa-list'},
+                                {text:data.title,link:'#/packages/'+encodeURIComponent(data.stix_id),icon:'fa-eye'}];
+      $scope.fetching = false;
+    },function(res){
+      $rootScope.show_res_errors(res);
+      $scope.fetching = false;
+    });
+
+    $scope.destroy = function(package){
+      var justification = prompt("Justification for deleting package");
+      if (justification){
+        $scope.fetching = true;
+        Restangular.one("/stix_packages/"+package.stix_id).remove().then(function(data){
+          toastr.success("Package removed");
+          $location.path('/packages');
+          $scope.fetching = false;
+        },function(res){
+          toastr.error("Could not remove package: "+res.data.errors[0]);
+          $scope.fetching = false;
+        });
+      }
+    };
+
+    $scope.cancelLinkingCoas = function() {
+      $scope.showTable.coa_data = !$scope.showTable.coa_data;
+      $scope.linker.selected_coas = [];
+    }
+
+    $scope.saveLinkingCoas = function() {
+
+      if ($scope.linker.selected_coas.length == 0){
+        toastr.error("Please select at least 1 Course of action");
+        return;
+      }
+      // so now that we are ready to save these all we need is id's.
+      var post_obj = {};
+
+      // need to make sure they can modify coas so filter out coas that are not allowed to be edited.
+      $scope.linker.selected_coas = _.filter($scope.linker.selected_coas, function(coas){
+        return $rootScope.canModify(coas);
+      });
+
+      post_obj.coa_stix_ids = _.map($scope.linker.selected_coas,function(coa) {
+        return coa.stix_id;
+      });
+
+      post_obj.stix_package_stix_id = $scope.package.stix_id;
+
+      Restangular.all('stix_package/coa_additions/link').customPUT(post_obj).then(function(data){
+          $scope.package = Marking.translate_existing_attributes(data);
+          toastr.success("Successfully Added Courses of Action");
+          $scope.showTable.coa_data = !$scope.showTable.coa_data;
+          $scope.linker.selected_coas = [];
+        }, function(res) {
+          // give a toastr with any validation errors
+          if (angular.isDefined(data.errors)){
+            _.forEach(data.errors,function(error) {
+                toastr.error("Unable to add Courses of Action to Package: " + error, '', {timeOut: 15000, closeButton: true});
+            })
+          }
+        }
+      );
+      
+    }
+
+  }
+]);

@@ -1,0 +1,38 @@
+<div>
+  <div class="col-md-12">
+    <h4><b>Report an Issue</b></h4>
+    <p> To help make Cyber Indicators a better system, please leave any comments, suggestions, or concerns you have about our product.</p>
+  </div>
+  <hr/>
+  <div>
+    <label class="control-label col-md-2 no-padding-right"><b>Subject:</b></label>
+    <div class="col-md-10">
+      <ul ng-show="error.subject" class="help-block">
+        <li ng-repeat="e in error.subject">{{e}}</li>
+      </ul>
+      <input type="text" class="col-md-12 ng-pristine ng-untouched ng-valid" ng-model="form.subject" placeholder="Subject">
+    </div>
+  </div>
+  &nbsp;
+  <div>
+    <label class="control-label col-md-2 no-padding-right"><b>Description:</b></label>
+    <div class="col-md-10">
+      <ul ng-show="error.description" class="help-block">
+        <li ng-repeat="e in error.description">{{e}}</li>
+      </ul>
+      <textarea class="form-control ng-pristine ng-untouched ng-valid no-padding-right" ng-model="form.description" placeholder="Description" style="height: 250px"></textarea>
+    </div>
+  </div>
+  &nbsp;<br/>
+  <div class="col-md-12">
+    <div class="col-md-3"></div>
+    <div class="col-md-3">
+      <input ng-click="save(form)" type="submit" value = "Submit Issue">
+    </div>
+    <div class="col-md-3">
+      <input ng-click="close()" type="submit" value = "Cancel">
+    </div>
+    <div class="col-md-3"></div>
+  </div>
+  &nbsp;
+</div>

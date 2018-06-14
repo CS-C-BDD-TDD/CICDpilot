@@ -1,0 +1,6 @@
+<button tooltip="View Field ISA Marking" class="btn btn-xs btn-white btn-info pull-right" data-toggle="collapse" data-target="#{{fieldname}}" ng-show="show_buttons"><i class="ace-icon fa fa-eye bigger-120"></i></button>
+
+<div class="collapse" id="{{fieldname}}" ng-show="show_buttons">
+	<div class="space-18"></div>
+		<markings-table markings="markings" fieldname="fieldname" fieldtext="fieldtext"></markings-table>
+</div>

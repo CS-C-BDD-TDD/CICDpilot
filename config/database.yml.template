@@ -1,0 +1,39 @@
+production:
+  adapter: sqlite3
+  database: db/production.sqlite3
+  pool: 5
+  timeout: 5000
+
+dbadmin:
+  adapter: sqlite3
+  database: db/production.sqlite3
+  pool: 5
+  timeoute: 5000
+
+
+development:
+  adapter: sqlite3
+  database: db/development.sqlite3
+  pool: 5
+  timeout: 5000
+
+test:
+  adapter: sqlite3
+  database: db/test.sqlite3
+  pool: 5
+  timeout: 5000
+
+#development:
+#  adapter: postgresql
+#  host: localhost
+#  port: 5432
+#  username: indy
+#  password: P@ssw0rd!
+#  database: rel6_dev
+#  encoding: utf8
+#  pool: 5
+
+
+
+
+

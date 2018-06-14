@@ -1,0 +1,13 @@
+app.controller('AisDashboardIndexController', ['$scope','$rootScope','Restangular',
+  function ($scope, $rootScope, Restangular) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'AIS Dashboard',link:'#/ais_dashboard',icon:'fa-thumb-tack'}];
+    $scope.fetching = false;
+    Restangular.one('ais_statistics').get().then(function(data){
+      $scope.ais_dashboard_data = data.ais_statistics;
+      $scope.metadata = data.metadata;
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load AIS Statistics Data");
+      $scope.fetching = false;
+    });
+}]);

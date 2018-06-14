@@ -1,0 +1,27 @@
+spnego-client {
+	com.sun.security.auth.module.Krb5LoginModule required;
+};
+
+spnego-server {
+	com.sun.security.auth.module.Krb5LoginModule required
+	storeKey=true
+	isInitiator=false;
+};
+
+spnego-preauth {
+	com.sun.security.auth.module.Krb5LoginModule required
+	storeKey=true
+	isInitiator=false;
+};
+
+active-directory-client {
+  com.sun.security.auth.module.Krb5LoginModule required;
+};
+
+active-directory {
+	com.sun.security.auth.module.Krb5LoginModule required
+	storeKey=true
+  useKeyTab=true
+  keyTab="file:///usr/share/tomcat7/conf/cyber-indicators.keytab"
+  principal=<%=ENV['ACTIVE_DIRECTORY_SERVICE_ACCOUNT_USERNAME']||"tomcat.svc"%>;
+};

@@ -1,0 +1,528 @@
+app.service('Observable', ['Email', '$filter', function(Email, $filter){
+  var fetch_indicator_from_scope = function(scope) {
+      if (Object.getOwnPropertyNames(scope).includes("indicator")) {
+          return scope.indicator;
+      }
+      else {
+          return fetch_indicator_from_scope(scope.$parent);
+      }
+  };
+
+  return {
+    type_to_object_name: {
+                           'Address': 'address',
+                           'DnsQuery': 'dns_query',
+                           'DnsRecord': 'dns_record',
+                           'Domain': 'domain',
+                           'EmailMessage': 'email_message',
+                           'CyboxFile': 'file',
+                           'HttpSession': 'http_session',
+                           'Hostname': 'hostname',
+                           'Link': 'link',
+                           'CyboxMutex': 'mutex',
+                           'NetworkConnection': 'network_connection',
+                           'Registry': 'registry',
+                           'SocketAddress': 'socket_address',
+                           'Port': 'port',
+                           'Uri': 'uri'
+                         },
+    type_to_display_name: {
+        'Address': 'Address',
+        'DnsQuery': 'DNS Query',
+        'DnsRecord': 'DNS Record',
+        'Domain': 'Domain',
+        'EmailMessage': 'E-Mail Message',
+        'CyboxFile': 'File',
+        'HttpSession': 'HTTP Session',
+        'Hostname': 'Hostname',
+        'Link': 'Link',
+        'CyboxMutex': 'Mutex',
+        'NetworkConnection': 'Network Connection',
+        'Registry': 'Registry',
+        'SocketAddress': 'Socket Address',
+        'Port': 'Port',
+        'Uri': 'URI'
+
+    },
+    type_to_value_field: {
+                             'Address': 'address',
+                             'DnsQuery': 'dns_query',
+                             'DnsRecord': 'address_value',
+                             'Domain': 'name',
+                             'EmailMessage': 'sender',
+                             'CyboxFile': 'file_name',
+                             'HttpSession': 'user_agent',
+                             'Hostname': 'hostname',
+                             'Link': 'label',
+                             'CyboxMutex': 'name',
+                             'NetworkConnection': 'dest_socket_address',
+                             'Registry': 'hive',
+                             'SocketAddress': 'cybox_object_id',
+                             'Port': 'port',
+                             'Uri': 'uri'
+                           },
+	  display_name_to_type: {
+		  'Address':'Address',
+      'DNS Query': 'DnsQuery',
+		  'DNS Record':'DnsRecord',
+		  'Domain':'Domain',
+		  'E-Mail Message':'EmailMessage',
+		  'File':'File',
+		  'HTTP Session':'HttpSession',
+		  'Hostname':'Hostname',
+		  'Link':'Link',
+		  'Mutex':'Mutex',
+		  'Network Connection':'NetworkConnection',
+		  'Registry': 'Registry',
+      'Socket Address': 'SocketAddress',
+		  'Port': 'Port',
+		  'URI': 'Uri'
+	  },
+    valid_types: function(){
+        var keys = <%= Observable::VALID_OBSERVABLES.keys.collect(&:to_s) %>;
+        var values = <%= Observable::VALID_OBSERVABLES.values %>;
+        var hash = {};
+        for(var i = 0;i<keys.length;i++){
+            hash[keys[i]] = values[i];
+        }
+        return(hash);
+    },
+    prefix_portion_marking: function(text, cyboxObj) {
+      if (angular.isUndefined(cyboxObj) ||
+          angular.isUndefined(cyboxObj.portion_marking) ||
+          angular.isUndefined(text) ||
+          text == null || text.length === 0) {
+        return text;
+      }
+      else {
+        return $filter('prefixWithPortionMarking')(text,
+            cyboxObj.portion_marking);
+      }
+    },
+    get_value: function (observable) {
+      var value = '';
+      var type = observable.remote_object_type;
+      if (type !== null) {
+        if (type === 'EmailMessage') {
+          return Email.get_value(observable.email_message);
+        }
+        else if (type == 'Address') {
+          if (angular.isDefined(observable.address.address)) {
+            value += 'Address: ' + observable.address.address;
+          }
+          else if (angular.isDefined(observable.address.address_value_normalized)) {
+            value += 'Address: ' + observable.address.address_value_normalized;
+          }
+          return this.prefix_portion_marking(value, observable.address);
+        }
+        else if (type === 'DnsQuery'){
+          if (angular.isDefined(observable.dns_query)){
+            if (angular.isDefined(observable.dns_query.question_normalized_cache) && observable.dns_query.question_normalized_cache != null && observable.dns_query.question_normalized_cache != ""){
+              value += 'Questions: ' + observable.dns_query.question_normalized_cache + ' | ';
+            }
+            if (angular.isDefined(observable.dns_query.answer_normalized_cache) && observable.dns_query.answer_normalized_cache != null && observable.dns_query.answer_normalized_cache != ""){
+              value += 'Answers: ' + observable.dns_query.answer_normalized_cache + ' | ';
+            }
+            if (angular.isDefined(observable.dns_query.authority_normalized_cache) && observable.dns_query.authority_normalized_cache != null && observable.dns_query.authority_normalized_cache != ""){
+              value += 'Authorities: ' + observable.dns_query.authority_normalized_cache + ' | ';
+            }
+            if (angular.isDefined(observable.dns_query.additional_normalized_cache) && observable.dns_query.additional_normalized_cache != null && observable.dns_query.additional_normalized_cache != ""){
+              value += 'Additional: ' + observable.dns_query.additional_normalized_cache + ' | ';
+            }
+            return this.prefix_portion_marking(value, observable.dns_query);
+          }
+        }
+        else if (type === 'DnsRecord') {
+          if (angular.isDefined(observable.dns_record.address)) {
+            value += 'Address: ' + observable.dns_record.address + ' | ';
+          }
+          else if (angular.isDefined(observable.dns_record.address_value_normalized)) {
+            value += 'Address: ' + observable.dns_record.address_value_normalized + ' | ';
+          }
+
+          value += 'Address Class: ' + observable.dns_record.address_class;
+          value += ' | ';
+
+          if (angular.isDefined(observable.dns_record.domain)) {
+            value += 'Domain: ' + observable.dns_record.domain + ' | ';
+          }
+          else if (angular.isDefined(observable.dns_record.domain_normalized)) {
+            value += 'Domain: ' + observable.dns_record.domain_normalized + ' | ';
+          }
+          value += 'Entry Type: ' + observable.dns_record.entry_type;
+          return this.prefix_portion_marking(value, observable.dns_record);
+        }
+        else if (type === 'Domain') {
+          value += 'Domain Name: ' + observable.domain.name;
+          value += ' | ';
+          value += 'Domain Name Condition: ' + observable.domain.name_condition;
+          return this.prefix_portion_marking(value, observable.domain);
+        }
+        else if (type === 'Hostname') {
+          value += 'Hostname: ' + observable.hostname.hostname;
+          value += ' | ';
+          value += 'Hostname Condition: ' + observable.hostname.hostname_condition;
+          value += ' | ';
+          value += 'Naming System: ' + observable.hostname.naming_system;
+          value += ' | ';
+          value += 'Is Domain Name: ' + observable.hostname.is_domain_name;
+          return this.prefix_portion_marking(value, observable.hostname);
+        }
+        else if (type === 'CyboxFile') {
+          var cf_value = '';
+          if (observable.file.file_name != null) {
+            cf_value += 'File Name: ' + observable.file.file_name;
+          }
+          if (angular.isDefined(observable.file.md5) && observable.file.md5 != '' && observable.file.md5 != null && observable.file.md5.length) {
+            if (cf_value) {
+              cf_value += ' | ';
+            }
+            cf_value += 'MD5: ' + observable.file.md5
+          }
+          value += cf_value.length ? cf_value : 'File:';
+          return this.prefix_portion_marking(value, observable.file);
+        }
+        else if (type === 'HttpSession') {
+          var hs_value = '';
+          if (observable.http_session.user_agent) {
+            hs_value += 'User Agent: ' + observable.http_session.user_agent;
+          }
+          if (observable.http_session.domain_name) {
+            if (hs_value) {
+              hs_value += ' | ';
+            }
+            hs_value += 'Domain Name: ' + observable.http_session.domain_name;
+          }
+          if (observable.http_session.port) {
+            if (hs_value) {
+              hs_value += ' | ';
+            }
+            hs_value += 'Port: ' + observable.http_session.port;
+          }
+          if (observable.http_session.referer) {
+            if (hs_value) {
+              hs_value += ' | ';
+            }
+            hs_value += 'Referer: ' + observable.http_session.referer;
+          }
+          if (observable.http_session.pragma) {
+            if (hs_value) {
+              hs_value += ' | ';
+            }
+            hs_value += 'Pragma: ' + observable.http_session.pragma;
+          }
+          value += hs_value.length ? hs_value : 'HTTP Session:';
+          return this.prefix_portion_marking(value, observable.http_session);
+        }
+        else if (type === 'Link') {
+          var l_value = '';
+          if (observable.link.uri.uri != null) {
+            l_value += observable.link.uri.uri;
+          }
+          if (observable.link.label != null) {
+            if (l_value) {
+              l_value += ' ';
+            }
+            l_value += '"' + observable.link.label + '"';
+          }
+          value += 'Link: ' + l_value;
+          return this.prefix_portion_marking(value, observable.link);
+        }
+        else if (type === 'CyboxMutex') {
+          value += 'Mutex: ';
+          if (observable.mutex.name != null) {
+            value += observable.mutex.name;
+          }
+          return this.prefix_portion_marking(value, observable.mutex);
+        }
+        else if (type === 'NetworkConnection') {
+          var nc_value = '';
+          if (observable.network_connection.source_socket_address ||
+              observable.network_connection.source_socket_hostname ||
+              observable.network_connection.source_socket_port) {
+            nc_value += 'Source: ';
+            if (observable.network_connection.source_socket_address) {
+              nc_value += observable.network_connection.source_socket_address;
+              if (observable.network_connection.source_socket_is_spoofed) {
+                nc_value += " (Spoofed)"
+              }
+            }
+            else if (observable.network_connection.source_socket_hostname) {
+              nc_value += observable.network_connection.source_socket_hostname;
+            }
+            if (observable.network_connection.source_socket_port) {
+              nc_value += ':' + observable.network_connection.source_socket_port;
+            }
+            if (observable.network_connection.layer4_protocol) {
+              nc_value += '/' + observable.network_connection.layer4_protocol;
+            }
+          }
+          if (observable.network_connection.dest_socket_address ||
+              observable.network_connection.dest_socket_hostname ||
+              observable.network_connection.dest_socket_port) {
+            if (nc_value.length) {
+              nc_value += ' | ';
+            }
+            nc_value += 'Destination: ';
+            if (observable.network_connection.dest_socket_address) {
+              nc_value += observable.network_connection.dest_socket_address;
+              if (observable.network_connection.dest_socket_is_spoofed) {
+                nc_value += " (Spoofed)"
+              }
+            }
+            else if (observable.network_connection.dest_socket_hostname) {
+              nc_value += observable.network_connection.dest_socket_hostname;
+            }
+            if (observable.network_connection.dest_socket_port) {
+              nc_value += ':' + observable.network_connection.dest_socket_port;
+            }
+            if (observable.network_connection.layer4_protocol) {
+              nc_value += '/' + observable.network_connection.layer4_protocol;
+            }
+          }
+          value += nc_value.length ? nc_value : 'Network Connection:';
+          return this.prefix_portion_marking(value,
+              observable.network_connection);
+        }
+        else if (type === 'Port') {
+          var port_value = '';
+          if (observable.port.port) {
+            port_value += 'Port: ' + observable.port.port;
+          }
+          if (observable.port.layer4_protocol) {
+            if (port_value) {
+              port_value += ' | ';
+            }
+            port_value += 'Layer 4 Protocol: ' + observable.port.layer4_protocol;
+          }
+          value += port_value.length ? port_value : 'Port:';
+          return this.prefix_portion_marking(value, observable.port);
+        }
+        else if (type === 'Registry') {
+          value += 'Hive: ';
+          if (observable.registry.hive != null) {
+            value += observable.registry.hive;
+          }
+          value += ' | ';
+          value += 'Key: ';
+          if (observable.registry.key != null) {
+            value += observable.registry.key;
+          }
+          return this.prefix_portion_marking(value, observable.registry);
+        } else if (type === 'SocketAddress'){
+          value += 'Addresses: ';
+          if (observable.socket_address.addresses_normalized_cache != null) {
+            value += observable.socket_address.addresses_normalized_cache;
+          }
+          value += ' | ';
+          value += 'Hostnames: ';
+          if (observable.socket_address.hostnames_normalized_cache != null) {
+            value += observable.socket_address.hostnames_normalized_cache;
+          }
+          value += ' | ';
+          value += 'Ports: ';
+          if (observable.socket_address.ports_normalized_cache != null) {
+            value += observable.socket_address.ports_normalized_cache;
+          }
+          value += ' | ';
+          return this.prefix_portion_marking(value, observable.socket_address);
+        }
+        else {
+          var object_name = this.type_to_object_name[type];
+          var value_field = this.type_to_value_field[type];
+          value = type + ': ' + observable[object_name][value_field];
+          return this.prefix_portion_marking(value, observable[object_name]);
+        }
+      }
+      return (value);
+    },
+    dnsAddressClasses: [
+                         'IN',
+                         'CH',
+                         'HS'
+                       ],
+    dnsEntryTypes: [
+                     'A',
+                     'NS',
+                     'MD',
+                     'MF',
+                     'CNAME',
+                     'SOA',
+                     'MB',
+                     'MG',
+                     'MR',
+                     'NULL',
+                     'WKS',
+                     'PTR',
+                     'HINFO',
+                     'MINFO',
+                     'MX',
+                     'TXT',
+                     'RP',
+                     'AFSDB',
+                     'X25',
+                     'ISDN',
+                     'RT',
+                     'NSAP',
+                     'NSAP-PTR',
+                     'SIG',
+                     'KEY',
+                     'PX',
+                     'GPOS',
+                     'AAAA',
+                     'LOC',
+                     'NXT',
+                     'EID',
+                     'NIMLOC',
+                     'SRV',
+                     'ATMA',
+                     'NAPTR',
+                     'KX',
+                     'CERT',
+                     'A6',
+                     'DNAME',
+                     'SINK',
+                     'OPT',
+                     'APL',
+                     'DS',
+                     'SSHFP',
+                     'IPSECKEY',
+                     'RRSIG',
+                     'NSEC',
+                     'DNSKEY',
+                     'DHCID',
+                     'NSEC3',
+                     'NSEC3PARAM',
+                     'TLSA',
+                     'HIP',
+                     'NINFO',
+                     'RKEY',
+                     'TALINK',
+                     'CDS',
+                     'CDNSKEY',
+                     'OPENPGPKEY',
+                     'SPF',
+                     'UINFO',
+                     'UID',
+                     'GID',
+                     'UNSPEC',
+                     'NID',
+                     'L32',
+                     'L64',
+                     'LP',
+                     'EUI48',
+                     'EUI64',
+                     'TKEY',
+                     'TSIG',
+                     'IXFR',
+                     'AXFR',
+                     'MAILB',
+                     'MAILA',
+                     'URI',
+                     'CAA',
+                     'TA',
+                     'DLV'
+                   ],
+    registryHives: [
+                     'HKEY_CLASSES_ROOT',
+                     'HKEY_CURRENT_CONFIG',
+                     'HKEY_CURRENT_USER',
+                     'HKEY_LOCAL_MACHINE',
+                     'HKEY_USERS',
+                     'HKEY_CURRENT_USER_LOCAL_SETTINGS',
+                     'HKEY_PERFORMANCE_DATA',
+                     'HKEY_PERFORMANCE_NLSTEXT',
+                     'HKEY_PERFORMANCE_TEXT'
+                   ],
+    protocolList: [
+                    '',
+                    'TCP',
+                    'UDP'
+                  ],
+    layer3ProtocolList: [
+      'IPv4',
+      'IPv6',
+      'ICMP',
+      'IGMP',
+      'IGRP',
+      'CLNP',
+      'EGP',
+      'EIGRP',
+      'IPSec',
+      'IPX',
+      'Routed-SMLT',
+      'SCCP'
+    ],
+    layer4ProtocolList: [
+      'TCP',
+      'UDP',
+      'AH',
+      'DCCP',
+      'ESP',
+      'GRE',
+      'IL',
+      'SCTP',
+      'SINEC H1',
+      'SPX'
+    ],
+    layer7ProtocolList: [
+      'HTTP',
+      'HTTPS',
+      'FTP',
+      'SMTP',
+      'IRC',
+      'IDENT',
+      'DNS',
+      'TELNET',
+      'POP3',
+      'IMAP',
+      'SSH',
+      'SMB',
+      'ADC',
+      'AFP',
+      'BACNet',
+      'BitTorrent',
+      'BOOTP',
+      'Diameter',
+      'DICOM',
+      'DICT',
+      'DSM-CC',
+      'DSNP',
+      'DHCP',
+      'ED2K',
+      'Finger',
+      'Gnutella',
+      'Gopher',
+      'ISUP',
+      'LDAP',
+      'MIME',
+      'MSNP',
+      'MAP',
+      'NetBIOS',
+      'NNTP',
+      'NTP',
+      'NTCIP',
+      'RADIUS',
+      'RDP',
+      'rlogin',
+      'rsync',
+      'RTP',
+      'RTSP',
+      'SISNAPI',
+      'SIP',
+      'SNMP',
+      'STUN',
+      'TUP',
+      'TCAP',
+      'TFTP',
+      'WebDAV',
+      'XMPP',
+      'Modbus'
+    ],
+    downgrade_request_ids: function(observable){
+      if (angular.isUndefined(observable) || angular.isUndefined(observable.indicators)){return [];}
+      return _.filter(_.map(observable.indicators, function(i){return i.downgrade_request_id;}),function(drid){return drid != null});
+    },
+    fetch_indicator_from_scope: function(scope) {return fetch_indicator_from_scope(scope)}
+  };
+}]);

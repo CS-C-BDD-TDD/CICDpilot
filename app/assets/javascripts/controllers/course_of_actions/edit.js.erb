@@ -1,0 +1,39 @@
+app.controller('CourseOfActionEditController', ['$scope','$routeParams','$location','$rootScope','Restangular','Marking',
+  function ($scope, $routeParams, $location, $rootScope, Restangular,Marking) {
+    Restangular.one("/course_of_actions/"+$routeParams.id).get().then(function(data){
+      $scope.course_of_action = Marking.translate_existing_attributes(data);
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                {text:'All Courses of Action',link:'#/course_of_actions',icon:'fa-list'},
+                                {text:data.title,link:'#/course_of_actions/'+encodeURIComponent(data.stix_id),icon:'fa-pencil'}];
+
+    });
+    $scope.save = function(course_of_action,done){
+      
+      var indicator_ids = _.map(course_of_action.indicators,function(i) {
+        return i.stix_id;
+      });
+      
+      var package_ids = _.map(course_of_action.stix_packages,function(p) {
+        return p.stix_id;
+      });
+
+      course_of_action.indicator_stix_ids = indicator_ids;
+      course_of_action.stix_package_stix_ids = package_ids;
+      
+      course_of_action.id = course_of_action.stix_id;
+      Restangular.one("course_of_actions/"+$routeParams.id).customPUT(course_of_action).then(function(data){
+        toastr.success("Course of Action saved");
+        $scope.course_of_action = data;
+        $location.path('/course_of_actions/'+encodeURIComponent($scope.course_of_action.stix_id));
+      },function(res){
+        toastr.error("Unable to save Course of Action");
+        if (angular.isDefined(res.data) && angular.isDefined(res.data.errors) && angular.isDefined(res.data.errors.base)) {
+            _.each(res.data.errors.base,function(e){
+                toastr.error(e);
+            });
+        }
+        $scope.course_of_action.errors = res.data.errors;
+      });
+        done();
+    };
+}]);

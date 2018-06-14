@@ -1,0 +1,38 @@
+#!/bin/bash
+CURRENT_EPOCH=`date +%s`
+HOSTNAME=`hostname`
+APP_LOGS=/usr/share/tomcat7/webapps/cyber-indicators/WEB-INF/log
+WEB_LOGS=/usr/share/tomcat7/logs
+LOG_FILE_NAME="$CURRENT_EPOCH-$HOSTNAME-cyber-indicators"
+echo "Collecting Cyber Indicators configuration information ..."
+echo "Creating /tmp/$LOG_FILE_NAME ..."
+mkdir -p /tmp/$LOG_FILE_NAME
+mkdir -p /tmp/$LOG_FILE_NAME/app-logs
+mkdir -p /tmp/$LOG_FILE_NAME/web-logs
+mkdir -p /tmp/$LOG_FILE_NAME/user-environment
+mkdir -p /tmp/$LOG_FILE_NAME/system-info
+mkdir -p /tmp/$LOG_FILE_NAME/oracle-info
+mkdir -p /tmp/$LOG_FILE_NAME/app-info
+
+echo "Collecting installed Cyber Indicators package information ..."
+rpm -qa | grep cyber-indicators > /tmp/$LOG_FILE_NAME/system-info/rpm-qa
+df -h > /tmp/$LOG_FILE_NAME/system-info/df-h
+cp /etc/sysconfig/selinux > /tmp/$LOG_FILE_NAME/system-info/selinux
+cp /etc/sysconfig/cyber-indicators > /tmp/$LOG_FILE_NAME/system-info/cyber-indicators
+ps -ef > /tmp/$LOG_FILE_NAME/system-info/ps-ef
+echo "Collecting tnsnames.ora ..."
+TNS_ADMIN=${TNS_ADMIN:=/etc}
+cp $TNS_ADMIN/tnsnames.ora /tmp/$LOG_FILE_NAME/oracle-info/
+echo "Collecting application configuration"
+cp -pr /etc/cyber-indicators/config/* /tmp/$LOG_FILE_NAME/app-info/
+echo "Collecting Web Logs ..."
+cp -pr $WEB_LOGS/catalina.out /tmp/$LOG_FILE_NAME/web-logs/
+echo "Collecting Application Logs ..."
+cp -pr $APP_LOGS/* /tmp/$LOG_FILE_NAME/app-logs/
+echo "Collecting environment information ..."
+env > /tmp/$LOG_FILE_NAME/user-environment/env
+echo "Packing support information ..."
+tar -cf /tmp/$LOG_FILE_NAME.tar /tmp/$LOG_FILE_NAME > /dev/null 2>&1
+echo "Created /tmp/$LOG_FILE_NAME.tar ..."
+echo "Please send this file to the support team ..."
+echo "done."

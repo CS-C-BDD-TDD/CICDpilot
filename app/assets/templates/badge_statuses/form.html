@@ -1,0 +1,22 @@
+<form class="form-horizontal">
+  <div class="space-12"></div>
+  <div class="form-group" ng-class="{'has-error': badgeStatus.errors.badge_name}" tooltip="The Name field provides a simple Name for this Badge" tooltip-placement="bottom">
+    <label class="col-md-2 control-label">Name *</label>
+    <div class="col-md-10">
+      <input ng-disabled="badgeStatus.system" type="text" class="col-md-8" id="badge_name_textbox" ng-model="badgeStatus.badge_name" placeholder="Name" auto-focus></input>
+    </div>
+    <div ng-show="badgeStatus.errors.badge_name" class="help-block inline col-md-12" align="right">
+      <span ng-repeat="error in badgeStatus.errors.badge_name" class="col-md-12">Name {{error}}</span>
+    </div>
+  </div>
+
+  <div class="form-group" ng-class="{'has-error': badgeStatus.errors.badge_status}" tooltip="The Status field provides an unstructured, text Status for this Badge.">
+    <label class="col-md-2 control-label">Status </label>
+    <div class="col-md-10">
+      <textarea class="col-md-8" id="form-field-8" placeholder="Status" ng-model="badgeStatus.badge_status"></textarea>
+    </div>
+    <div ng-show="badgeStatus.errors.badge_status" class="help-block inline col-md-12" align="right">
+      <span ng-repeat="error in badgeStatus.errors.badge_status" class="col-md-12">Status {{error}}</span>
+    </div>
+  </div>
+</form>

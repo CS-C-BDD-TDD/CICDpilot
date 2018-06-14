@@ -1,0 +1,408 @@
+# Configure the Database
+
+This application runs on an Oracle database.
+
+## Prerequisites
+
+You must have:
+
+* A functioning Oracle database with two schemas.
+* Verified connectivity between the application server and the database server with the dbadmin and appuser credentials.
+
+You will require the following:
+
+* Credentials for the "dbadmin" and "appuser" schemas.
+* Location of the configured tnsnames.ora file on your application server.
+
+<%if ENV['IMPORTANT']%>
+!Important!  The two database schemas that are required are called the appuser and dbadmin schemas.
+
+!Important!  You must have a valid tnsnames.ora file that is correctly configured.
+
+!Important!  One common way to verify connectivity between the application server and the database server is to use the Oracle toolchain (e.g. SQLPlus). Verify that you can connect from the application server to the database server using the credentials for each schema.
+
+<%end%>
+<%if ENV['NOTE']%>
+!Note!  This document refers to the schema under which the application runs in production as the appuser schema.
+
+!Note!  This document refers to the schema under which the application modifies the structure of the database as the dbadmin schema.  The dbadmin schema owns all database objects used by the application.  The application mutates the database, creating tables and sequences under the dbadmin schema.
+
+!Note!  An Oracle stored procedure, executed as the dbadmin, assigns privileges of the objects that the dbadmin schema creates to a role.
+
+!Note!  An Oracle stored procedure, executed as the appuser, creates Oracle synonyms so that the appuser can access objects owned by dbadmin.
+
+!Note! You may wish to add the cyber-indicators binaries to your PATH for convenience.
+
+```bash
+export PATH=$PATH:/var/apps/cyber-indicators/bin
+```
+<%end%>
+
+## Configure the Application for Oracle
+
+**Grant the application access to the Oracle configuration file.**
+
+```bash
+chown root:tomcat $TNS_ADMIN/tnsnames.ora
+chmod 0750 $TNS_ADMIN/tnsnames.ora
+```
+
+<%if ENV['NOTE']%>
+!Note! Replace TNS_ADMIN with the path to the tnsnames.ora file.
+<%end%>
+
+**Initialize the database configuration file.**
+
+```bash
+DATABASE=[EXAMPLE_DATABASE_NAME] \
+DBADMIN_USERNAME=[DBADMIN_USERNAME] \
+DBADMIN_PASSWORD=[DBADMIN_PASSWORD] \
+APPUSER_USERNAME=[APPUSER_USERNAME] \
+APPUSER_PASSWORD=[APPUSER_PASSWORD] \
+/var/apps/cyber-indicators/bin/initialize-database-configuration
+```
+
+<%if ENV['IMPORTANT']%>
+!Important! An example of a tnsnames.ora file is as follows:
+
+```bash
+EXAMPLE_DATABASE_NAME =
+  (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = db)(PORT = 1521))
+      (CONNECT_DATA =
+        (SERVER = DEDICATED)
+        (SERVICE_NAME = EXAMPLE_SERVICE_NAME)
+      )
+  )
+```
+
+!Note! In this example tnsnames.ora file, the connection string is identified by "EXAMPLE_DATABASE_NAME".
+
+!Note! When entering the DBADMIN_PASSWORD or APPUSER_PASSWORD, please use single-quotes surrounding the password.  Double-quotes or unquotes passwords with special characters may be interpreted by the shell and insert the incorrect password in to the configuration files.
+<%end%>
+
+<%if ENV['TROUBLESHOOTING']%>
+## [Troubleshooting] Manually run the rake task
+```bash
+DATABASE=[DATABASE] \
+DBADMIN_USERNAME=[DBADMIN_USERNAME] \
+DBADMIN_PASSWORD=[DBADMIN_PASSWORD] \
+APPUSER_USERNAME=[APPUSER_USERNAME] \
+APPUSER_PASSWORD=[APPUSER_PASSWORD] \
+OUTFILE=/etc/cyber-indicators/config/database.yml \
+TEMPLATE=/etc/cyber-indicators/templates/etc/cyber-indicators/config/database.yml.erb \
+/var/apps/cyber-indicators/bin/rake db:template:create
+```
+<%end%>
+
+<%if ENV['NOTE']%>
+!Note! The ordering of arguments does not matter.
+<%end%>
+
+## Install the Grant Privileges Stored Procedure
+
+**Initialize the stored procedure.**
+
+```bash
+APP_ROLE=[APP_ROLE] /var/apps/cyber-indicators/bin/initialize-grant-privileges-stored-procedure
+```
+
+<%if ENV['IMPORTANT']%>
+!Important! You will need to ask a Database Administator for the correct APP_ROLE value.
+<%end%>
+
+<%if ENV['TROUBLESHOOTING']%>
+## [Troubleshooting] Run the rake task
+```bash
+APP_ROLE=[APP_ROLE] \
+OUTFILE=/var/apps/cyber-indicators/conf/sql/grant_privs.sql \
+TEMPLATE=/var/apps/cyber-indicators/conf/sql/templates/grant_privs.sql.erb \
+/var/apps/cyber-indicators/bin/rake db:template:create
+```
+<%end%>
+
+**Install the procedure.**
+
+```bash
+DBADMIN_USERNAME=[DBADMIN_USERNAME] \
+DBADMIN_PASSWORD=[DBADMIN_PASSWORD] \
+DATABASE=[DATABASE_NAME] \
+ORACLE_HOME=/usr/lib/oracle/11.2/client64/ \
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/oracle/11.2/client64/lib/ \
+/var/apps/cyber-indicators/bin/install-grant-privileges-stored-procedure
+```
+
+<%if ENV['IMPORTANT']%>
+!Important!  You must replace the DBADMIN_USERNAME and DBADMIN_PASSWORD with the correct credentials for the dbadmin schema.
+
+!Important!  You must replace the DATABASE_NAME with the database connection string specified in the validated tnsnames.ora file.
+
+!Important!  This requires the installation of Oracle's tool chain for Linux.  Please ensure that you have installed the Oracle Instant Client with SQLPlus.  Please refer to Oracle's guided documentation on installing the Oracle Instant Client with SQLPlus for the version of Oracle that you intend to use.  You will need to replace ORACLE_HOME and the LD_LIBRARY_PATH with values appropriate for your installation of the Oracle tool chain.
+<%end%>
+
+## Install the Create Synonyms Stored Procedure
+
+**Initialize the stored procedure.**
+
+```bash
+DBADMIN_USERNAME=[DBADMIN_USERNAME] /var/apps/cyber-indicators/bin/initialize-create-synonyms-stored-procedure
+```
+
+<%if ENV['TROUBLESHOOTING']%>
+## [Troubleshooting] Run the rake task
+```bash
+DBADMIN_USERNAME=[DBADMIN_USERNAME] \
+OUTFILE=/var/apps/cyber-indicators/conf/sql/create_synonyms.sql \
+TEMPLATE=/var/apps/cyber-indicators/conf/sql/templates/create_synonyms.sql.erb \
+/var/apps/cyber-indicators/bin/rake db:template:create
+```
+<%end%>
+
+<%if ENV['IMPORTANT']%>
+!Important! You must replace the DBADMIN_USERNAME with the correct username for the dbadmin schema.
+<%end%>
+
+**Install the procedure.**
+
+```bash
+APPUSER_USERNAME=[APPUSER_USERNAME] \
+APPUSER_PASSWORD=[APPUSER_PASSWORD] \
+DATABASE=[DATABASE_NAME] \
+ORACLE_HOME=[ORACLE_HOME] \
+LD_LIBRARY_PATH=[LD_LIBRARY_PATH] \
+/var/apps/cyber-indicators/bin/install-create-synonyms-stored-procedure
+```
+
+<%if ENV['IMPORTANT']%>
+!Important! You must replace the APPUSER_USERNAME and APPUSER_PASSWORD with the correct credentials for the appuser schema.
+
+!Important! You must replace ORACLE_HOME with the path to Oracle's home directory on your system.  This varies by installation.
+
+!Important!  You must replace the DATABASE_NAME with the database connection string specified in the validated tnsnames.ora file.
+
+!Important! You must replace LD_LIBRARY_PATH with the path to Oracle's library files.  This is typically $ORACLE_HOME/lib.
+<%end%>
+
+<%if ENV['DEVELOPER_NOTES']%>
+## [Developer Note] Create Synonyms and Grant Privileges for the Application User
+
+!Note! If you are using an Oracle XE database, you may use the provided install-grant-privilege-stored-procedure-xe script instead. Note that Oracle XE is for development or development support only.
+
+Install the grant privileges procedure.
+
+```bash
+USERNAME=dbadmin_username \
+PASSWORD=dbadmin_password \
+DATABASE=xe \
+ORACLE_HOME=/usr/lib/oracle/11.2/client64/ \
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/oracle/11.2/client64/lib/ \
+/var/apps/cyber-indicators/bin/install-grant-privileges-stored-procedure-xe
+```
+
+<%end%>
+
+<%if ENV['TROUBLESHOOTING']%>
+## [Troubleshooting] ActiveRecord::ConnectionAdapters::OracleEnhancedConnectionException: "DESC DBADMIN.PERMISSIONS" failed; does it exist? when running a rake task as the appuser.
+
+The appuser has not been granted privileges.
+
+Grant privilges.
+
+```bash
+RAILS_ENV=dbadmin /var/apps/cyber-indicators/bin/rake db:grant
+```
+
+## [Troubleshooting] Edit the Oracle database configuration file
+
+Use a text editor to edit the file `/etc/cyber-indicators/config/database.yml`
+
+Replace the contents with the following configuration.
+
+```yaml
+production:
+  adapter: oracle_enhanced
+  database: example_database_name
+  username: example_appuser_username
+  password: example_appuser_password
+dbadmin:
+  adapter: oracle_enhanced
+  database: example_database_name
+  username: example_dbadmin_username
+  password: example_dbadmin_password
+```
+
+!Important! You will need to provide a username and password for each schema for your specific Oracle implementation.  These credentials are the same that were used to verify connectivity out-of-band of the application.
+
+!Important! You will need to provide the name of the database connection string specified in the validated tnsnames.ora file.
+
+!Important! An example of a tnsnames.ora file is as follows:
+
+```bash
+EXAMPLE_DATABASE_NAME =
+  (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = db)(PORT = 1521))
+      (CONNECT_DATA =
+        (SERVER = DEDICATED)
+        (SERVICE_NAME = EXAMPLE_SERVICE_NAME)
+      )
+  )
+```
+
+!Note! In this example tnsnames.ora file, the connection string is identified by "EXAMPLE_DATABASE_NAME".  This would match the "example_database" entry in the /etc/cyber-indicators/config/database.yml file.  This entry is case insensitive.
+
+!Note! Your tnsnames.ora file will be different.  Please use the connection string identifier in your tnsnames.ora file.
+<%end%>
+
+## Run the database migrations
+
+**Run the task.**
+
+```bash
+RAILS_ENV=dbadmin /var/apps/cyber-indicators/bin/rake db:migrate
+```
+
+<%if ENV['IMPORTANT']%>
+!Important! You must configure the /etc/cyber-indicators/config/database.yml file before migrating the database.
+
+!Important! The RAILS_ENV should match the environment permitted to execute schema changes in the /etc/cyber-indicators/config/database.yml.  By default, this value is 'dbadmin'.
+
+!Important! The RAILS_ENV can be assigned only two values "dbadmin" or "production".  Please refer to the example /etc/cyber-indicators/config/database.yml.
+<%end%>
+
+<%if ENV['EXAMPLE']%>
+!Example!  /etc/cyber-indicators/config/database.yml:
+
+```yaml
+production:
+  adapter: oracle_enhanced
+  database: example_database_name
+  username: example_appuser_username
+  password: example_appuser_password
+dbadmin:
+  adapter: oracle_enhanced
+  database: example_database_name
+  username: example_dbadmin_username
+  password: example_dbadmin_password
+```
+<%end%>
+
+<%if ENV['NOTE']%>
+!Note!  In this example, RAILS_ENV would be assigned "dbadmin", which corresponds to the "dbadmin" section identifier in this file.  The only section identifiers permitted for the Cyber Indicators application are "production" and "dbadmin".
+<%end%>
+
+<%if ENV['DEVELOPER_NOTES']%>
+## [Developer Note] Reset the Database
+
+!Important! This will completely wipe out the production database, without prompting you.  Do not use this against a production system with data that you want to keep.
+
+```bash
+USERNAME=example_dbadmin_username \
+PASSWORD=example_dbadmin_password \
+DATABASE=example_database_name \
+ORACLE_HOME=example_path_to_oracle_home \
+TNS_ADMIN=[TNS_ADMIN] \
+/var/apps/cyber-indicators/sbin/reset-database
+```
+
+!Important! This will completely wipe out the production database, without prompting you.  Do not use this against a production system with data that you want to keep.
+<%end%>
+
+## Grant privileges to the Application User
+
+<%if ENV['NOTE']%>
+!Note! The Cyber Indicators application uses two database schemas: one for the appuser, and one for dbadmin.  After the database tables have been created from the section above as dbadmin, you must allow the appuser privileges to these tables.
+<%end%>
+
+**Execute the task.**
+
+```bash
+RAILS_ENV=dbadmin /var/apps/cyber-indicators/bin/rake db:grant
+```
+
+<%if ENV['IMPORTANT']%>
+!Important! The RAILS_ENV should match the environment permitted to execute schema changes in the /etc/cyber-indicators/config/database.yml.  By default, this value is 'dbadmin'.
+
+!Important! The RAILS_ENV can be assigned only two values "dbadmin" or "production".  Please refer to the example /etc/cyber-indicators/config/database.yml.
+<%end%>
+
+<%if ENV['EXAMPLE']%>
+!Example!  /etc/cyber-indicators/config/database.yml:
+
+```yaml
+production:
+  adapter: oracle_enhanced
+  database: example_database_name
+  username: example_appuser_username
+  password: example_appuser_password
+dbadmin:
+  adapter: oracle_enhanced
+  database: example_database_name
+  username: example_dbadmin_username
+  password: example_dbadmin_password
+```
+<%end%>
+
+<%if ENV['NOTE']%>
+!Note!  In this example, RAILS_ENV would be assigned "dbadmin", which corresponds to the "dbadmin" section identifier in this file.  The only section identifiers permitted for the Cyber Indicators application are "production" and "dbadmin".
+<%end%>
+
+## Apply Synonyms to the Application User
+
+**Run the synonyms task.**
+
+```bash
+RAILS_ENV=production /var/apps/cyber-indicators/bin/rake db:synonyms
+```
+
+<%if ENV['EXAMPLE']%>
+!Example!  /etc/cyber-indicators/config/database.yml:
+
+```yaml
+production:
+  adapter: oracle_enhanced
+  database: example_database_name
+  username: example_appuser_username
+  password: example_appuser_password
+dbadmin:
+  adapter: oracle_enhanced
+  database: example_database_name
+  username: example_dbadmin_username
+  password: example_dbadmin_password
+```
+<%end%>
+
+<%if ENV['NOTE']%>
+!Note!  In this example, RAILS_ENV would be assigned "production", which corresponds to the "production" section identifier in this file.  The only section identifiers permitted for the Cyber Indicators application are "production" and "dbadmin".
+<%end%>
+
+## Initialize the Application.
+
+**Bootstrap the application.**
+
+```bash
+/var/apps/cyber-indicators/bin/rake app:bootstrap
+```
+
+**Create the first user account.**
+
+```bash
+/var/apps/cyber-indicators/bin/rake user:create USERNAME=[USERNAME] FIRST_NAME=[FIRST_NAME] LAST_NAME=[LAST_NAME] EMAIL_ADDRESS=[EMAIL_ADDRESS] GROUPS=Administrator
+```
+
+<%if ENV['EXAMPLE']%>
+!Example!
+
+```bash
+/var/apps/cyber-indicators/bin/rake user:create USERNAME=firstname.lastname FIRST_NAME=Firstname LAST_NAME=Lastname EMAIL_ADDRESS=firstname.lastname@domain.com GROUPS='Administrator'
+```
+<%end%>
+
+<%if ENV['IMPORTANT']%>
+!Important! The USERNAME field must match an account that you can log in to with Active Directory.
+<%end%>
+
+<%if ENV['NOTE']%>
+!Note! The first user account is an administator.
+
+!Note! This step may be executed multiple times for multiple user accounts.
+<%end%>

@@ -1,0 +1,105 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('hostnameForm', function(){
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("observables/hostnames/form.html",type: :template)%>',
+        scope: {
+            hostname: '=',
+            saved: '=',
+            failed: '=',
+            cancel: '=',
+            editform: '='
+        },
+        controller: ['$scope','$rootScope','Observable','Restangular','Hostname', 'CiapCommon', 'Classification',
+            function($scope,$rootScope,Observable,Restangular,Hostname, CiapCommon, Classification) {
+                $scope.Observable = Observable;
+                $scope.sets = [];
+                $scope.cybox = "cybox";
+
+                // Toggles for field level markings
+                $scope.hostname_input_toggle = {toggle: 0, clear: 0};
+                $scope.naming_system_toggle = {toggle: 0, clear: 0};
+
+                Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+                    $scope.sets = data;
+                },function(res){
+                    toastr.error("Unable to load ACS Set List");
+                });
+                
+                $scope.conditions=CiapCommon.conditions;
+                $scope.naming_systems = Hostname.naming_systems;
+  
+                $scope.save = function(hostname){
+                    $scope.is_saving = true;
+                    $scope.hostname.errors = {};
+
+                    var promise;
+                    var save_text;
+
+                    /*
+                    Rules for when CLASSIFICATION is true
+
+                    and ACS Set or Classification must be selected. When Classification is above unclassified, 
+                    details must be filled out.
+                    */
+                    if ($rootScope.setting_value('CLASSIFICATION') == true){
+                        $scope.hostname.stix_markings_attributes = Classification.check_classification_details($scope.hostname.stix_markings_attributes);
+                        var problems = $scope.hostname.stix_markings_attributes.problems;
+                        var classification_check = $scope.hostname.stix_markings_attributes.classification_check;
+                    }
+
+                    if (Object.keys($scope.hostname.errors).length > 0 || classification_check) {
+                        $scope.is_saving = false;
+                      
+                        if(classification_check){
+                            for (var i = 0; i < problems.length; i++){
+                                if(problems[i].field == null){
+                                    toastr.error("Unable to save due to classification errors in the Object level markings");
+                                } else {
+                                    toastr.error("Unable to save due to classification errors in the " + problems[i].field + " markings");
+                                }
+                            }
+                        }
+                        return;
+                    }
+
+                    if (angular.isUndefined(hostname.cybox_object_id) || hostname.cybox_object_id == null) {
+                        promise = Restangular.all("hostnames").post(hostname);
+                        save_text = "save";
+                    } else {
+                        promise = Restangular.one("hostnames/" + hostname.cybox_object_id).customPUT(hostname);
+                        save_text = "update";
+                    }
+
+                    promise.then(
+                            function(data){
+                                toastr.success("Hostname observable "+save_text+"d");
+                                if (angular.isDefined($scope.saved) && jQuery.isFunction($scope.saved)){
+                                    $scope.saved(data);
+                                }
+                                $scope.is_saving = false;
+                            },
+                            function(res){
+                                toastr.error("Unable to "+save_text+" Hostname observable");
+                   
+                                if (angular.isDefined(res.data) && angular.isDefined(res.data.errors) ) {
+                                    $scope.hostname.errors = res.data.errors;
+                                    
+                                    if (angular.isDefined(res.data.errors.base)) {
+                                        _.each(res.data.errors.base,function(e){
+                                            toastr.error(e);
+                                        });
+                                    }
+                                }
+                                if (angular.isDefined($scope.failed) && jQuery.isFunction($scope.failed)){
+                                    $scope.failed(res.data);
+                                }
+                                $scope.is_saving = false;
+                            }
+                    );
+                };
+            }
+        ]
+    };
+});

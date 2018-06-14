@@ -1,0 +1,48 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('isaMarking',function() {
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("markings/isa_marking.html",type: :template)%>',
+        scope: {
+            stixMarking: '=',
+            toggleIsaMarkingsView: '=?'
+        },
+        controller: ['$scope', '$rootScope', 'Marking', function($scope, $rootScope, Marking){
+            $scope.Marking = Marking;
+            $scope.date_picker_opts = {
+                singleDatePicker: true,
+                startDate: moment()
+            };
+            
+            $scope.dateRangePicker = function(picker) {
+                $scope.stixMarking.isa_marking_structure_attributes.data_item_created_at = picker.getStartDate();
+            };
+
+            $scope.swap = function(model,alertValues) {
+                if (_.findIndex(alertValues,function(chr){return chr == model}) > -1) {
+                    toastr.warning("This tag requires additional clarification")
+                    return true;
+                }
+                return false;
+            }
+
+            var setter = $scope.$watch('stixMarking',function(){
+                if (angular.isUndefined($scope.toggleIsaMarkingsView)) {
+                  $scope.toggleIsaMarkingsView = true;
+                };
+                $scope.originator_text = false;
+                if (angular.isDefined($scope.stixMarking) && angular.isDefined($scope.stixMarking.isa_marking_structure_attributes)){
+                    if ($scope.stixMarking.isa_marking_structure_attributes.re_originator != "" && $scope.stixMarking.isa_marking_structure_attributes.re_originator != null) {
+                        $scope.originator_text = true;
+                        setter();
+                    }
+                }
+
+
+            });
+
+        }]
+
+    }
+});

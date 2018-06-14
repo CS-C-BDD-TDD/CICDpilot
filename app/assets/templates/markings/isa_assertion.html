@@ -1,0 +1,344 @@
+<div class="ciap_padding_16402" ng-show="show_classifications && !isaAssertion.public_release">
+    <div align="center">
+      <a class='fake-link ng-cloak' ng-model="class_details" ng-click="class_details = !class_details" ng-init="class_details = true">
+        <div ng-if="!acsedit" tooltip="Classification details must be defined when setting a classification above unclassified.">
+          <i class="ace-icon fa" ng-class="class_details ? 'fa-minus' : 'fa-plus'"></i>
+          Classification *
+        </div>
+        <div ng-if="acsedit" tooltip="Classification detail's can not be edited when editing an ACS Set.">
+          <i class="ace-icon fa" ng-class="class_details ? 'fa-minus' : 'fa-plus'"></i>
+          Classification *
+        </div>
+      </a>
+    </div>
+    <div class="ciap_border_1_solid" ng-show="class_details">
+        <div ng-class="{'has-error': isaAssertion.errors.edit_class_justification}" class="center ciap_ptop_15" ng-show="editform == true && editwjustification == false && acsedit == false">
+            <div ng-if="isaAssertion.errors.edit_class_justification" class="help-block inline col-md-12" align="right">
+                <span ng-repeat="error in isaAssertion.errors.edit_class_justification" class="col-md-12">{{error}}</span>
+            </div>
+            <button class="fake-link" ng-click="edit_classification_details()" ng-disabled="disablededit && editform" tooltip="editing of stix markings of embedded objects is disabled, please go to the objects form to edit markings.">
+                <i class="fa fa-plus-circle"></i>
+                Edit Classification
+            </button>
+        </div>
+            
+        <div class="space-12"></div>
+
+        <div class="ciap_padding_240" ng-class="{'has-error': isaAssertion.errors.acs_set_id}">
+            <div ng-if="isaAssertion.errors.acs_set_id" class="help-block inline col-md-12" align="right">
+                <span ng-repeat="error in isaAssertion.errors.acs_set_id" class="col-md-12">{{error}}</span>
+            </div>
+            <div class="form-group" tooltip="Classification, Can be Unclassified, Confidential, Secret or Top Secret.">
+                <label class="control-label col-md-3 no-padding-right">Classification</label>
+                <div class="col-md-9">
+                    <select id="classification_selector" class="col-md-12" data-ng-model="isaAssertion.cs_classification[0]"
+                    data-ng-options="class.id as class.label for class in Marking.cs_classification"
+                    data-ng-change="change_classification(isaAssertion.cs_classification[0]);" ng-disabled="editform == true && editwjustification == false">
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="ciap_padding_240" ng-show="isaAssertion.cs_classification[0] != 'U' && isaAssertion.cs_classification[0]" ng-class="{'has-error': isaAssertion.errors.classification_details}">
+            <div ng-if="isaAssertion.errors.classification_details" class="help-block inline col-md-12" align="right">
+                <span ng-repeat="error in isaAssertion.errors.classification_details" class="col-md-12">{{error}}</span>
+            </div>
+
+            <div class="form-group" tooltip="The entity who specified the classification level of this object">
+                <label class="control-label col-md-3 no-padding-right">Classified By *</label>
+                <div class="col-md-9">
+                    <input type="text" class="col-md-12" ng-model="isaAssertion.classified_by" ng-disabled="(editform == true && editwjustification == false) || ( isaAssertion.cs_classification == 'U' || isaAssertion.cs_classification == '')"></input>
+                </div>
+            </div>
+
+            <div class="form-group" tooltip="The reason why classification was needed for this object">
+                <label class="control-label col-md-3 no-padding-right">Classification Reason *</label>
+                <div class="col-md-9">
+                    <input type="text" class="col-md-12" ng-model="isaAssertion.classification_reason" ng-disabled="(editform == true && editwjustification == false) || ( isaAssertion.cs_classification == 'U' || isaAssertion.cs_classification == '')"></input>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-md-3 no-padding-right">Classified On *</label>
+                <div class="col-md-7">
+                    <span class="input-icon input-icon-right" tooltip="The date that this object was classified">
+                        <input id="isaAssertion.classified_on" class="ciap_mleft_0" date-range-picker type="text" picker="dateRangePickerClassifiedOn" options="date_picker_opts" output="change_classified_on" value="{{isaAssertion.classified_on | date: 'MM/dd/yyyy'}}" ng-disabled="(editform == true && editwjustification == false) || ( isaAssertion.cs_classification == 'U' || isaAssertion.cs_classification == '')" ng-model="isaAssertion.classified_on"/>
+                        <i class="ace-icon fa fa-calendar"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="space-8"></div>
+
+    </div>
+</div>
+
+<div class="ciap_padding_16402">
+    <div align="center">
+      <a class='fake-link' ng-model="policies_toggle" ng-click="policies_toggle = !policies_toggle">
+        <i class="ace-icon fa" ng-class="policies_toggle ? 'fa-minus' : 'fa-plus'"></i>
+        Policies
+      </a>
+    </div>
+    <div class="ciap_border_1_solid" ng-show="policies_toggle">
+        <div class="space-12"></div>
+
+        <div ng-hide="show_classifications && acsedit">
+            <div class="form-group" ng-class="{'has-error': isaAssertion.errors.pubrel}" tooltip="If set, all Control Set selections are overridden">
+                <label class="control-label col-md-3 no-padding-right">Release To Public</label>
+                <div class="col-md-7 ciap_mtop_5">
+                    <input id="ACS_Set_P_Release" name="switch-field-1" class="ace ace-switch ace-switch-5" ng-model="isaAssertion.public_release" type="checkbox" ng-change="setFD()">
+                    <span class="lbl"></span>
+                    </input>
+                </div>
+                
+                <div ng-if="isaAssertion.errors.pubrel" class="help-block inline col-md-12" align="right">
+                    <span ng-repeat="error in isaAssertion.errors.pubrel" class="col-md-12">{{error}}</span>
+                </div>
+            </div>
+
+            <div class="space-12 ciap_bborder_1_solid ciap_margin_060"></div>
+            <div class="space-8"></div>
+        </div>
+
+        <div ng-show="isaAssertion.public_release" class="form-group" ng-class="{'has-error': (isaAssertion.public_release && isaAssertion.public_released_by == null)}"  tooltip="Defines the release authority for resources that have been through a formal public release process">
+            <label class="control-label col-md-3 no-padding-right">Released Authorizer *</label>
+            <div class="col-md-7">
+                <input id="ACS_Set_P_Authorizer" type="text" ng-model="isaAssertion.public_released_by" class="col-md-12" />
+            </div>
+            <div ng-show="(isaAssertion.public_release && isaAssertion.public_released_by == null)"
+                 class="help-block inline col-md-12" >
+                <span class="col-lg-3"></span>
+                <span class="col-md-7" align="left"><li>Release Authorizer is Required</li></span>
+            </div>
+        </div>
+
+        <div class="form-group" ng-show="isaAssertion.public_release">
+            <label class="control-label col-md-3 no-padding-right">Released On</label>
+            <div class="col-md-7">
+                      <span class="input-icon input-icon-right" tooltip="Defines the release date for resources that have been through a formal public release process">
+                          <input id="isaAssertion.public_released_on" class="ciap_mleft_0" date-range-picker type="text" picker="dateRangePickerPublicReleasedOn" options="date_picker_opts" value="{{isaAssertion.public_released_on | date:'MM/dd/yyyy'}}"/>
+                          <i class="ace-icon fa fa-calendar"></i>
+                      </span>
+            </div>
+        </div>
+
+        <div class="space-12 ciap_bborder_1_solid ciap_margin_16800" ng-show="isaAssertion.public_release"></div>
+        <div class="space-8" ng-show="isaAssertion.public_release"></div>
+
+        <div class="row">
+            <div class="col-lg-1"></div>
+            <div class="col-lg-3 center">
+                <label class="control-label col-md-7 no-padding-right">Display</label>
+                <div class="col-md-3 ciap_mtop_5">
+                    <input id="ACS_Set_P_Display" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='dsply.effect'>
+                    <span class="lbl"></span>
+                    </input>
+                </div>
+            </div>
+            <div class="col-lg-3 center">
+                <label class="control-label col-md-7 no-padding-right">Legal Proceedings</label>
+                <div class="col-md-3 ciap_mtop_5">
+                    <input id="ACS_Set_P_Legal" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='legal.effect'>
+                    <span class="lbl"></span>
+                    </input>
+                </div>
+            </div>
+            <div class="col-lg-3 center">
+                <label class="control-label col-md-7 no-padding-right">Identify Source</label>
+                <div class="col-md-3 ciap_mtop_5">
+                    <input id="ACS_Set_P_Source" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='idsrc.effect'>
+                    <span class="lbl"></span>
+                    </input>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-1"></div>
+            <div class="col-lg-3 center">
+                <label class="control-label col-md-7 no-padding-right">Target Entity Notification</label>
+                <div class="col-md-3 ciap_mtop_5">
+                    <input id="ACS_Set_P_TEN" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='tenot.effect'>
+                    <span class="lbl"></span>
+                    </input>
+                </div>
+            </div>
+            <div class="col-lg-3 center">
+                <label class="control-label col-md-7 no-padding-right">Intelligence Analysis</label>
+                <div class="col-md-3 ciap_mtop_5">
+                    <input id="ACS_Set_P_Analysis" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='intel.effect'>
+                    <span class="lbl"></span>
+                    </input>
+                </div>
+            </div>
+            <div class="col-lg-3 center">
+                <label class="control-label col-md-7 no-padding-right">Network Defense Action</label>
+                <div class="col-md-3 ciap_mtop_5">
+                    <input id="ACS_Set_P_NDA" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='netdef.effect'>
+                    <span class="lbl"></span>
+                    </input>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-1"></div>
+            <div class="col-lg-3 center">
+                <label class="control-label col-md-7 no-padding-right">Tear-line</label>
+                <div class="col-md-3 ciap_mtop_5">
+                    <input id="ACS_Set_P_Tear" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='tearline.effect'>
+                    <span class="lbl"></span>
+                    </input>
+                </div>
+            </div>
+            <div class="col-lg-3 center">
+                <label class="control-label col-md-7 no-padding-right">Operation Action</label>
+                <div class="col-md-3 ciap_mtop_5">
+                    <input id="ACS_Set_P_Operation" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='opaction.effect'>
+                    <span class="lbl"></span>
+                    </input>
+                </div>
+            </div>
+            <div class="col-lg-3 center">
+                <label class="control-label col-md-7 no-padding-right">Access Privilege Waiver Request</label>
+                <div class="col-md-3 ciap_mtop_5">
+                    <input id="ACS_Set_P_Waiver" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='request.effect'>
+                    <span class="lbl"></span>
+                    </input>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-2"></div>
+
+            <div class="col-lg-3">
+                <label class="control-label col-md-7 no-padding-right">Anonymous Access</label>
+                <div class="col-md-3 ciap_mtop_5">
+                    <input name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='anonymousaccess.effect'>
+                    <span class="lbl"></span>
+                    </input>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <label class="control-label col-md-7 no-padding-right">CISA Uses</label>
+                <div class="col-md-3 ciap_mtop_5">
+                    <input name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='cisauses.effect'>
+                    <span class="lbl"></span>
+                    </input>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-12 ciap_bborder_1_solid ciap_margin_16800"></div>
+        <div class="space-8"></div>
+
+        <div class="ciap_padding_121002">
+            <div class="ciap_border_1_solid">
+                <h5 class='smaller ciap_margin_60012'>Further Sharing</h5>
+                <div ng-repeat="fshr in isaAssertion.further_sharings_attributes | filter:{_destroy: '!1'}"
+                     class="row ciap_mtop_5">
+                    <div class="col-lg-2 col-md-2"></div>
+                    <div class="col-lg-8 col-md-8">
+                        <div class="row">
+                            <div class="col-lg-1 col-md-1 no-padding-right">
+                                      <span class="badge badge-danger ciap_mtop_8" tooltip="Remove Further Sharing Element">
+                                          <a href="" class="fake-link center white" ng-click="remove_further_sharing(fshr)">
+                                              <i class="fa fa-remove"></i>
+                                          </a>
+                                      </span>
+                            </div>
+                            <div class="col-lg-8 col-md-8 no-padding-left">
+                                <label class="control-label col-md-1 no-padding-right no-padding-left pull-left">Scope</label>
+                                <div class="col-md-11">
+                                    <select class="col-md-12" ng-model="fshr.scope" ng-options="val.id as val.label for val in Marking.fs_orgs"></select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-3">
+                                <label class="control-label col-md-7 no-padding-right ciap_mleft_12">Permit / Deny</label>
+                                <div class="col-md-3 ciap_mtop_0">
+                                    <input ng-model="fshr.effect" class="ace ace-switch ace-switch-5 ciap_ptop_5" type="checkbox">
+                                    <span class="lbl ciap_mtop_5"></span>
+                                    </input>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-2"></div>
+                </div>
+                <div class="space-8"></div>
+                <div class="center">
+                    <a href="" class="fake-link" ng-click="add_further_sharing()">
+                        <i class="fa fa-plus-circle"></i>
+                        Add Further Sharing Rule
+                    </a>
+                </div>
+                <div class="space-8"></div>
+            </div>
+        </div>
+        <div class="space-12"></div>
+    </div>
+</div>
+
+<div class="ciap_padding_16402" ng-hide="isaAssertion.public_release">
+    <div align="center">
+      <a class='fake-link' ng-model="cs_toggle" ng-click="cs_toggle = !cs_toggle">
+        <i class="ace-icon fa" ng-class="cs_toggle ? 'fa-minus' : 'fa-plus'"></i>
+        Control Set
+      </a>
+    </div>
+    <div class="ciap_border_1_solid" ng-show="cs_toggle">
+        <div class="space-12"></div>
+
+        <div class="form-group" tooltip="Flag for formal determinations other than classification.  If Public Release is true, this field 'PUBREL' will be added">
+            <label class="control-label col-md-3 no-padding-right">Formal Determination</label>
+            <div class="col-md-7">
+                <multi-select attribute="isaAssertion.cs_formal_determination" options-for-select="Marking.cs_formal_determination"></multi-select>
+            </div>
+
+        </div>
+
+        <div class="form-group" tooltip="Defines safeguarding and dissemination controls for Unclassified resources">
+            <label class="control-label col-md-3 no-padding-right">Sensitivity</label>
+            <div class="col-md-7">
+                <multi-select attribute="isaAssertion.cs_cui" options-for-select="Marking.cs_cui"></multi-select>
+            </div>
+        </div>
+
+        <div class="form-group" tooltip="Defines groups to which information may be released">
+            <label class="control-label col-md-3 no-padding-right">Shareability Group</label>
+            <div class="col-md-7">
+                <multi-select attribute="isaAssertion.cs_shargrp" options-for-select="Marking.cs_shargrp"></multi-select>
+            </div>
+        </div>
+
+        <div class="ciap_padding_1640">
+            <h5 class='smaller'>Affiliation</h5>
+            <div class="ciap_border_1_solid">
+                <div class="space-12"></div>
+
+                <div class="form-group" tooltip="Defines access limitations based on the country affiliations of the user">
+                    <label class="control-label col-md-3 no-padding-right">Countries</label>
+                    <div class="col-md-7">
+                        <multi-select attribute='isaAssertion.cs_countries' options-for-select="Marking.cs_countries"></multi-select>
+                    </div>
+                </div>
+
+                <div class="form-group" tooltip="Defines access limitations based on the organization affiliations of the user">
+                    <label class="control-label col-md-3 no-padding-right">Organizations</label>
+                    <div class="col-md-7">
+                        <multi-select attribute='isaAssertion.cs_orgs' options-for-select="Marking.cs_orgs"></multi-select>
+                    </div>
+                </div>
+
+                <div class="form-group" tooltip="Defines access limitations based on the entity affiliations of the user">
+                    <label class="control-label col-md-3 no-padding-right">Affiliation: Entities</label>
+                    <div class="col-md-7">
+                        <multi-select attribute="isaAssertion.cs_entity" options-for-select="Marking.cs_entity"></multi-select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

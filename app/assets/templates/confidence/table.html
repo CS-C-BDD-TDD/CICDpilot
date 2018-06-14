@@ -1,0 +1,43 @@
+<div class="widget-box widget-color-blue ui-sortable-handle" ng-show="confidences.length">
+  <div class="widget-header fake-link" ng-click="showTable = !showTable" ng-show="defaultHeader">
+    <h5 class="widget-title bigger lighter">
+      <i class="ace-icon fa fa-history"></i>
+      Confidence History
+    </h5>
+     <ng-transclude></ng-transclude>
+  </div>
+
+  <div class="widget-body" ng-show="showTable">
+    <div class="widget-main no-padding">
+      <table class="table table-striped table-bordered table-hover">
+        <thead class="thin-border-bottom">
+        <tr>
+          <th>Confidence Value</th>
+          <th>Source</th>
+          <th>Description</th>
+          <th>Set At</th>
+          <th>Official?</th>
+          <th>Set By</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="confidence in confidences | orderBy:'created_at':true" ng-style="{{confidence.font}}">
+          <td>{{confidence.value | uppercase}}</td>
+          <td>{{confidence.source}}</td>
+          <td>
+            {{confidence.description | characters:characterLimit}}
+            <span ng-show="confidence.description.length > characterLimit && characterLimit">
+              <a class="fake-link" ng-click="characterLimit = null">
+                <i class="fa fa-plus-square-o" style="font-size: 1.5em;"></i>
+              </a>
+            </span>
+          </td>
+          <td>{{confidence.created_at | date:"medium"}}</td>
+          <td>{{confidence.is_official | convertBoolean:"Official":"Unofficial"}}</td>
+          <td>{{confidence.user.username}}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

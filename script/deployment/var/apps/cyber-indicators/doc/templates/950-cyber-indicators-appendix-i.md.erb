@@ -1,0 +1,47 @@
+# Appendix I - Proper settings for each Server Type
+
+!Note! These are the proper values for CIAP / CIR / ECIS / TS-CIAP version 6.5.5-rcX
+
+## Values for DTE:
+
+| Field | CIAP | ECIS | CIR | TS-CIAP |
+| -------- | -------- | -------- | -------- | -------- |
+| STIX_PREFIX | NCCIC | NCCIC | NCCIC | NCCIC |
+| SSO_AD | true | false | false | false |
+| SYSTEM_GUID | auto-generated | auto-generated | auto-generated | auto-generated |
+| DEFAULT_MAX_RECORDS | 100 | 100 | 100 | 100 |
+| MAX_PER_PAGE | 100 | 100 | 100 | 100 |
+| TOU | true | true | true | true |
+| MODE | CIAP | CIAP | CIR | CIAP |
+| HUMAN_REVIEW_CLEAR_TO | PII Redacted | PII Redacted | PII Redacted | PII Redacted |
+| HUMAN_REVIEW_ENABLED | true | false | false | false |
+| SANITIZATION_ENABLED | false | true | false | false |
+| CLASSIFICATION | false | false | false | true |
+| BANNER_TEXT | UNCLASSIFIED | UNCLASSIFIED | UNCLASSIFIED | TOP SECRET (UNCLASSIFIED FOR TESTING PURPOSES) |
+| BANNER_TEXT_COLOR | 000000 | 000000 | 000000 | 000000 |
+| BANNER_COLOR | 00FF00 | 00FF00 | 00FF00 | FFE500 |
+| READ_ONLY_EXT | -dup | -dup | -dup | -dup |
+| USE_AMQP_SENDER | false | false | false | false |
+| USE_AMQP_RECEIVER | false | false | false | false |
+
+## Values for Production:
+#
+| Field | CIAP | ECIS | CIR | TS-CIAP |
+| -------- | -------- | -------- | -------- | -------- |
+| STIX_PREFIX | NCCIC | NCCIC | NCCIC | NCCIC |
+| SSO_AD | true | false | true | false |
+| SYSTEM_GUID | auto-generated | auto-generated | auto-generated | auto-generated |
+| DEFAULT_MAX_RECORDS | 100 | 100 | 100 | 100 |
+| MAX_PER_PAGE | 100 | 100 | 100 | 100 |
+| TOU | true | true | true | true |
+| MODE | CIAP | CIAP | CIR | CIAP |
+| HUMAN_REVIEW_CLEAR_TO | PII Redacted | PII Redacted | PII Redacted | PII Redacted |
+| HUMAN_REVIEW_ENABLED | true | false | false | false |
+| SANITIZATION_ENABLED | false | true | false | false |
+| CLASSIFICATION | false | false | false | true |
+| BANNER_TEXT | UNCLASSIFIED | UNCLASSIFIED | UNCLASSIFIED | TOP SECRET |
+| BANNER_TEXT_COLOR | FFFFFF | FFFFFF | FFFFFF | 000000 |
+| BANNER_COLOR | 00FF00 | 00FF00 | 00FF00 | FFE500 |
+| READ_ONLY_EXT | -dup | -dup | -dup | -dup |
+| USE_AMQP_SENDER | false | false | false | false |
+| USE_AMQP_RECEIVER | false | false | false | false |

@@ -1,0 +1,7 @@
+<div class="col-sm-12 col-md-12 col-lg-12" ng-show="can('create_remove_ttps')">
+  <a ng-href="#/ttps/new"><button class="btn btn-info btn-white"><i class="ace-icon fa fa-plus"></i> Add New TTP </button></a>
+</div>
+
+<div class="col-sm-12 col-md-12 col-lg-12">
+  <ttp-table ttps="ttps" metadata="metadata" indexpage=true fetching="fetching"></ttp-table>
+</div>

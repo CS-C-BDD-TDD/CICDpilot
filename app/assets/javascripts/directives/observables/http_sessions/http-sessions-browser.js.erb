@@ -1,0 +1,110 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('httpSessionsBrowser', function(){
+  return {
+    restrict: 'E',
+    scope: {
+      selectedHttpSessions: '=',
+      selectOnly: '@',
+      classificationDirection: '@?',
+      selectedHttpSession: '='
+    },
+    templateUrl: '<%=asset_path("observables/http_sessions/http-sessions-browser.html",type: :template)%>',
+    controller: ['$scope','$rootScope','Restangular','CiapCommon','Marking', function($scope,$rootScope,Restangular,CiapCommon,Marking) {
+      $scope.q = '';
+      $scope.CiapCommon = CiapCommon;
+
+      $scope.sortOptions = {
+        'cybox_object_id' : 'asc',
+        'user_agent' : 'asc',
+        'domain_name' : 'asc',
+        'port' : 'port',
+        'created_at' : 'asc',
+        'updated_at' : 'asc'
+      };
+
+      $scope.searchObjs = function() {
+        $scope.fetching = true;
+        var curr_obj = CiapCommon.fetch_markings_object_from_scope($scope);
+        var curr_markings = curr_obj.stix_markings_attributes;
+        if (!$rootScope.is_undefined_or_null(curr_obj.acs_set_id)){
+          Restangular.one('acs_sets').get({id: curr_obj.acs_set_id}).then(function(data){
+            // set it equal to the existing markings
+            if (angular.isDefined(data.stix_markings)){
+              curr_markings = data.stix_markings;
+            }
+            getObjList(curr_markings);
+          },function(res){
+              toastr.error("Unable to load ACS Set Markings");
+          });
+        } else {
+          getObjList(curr_markings);
+        }        
+      };
+
+      function getObjList(current_markings){
+        var classification_limit = Marking.get_classification_attributes(current_markings);
+        Restangular.one('/http_sessions').get({
+          q: $scope.q,
+          classification_limit: $scope.classificationDirection == "down" ? classification_limit : null,
+          classification_greater: $scope.classificationDirection == "up" ? classification_limit : null
+        }).then(
+          function(data){
+            $scope.http_sessions = data.http_sessions;
+            $scope.fetching = false;
+        },
+          function(res){
+            toastr.error("Unable to load HTTP Sessions");
+            $scope.fetching = false;
+          }
+        );
+      }
+
+      $scope.disabled = function(obj) {
+         if ($scope.checked(obj) && $scope.selectOnly) {
+             return true;
+         }
+         return false;
+      }
+
+      $scope.checked = function(obj){
+        if (angular.isDefined($scope.selectedHttpSession)) {
+          return $scope.selectedHttpSession != null && $scope.selectedHttpSession.cybox_object_id == obj.cybox_object_id;
+        } else {
+          return _.findIndex($scope.selectedHttpSessions, function(i){return i.cybox_object_id == obj.cybox_object_id;}) > -1;
+        }
+      };
+
+      $scope.sort = function(method) {
+        Restangular.one('/http_sessions').get({q: $scope.q,column: method, direction: $scope.sortOptions[method]}).then(function(data){
+          $scope.http_sessions = data.http_sessions;
+          if ($scope.sortOptions[method] == 'asc') {
+            $scope.sortOptions[method] = 'desc';
+          }
+          else if ($scope.sortOptions[method] == 'desc') {
+            $scope.sortOptions[method] = 'asc';
+          }
+        });
+      }
+
+      $scope.selectObj = function(obj, $event) {
+        var checkbox = $event.target;
+        if (checkbox.checked){
+          if (angular.isDefined($scope.selectedHttpSession)) {
+            $scope.selectedHttpSession = obj;
+          } else {
+            if (_.findIndex($scope.selectedHttpSessions, function(i){return i.cybox_object_id == obj.cybox_object_id}) == -1){
+              $scope.selectedHttpSessions.push(obj);
+            }
+          }
+        } else {
+          if (angular.isDefined($scope.selectedHttpSession)) {
+            $scope.selectedHttpSession = null;
+          } else {
+            $scope.selectedHttpSessions = _.filter($scope.selectedHttpSessions, function(i){return i.cybox_object_id != obj.cybox_object_id});
+          }
+        }
+      };
+    }]
+  };
+});

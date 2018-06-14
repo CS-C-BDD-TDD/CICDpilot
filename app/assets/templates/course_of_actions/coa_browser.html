@@ -1,0 +1,51 @@
+<div class="widget-box">
+	<pagination-header metadata="metadata" offset="offset"></pagination-header>
+	<pagination-footer metadata="metadata" offset="offset" get_records="searchCoas"></pagination-footer>
+	<div class="widget-body">
+		<div class="widget-main">
+			<div class="input-group input-icon">
+				<input ng-model="q" ng-enter="startSearch()" id="nav-searchinput" class="form-control search-query" type="text"  autocomplete="off" placeholder="Search Courses of Action...">
+				<i class="ace-icon fa fa-search nav-search-icon"></i>
+				<span class="input-group-btn">
+					<button class="btn btn-info btn-sm" type="button" ng-click="startSearch()">
+						Search
+						<i class="ace-icon fa fa-search icon-on-right bigger-110"></i>
+					</button>
+				</span>
+			</div>
+			<div class="ciap_table_scroll_500">
+				<table id="sample-table-1" class="table table-striped table-bordered table-hover dataTable">
+					<thead>
+						<tr role="row">
+							<th class="ciap_width_15">Title</th>
+            	<th class="ciap_width_15">Description</th>
+							<th class="ciap_width_6">Select</th>
+						</tr>
+					</thead>
+					<tbody ng-hide="fetching">
+						<tr ng-repeat="course_of_action in course_of_actions">
+							<td>
+        				<a ng-href="#/course_of_actions/{{course_of_action.stix_id | encodeURIComponent}}">{{course_of_action.title | prefixWithPortionMarking: course_of_action.portion_marking:course_of_action.title_c}}</a>
+        			</td>
+	            <td>
+              	{{course_of_action.description | prefixWithPortionMarking: course_of_action.portion_marking:course_of_action.description_c}}
+	            </td>
+							<td>
+								<input ng-disabled="disabled(course_of_action)" type="checkbox"
+								ng-click="selectCoa(course_of_action, $event)"
+								ng-checked="checked(course_of_action)"/>
+							</td>
+						</tr>
+					</tbody>
+					<tbody ng-show="fetching">
+						<tr>
+							<td colspan="3" class="center">
+								<i class="fa fa-spinner fa-spin bigger-300 blue"></i>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>

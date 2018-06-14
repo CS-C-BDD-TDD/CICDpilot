@@ -1,0 +1,103 @@
+<style media="screen" type="text/css">
+  .popover{
+    max-width: 80%; /* Max Width of the popover (depending on the container) */             
+  }
+</style>
+
+<script>
+  $("[data-toggle=popover]").popover(); /* Enable popovers */
+</script>
+<span class='help-button' style="margin: 0 0 3px 2px" tooltip="Search Tips" tooltip-placement="bottom">
+<a class="fake-link white" data-toggle="popover" data-placement="bottom" title="<h4>Search Tips</h4>" data-content=
+  "<div>
+    <p>With only a simple Search Box, the application provides a wide range of search capabilities.</p>
+    <h4>General Search Notes</h4>
+    <ol>
+      <li>All searches are case-insensitive.</li>
+      <li>Searches are “OR” by default, with greater relevance provided based on matching search terms.</li>
+      <li>The asterisk (*) wildcard, which matches any sequence of zero or more characters, is assumed to be at the beginning and end of every unquoted query. Wildcards may also be used in the middle of a query expression.</li>
+      <li>The question mark (?) wildcard matches a single character, e.g. – “D?main”.</li>
+      <li>The following are considered special characters: “ && || ! ( ) { } [ ] ^ ~ * ? : \ </li>
+      <li>To escape a special character, preceed the character with ' \ ' and the character will be taken literally in the search</li>
+    </ol>
+    <h4>Example Searches</h4>
+    <table class='table table-striped table-bordered table-hover'>
+      <thead class='thin-border-bottom'>
+        <tr>
+          <th style='width:25%'>Example Search Type</th>
+          <th style='width:25%'>Query</th>
+          <th style='width:50%'>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Full-Text (Implied Wildcards)</td>
+          <td>threat</td>
+          <td>Matches as *threat*, so this would match “threaten” as well as “threat”.</td>
+        </tr>
+        <tr>
+          <td>Full-Text (Implied Wildcards)</td>
+          <td>threat score</td>
+          <td>Matches “threat” and “score” as separate words, with higher relevance when both are matched.</td>
+        </tr>
+        <tr>
+          <td>Exact Match (Proximity Zero)</td>
+          <td>“threat score”</td>
+          <td>Matches only when the words “threat” and “score” appear next to each other (a condition known as proximity zero, where zero defines how many words can be between the two query terms). Note that this matches “score threat” as well as the generally expected “threat score”.</td>
+        </tr>
+        <tr>
+          <td>IP Address</td>
+          <td>75.51.115.45</td>
+          <td>With implied wildcards, this matches both 75.51.115.45 and 75.51.115.45/32.</td>
+        </tr>
+        <tr>
+          <td>Partial IP Address</td>
+          <td>
+            <div>75.51</div>
+            <div>51.115</div>
+          </td>
+          <td>With implied wildcards, both queries match 75.51.115.45.</td>
+        </tr>
+        <tr>
+          <td>Partial IP Address (Wildcard)</td>
+          <td>5*115</td>
+          <td>Wildcards can also be explicitly included in a query.</td>
+        </tr>
+        <tr>
+          <td>Fuzzy Searches</td>
+          <td>barclona~</td>
+          <td>A single word with a tilde at the end will match words with similar but not exact spelling. So this query would match “Barcelona”.</td>
+        </tr>
+        <tr>
+          <td>Boolean: AND</td>
+          <td>
+            <div>indicator AND address</div>
+            <div>indicator && address</div>
+          </td>
+          <td>Matches only when both terms exist.</td>
+        </tr>
+        <tr>
+          <td>Boolean: NOT</td>
+          <td>
+            <div>indicator NOT address</div>
+            <div>indicator !address</div>
+          </td>
+          <td>Matches on “indicator” and excludes results that also match “address”.</td>
+        </tr>
+        <tr>
+          <td>Boolean: +</td>
+          <td>indicator +domain</td>
+          <td>Requires a match with “domain”.</td>
+        </tr>
+        <tr>
+          <td>Boolean: -</td>
+          <td>indicator -domain</td>
+          <td>Exclude anything that matches “domain”.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>" 
+  data-container="body" data-html="true">
+  ?
+</a>
+</span>

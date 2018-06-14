@@ -1,0 +1,143 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">
+
+<div class="page-header">
+  <h1>
+      <span ng-show="address.combined_score||address.com_threat_score||address.gov_threat_score">
+          {{address.address | prefixWithPortionMarking: address.portion_marking : "U"}}
+      </span>
+      <span ng-hide="address.combined_score||address.com_threat_score||address.gov_threat_score">
+          {{address.address | prefixWithPortionMarking: address.portion_marking}}
+      </span>
+      <small ng-show="address.read_only">
+        <span style="margin-left: 10px" class="label label-warning arrowed arrowed-right">
+          <span class="white">Read Only</span>
+        </span>
+      </small>
+      <small ng-show="address.is_ciscp">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">CISCP</span>
+      </span>
+    </small>
+    <small ng-show="address.is_mifr">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">MIFR</span>
+      </span>
+    </small>    
+      <small ng-show="address.combined_score||address.com_threat_score||address.gov_threat_score">
+          <span class="label label-primary arrowed-right arrowed">
+              <i class="ace-icon fa fa-cloud"></i>
+              <a class="white fake-link" href='' ng-click="scrollTo('wmd_addresses')">Weather Map Address Reputation Score</a>
+          </span>
+      </small>
+      <span class="pull-right">
+          <a ng-href="#/addresses/{{address.cybox_object_id | encodeURIComponent}}/edit" class="btn btn-info no-radius btn-xs" ng-show="canModify(address) && address.read_only == false"><i class="ace-icon fa fa-pencil-square-o bigger-160"></i> Edit</a>
+      </span>
+  </h1>
+  <div class="space-18"></div>
+  <span class="pull-left" ng-show="canAny(['create_remove_badge_status','view_badge_status'])">
+    <badge-statuses-table badge-statuses="address.badge_statuses" audits="address.audits" parent-id="address.guid" parent-class="Address"></badge-statuses-table>
+  </span>
+  <div class="space-18"></div>
+</div>
+
+<p class="pull-right">
+</p>
+
+
+<div class="profile-user-info profile-user-info-striped">
+  <div class="profile-info-row">
+    <div class="profile-info-name"> {{address.category.toUpperCase()}} </div>
+    <div class="profile-info-value">
+      <div style="display: inline; margin-left: 1px;margin-right: 3px;">
+        <span ng-show="address.combined_score||address.com_threat_score||address.gov_threat_score">
+            {{address.address | prefixWithPortionMarking: address.portion_marking : "U"}}
+        </span>
+        <span ng-hide="address.combined_score||address.com_threat_score||address.gov_threat_score">
+            {{address.address | prefixWithPortionMarking: address.portion_marking}}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Address Condition </div>
+    <div class="profile-info-value">
+      <span>{{address.address_condition}}</span>
+    </div>
+  </div>
+  
+  <div class="profile-info-row" ng-show='address.feeds'>
+    <div class="profile-info-name"> Disseminated Feeds </div>
+    <div class="profile-info-value">
+      <span>{{address.feeds}}</span>
+    </div>
+  </div>  
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Created 
+    	<span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+      		<i class="fa fa-ban fa-stack-2x"> </i> 
+ 			<i class="fa fa-download fa-stack-1x"> </i> 
+    	</span>
+    </div>
+    <div class="profile-info-value">
+      <span>{{address.created_at | date:"medium"}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Total Sightings </div>
+    <div class="profile-info-value">
+      <span>{{address.total_sightings}}</span>
+    </div>
+  </div>
+  <downgrade-request-ids observable="address"></downgrade-request-ids>
+</div>
+
+<div ng-show="address.stix_markings.length">
+  <div class="space-12"></div>
+  <markings-table markings="address.stix_markings"></markings-table>
+</div>
+
+<div class="space-12" ng-show="address.combined_score"></div>
+<weather-map-addresses-collapsable-table id="wmd_addresses" addresses="[address]" ng-show="address.combined_score"></weather-map-addresses-collapsable-table>
+<div class="space-12" ng-show="address.indicators.length"></div>
+<div ng-show="address.indicators.length">
+  <indicator-table indicators="address.indicators"></indicator-table>
+</div>
+
+<div class="space-12" ng-show="address.course_of_actions.length"></div>
+<course-of-actions-table course_of_actions="address.course_of_actions" show_table=showTable addrelated="false" ng-show="address.course_of_actions.length"></course-of-actions-table>
+
+<div class="space-12" ng-show="address.dns_records.length"></div>
+<div ng-show="address.dns_records.length">
+  <dns-record-table dns_records="address.dns_records"></dns-record-table>
+</div>
+
+<div class="space-12" ng-show="address.email_messages.length"></div>
+<div ng-show="address.email_messages.length">
+  <email-table emails="address.email_messages"></email-table>
+</div>
+
+<div class="space-12" ng-show="address.socket_addresses.length"></div>
+<div ng-show="address.socket_addresses.length">
+  <socket-address-table socket_addresses="address.socket_addresses"></socket-address-table>
+</div>
+
+<div ng-show="address.stix_packages.length > 0">
+  <div class="space-12"></div>
+  <package-table packages="address.stix_packages"></package-table>
+</div>
+
+<div class="space-12" ng-show="showGFIs"></div>
+<div ng-show="showGFIs">
+  <gfi-widget widget-mode="show" gfi="address.gfi"></gfi-widget>
+</div>
+<div class="space-12"></div>
+<audits-table audits="address.audits"></audits-table>
+
+<div class="space-12"></div>
+
+</div>
+
+<show-spinner> </show-spinner>

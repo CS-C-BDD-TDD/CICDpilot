@@ -1,0 +1,119 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('addressTable', function() {
+  return {
+    restrict: 'E',
+    templateUrl: function(elem,attrs) {
+      if (attrs.indexpage) {
+          return '<%=asset_path("observables/addresses/advanced_table.html",type: :template)%>';
+      }
+      else if (attrs.wmdpage) {
+          return '<%=asset_path("weather_map/addresses/widget.html",type: :template)%>';
+      }
+      else {
+          return '<%=asset_path("observables/addresses/table.html",type: :template)%>';
+      }
+    },
+    scope: {
+             addresses: '=',
+             metadata: '=',
+             wmdpage: '@',
+             fetching: '='
+           },
+    controller: ['$scope', 'Restangular', '$rootScope', '$location', function($scope,Restangular,$rootScope,$location) {
+      $scope.SYSTEM_MODE = $rootScope.SYSTEM_MODE;
+      $scope.date_picker_opts = {
+        defaultRanges: true
+      };
+      $scope.q = '';
+      $scope.showTable=true;
+      $scope.marking_search_params = {};
+
+      // Cleanup
+      $scope.$on('$destroy', function() {
+        $('.daterangepicker').remove();
+      });
+      
+      if (angular.isUndefined($scope.offset)) {
+        $scope.offset=0;
+      }
+      if (angular.isUndefined($scope.amount)) {
+        $scope.amount=$rootScope.setting_value('DEFAULT_MAX_RECORDS');
+      }
+
+      if ($location.path().match('/weathermapaddresses')) {
+        $scope.sortOptions = {
+          'ip_value_calculated_start': 'desc',
+          'address_condition': 'desc',
+          'iso_country_code': 'desc', 
+          'combined_score' : 'desc',
+          'first_date_seen': 'desc',
+          'last_date_seen': 'desc',
+          'category_list': 'desc',
+          'updated_at' : 'desc'
+        };
+      } else {
+        $scope.sortOptions = {
+          'ip_value_calculated_start': 'desc',
+          'address_condition': 'desc',
+          'created_at': 'desc'
+        };
+      }
+      $scope.sortMethod = '';
+
+      $scope.dateRangePicker = function(picker) {
+        $scope.date_picker_object = picker;
+        $scope.offset=0;
+        $scope.getAddresses($scope.offset);
+      };
+
+      $scope.sort = function(method) {
+        $scope.sortMethod = method;
+        $scope.sortOptions[method]=($scope.sortOptions[method]=='desc')?'asc':'desc';
+        $scope.offset=0;
+        $scope.getAddresses($scope.offset);
+      };
+
+      $scope.startSearch = function() {
+        $scope.offset=0;
+        $scope.getAddresses($scope.offset);
+      };
+
+      $scope.getAddresses = function(offset) {
+        if (angular.isDefined($scope.metadata)) {
+          delete($scope.metadata);
+        }
+        $scope.fetching = true;
+        Restangular.one('/addresses').get({
+          ebt: $scope.date_picker_object.getStartDate(),
+          iet: $scope.date_picker_object.getEndDate(),
+          q: $scope.q,
+          column: $scope.sortMethod,
+          direction: $scope.sortOptions[$scope.sortMethod],
+          amount: $scope.amount,
+          offset: offset,
+          weather_map_only: $scope.wmdpage,
+          category: "ipv4-addr,ipv6-addr",
+          marking_search_params: $scope.marking_search_params
+        }).then(
+          function(data){
+            $scope.addresses = data.addresses;
+            $scope.metadata = data.metadata;
+            $scope.fetching = false;
+          },
+          function(res){
+            $scope.addresses = null;
+            $scope.metadata={total_count: 0};
+            toastr.error("Unable to load Addresses");
+            $scope.fetching = false;
+          }
+        );
+      };
+      
+      $scope.buildHref = function() {
+      	return $rootScope.buildCSVHref($scope, "addresses");
+      };
+
+    }]
+  };
+});

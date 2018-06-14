@@ -1,0 +1,99 @@
+<form class="form-horizontal">
+    <div class="col-md-12">
+        <div class="form-group">
+            <label class="col-md-4 control-label">Registry Hive*</label>
+            <div class="col-md-8">
+                <select class="col-md-8" ng-model="registry.hive" ng-init="registry.hive=registry.hive || 'HKEY_CLASSES_ROOT'" ng-options="h for h in Observable.registryHives" auto-focus ng-disabled="registry.cybox_object_id.length"></select>
+                <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="hive_toggle.toggle > 0" ng-click="hive_toggle.clear = hive_toggle.clear + 1">Clear Markings</button>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="hive_toggle.toggle = hive_toggle.toggle + 1">Custom ISA Markings</button>
+                <ul ng-show="error.hive" class="help-block">
+                    <li ng-repeat="e in error.hive">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="registry" disablesave="is_saving" editform="editform" fieldname="hive" togglebuttons="hive_toggle"></field-markings-edit>
+
+        <div class="form-group" ng-class="{'has-error': error.hive_condition}">
+            <label class="col-md-4 control-label">Hive Condition *</label>
+            <div class="col-md-8">
+                <select class="col-md-8" ng-model="registry.hive_condition" ng-options="condition for condition in conditions" ng-disabled="registry.cybox_object_id.length"></select>
+                <br/>
+                <ul ng-show="error.hive_condition" class="help-block">
+                    <li ng-repeat="e in error.hive_condition">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="form-group" ng-class="{'has-error': error.key}">
+            <label class="col-md-4 control-label">Registry Key*</label>
+            <div class="col-md-8">
+                <input type="text" ng-model="registry.key" name="registry_key" class="col-md-8" placeholder="Registry Key" ng-disabled="registry.cybox_object_id.length">
+                <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="key_toggle.toggle > 0" ng-click="key_toggle.clear = key_toggle.clear + 1">Clear Markings</button>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="key_toggle.toggle = key_toggle.toggle + 1">Custom ISA Markings</button>
+                <ul ng-show="error.key" class="help-block">
+                    <li ng-repeat="e in error.key">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="registry" disablesave="is_saving" editform="editform" fieldname="key" togglebuttons="key_toggle"></field-markings-edit>
+
+        <div class="form-group" ng-class="{'has-error': error.reg_name}">
+            <label class="col-md-4 control-label">Name</label>
+            <div class="col-md-8">
+                <input type="text" ng-model="registry.registry_values_attributes[0].reg_name" name="reg_name" class="col-md-8" placeholder="Name">
+                <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="name_toggle.toggle > 0" ng-click="name_toggle.clear = name_toggle.clear + 1">Clear Markings</button>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="name_toggle.toggle = name_toggle.toggle + 1">Custom ISA Markings</button>
+                <ul ng-show="error.reg_name" class="help-block">
+                    <li ng-repeat="e in error.reg_name">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="registry" disablesave="is_saving" editform="editform" fieldname="reg_name" togglebuttons="name_toggle"></field-markings-edit>
+
+        <div class="form-group" ng-class="{'has-error': error.reg_value}">
+            <label class="col-md-4 control-label">Value</label>
+            <div class="col-md-8">
+                <input type="text" ng-model="registry.registry_values_attributes[0].reg_value" name="reg_value" class="col-md-8" placeholder="Value">
+                <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="value_toggle.toggle > 0" ng-click="value_toggle.clear = value_toggle.clear + 1">Clear Markings</button>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="value_toggle.toggle = value_toggle.toggle + 1">Custom ISA Markings</button>
+                <ul ng-show="error.reg_value" class="help-block">
+                    <li ng-repeat="e in error.reg_value">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="registry" disablesave="is_saving" editform="editform" fieldname="reg_value" togglebuttons="value_toggle"></field-markings-edit>
+
+        <div class="form-group" ng-class="{'has-error': error.data_condition}">
+            <label class="col-md-4 control-label">Value Condition</label>
+            <div class="col-md-8">
+                <select class="col-md-8" ng-model="registry.registry_values_attributes[0].data_condition" ng-options="condition for condition in conditions"></select>
+                <br/>
+                <ul ng-show="error.data_condition" class="help-block">
+                    <li ng-repeat="e in error.data_condition">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+
+        <acs-associate-form sets="sets" object="registry" objecttype="Registry" disable-save="is_saving" editform="editform" fieldname="cybox"></acs-associate-form>
+    </div>
+</form>
+<div class="row">
+    <div class="col-xs-12">
+        <form class="form-horizontal" role="form" ng-submit="save(registry)">
+            <div class="clearfix form-actions">
+                <span ng-show="is_saving">
+                    <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+                </span>
+                <div class="col-md-offset-3">
+                    <button class="btn btn-info" ng-disabled="is_saving" type="submit">
+                        <i class="ace-icon fa fa-check bigger-110"></i> Save
+                    </button>
+                    <button class="btn btn-default" ng-disabled="is_saving" type="button" ng-click="cancel()">
+                        <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                    </button>
+                </div>
+            </div>
+            <div class="hr hr-24"></div>
+        </form>
+    </div>
+</div>

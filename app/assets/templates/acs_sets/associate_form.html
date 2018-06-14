@@ -1,0 +1,67 @@
+<div class="widget-box">
+    <div class="widget-header" align="center">
+        <a class='fake-link widget-title ng-cloak' ng-click="associate_form = !associate_form" ng-init="associate_form = true">
+            <i class="ace-icon fa" ng-class="associate_form ? 'fa-minus' : 'fa-plus'"></i>
+            ISA Markings for {{fieldtext?fieldtext:'Object'}}
+            <div class="text-center">
+                {{object.stix_markings_attributes[smindex.index].template_name ? 'Last Template Used: ' + object.stix_markings_attributes[smindex.index].template_name : ''}}
+            </div>
+        </a>
+    </div>
+
+    <div class="widget-body" ng-show="associate_form">
+        <div class="widget-main">
+            <div class="form-group" ng-class="{'has-error': object.errors.acs_set_id}" ng-if="fieldname == undefined">
+                <label class="control-label col-md-3 no-padding-right">ACS Set: </label>
+                <div class="col-md-9">
+                    <select id="acs_set_selector" class="col-md-9 sets" ng-model="object.acs_set" ng-change="select_acs_set()" ng-options="(set.name | prefixWithPortionMarking: set.portion_marking) for set in sets | orderBy:'name' track by set.guid">
+                    </select>
+                    <div ng-if="object.errors.acs_set_id" class="help-block inline col-md-12" align="right">
+                      <span ng-repeat="error in object.errors.acs_set_id" class="col-md-12">{{error}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': object.errors.alt_acs_selector}"  ng-show="fieldname">
+                <label class="control-label col-md-3 no-padding-right">ACS Set: </label>
+                <div class="col-md-9">
+                    <select id="alt_acs_selector" class="col-md-9 sets" ng-model="alt_acs_selector" ng-change="transmute_attributes(fieldname)" ng-options="(set.name | prefixWithPortionMarking: set.portion_marking) for set in sets | orderBy:'name' track by set.guid">
+                    </select>
+                    <div ng-if="object.errors.alt_acs_selector" class="help-block inline col-md-12" align="right">
+                      <span ng-repeat="error in object.errors.alt_acs_selector" class="col-md-12">{{error}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ciap_padding_020">
+                <isa-marking stix-marking="object.stix_markings_attributes[smindex.markingsindex] || object.stix_markings_attributes[smindex.index]" toggle_isa_markings_view="toggleIsaMarkingsView"></isa-marking>
+            </div>
+            <div ng-if="fieldname == undefined">
+                <div class="space-8"></div>
+
+                <div class="form-group">
+                  <div class="col-lg-5"></div>
+                  <div align="center">
+                    <div class="col-md-2" ng-hide="object.stix_markings_attributes[smindex.index].custom">
+                        <a class='fake-link' ng-click="customize()">
+                           <i class="ace-icon fa fa-plus"></i>
+                           Customize
+                        </a>
+                        <span class='help-button help_styling' tooltip="By clicking 'Customize', you are disassociating the object from the ACS Set.  Any changes to the ACS Set will not affect this object" tooltip-placement="bottom">?</span>
+                    </div>
+
+                    <div class="col-md-2" ng-show="object.stix_markings_attributes[smindex.index].custom">
+                        <a class='fake-link' ng-click="object.acs_set_id = existing_set_id;justification = [];remove_customization()">
+                            <i class="ace-icon fa fa-times"></i>
+                            Cancel Customization
+                        </a>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <div class="ciap_padding_020" ng-show="object.stix_markings_attributes[smindex.index].custom || fieldname == 'cybox'">
+               <isa-assertion isa-assertion="object.stix_markings_attributes[smindex.index].isa_assertion_structure_attributes" justification="object.justification" editform="editform" disablededit="fromlinker"></isa-assertion>
+            </div>
+        </div>
+    </div>
+</div>

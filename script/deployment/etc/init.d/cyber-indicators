@@ -1,0 +1,232 @@
+#!/bin/bash
+#
+# cyber-indicators      This shell script takes care of starting and stopping cyber-indicators
+#
+# chkconfig: - 80 20
+#
+### BEGIN INIT INFO
+# Provides: cyber-indicators
+# Required-Start: $network $syslog
+# Required-Stop: $network $syslog
+# Default-Start:
+# Default-Stop:
+# Description: Release implementation for Servlet 2.5 and JSP 2.1
+# Short-Description: start and stop tomcat
+### END INIT INFO
+#
+# - originally written by Henri Gomez, Keith Irwin, and Nicolas Mailhot
+# - heavily rewritten by Deepak Bhole and Jason Corley
+
+## Source function library.
+#. /etc/rc.d/init.d/functions
+
+parse_yaml() {
+   local prefix=$2
+   local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
+   sed -ne "s|^\($s\)\($w\)$s:$s\"\(.*\)\"$s\$|\1$fs\2$fs\3|p" \
+        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
+   awk -F$fs '{
+      indent = length($1)/2;
+      vname[indent] = $2;
+      for (i in vname) {if (i > indent) {delete vname[i]}}
+      if (length($3) > 0) {
+         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
+         printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
+      }
+   }'
+}
+
+# read yaml file (first param = yml file path, second param = variable prefix
+eval $(parse_yaml /etc/cyber-indicators/config/settings.yml "")
+
+NAME="$(basename $0)"
+unset ISBOOT
+if [ "${NAME:0:1}" = "S" -o "${NAME:0:1}" = "K" ]; then
+    NAME="${NAME:3}"
+    ISBOOT="1"
+fi
+
+# For SELinux we need to use 'runuser' not 'su'
+if [ -x "/sbin/runuser" ]; then
+    SU="/sbin/runuser -s /bin/sh"
+else
+    SU="/bin/su -s /bin/sh"
+fi
+
+# Get instance specific config file
+if [ -r "/etc/sysconfig/${NAME}" ]; then
+    . /etc/sysconfig/${NAME}
+fi
+
+# Get the tomcat config (use this for environment specific settings)
+TOMCAT_CFG="/etc/cyber-indicators/tomcat7/conf/tomcat7.conf"
+if [ -r "$TOMCAT_CFG" ]; then
+	    . $TOMCAT_CFG
+fi
+
+# Path to the tomcat launch script
+TOMCAT_SCRIPT="/usr/share/tomcat7/bin/startup.sh"
+
+# Tomcat program name
+TOMCAT_PROG="${NAME}"
+        
+# Define the tomcat username
+TOMCAT_USER="${TOMCAT_USER:-tomcat}"
+
+# Define the tomcat group
+TOMCAT_GROUP="${TOMCAT_GROUP:-`id -gn $TOMCAT_USER`}"
+
+# Define the tomcat log file
+TOMCAT_LOG="${TOMCAT_LOG:-/var/log/${NAME}-initd.log}"
+
+# Define the pid file name
+# If change is needed, use sysconfig instead of here
+export CATALINA_PID="${CATALINA_PID:-/var/run/${NAME}.pid}"
+
+RETVAL="0"
+
+function parseOptions() {
+    options="$CATALINA_PID"
+    options="$options $(
+                 awk '!/^#/ && !/^$/ { ORS=" "; print "export ", $0, ";" }' \
+	                      $TOMCAT_CFG
+		                  )"
+    if [ -r "/etc/sysconfig/${NAME}" ]; then
+        options="$options $(
+                     awk '!/^#/ && !/^$/ { ORS=" "; 
+                                           print "export ", $0, ";" }' \
+                     /etc/sysconfig/${NAME}
+                 )"
+    fi
+    TOMCAT_SCRIPT="$options ${TOMCAT_SCRIPT}"
+}
+
+# rhbz 757632
+function version() {
+	parseOptions
+	$SU - $TOMCAT_USER -c "${TOMCAT_SCRIPT} version" >> ${TOMCAT_LOG} 2>&1 || RETVAL="4"
+}
+
+function log_failure_msg() {
+  echo "[Failure] $@"
+}
+
+function log_success_msg() {
+  echo "[Success] $@"
+}
+
+# See how we were called.
+function start() {
+  
+   echo -n "Starting ${TOMCAT_PROG}: "
+   if [ "$RETVAL" != "0" ]; then 
+     log_failure_msg
+     return
+   fi
+   if [ -f "/var/lock/subsys/${NAME}" ]; then
+        if [ -f "${CATALINA_PID}" ]; then
+            read kpid < ${CATALINA_PID}
+#           if checkpid $kpid 2>&1; then
+            if [ -d "/proc/${kpid}" ]; then
+                log_success_msg
+                RETVAL="0"
+                return
+            fi
+        fi
+    fi
+
+    # fix permissions on the log and pid files
+    touch $CATALINA_PID 2>&1 || RETVAL="4"
+    if [ "$RETVAL" -eq "0" -a "$?" -eq "0" ]; then 
+      chown ${TOMCAT_USER}:${TOMCAT_GROUP} $CATALINA_PID
+    fi
+
+    if [ "$?" != "0" ]; then
+	RETVAL="4"
+    fi
+    parseOptions
+
+    TOMCAT_SCRIPT_OUTPUT=$TOMCAT_SCRIPT
+    re="^(.*?)SECRET_KEY_BASE=\"[^\"]+\"(.*?)$"
+    REDACTED="SECRET_KEY_BASE=\"<REDACTED>\""
+    if [[ $TOMCAT_SCRIPT_OUTPUT =~ $re ]]; then
+      TOMCAT_SCRIPT_OUTPUT=${BASH_REMATCH[1]}${REDACTED}${BASH_REMATCH[2]}
+    fi
+echo "SU: $SU"
+echo "TOMCAT_USER: $TOMCAT_USER"
+echo "TOMCAT_SCRIPT: $TOMCAT_SCRIPT_OUTPUT"
+echo "TOMCAT_LOG: $TOMCAT_LOG"
+    [ "$RETVAL" -eq "0" ] && $SU - $TOMCAT_USER -c "${TOMCAT_SCRIPT}" >> ${TOMCAT_LOG} 2>&1 || RETVAL="4"
+    if [ "$RETVAL" -eq "0" ]; then 
+        log_success_msg
+        touch /var/lock/subsys/${NAME}
+
+        #if [ "$production_USE_AMQP_RECEIVER" = "true" ]; then
+            #/sbin/service amqp-receiver start
+        #fi
+    else
+        log_failure_msg "Error code ${RETVAL}"
+    fi
+}
+
+function stop() {
+    #if [ "$production_USE_AMQP_RECEIVER" = "true" ]; then
+    #    /sbin/service amqp-receiver stop
+    #fi
+
+    echo -n "Stopping ${TOMCAT_PROG}: "
+    if [ -f "/var/lock/subsys/${NAME}" ]; then
+      parseOptions
+      if [ "$RETVAL" -eq "0" ]; then
+         count="0"
+         if [ -f "${CATALINA_PID}" ]; then
+            read kpid < ${CATALINA_PID}
+            until [ "$(ps --pid $kpid | grep -c $kpid)" -eq "0" ] || \
+                      [ "$count" -gt "$SHUTDOWN_WAIT" ]; do
+                    if [ "$SHUTDOWN_VERBOSE" = "true" ]; then
+                        echo "waiting for processes $kpid to exit"
+                    fi
+                    sleep 1
+                    let count="${count}+1"
+                done
+                if [ "$count" -gt "$SHUTDOWN_WAIT" ]; then
+                    kill -9 $kpid
+                fi
+                log_success_msg
+            fi
+            rm -f /var/lock/subsys/${NAME} ${CATALINA_PID}
+        else
+            log_failure_msg
+            RETVAL="4"
+        fi
+    else
+        log_success_msg
+        RETVAL="0"
+    fi
+}
+
+function usage()
+{
+   echo "Usage: $0 {start|stop|restart}"
+   RETVAL="2"
+}
+
+# See how we were called.
+RETVAL="0"
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+      usage
+      ;;
+esac
+
+exit $RETVAL

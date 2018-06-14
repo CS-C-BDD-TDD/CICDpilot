@@ -1,0 +1,6 @@
+<%- headers = ['Title', 'Created By', 'Date Created', 'Last Updated', 'Short Description', 'Identity Name'] %>
+<%= raw CSV.generate_line addPortionMarkingToCSV(headers), :row_sep => '', :force_quotes => true %>
+<% @threat_actors.each do |actor| %>
+  <%- row = [actor.title, actor.created_by_user ? actor.created_by_user.username : '', actor.created_at, actor.updated_at, actor.short_description, actor.identity_name] -%>
+<%= raw CSV.generate_line addPortionMarkingToCSV(nil, row, actor), :row_sep => '', :force_quotes => true %>
+<% end %>

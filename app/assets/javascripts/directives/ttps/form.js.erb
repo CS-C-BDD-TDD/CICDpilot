@@ -1,0 +1,393 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('ttpForm',function() {
+  return {
+    restrict: 'E',
+    scope: {
+      ttp: '=',
+      save: '=',
+      editform: '='
+    },
+    templateUrl: '<%=asset_path("ttps/form.html",type: :template)%>',
+    controller: ['$scope', '$rootScope', '$q', 'Restangular', '$location', 'Classification', 'ttpService', 'Marking', function($scope, $rootScope,$q, Restangular, $location, Classification, ttpService, Marking) {
+      $scope.can = $rootScope.can;
+      $scope.sets = [];
+      $scope.params = ttpService.get_params() || {};
+
+      if (angular.isDefined($scope.params.page)) {
+        $scope.page = $scope.params.page;
+      } else {
+        $scope.page = 1;
+      }
+
+      $scope.added_attack_patterns = [];
+      $scope.capec_pattern = /^CAPEC-\d+$/;
+
+      var listener=$scope.$watch('ttp',function(ttp) {
+        if (angular.isDefined(ttp)) {
+          listener();
+          $scope.ttp = ttp;
+          $scope.added_attack_patterns = $scope.ttp.added_attack_patterns || [];
+        };
+      });
+
+      Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data) {
+        $scope.sets = data;
+      },function(res) {
+        toastr.error("Unable to load ACS Set List");
+      });
+      
+      $scope.to_attack_pattern = function() {
+        //Clear all validation_error flag
+        if (angular.isDefined($scope.ttp.attack_patterns)) {
+          _.forEach($scope.ttp.attack_patterns, function(attack_pattern) {
+            attack_pattern.validation_error = false;
+          })
+        }
+        if (angular.isDefined($scope.added_attack_patterns)) {
+          _.forEach($scope.added_attack_patterns, function(attack_pattern) {           
+            attack_pattern.validation_error = false;
+          })
+        }
+        var orig_ap = $scope.ttp.attack_patterns;
+        $scope.ttp.attack_patterns = $scope.ttp.attack_patterns.concat($scope.added_attack_patterns);
+        Restangular.one('validate_classification/Ttp').customPUT($scope.ttp).then(function(data) {  
+          $scope.ttp.attack_patterns = orig_ap;
+          $scope.page++;
+        },function(res) {
+          if (angular.isDefined(res.data) && angular.isDefined(res.data.errors) ) {
+            //parse error
+            $scope.ttp = $rootScope.parse_error(res.data.errors, $scope.ttp);
+            _.forEach($scope.ttp.attack_patterns, function(attack_pattern) {
+              _.forEach($scope.added_attack_patterns, function(new_attack_pattern) {
+                if (new_attack_pattern == attack_pattern && attack_pattern.validation_error) {
+                  new_attack_pattern.validation_error = true;
+                }
+              })
+            })
+            $scope.ttp.attack_patterns = orig_ap; 
+            $scope.page=2;
+            toastr.error("Invalid Classification, Classification of the Attack Pattern is greater than the classification of the TTP containing this object");
+            toastr.error("Please update Attack Patterns highlighted in red before continue");
+          }
+        });
+      }
+      
+      $scope.to_exploit_targets = function() {
+        var orig_ap = $scope.ttp.attack_patterns;
+        $scope.ttp.attack_patterns = $scope.ttp.attack_patterns.concat($scope.added_attack_patterns);
+
+        var has_error = false;
+        if ($rootScope.is_undefined_or_null($scope.ttp.attack_patterns) || $scope.ttp.attack_patterns.length == 0) {
+          toastr.error("You have to have at the least one attack pattern");
+          has_error = true;
+        }
+        
+        if ($scope.added_attack_patterns.length) {
+          _.forEach($scope.ttp.attack_patterns, function(attack_pattern) {
+            attack_pattern.errors = {};
+            if ($rootScope.is_undefined_or_null(attack_pattern.capec_id)) {
+              if ($rootScope.is_undefined_or_null(attack_pattern.title)) {
+                attack_pattern.errors.title = [" can't be blank if CAPEC ID is not provided"];
+                has_error = true;
+              }
+            }
+                 
+            if ($rootScope.is_undefined_or_null(attack_pattern.title)) {
+              if ($rootScope.is_undefined_or_null(attack_pattern.capec_id)) {
+                attack_pattern.errors.capec_id = [" can't be blank if title is not provided"];
+                has_error = true;
+              }
+            }
+
+            if (attack_pattern.description) {
+              if ($rootScope.is_undefined_or_null(attack_pattern.title)) {
+                attack_pattern.errors.title = [" can't be blank if description is defined"];
+                has_error = true;
+              }
+            }
+                              
+            if (attack_pattern.title) {
+              if ($rootScope.is_undefined_or_null(attack_pattern.description)) {
+                attack_pattern.errors.description = [" can't be blank if title is defined"];
+                has_error = true;
+              }
+            }
+               
+            if (attack_pattern.capec_id) {
+              if (!$scope.capec_pattern.test(attack_pattern.capec_id)) {
+                attack_pattern.errors.capec_id = [" must follow the pattern: CAPEC-<one or more digits>"];
+                has_error = true;
+              }
+            }
+          })
+        }
+
+        if (has_error) {
+          $scope.ttp.attack_patterns = orig_ap;
+        } else {
+          //Clear all validation_error flag before validation
+          if (angular.isDefined($scope.ttp.attack_patterns)) {
+            _.forEach($scope.ttp.attack_patterns, function(attack_pattern) {
+              attack_pattern.validation_error = false;
+            })
+          }
+          if (angular.isDefined($scope.added_attack_patterns)) {
+            _.forEach($scope.added_attark_patterns, function(attack_pattern) {           
+              attack_pattern.validation_error = false;
+            })
+          }
+          Restangular.one('validate_classification/Ttp').customPUT($scope.ttp).then(function(data) {
+            $scope.ttp.attack_patterns = orig_ap;
+            $scope.page = 3;
+          },function(res) {
+            $scope.ttp = $rootScope.parse_error(res.data.errors, $scope.ttp);
+            _.forEach($scope.ttp.attack_patterns, function(attack_pattern) {
+              _.forEach($scope.added_attack_patterns, function(new_attack_pattern) {
+                if (new_attack_pattern == attack_pattern && attack_pattern.validation_error) {
+                  new_attack_pattern.validation_error = true;
+                }
+              })
+            })
+            ttp.attack_patterns = orig_ap;
+            toastr.error("Unable to go to the next page due to classification error(s), please update the attack patterns highlighted in red before continuing");
+            toastr.error("Invalid Classification, Classification of the Attack Pattern is greater than the classification of the TTP containing this object");
+          });
+        }
+      }
+      
+      $scope.to_suggested_packages = function() {
+        $scope.page = 4;
+
+        $scope.fetchingPackages = true;
+
+        var postobj = {};
+
+        postobj.exploit_target_stix_ids = _.map($scope.ttp.exploit_targets, function(i){
+          return i.stix_id
+        });
+
+        var curr_markings = $scope.ttp.stix_markings_attributes;
+        if (!$rootScope.is_undefined_or_null($scope.ttp.acs_set_id)){
+          Restangular.one('acs_sets').get({id: $scope.ttp.acs_set_id}).then(function(data){
+            // set it equal to the existing markings
+            if (angular.isDefined(data.stix_markings)){
+              curr_markings = data.stix_markings;
+            }
+          },function(res){
+              toastr.error("Unable to load ACS Set Markings");
+          });
+        }
+
+        var classification_limit = Marking.get_classification_attributes(curr_markings);
+
+        Restangular.one('stix_package/suggested_packages/' + classification_limit).customPOST(postobj).then(function(data){
+          $scope.suggested_packages = data.stix_packages;
+          $scope.fetchingPackages = false;
+        },function(res){
+          toastr.error("Unable to load Suggested Packages");
+        });
+      }
+
+      $scope.start_save = function() {
+        $scope.is_saving = true;
+        $scope.ttp.errors = {};
+        /*
+        Rules for when CLASSIFICATION is true
+
+        and ACS Set or Classification must be selected. When Classification is above unclassified, 
+        details must be filled out.
+        */
+        if ($rootScope.setting_value('CLASSIFICATION') == true) {
+          $scope.ttp.stix_markings_attributes = Classification.check_classification_details($scope.ttp.stix_markings_attributes);
+          var problems = $scope.ttp.stix_markings_attributes.problems;
+          var classification_check = $scope.ttp.stix_markings_attributes.classification_check;
+          /*
+          If customized was not clicked and ISA Assertion Structure is not defined.
+          In this case we need to make sure that an ACS Set is selected because an ACS Set is required to have a classification.
+          */
+          var obj_level_index = _.findIndex($scope.ttp.stix_markings_attributes, function(sm) {
+            return ($rootScope.is_undefined_or_null(sm.remote_object_field) || (angular.isDefined(sm.remote_object_field) && sm.remote_object_field == null)) && angular.isDefined(sm.isa_assertion_structure_attributes);
+          })
+          if (($rootScope.is_undefined_or_null($scope.ttp.stix_markings_attributes[obj_level_index]) || 
+          $rootScope.is_undefined_or_null($scope.ttp.stix_markings_attributes[obj_level_index].isa_assertion_structure_attributes)) && $rootScope.is_undefined_or_null($scope.ttp.acs_set_id)) {
+            $scope.ttp.errors.acs_set_id = ["You either need to associate an ACS Set or Click Customize and set a Classification"];
+            if (angular.isDefined($scope.ttp.stix_markings_attributes[obj_level_index].isa_assertion_structure_attributes)) {
+              $scope.ttp.stix_markings_attributes[obj_level_index].isa_assertion_structure_attributes.errors.acs_set_id = ["You either need to associate an ACS Set or set a Classification"];
+            }
+            classification_check = true;
+          }
+        }
+        if (Object.keys($scope.ttp.errors).length > 0 || classification_check) {
+          $scope.is_saving = false;
+          toastr.error("Unable to save TTP");
+          $("html, body").animate({ scrollTop: 0 }, 200);
+          if (classification_check) {
+            for (var i = 0; i < problems.length; i++) {
+              if (problems[i].field == null) {
+                toastr.error("Unable to save due to classification errors in the Object level markings");
+              } else {
+                toastr.error("Unable to save due to classification errors in the " + problems[i].field + " markings");
+              }
+            };
+          }
+          return;
+        }
+        
+        /*create new attack patterns first*/    
+        if ($scope.added_attack_patterns.length) {
+          var result = [];
+          var promiseArr = [];
+          for (i=0; i < $scope.added_attack_patterns.length; i++) {
+            var new_attack_pattern = $scope.added_attack_patterns[i];
+                 
+            /*
+            Rules for when CLASSIFICATION is true
+
+            and ACS Set or Classification must be selected. When Classification is above unclassified, 
+            details must be filled out.
+            */
+            if ($rootScope.setting_value('CLASSIFICATION') == true) {
+              new_attack_pattern.stix_markings_attributes = Classification.check_classification_details(new_attack_pattern.stix_markings_attributes);
+              var problems = new_attack_pattern.stix_markings_attributes.problems;
+              var classification_check = new_attack_pattern.stix_markings_attributes.classification_check;
+            }
+            if (Object.keys(new_attack_pattern.errors).length > 0 || classification_check) {
+              $scope.is_saving = false;
+              toastr.error("Unable to save Attack Pattern");
+              $("html, body").animate({ scrollTop: 0 }, 200);
+              if (classification_check) {
+                for (var i = 0; i < problems.length; i++) {
+                  if (problems[i].field == null) {
+                    toastr.error("Unable to save due to classification errors in the Object level markings");
+                  } else {
+                    toastr.error("Unable to save due to classification errors in the " + problems[i].field + " markings");
+                  }
+                }
+              }
+              return;
+            }
+
+            result[i] = Restangular.all('attack_patterns').post(new_attack_pattern);
+            promiseArr.push(result[i]);
+            result[i].then(function(res) { 
+              if (! angular.isDefined($scope.ttp.attack_patterns)) {
+                $scope.ttp.attack_patterns = [];
+              } 
+              $scope.ttp.attack_patterns.push(res);
+              var ap_index = _.findIndex($scope.added_attack_patterns, function(ap) { return (res.title == ap.title && res.description == ap.description) || (res.capec_id == ap.capec_id) })
+              if (ap_index >= 0) {
+                $scope.added_attack_patterns.splice(ap_index,1); 
+              }     
+            },function(res) {
+              toastr.error("Unable to save attack pattern");
+              if (angular.isDefined(res.data) && angular.isDefined(res.data.errors)) {
+                $scope.ttp.errors = res.data.errors;
+                if (angular.isDefined(res.data.errors.base)) {
+                  _.each(res.data.errors.base,function(e) {
+                    toastr.error(e);
+                  });
+                }
+              }
+                      
+              $scope.is_saving=false;
+            })
+          }; 
+
+
+          $q.all(promiseArr).then(function(res) {
+            $scope.save($scope.ttp, function() {
+              $scope.is_saving = false;
+            })
+          })          
+        } else {
+          $scope.save($scope.ttp, function() {
+            $scope.is_saving = false;
+          });
+        }
+      };
+
+      $scope.cancel = function() {
+        if (angular.isDefined($scope.ttp.stix_id)) {
+          $location.path('/ttps/' + $scope.ttp.stix_id);
+        } else {
+          $location.path('/ttps');
+        }
+      };
+
+      $scope.add_attack_pattern = function() {
+        $scope.added_attack_patterns.push({title: "", description: ""});
+      };
+
+      $scope.remove_attack_pattern = function(attack_pattern) {
+        _.remove($scope.added_attack_patterns, function(ap) {
+          return ap == attack_pattern;
+        })
+      };
+
+
+      $scope.removeAttackPattern = function(attack_pattern) {
+        _.remove($scope.ttp.attack_patterns, function(loop_attack_pattern) {
+          if (loop_attack_pattern == attack_pattern) {
+            return loop_attack_pattern;
+          }
+        });
+      };
+      
+      $scope.editAttackPattern = function(attack_pattern) {
+        $scope.ttp.attack_patterns = $scope.ttp.attack_patterns.concat($scope.added_attack_patterns);
+        ttpService.set_data($scope.ttp);
+        ttpService.set_params({page: $scope.page});
+
+        $location.path('/attack_patterns/' + attack_pattern.stix_id + "/edit");
+      };
+      
+      $scope.removeExploitTarget = function(exploit_target) {
+        _.remove($scope.ttp.exploit_targets, function(et) {
+          if (et == exploit_target) {
+            return et;
+          }
+        });
+      };
+
+      $scope.removeIndicator = function(indicator) {
+        _.remove($scope.ttp.indicators, function(i){
+          if (i == indicator) {
+            return i;
+          }
+        });
+      };
+
+      $scope.removePackage = function(package) {
+        _.remove($scope.ttp.stix_packages, function(p){
+          if (p == package) {
+            return p;
+          }
+        });
+      };
+
+      $scope.disabledPackage = function(package) {
+        if ($scope.checkedPackage(package) && $scope.selectOnly) {
+          return true;
+        }
+        return false;
+      }
+
+      $scope.checkedPackage = function(package){
+        return _.findIndex($scope.ttp.stix_packages, function(p){return p.stix_id == package.stix_id;}) > -1;
+      };
+
+      $scope.selectPackage = function(package,$event) {
+        var checkbox = $event.target;
+        if (checkbox.checked){
+          if (_.findIndex($scope.ttp.stix_packages, function(p){return p.stix_id == package.stix_id}) == -1){
+            $scope.ttp.stix_packages.push(package);
+          }
+        } else {
+          $scope.ttp.stix_packages = _.filter($scope.ttp.stix_packages, function(p){return p.stix_id != package.stix_id});
+        }
+      };
+
+    }]
+  };
+});

@@ -1,0 +1,192 @@
+app.controller('HumanReviewShowController',
+        ['$scope','$rootScope','$routeParams','Restangular','$location',
+            function ($scope, $rootScope, $routeParams,Restangular,$location) {
+                $scope.fetching = true;
+                $scope.dirty = false; // dirty holds whether any data has changed on this page
+                $scope.bulk_action_occurring = false;
+                $rootScope.breadcrumbs = [
+                    {text:'Home',link:'#/',icon:'fa-home'},
+                    {text:'Human Reviews',link:'#/human_reviews/'}
+                ];
+
+                Restangular.one('human_reviews',$routeParams.id).get().then(function(data){
+                    $scope.review = data;
+                    $scope.fetching = false;
+                },function(response){
+                    toastr.error("Unable to Load Human Review File");
+                    $scope.fetching = false;
+                });
+
+                $scope.full_status = function(status){
+                  switch(status) {
+                    case 'A':
+                      return 'Accepted';
+                    case 'N':
+                      return 'Not Yet Reviewed';
+                    case 'R':
+                      return 'Rejected';
+                    case 'I':
+                      return 'In Progress';
+                    case 'D':
+                      return 'Ready For Dissemination';
+                    default:
+                      return '';
+                  }
+                }
+
+                var index = 0;
+                var pii_value = '';
+                var revised_field_value = '';
+                var action_type = '';
+                var toastr_value = '';
+                var accept_and_save = false;
+                var update_over_time=function() {
+                  $scope.bulk_action_occurring = true;
+                  $scope.$evalAsync(function(){
+                    if (index < $scope.review.human_review_fields.length) {
+                      for(var i = index; i < index+100; i++){
+                        if (angular.isDefined($scope.fields[i])) {
+                          if (action_type == 'revert' || !$scope.fields[i].object_field_revised) {
+                            $scope.review.human_review_fields[i].has_pii = pii_value;
+                            if (action_type == 'confirm' || action_type == 'not_pii') {
+                              $scope.review.human_review_fields[i].object_field_revised = $scope.review.human_review_fields[i].object_field_original;
+                            } else {
+                              $scope.review.human_review_fields[i].object_field_revised = revised_field_value;
+                            }
+                          }
+                        }
+                      }
+                      index += 100;
+                      setTimeout(update_over_time, 250);
+                    } else {
+                      if (accept_and_save) {
+                        accept_and_save = false;
+                        $scope.review.status='D';
+                        $scope.save();
+                      }
+                      $scope.bulk_action_occurring = false;
+                      toastr.info(toastr_value);
+                    }
+                  });
+                }
+
+                $scope.accept_entire_file=function() {
+                  accept_and_save = true;
+                  $scope.not_pii_all();
+                }
+
+                $scope.confirm_all=function() {
+                  index = 0;
+                  pii_value = true;
+                  action_type = 'confirm';
+                  revised_field_value = 'XXX';
+                  toastr_value = 'All non-accepted items have been confirmed';
+                  setTimeout(update_over_time, 100);
+                }
+
+                $scope.edit_all=function() {
+                  var value = prompt("Enter value for edit");
+                  if (angular.isDefined(value)) {
+                    index = 0;
+                    pii_value = false;
+                    revised_field_value = value;
+                    action_type = 'edit';
+                    toastr_value = 'All non-accepted items have been edited';
+                    setTimeout(update_over_time, 100);
+                  }
+                }
+
+                $scope.not_pii_all=function() {
+                  index = 0;
+                  pii_value = false;
+                  revised_field_value = 'XXX';
+                  action_type = 'not_pii';
+                  toastr_value = 'All non-accepted items have been set to not PII';
+                  setTimeout(update_over_time, 100);
+                }
+
+                $scope.redact_all=function() {
+                  index = 0;
+                  pii_value = false;
+                  revised_field_value = $scope.default_field_value;
+                  action_type = 'redact';
+                  toastr_value = 'All non-accepted items have been redacted';
+                  setTimeout(update_over_time, 100);
+                }
+
+                $scope.revert_all=function() {
+                  var value = confirm("This will revert all data.  Are you sure?");
+                  if (value) {
+                    index = 0;
+                    pii_value = null;
+                    revised_field_value = null;
+                    action_type = 'revert';
+                    toastr_value = 'All items have been reverted';
+                    setTimeout(update_over_time, 100);
+                  }
+                }
+
+                $scope.get_bulk_percentage = function() {
+                  return (angular.isDefined($scope.review) && $scope.review.human_review_fields.length > 0) ? ((index * 100) / $scope.review.human_review_fields.length).toFixed(0) : 100;
+                }
+
+                $scope.disseminate=function() {
+                  if ($scope.dirty) {
+                    toastr.error("You must save changes first before you can disseminate");
+                  } else {
+                    Restangular.one('human_review_disseminate',$scope.review.id).customPUT().then(function(data){
+                      toastr.success('Disseminated File');
+                      $location.path('/human_reviews');
+                    },function(res){
+                      toastr.error("Unable to Disseminate");
+                    });
+                  }
+                }
+
+                $scope.set_dirty=function() {
+                  $scope.dirty = true;
+                }
+
+                $scope.is_fully_loaded=function(){
+                    return angular.isDefined($scope.review) && angular.element('.items').length == $scope.review.human_review_fields.length;
+                }
+
+                $scope.save = function() {
+                    $scope.review.human_review_fields_attributes = $scope.review.human_review_fields;
+                    $scope.is_saving = true;
+                    // If we have not set status to A, then we need to see if all fields are filled in
+                    if ($scope.review.status!='A') {
+                      $count_total=$count_unreviewed=0;
+                      $scope.review.human_review_fields.forEach(function(field) {
+                        $count_total++;
+                        // Keep count of empty fields
+                        if (!field.object_field_revised) {
+                          $count_unreviewed++;
+                        }
+                      });
+                      if ($count_unreviewed==0) {
+                        $scope.review.status='D'; // Ready For Dissemination
+                      } else if ($count_unreviewed==$count_total) {
+                        $scope.review.status='N'; // Not Yet Reviewed
+                      } else {
+                        $scope.review.status='I'; // In Progress
+                      }
+                    };
+                    Restangular.one('human_reviews',$scope.review.id).customPUT($scope.review).then(function(data){
+                        if ($scope.review.status=='A') {
+                            toastr.success('Disseminated File')
+                        } else {
+                            toastr.success('Human Review Fields Saved')
+                        }
+                        $location.path('/human_reviews');
+                    },function(res){
+                        $scope.review.status = 'N';
+                        $scope.is_saving = false;
+                        toastr.error("Unable to save Human Review");
+                        toastr.error(res.data.errors.join(', '));
+                    });
+                    $rootScope.updateHRCount();
+                }
+            }
+        ]
+)

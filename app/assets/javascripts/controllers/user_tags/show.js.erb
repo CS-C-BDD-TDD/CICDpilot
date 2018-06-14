@@ -1,0 +1,28 @@
+app.controller('UserTagsShowController',['$scope','$rootScope','$routeParams','Restangular','$location',
+  function($scope,$rootScope,$routeParams,Restangular,$location) {
+    $scope.fetching = true;
+    Restangular.one('/user_tags/'+$routeParams.id).get().then(function(data) {
+      $scope.user_tag = data;
+      $scope.indicatorsRoute = "user_tags/"+$routeParams.id+"/indicators";
+      Restangular.one($scope.indicatorsRoute).get().then(function(data) {
+        $scope.indicators = data.indicators;
+        $scope.metadata = data.metadata;
+      });
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'User Tags',link:'#/user_tags',icon:'fa-thumb-tack'},{text:data.name,link:'#/user_tags/'+$routeParams.id,icon:'fa-home'}];
+      $scope.fetching = false;
+    });
+
+    $scope.delete = function(tag) {
+      $scope.fetching = true;
+      service = Restangular.one("user_tags");
+      service.customDELETE(tag.guid).then(function(res){
+        toastr.success("User Tag deleted.");
+        $location.path('/indicators');
+        $scope.fetching = false;
+      },function(res) {
+        toastr.error("Unable to delete user tag.");
+        $scope.fetching = false;
+      });
+    };
+  }
+]);

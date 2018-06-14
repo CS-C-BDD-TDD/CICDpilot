@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Loads the default WeatherMap heatmap image via the API using a curl script.
+#
+# 1. The BASE_URL needs to be set to the URL for the web site.
+#
+# 2. The API KEY and API_HASH will need to be reset to the appropriate values
+#    for a machine account on the system.
+
+BASE_URL="https://127.0.0.1:3000/cyber-indicators"
+
+API_KEY="7a3c834c1f07d46f2384b52df686fb24de499bff14c48112750b0d55c7b7e126"
+
+API_KEY_HASH="19e032ab08a75345ebb3b672e4aaf764ace744153ae2e04f150581a946b27d05"
+
+curl -v -k -X POST -H "Content-type: image/jpeg" -H "api_key: ${API_KEY}" -H "api_key_hash: ${API_KEY_HASH}" --data-binary "@default_heatmap.jpg" "${BASE_URL}/heatmaps?organization_token=DEFAULT_HEATMAP"

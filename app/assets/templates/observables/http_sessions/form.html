@@ -1,0 +1,96 @@
+<form name="httpsessionform" class="form-horizontal">
+  <div class="col-md-12">
+    <div class="form-group" ng-class="{'has-error': error.user_agent}">
+      <label class="col-md-4 control-label">User Agent *</label>
+      <div class="col-md-8">
+        <input type="text" ng-model="httpsession.user_agent" name="user_agent" class="col-md-8" placeholder="User Agent" auto-focus>
+        <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="user_agent_toggle.toggle > 0" ng-click="user_agent_toggle.clear = user_agent_toggle.clear + 1">Clear Markings</button>
+        <button class="btn btn-primary btn-sm pull-right" ng-click="user_agent_toggle.toggle = user_agent_toggle.toggle + 1">Custom ISA Markings</button>
+        <ul ng-show="error.user_agent" class="help-block">
+          <li ng-repeat="e in error.user_agent">User Agent {{e}}</li>
+        </ul>
+      </div>
+    </div>
+    <field-markings-edit sets="sets" object="httpsession" disablesave="is_saving" editform="editform" fieldname="user_agent" togglebuttons="user_agent_toggle"></field-markings-edit>
+    <div class="form-group" ng-class="{'has-error': error.user_agent_condition}">
+      <label class="col-md-4 control-label">User Agent Condition *</label>
+      <div class="col-md-8">
+          <select class="col-md-8" ng-model="httpsession.user_agent_condition" ng-options="condition for condition in conditions"></select>
+          <br/>
+          <ul ng-show="error.user_agent_condition" class="help-block">
+              <li ng-repeat="e in error.user_agent_condition">{{e}}</li>
+          </ul>
+      </div>
+    </div>
+    <div class="form-group" ng-class="{'has-error': error.domain_name}">
+    <label class="col-md-4 control-label">Domain Name</label>
+      <div class="col-md-8">
+      <input type="text" ng-model="httpsession.domain_name" name="domain_name" class="col-md-8" placeholder="Domain Name">
+        <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="domain_name_toggle.toggle > 0" ng-click="domain_name_toggle.clear = domain_name_toggle.clear + 1">Clear Markings</button>
+        <button class="btn btn-primary btn-sm pull-right" ng-click="domain_name_toggle.toggle = domain_name_toggle.toggle + 1">Custom ISA Markings</button>
+      <ul ng-show="error.domain_name" class="help-block">
+        <li ng-repeat="e in error.domain_name">Domain Name {{e}}</li>
+      </ul>
+      </div>
+    </div>
+    <field-markings-edit sets="sets" object="httpsession" disablesave="is_saving" editform="editform" fieldname="domain_name" togglebuttons="domain_name_toggle"></field-markings-edit>
+    <div class="form-group" ng-class="{'has-error': error.port}">
+    <label class="col-md-4 control-label">Port</label>
+      <div class="col-md-8">
+      <input type="text" ng-model="httpsession.port" only-digits name="port" class="col-md-8" placeholder="Port">
+        <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="port_toggle.toggle > 0" ng-click="port_toggle.clear = port_toggle.clear + 1">Clear Markings</button>
+        <button class="btn btn-primary btn-sm pull-right" ng-click="port_toggle.toggle = port_toggle.toggle + 1">Custom ISA Markings</button>
+      <ul ng-show="error.port" class="help-block">
+        <li ng-repeat="e in error.port">Port {{e}}</li>
+      </ul>
+      </div>
+    </div>
+    <field-markings-edit sets="sets" object="httpsession" disablesave="is_saving" editform="editform" fieldname="port" togglebuttons="port_toggle"></field-markings-edit>
+    <div class="form-group" ng-class="{'has-error': error.referer}">
+    <label class="col-md-4 control-label">Referer</label>
+      <div class="col-md-8">
+      <input type="text" ng-model="httpsession.referer" name="referer" class="col-md-8" placeholder="Referer">
+        <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="referer_toggle.toggle > 0" ng-click="referer_toggle.clear = referer_toggle.clear + 1">Clear Markings</button>
+        <button class="btn btn-primary btn-sm pull-right" ng-click="referer_toggle.toggle = referer_toggle.toggle + 1">Custom ISA Markings</button>
+      <ul ng-show="error.referer" class="help-block">
+        <li ng-repeat="e in error.referer">Referer {{e}}</li>
+      </ul>
+      </div>
+    </div>
+    <field-markings-edit sets="sets" object="httpsession" disablesave="is_saving" editform="editform" fieldname="referer" togglebuttons="referer_toggle"></field-markings-edit>
+    <div class="form-group" ng-class="{'has-error': error.pragma}">
+    <label class="col-md-4 control-label">Pragma</label>
+      <div class="col-md-8">
+      <input type="text" ng-model="httpsession.pragma" name="pragma" class="col-md-8" placeholder="Pragma">
+        <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="pragma_toggle.toggle > 0" ng-click="pragma_toggle.clear = pragma_toggle.clear + 1">Clear Markings</button>
+        <button class="btn btn-primary btn-sm pull-right" ng-click="pragma_toggle.toggle = pragma_toggle.toggle + 1">Custom ISA Markings</button>
+      <ul ng-show="error.pragma" class="help-block">
+        <li ng-repeat="e in error.pragma">Pragma {{e}}</li>
+      </ul>
+      </div>
+    </div>
+    <field-markings-edit sets="sets" object="httpsession" disablesave="is_saving" editform="editform" fieldname="pragma" togglebuttons="pragma_toggle"></field-markings-edit>
+    <acs-associate-form sets="sets" object="httpsession" objecttype="HTTP Session" disable-save="is_saving" editform="editform" fieldname="cybox"></acs-associate-form>
+  </div>
+</form>
+
+<div class="row">
+  <div class="col-xs-12">
+    <form class="form-horizontal" role="form" ng-submit="save(httpsession)">
+      <div class="clearfix form-actions">
+        <span ng-show="is_saving">
+            <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+        </span>
+        <div class="col-md-offset-3">
+          <button class="btn btn-info" ng-disabled="is_saving" type="submit">
+            <i class="ace-icon fa fa-check bigger-110"></i> Save
+          </button>
+          <button class="btn btn-default" ng-disabled="is_saving" type="button" ng-click="cancel()">
+            <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+          </button>
+        </div>
+      </div>
+      <div class="hr hr-24"></div>
+    </form>
+  </div>
+</div>

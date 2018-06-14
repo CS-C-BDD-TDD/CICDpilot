@@ -1,0 +1,170 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('networkConnectionSelector', function(){
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("observables/object-selectors/network-connection-selector.html",type: :template)%>',
+    scope: {
+      networkConnections: '=',
+      observableToBeLinked: '=',
+      linkObservableView: '='
+    },
+    controller: ['$scope', 'Restangular', '$rootScope', 'Marking','Observable', function($scope,Restangular,$rootScope,Marking,Observable) {
+      $scope.date_picker_opts = {
+        defaultRanges: true
+      };
+      $scope.q = '';
+      if (angular.isUndefined($scope.offset)) {
+        $scope.offset=0;
+      }
+      if (angular.isUndefined($scope.amount)) {
+        $scope.amount=$rootScope.setting_value('DEFAULT_MAX_RECORDS');
+      }
+
+      var class_level = function(value) {
+        if (value == '') {
+          return 0;
+        } else if (value == 'U') {
+          return 1;
+        } else if (value == 'C') {
+          return 2;
+        } else if (value == 'S') {
+          return 3;
+        } else if (value == 'TS') {
+          return 4;
+        }
+      }
+
+      $scope.get_max_classification = function(address,port,protocol) {
+        var classification = '';
+        if (angular.isDefined(address)) {
+          classification=address;
+        }
+        if (angular.isDefined(port) && class_level(port)>class_level(classification)) {
+          classification=port;
+        }
+        if (angular.isDefined(protocol) && class_level(protocol)>class_level(classification)) {
+          classification=protocol;
+        }
+        return classification;
+      };
+
+      // Cleanup
+      $scope.$on('$destroy', function() {
+        $('.daterangepicker').remove();
+      });
+      
+      $scope.dateRangePicker = function(picker) {
+        $scope.date_picker_object = picker;
+        $scope.offset=0;
+        $scope.getNetworkConnections($scope.offset);
+      };
+
+      $scope.startSearch = function() {
+        $scope.offset=0;
+        $scope.getNetworkConnections($scope.offset);
+      };
+
+      $scope.getNetworkConnections = function(offset) {
+        var curr_ind = Observable.fetch_indicator_from_scope($scope);
+        var curr_markings = curr_ind.stix_markings_attributes;
+        if (!$rootScope.is_undefined_or_null(curr_ind.acs_set_id)){
+          Restangular.one('acs_sets').get({id: curr_ind.acs_set_id}).then(function(data){
+            // set it equal to the existing markings
+            if (angular.isDefined(data.stix_markings)){
+              curr_markings = data.stix_markings;
+            }
+            getNetworkConnectionList(offset, curr_markings);
+          },function(res){
+              toastr.error("Unable to load ACS Set Markings");
+          });
+        } else {
+          getNetworkConnectionList(offset, curr_markings);
+        }
+      };
+
+      function getNetworkConnectionList(offset, current_markings){
+        var classification_limit = Marking.get_classification_attributes(current_markings);
+        if (angular.isDefined($scope.metadata)) {
+          $scope.metadata.total_count = null;
+        }
+        Restangular.one("/network_connections").get({
+          ebt: $scope.date_picker_object.getStartDate(),
+          iet: $scope.date_picker_object.getEndDate(),
+          q: $scope.q,
+          amount: $scope.amount,
+          classification_limit: classification_limit,
+          offset: offset
+        }).then(
+          function(data){
+            $scope.networkConnections = data.network_connections;
+            $scope.metadata = data.metadata;
+          },
+          function(res){
+            toastr.error("Unable to load Network Connections");
+          }
+        );
+      }
+
+      $scope.setSelected = function() {
+        var so=$scope.observableToBeLinked;
+        if (angular.isDefined(so)) {
+          if (so.remote_object_id===this.networkconnection.cybox_object_id && so.remote_object_type==='NetworkConnection') {
+            $scope.observableToBeLinked={};
+          } else {
+            $scope.observableToBeLinked={remote_object_id:this.networkconnection.cybox_object_id,remote_object_type:'NetworkConnection',network_connection:this.networkconnection};
+          }
+        }
+      }
+      $scope.classSelected = function() {
+        var so=$scope.observableToBeLinked;
+
+        if (angular.isDefined(so)) {
+          if (so.remote_object_id===this.networkconnection.cybox_object_id && so.remote_object_type==='NetworkConnection') {
+            return "bg-primary";
+          }
+        }
+      }
+      $scope.$watch('date_picker_object',function(object) {
+        if (angular.isDefined(object)) {
+          $scope.getNetworkConnections($scope.offset);
+        }
+      });
+      $rootScope.$on('reloadObservableSelect',function(event,type) {if (type === 'NetworkConnection') {$scope.getNetworkConnections($scope.offset)}});
+
+      // setEdit is a special function because it's called by an ng-click within an ng-repeat
+      $scope.setEdit = function() {
+        Restangular.one('/network_connections/'+ this.networkconnection.cybox_object_id).get().then(function(data){
+          $scope.networkconnection = Marking.translate_existing_attributes(data);
+          $scope.$parent.$parent.selected = $scope.networkconnection;
+
+          $scope.$parent.$parent.selected.source_socket_addr_or_hostname='Address';
+          if (angular.isDefined($scope.networkconnection.source_socket_hostname) && $scope.networkconnection.source_socket_hostname) {
+            $scope.$parent.$parent.selected.source_socket_addr_or_hostname='Hostname';
+          }
+          $scope.$parent.$parent.selected.dest_socket_addr_or_hostname='Address';
+          if (angular.isDefined($scope.networkconnection.dest_socket_hostname) && $scope.networkconnection.dest_socket_hostname) {
+            $scope.$parent.$parent.selected.dest_socket_addr_or_hostname='Hostname';
+          }
+
+          $scope.$parent.observableToBeLinked={remote_object_id:$scope.networkconnection.cybox_object_id,remote_object_type:'NetworkConnection',network_connection:$scope.networkconnection};
+          $scope.linkObservableView = 'edit';
+        },function(res){
+            toastr.error("Unable to load Network Connection");
+        });
+      }
+
+      $scope.$parent.$parent.after_network_save = function() {
+        var match = _.find($scope.$parent.$parent.network_connections,{'cybox_object_id':data.cybox_object_id});
+        var index = _.indexOf($scope.$parent.$parent.network_connections, match);
+        $scope.$parent.$parent.network_connections.splice(index,1,data);
+        $scope.$parent.observableToBeLinked.network_connection=data;
+        $scope.$parent.$parent.showSelectedObservable();
+        if ($rootScope.setting_value('CLASSIFICATION') == true){
+          $rootScope.$emit('reloadObservableSelect', 'NetworkConnection');
+        }
+      }
+    }],
+    controllerAs: 'networkConnectionSelCtrl'
+  }
+});

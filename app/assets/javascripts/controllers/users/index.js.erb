@@ -1,0 +1,89 @@
+app.controller('UsersIndexController', ['$scope','$rootScope','Restangular', 'bulkActionsService', '$location',
+  function ($scope, $rootScope, Restangular, bulkActionsService, $location) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Users',link:'#/users',icon:'fa-user'}];
+
+    // scope variables to init
+	$scope.offset=0;
+    $scope.fetching = true;
+	$scope.selected_users = bulkActionsService.get() || [];
+	$scope.selected_groups = [];
+	$scope.can = $rootScope.can;
+	$scope.amount=$rootScope.setting_value('DEFAULT_MAX_RECORDS');
+
+    Restangular.one('/users').get().then(
+      function(data){
+      	$scope.users = data.users;
+      	$scope.metadata = data.metadata;
+      	$scope.fetching = false;
+      },
+      function(){
+        $scope.users = null;
+        $scope.metadata={total_count: 0};
+        toastr.error("Unable to load Users");
+        $scope.fetching = false;
+      }
+    );
+
+    Restangular.all('/groups').getList().then(function(data){
+      $scope.unselected_groups = data;
+      $scope.heightStyle={ 'min-height' : (data.length*31+6)+'px' };
+    });
+
+	// end init
+
+    $scope.getUsers = function(offset) {
+        $scope.fetching = true;
+        if (angular.isDefined($scope.metadata)) {
+          	delete($scope.metadata);
+        }
+        Restangular.one("/users").get({
+          	amount: $scope.amount,
+          	offset: offset
+        }).then(
+          	function(data){
+            	$scope.users = data.users;
+            	$scope.metadata = data.metadata;
+            	$scope.fetching= false;
+        	},
+          	function(res){
+            	$scope.users = null;
+            	$scope.metadata={total_count: 0};
+            	toastr.error("Unable to load Users");
+            	$scope.fetching= false;
+          	}
+        );
+     };
+
+  // methods for bulk actions
+  $scope.disabled = function(user) {
+     if ($scope.checked(user) && $scope.selectOnly) {
+         return true;
+     }
+     return false;
+  }
+
+	$scope.checked = function(user){
+		return _.findIndex($scope.selected_users, function(i){return i.username == user.username;}) > -1;
+	};
+
+	$scope.selectUser = function(user,$event) {
+		var checkbox = $event.target;
+		if (checkbox.checked){
+	  		if (_.findIndex($scope.selected_users, function(i){return i.username == user.username}) == -1){
+	    		$scope.selected_users.push(user);
+	  		}
+		} else {
+	  		$scope.selected_users = _.filter($scope.selected_users, function(i){return i.username != user.username});
+		}
+	};
+
+  $scope.clearSelectedUsers = function(){
+    $scope.selected_users = [];
+  }
+
+  $scope.bulkAddToGroup = function(){
+    bulkActionsService.set($scope.selected_users);
+    $location.path('/groups/bulk');
+  }
+
+}]);

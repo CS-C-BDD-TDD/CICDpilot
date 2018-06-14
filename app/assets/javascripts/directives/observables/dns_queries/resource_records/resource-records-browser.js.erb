@@ -1,0 +1,148 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('resourceRecordsBrowser', function(){
+  return {
+    restrict: 'E',
+    scope: {
+      selectedResourceRecords: '=',
+      selectOnly: '@',
+      classificationDirection: '@?'
+    },
+    templateUrl: '<%=asset_path("observables/dns_queries/resource_records/resource-records-browser.html", type: :template)%>',
+    controller: ['$scope','$rootScope','Restangular','CiapCommon','Marking', function($scope,$rootScope,Restangular,CiapCommon,Marking) {
+      $scope.q = '';
+      $scope.CiapCommon = CiapCommon;
+      $scope.is_saving = false;
+      $scope.resource_records = [];
+
+      if ($rootScope.is_undefined_or_null($scope.selectedResourceRecords)){
+        $scope.selectedResourceRecords = [];
+      }
+
+      $scope.sortOptions = {
+        'dns_record_cache' : 'asc',
+        'record_type' : 'asc',
+        'created_at' : 'asc',
+        'updated_at' : 'asc'
+      };
+
+      $scope.searchObjs = function() {
+        $scope.fetching = true;
+        var curr_obj = CiapCommon.fetch_markings_object_from_scope($scope);
+        var curr_markings = curr_obj.stix_markings_attributes;
+        if (!$rootScope.is_undefined_or_null(curr_obj.acs_set_id)){
+          Restangular.one('acs_sets').get({id: curr_obj.acs_set_id}).then(function(data){
+            // set it equal to the existing markings
+            if (angular.isDefined(data.stix_markings)){
+              curr_markings = data.stix_markings;
+            }
+            getObjList(curr_markings);
+          },function(res){
+              toastr.error("Unable to load ACS Set Markings");
+          });
+        } else {
+          getObjList(curr_markings);
+        }        
+      };
+
+      function getObjList(current_markings){
+        var classification_limit = Marking.get_classification_attributes(current_markings);
+        Restangular.one('/resource_records').get({
+          q: $scope.q,
+          classification_limit: $scope.classificationDirection == "down" ? classification_limit : null,
+          classification_greater: $scope.classificationDirection == "up" ? classification_limit : null
+        }).then(
+          function(data){
+            $scope.resource_records = data.resource_records;
+            $scope.fetching = false;
+        },
+          function(res){
+            toastr.error("Unable to load Resource Records");
+            $scope.fetching = false;
+          }
+        );
+      }
+
+      $scope.disabled = function(obj) {
+         if ($scope.checked(obj) && $scope.selectOnly) {
+             return true;
+         }
+         return false;
+      }
+
+      $scope.checked = function(obj){
+        return _.findIndex($scope.selectedResourceRecords, function(i){return i.guid == obj.guid;}) > -1;
+      };
+
+      $scope.sort = function(method) {
+        Restangular.one('/resource_records').get({q: $scope.q,column: method, direction: $scope.sortOptions[method]}).then(function(data){
+          $scope.resource_records = data.resource_records;
+          if ($scope.sortOptions[method] == 'asc') {
+            $scope.sortOptions[method] = 'desc';
+          }
+          else if ($scope.sortOptions[method] == 'desc') {
+            $scope.sortOptions[method] = 'asc';
+          }
+        });
+      }
+
+      $scope.selectObj = function(obj, $event) {
+        var checkbox = $event.target;
+        if (checkbox.checked){
+          if (_.findIndex($scope.selectedResourceRecords, function(i){return i.guid == obj.guid}) == -1){
+            $scope.selectedResourceRecords.push(obj);
+          }
+        } else {
+          $scope.selectedResourceRecords = _.filter($scope.selectedResourceRecords, function(i){return i.guid != obj.guid});
+        }
+      };
+
+      $scope.toggleResourceRecordModal = function(){
+        $scope.resource_record = {dns_records: []};
+        $('#resource_record_creator').modal({backdrop: 'static', keyboard: false});
+      };
+
+      $scope.saveAndAttach = function(){
+        var promise;
+        var save_text;
+        $scope.is_saving = true;
+        $scope.resource_record.errors = {};
+
+        var dns_record_ids = _.map($scope.resource_record.dns_records, function(obj) {
+          return obj.cybox_object_id;
+        });
+
+        $scope.resource_record.dns_record_cybox_object_ids = dns_record_ids;
+
+        if (angular.isUndefined($scope.resource_record.guid) || $scope.resource_record.guid == null) {
+          promise = Restangular.all("resource_records").post($scope.resource_record);
+          save_text = "save";
+        } else {
+          promise = Restangular.one("resource_records/" + $scope.resource_record.guid).customPUT($scope.resource_record);
+          save_text = "update";
+        }
+
+        promise.then(
+          function(data){
+            toastr.success("Resource Record Object " + save_text + "d");
+            $scope.selectedResourceRecords.push(data);
+            $scope.resource_records.push(data);
+            $scope.is_saving = false;
+            $('#resource_record_creator').modal('hide');
+          },
+          function(res){
+            toastr.error("Unable to " + save_text + " Resource Record Object");
+
+            if (angular.isDefined(res.data) && angular.isDefined(res.data.errors) ) {
+              $scope.resource_record.errors = res.data.errors;
+              
+              $rootScope.show_res_errors(res);
+            }
+            $scope.is_saving = false;
+          }
+        );
+      }
+
+    }]
+  };
+});

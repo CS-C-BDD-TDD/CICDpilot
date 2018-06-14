@@ -1,0 +1,78 @@
+<div class="main-container">
+  <div class="main-content">
+    <div class="row">
+      <div class="col-sm-10 col-sm-offset-1">
+        <div style="margin: 0 auto; width: 700px;">
+          <div class="center">
+          </div>
+
+          <div class="space-6"></div>
+
+          <div class="position-relative">
+            <div id="login-box" class="visible no-border">
+              <div class="widget-body">
+                <div class="widget-main">
+
+                  <h4 class="header blue lighter bigger">
+                    System Usage Consent
+                  </h4>
+                  <div class="content">
+                    <p>
+                    <ul>
+                      <li>
+                      <p>You are accessing a U.S. Government information system, which includes:</p>
+                      <ol>
+                        <li>This Computer</li>
+                        <li>This Computer Network</li>
+                        <li>All Computers Connected to this Network</li>
+                        <li>All Devices and Storage Media attached to this Network or to a Computer on this Network</li>
+                      </ol>
+                      <p>This information system is provided for U.S. Government-authorized use only.</p>
+                      </li>
+                      <li>
+                      Unauthorized or improper use or access of this system may result in disciplinary action, as well as civil and criminal penalties.
+                      </li>
+                      <li>
+                      By using this information system, you understand and consent to the following:
+                      <ul>
+                        <li style="word-wrap: break-word">
+                        You have no reasonable expectation of privacy when you use this information system;
+                        This includes any communications or data transiting or stored on this information system.
+                        At any time, and for any lawful government purpose, the government may, without notice,
+                        monitor, intercept, search and seize any communication or data transiting or stored on this information system.
+                        </li>
+                        <li style="word-wrap: break-word">
+                        The government may disclose or use any communications or data transiting or stored on this
+                        information system for any lawful government purpose, including but not limited to law enforcement purposes.
+                        </li>
+                      </ul>
+                      </li>
+                    </ul>
+                    </p>
+                  </div>
+                  <%=form_tag tou_acceptance_path do%>
+                    <fieldset>
+                      <div class="pull-right">
+                        <div class="clearfix">
+                          <%=button_tag type: 'submit', 
+                                        class: 'btn btn-primary btn-lg btn-block' do%>
+                            <i class="ace-icon fa fa-key"></i>
+                            <span class="bigger-110">Accept</span>
+                          <%end%>
+                        </div>
+                        <div class="space-4"></div>
+                      </div>
+                    </fieldset>
+                  <%end%>
+
+                </div><!-- /.widget-main -->
+
+              </div><!-- /.widget-body -->
+            </div><!-- /.login-box -->
+            
+          </div><!-- /.position-relative -->
+        </div>
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </div><!-- /.main-content -->
+</div><!-- /.main-container -->

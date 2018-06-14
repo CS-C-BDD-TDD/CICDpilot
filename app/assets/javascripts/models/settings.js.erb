@@ -1,0 +1,12 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.factory('Settings', function() {
+  var service = {};
+  service.value = function(settings, setting){
+    if (angular.isUndefined(settings)){ return undefined; }
+    var s = _.find(settings, function(p){ return p.name == setting; });
+    if (s){ return s.value; }
+    return undefined;
+  };
+  return service;
+});

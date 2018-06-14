@@ -1,0 +1,33 @@
+app.directive('reportIssue',function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("report_issue/report_issue.html",type: :template)%>',
+    controller: ['$scope', 'Restangular', '$rootScope', '$modal', '$location', function($scope,Restangular,$rootScope,$modal,$location) {
+      $scope.form={};
+      $scope.openModal = function() {
+        var modal = $modal.open({
+          templateUrl: '<%=asset_path("report_issue/report_issue_modal.html",type: :template)%>',
+          size: 'med',
+          controller: ['$scope','$modalInstance', function($scope,$modalInstance) {
+            $scope.close = function(result) {
+              $modalInstance.close(result);
+            };
+            $scope.save = function(form) {
+              if (angular.isDefined(form)) {
+                issue={subject: form.subject,description: form.description,called_from: $location.path()};
+              } else {
+                issue={};
+              }
+              Restangular.all('/reported_issues').post(issue).then(function(data){
+                toastr.success('Issue has been reported');
+                $modalInstance.close();
+              },function(res){
+                $scope.error=res.data.errors;
+              });
+            };
+          }]
+        });
+      };
+    }]
+  };
+});

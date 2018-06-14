@@ -1,0 +1,6 @@
+<%- headers = ['Cybox Object ID', 'Port', 'Layer 4 Protocol', 'Created At', 'Last Updated'] %>
+<%= raw CSV.generate_line addPortionMarkingToCSV(headers), :row_sep => '', :force_quotes => true %>
+<% @ports.each do |port| %>
+  <%- row = [port.cybox_object_id, port.port, port.layer4_protocol, port.created_at, port.updated_at] -%>
+<%= raw CSV.generate_line addPortionMarkingToCSV(nil, row, port), :row_sep => '', :force_quotes => true %>
+<% end %>

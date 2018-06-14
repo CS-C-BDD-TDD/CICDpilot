@@ -1,0 +1,169 @@
+# Setting up dissemination from ECIS to FLARE
+
+## Via SFTP
+
+Note: If you are attempting to set up dissemination via FLARE API, refer to the "Via API" section, below in this document.
+
+## Prerequisites
+
+You will need the following pieces of information:
+
+  * The IP/Hostname of the FLARE server (where the disseminated files are going to be copied)
+  * The directories that the disseminated files will be going to on the FLARE server
+  * The name of the user which SFTP will be connecting to on the FLARE server
+  * The password for the user which SFTP will be connecting to on the FLARE server
+
+The following will need to be set up on the FLARE server:
+
+  * The above user with the above password
+  * The above user needs to have read and write access to the subdirectories of the FLAREclient on the FLARE server
+  * The FLARE system needs to be set up to accept SFTP connections.
+
+## Creating the SSH Key
+
+Once you have the user set up properly on the FLARE server, with proper permissions to access the directories, follow the instructions below:
+
+On the ECIS VM:
+
+1. Log in, and sudo to root
+
+2. Run ```ssh-keygen```
+Hit enter 3 times
+
+3. ```sftp <above username>@<FLARE server IP>```
+Enter password for the account
+```
+cd .ssh
+get authorized_keys
+quit
+```
+NOTE: If authorized_keys does not exist, that is fine.
+
+4. ```
+vi authorized_keys
+:r ~/.ssh/id_rsa.pub
+:wq
+```
+
+5. ```sftp <above username>@<FLARE server IP>```
+Enter password for the account
+```
+cd .ssh
+put authorized_keys
+quit
+```
+
+6. ```sftp <above username>@<FLARE server IP>```
+You should NOT be prompted for the password
+```quit```
+
+At this point, the SFTP connection should be set up properly.
+
+## Create disseminate.yml file
+
+The /etc/cyber-indicators/config/disseminate.yml file should contain the following (```<IP or hostname for FLARE server>``` and ```<above username>``` will need to be replaced with the proper values)
+
+```
+#ECIS Information
+#FLARE Server
+FLARE_SERVER: <IP or hostname for FLARE server>
+FLARE_SERVER_USERNAME: <above username>
+# API URI information - For https://relayout:1234/publish?collection=<feed>
+#     you would use https://relayout:1234/publish
+#     Do not put ?collection=<feed>
+FLARE_API_URI: https://localhost:3000/cyber-indicators/uploads?overwrite=Y
+# MODE is one of SFTP, API, BOTH
+MODE: SFTP
+```
+
+## Create disseminate_feeds.yml file
+
+The /etc/cyber-indicators/config/disseminate_feeds.yml file should contain the following (both ```<proper directory...>``` will need to be replaced with the proper values)
+
+```
+FEDGOV:
+    profile:    ISA
+    government: Y
+    directory:  <proper directory for FEDGOV feed -- get from FLARE team>
+    feed:       #not needed
+    active:     true
+AIS:
+    profile:    AIS
+    government: N
+    directory:  <proper directory for AIS feed -- get from FLARE team>
+    feed:       #not needed
+    active:     true
+CISCP:
+    profile:    CISCP
+    government: Y
+    directory:  <proper directory for CISCP feed -- get from FLARE team>
+    feed:       #not needed
+    active:     false
+SANITIZED_MAPPINGS:
+    directory:  <proper directory for SANITIZED_MAPPINGS -- get from FLARE team>
+    feed:       #not needed
+    active:     false
+```
+
+Continue with the "Set up cron task" section, below.
+
+## Via API
+
+## Prerequisites
+
+You will need the following pieces of information:
+
+  * The URI of the API on the FLARE server (where the disseminated files are going to be copied)
+  * The names of the feeds which the disseminated files will be going to on the FLARE server
+
+## Create disseminate.yml file
+
+The /etc/cyber-indicators/config/disseminate.yml file should contain the following (```<API>``` will need to be replaced with the proper value)
+
+```
+#ECIS Information
+#FLARE Server
+FLARE_SERVER: #not needed
+FLARE_SERVER_USERNAME: #not needed
+# API URI information - For https://relayout:1234/publish?collection=<feed>
+#     you would use https://relayout:1234/publish
+#     Do not put ?collection=<feed>
+FLARE_API_URI: <<API>>
+# MODE is one of SFTP, API, BOTH
+MODE: API
+```
+
+## Create disseminate_feeds.yml file
+
+The /etc/cyber-indicators/config/disseminate_feeds.yml file should contain the following (both ```<proper directory...>``` will need to be replaced with the proper values)
+
+```
+FEDGOV:
+    profile:    ISA
+    government: Y
+    directory:  #not needed
+    feed:       <proper name for FEDGOV feed -- get from FLARE team>
+    active:     true
+AIS:
+    profile:    AIS
+    government: N
+    directory:  #not needed
+    feed:       <proper name for AIS feed -- get from FLARE team>
+    active:     true
+CISCP:
+    profile:    CISCP
+    government: Y
+    directory:  #not needed
+    feed:       CISCP
+    active:     false
+SANITIZED_MAPPINGS:
+    directory:  #not needed
+    feed:       JSON
+    active:     false
+```
+
+## Set up cron task
+
+Lastly, a cron job needs to be set up.  Add this to the root user's crontab file:
+
+```*/10 * * * * /var/apps/cyber-indicators/bin/run_dissemination```

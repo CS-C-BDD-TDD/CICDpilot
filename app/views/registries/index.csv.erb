@@ -1,0 +1,6 @@
+<%- headers = ['Cybox Object ID', 'Hive', 'Hive Condition', 'Key', 'Created At', 'Last Updated'] %>
+<%= raw CSV.generate_line addPortionMarkingToCSV(headers), :row_sep => '', :force_quotes => true %>
+<% @registries.each do |registry| %>
+  <%- row = [registry.cybox_object_id, registry.hive, registry.hive_condition, registry.key, registry.created_at, registry.updated_at] -%>
+<%= raw CSV.generate_line addPortionMarkingToCSV(nil, row, registry), :row_sep => '', :force_quotes => true %>
+<% end %>

@@ -1,0 +1,41 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('humanReviewFieldsTable', function(){
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("human_reviews/fields/table.html",type: :template)%>',
+        scope: false,
+        controller: ['$scope','Restangular','$rootScope', function($scope,Restangular,$rootScope) {
+            $scope.fields = [];
+            $scope.default_field_value = $rootScope.setting_value('HUMAN_REVIEW_CLEAR_TO');
+            $scope.index = 0;
+            
+            var loadNext = function(){
+                if(angular.isDefined($scope.review)){
+                    if ($scope.index < $scope.review.human_review_fields.length && angular.element('.items').length == $scope.index){
+                        $scope.$evalAsync(function(){
+                            for(var i = $scope.index; i < $scope.index+100; i++){
+                                if(angular.isDefined($scope.review.human_review_fields[i]))
+                                    $scope.fields.push($scope.review.human_review_fields[i]);
+                            }
+                            $scope.index += 100;
+                            setTimeout(loadNext, 500);
+                        });
+                    } else if($scope.index < $scope.review.human_review_fields.length){
+                        setTimeout(loadNext, 500);
+                    }
+                } else {
+                    setTimeout(loadNext, 500);
+                }
+                
+            }
+
+            setTimeout(loadNext, 100);
+
+            $scope.getPercentage = function () {
+                return (angular.isDefined($scope.review) && $scope.review.human_review_fields.length > 0) ? (($scope.fields.length * 100) / $scope.review.human_review_fields.length).toFixed(0) : 100;
+            }
+
+        }]
+    }
+})

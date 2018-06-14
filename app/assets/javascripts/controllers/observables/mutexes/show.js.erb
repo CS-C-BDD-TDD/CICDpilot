@@ -1,0 +1,17 @@
+app.controller('MutexesShowController', ['$scope','$location','$routeParams','$rootScope','Restangular',
+  function ($scope, $location, $routeParams, $rootScope, Restangular) {
+    $scope.fetching = true;
+    Restangular.one('/mutexes',$routeParams.id).get().then(function(data){
+      $scope.mutex = data;
+      if (angular.isDefined($scope.mutex) && angular.isDefined($scope.mutex.ind_course_of_actions)){
+        $scope.mutex.course_of_actions = $scope.mutex.course_of_actions.concat($scope.mutex.ind_course_of_actions);
+      }
+      $scope.showTable = {coa_data: true, collapse: false};
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Mutexes',link:'#/mutexes',icon:'fa-group'},{text:data.name,link:'#/mutexes/'+encodeURIComponent(data.cybox_object_id)}];
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load Mutex");
+      $scope.fetching = false;
+    });
+  }
+]);

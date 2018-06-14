@@ -1,0 +1,354 @@
+<div class="page-header">
+  <h1>AIS Metrics</h1>
+</div>
+
+<div class="row">
+  <div class="col-xs-4">
+    <label class="control-label col-md-2 no-padding-right">Filter Type</label>
+    <div class="center-block input-sm">
+      <select ng-model="metrics_type" ng-change="getMetrics()">
+        <option value="received_time">Received Time</option>
+        <option value="dissemination_time">Dissemination Time</option>
+        <option value="dissemination_time_hr">Dissemination Time after Human Review</option>
+      </select>
+    </div>
+  </div>
+  <div class="col-xs-4">
+    <label class="control-label col-md-2 no-padding-right">Date Range</label>
+    <div class="center-block">
+      <div class="input-group">
+          <span class="input-group-addon">
+            <i class="fa fa-calendar"></i>
+          </span>
+        <input date-range-picker class="ciap_mleft_0" type="text"
+               class="form-control" options="date_picker_opts"/>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-4"></div>
+</div>
+
+<div class="space-20"></div>
+
+<div class="widget-box widget-color-blue ui-sortable-handle">
+  <div class="widget-header ciap_metrics_table">
+    <div class="col-xs-6">
+      <h5 class="widget-title bigger lighter">
+        <a class="fake-link white" ng-click="showTable.chart_l =! showTable.chart_l">
+          <span class="ciap_no_wrap">
+            <i class="ace-icon fa fa-dashboard"></i>
+            Uploads Over Time by {{convert_to_human(metrics_type)}}
+          </span>
+        </a>
+      </h5>
+    </div>
+    <div class="col-xs-6 text-center">
+      <h5 ng-show="ais_statistics_metrics==null || ais_statistics_metrics.counts==null">
+        <i class="fa fa-spinner fa-spin"></i> LOADING...
+      </h5>
+    </div>
+  </div>
+  <div class="dataTables_wrapper form-inline no-footer" ng-show="showTable.chart_l">
+  </div>
+  <div class="widget-body" ng-show="showTable.chart_l">
+    <div class="widget-main no-padding">
+      <weather-map-stats-table wmdstats="ais_statistics_metrics.counts" countstable="true"></weather-map-stats-table>
+    </div>
+  </div>
+  <div class="widget-header ciap_metrics_table" ng-show="showTable.chart_l"></div>
+</div>
+
+<div class="space-12"></div>
+
+<div class="widget-box widget-color-blue ui-sortable-handle">
+  <div class="widget-header ciap_metrics_table">
+    <div class="col-xs-6">
+      <h5 class="widget-title bigger lighter">
+        <a class="fake-link white" ng-click="showTable.chart_g =! showTable.chart_g">
+          <span class="ciap_no_wrap">
+            <i class="ace-icon fa fa-dashboard"></i>
+            Uploads by {{convert_to_human(metrics_type)}}
+          </span>
+        </a>
+      </h5>
+    </div>
+    <div class="col-xs-6 text-center">
+      <h5 ng-show="ais_statistics_metrics==null || ais_statistics_metrics.loads==null">
+        <i class="fa fa-spinner fa-spin"></i> LOADING...
+      </h5>
+    </div>
+  </div>
+  <div class="dataTables_wrapper form-inline no-footer" ng-show="showTable.chart_g">
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="text-center">
+          <weather-map-loads-chart wmdstats="ais_statistics_metrics.loads"></weather-map-loads-chart>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="widget-body" ng-show="showTable.chart_g">
+    <div class="widget-main no-padding">
+      <weather-map-stats-table wmdstats="ais_statistics_metrics.loads" loadstable="true"></weather-map-stats-table>
+    </div>
+  </div>
+  <div class="widget-header ciap_metrics_table" ng-show="showTable.chart_g"></div>
+</div>
+
+<div class="space-10"></div>
+
+<div class="widget-box widget-color-blue ui-sortable-handle">
+  <div class="widget-header">
+    <h5 class="widget-title bigger lighter">
+      <a class="fake-link white" ng-click="showTable.hr_queue =! showTable.hr_queue">
+        <span tooltip="Show/Hide Data">
+          <i class="ace-icon fa fa-table"></i>
+          Human Review Queue Time
+        </span>
+      </a>
+    </h5>
+  </div>
+  <div class="widget-body" ng-show="showTable.hr_queue">
+    <div class="widget-main no-padding">
+      <table class="table table-striped table-bordered table-hover">
+        <thead class="thin-border-bottom">
+          <tr>
+            <th class="ciap_width_10">Under 1 Week</th>
+            <th class="ciap_width_10">1 Week - 2 Weeks</th>
+            <th class="ciap_width_10">2 Weeks - 1 Month</th>
+            <th class="ciap_width_10">1 Month - 3 Months</th>
+            <th class="ciap_width_10">3 Months - 6 Months</th>
+            <th class="ciap_width_10">Over 6 Months</th>
+            <th class="ciap_width_10">Total in Queue</th>
+          </tr>
+        </thead>
+        <tbody ng-hide="fetching">
+          <tr>
+            <td>
+              {{ais_statistics_metrics.hr_queue_loads.one_week}}
+            </td>
+            <td>
+              {{ais_statistics_metrics.hr_queue_loads.two_weeks}}
+            </td>
+            <td>
+              {{ais_statistics_metrics.hr_queue_loads.one_month}}
+            </td>
+            <td>
+              {{ais_statistics_metrics.hr_queue_loads.three_months}}
+            </td>
+            <td>
+              {{ais_statistics_metrics.hr_queue_loads.six_months}}
+            </td>
+            <td>
+              {{ais_statistics_metrics.hr_queue_loads.over_six_months}}
+            </td>
+            <td>
+              {{ais_statistics_metrics.hr_queue_loads.total}}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="space-10"></div>
+
+<div class="widget-box widget-color-blue ui-sortable-handle">
+  <div class="widget-header">
+    <h5 class="widget-title bigger lighter">
+      <a class="fake-link white" ng-click="showTable.r_time =! showTable.r_time">
+        <span tooltip="Show/Hide Data">
+          <i class="ace-icon fa fa-table"></i>
+          Expanded Data by {{convert_to_human(metrics_type)}}
+        </span>
+      </a>
+    </h5>
+  </div>
+  <div class="widget-body" ng-show="showTable.r_time">
+    <div class="widget-main no-padding">
+      <table class="table table-striped table-bordered table-hover">
+        <thead class="thin-border-bottom">
+          <tr>
+            <th class="ciap_width_10">Date</th>
+            <th class="ciap_width_10">Package Count</th>
+            <th class="ciap_width_10">Indicator Count</th>
+            <th class="ciap_width_10"># HR</th>
+            <th class="ciap_width_10"># HR Pending</th>
+            <th class="ciap_width_10"># HR Accepted</th>
+          </tr>
+        </thead>
+        <tbody ng-hide="fetching">
+          <tr ng-repeat="data in ais_statistics_metrics.loads">
+            <td>
+              {{data.date | date: 'mediumDate'}}
+            </td>
+            <td>
+              {{data.count}}
+            </td>
+            <td>
+              {{data.indicator_amount}}
+            </td>
+            <td>
+              {{data.hr_amount}}
+            </td>
+            <td>
+              {{data.hr_pending_amount}}
+            </td>
+            <td>
+              {{data.hr_decided_amount}}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="space-10"></div>
+
+<div class="widget-box widget-color-blue ui-sortable-handle">
+  <div class="widget-header">
+    <h5 class="widget-title bigger lighter">
+      <a class="fake-link white" ng-click="showTable.feed =! showTable.feed">
+        <span tooltip="Show/Hide Data">
+          <i class="ace-icon fa fa-table"></i>
+          Expanded Data by Feeds
+        </span>
+      </a>
+    </h5>
+  </div>
+  <div class="widget-body" ng-show="showTable.feed">
+    <div class="widget-main no-padding">
+      <table class="table table-striped table-bordered table-hover">
+        <thead class="thin-border-bottom">
+          <tr>
+            <th class="ciap_width_10">Date</th>
+            <th class="ciap_width_10">AIS</th>
+            <th class="ciap_width_10">FEDGOV</th>
+            <th class="ciap_width_10">CISCP</th>
+          </tr>
+        </thead>
+        <tbody ng-hide="fetching">
+          <tr ng-repeat="data in ais_statistics_metrics.feed_loads">
+            <td>
+              {{data.date | date: 'mediumDate'}}
+            </td>
+            <td>
+              {{data.ais_count}}
+            </td>
+            <td>
+              {{data.fedgov_count}}
+            </td>
+            <td>
+              {{data.ciscp_count}}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="space-10"></div>
+
+<div class="widget-box widget-color-blue ui-sortable-handle">
+  <div class="widget-header">
+    <h5 class="widget-title bigger lighter">
+      <a class="fake-link white" ng-click="showTable.tlp =! showTable.tlp">
+        <span tooltip="Show/Hide Data">
+          <i class="ace-icon fa fa-table"></i>
+          Expanded Data by TLP Color
+        </span>
+      </a>
+    </h5>
+  </div>
+  <div class="widget-body" ng-show="showTable.tlp">
+    <div class="widget-main no-padding">
+      <table class="table table-striped table-bordered table-hover">
+        <thead class="thin-border-bottom">
+          <tr>
+            <th class="ciap_width_10">Date</th>
+            <th class="ciap_width_10">Green</th>
+            <th class="ciap_width_10">Amber</th>
+            <th class="ciap_width_10">White</th>
+          </tr>
+        </thead>
+        <tbody ng-hide="fetching">
+          <tr ng-repeat="data in ais_statistics_metrics.tlp_loads">
+            <td>
+              {{data.date | date: 'mediumDate'}}
+            </td>
+            <td>
+              {{data.green_count}}
+            </td>
+            <td>
+              {{data.amber_count}}
+            </td>
+            <td>
+              {{data.white_count}}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="space-10"></div>
+
+<label class="control-label no-padding-right">Username</label>
+<select class="" ng-model="selected_user" ng-options="user.username for user in users track by user.username" ng-change="getMetrics()">
+  <option value="">Select a User</option>
+</select>
+
+<div class="space-6"></div>
+
+<div class="widget-box widget-color-blue ui-sortable-handle">
+  <div class="widget-header">
+    <h5 class="widget-title bigger lighter">
+      <a class="fake-link white" ng-click="showTable.user =! showTable.user">
+        <span tooltip="Show/Hide Data">
+          <i class="ace-icon fa fa-table"></i>
+          Expanded Data by Username
+        </span>
+      </a>
+    </h5>
+  </div>
+  <div class="widget-body" ng-show="showTable.user">
+    <div class="widget-main no-padding">
+      <table class="table table-striped table-bordered table-hover">
+        <thead class="thin-border-bottom">
+          <tr>
+            <th class="ciap_width_10">Date</th>
+            <th class="ciap_width_10">Package Count</th>
+            <th class="ciap_width_10">Indicator Count</th>
+            <th class="ciap_width_10"># HR Submitted</th>
+            <th class="ciap_width_10"># HR Accepted</th>
+          </tr>
+        </thead>
+        <tbody ng-hide="fetching">
+          <tr ng-repeat="data in ais_statistics_metrics.user_loads">
+            <td>
+              {{data.date | date: 'mediumDate'}}
+            </td>
+            <td>
+              {{data.count}}
+            </td>
+            <td>
+              {{data.indicator_amount}}
+            </td>
+            <td>
+              {{data.hr_amount}}
+            </td>
+            <td>
+              {{data.hr_decided_amount}}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="space-10"></div>

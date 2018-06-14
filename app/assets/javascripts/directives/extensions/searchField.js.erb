@@ -1,0 +1,20 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('searchField',function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("search/searchField.html",type: :template)%>',
+    controller: ['$scope','$rootScope','$location','$route','$element',
+      function($scope,$rootScope,$location,$route,$element){
+        $scope.element = $element;
+        $scope.searchIndicators = function() {
+            var q = $scope.element.find('#layout-search').val();
+            if (angular.isDefined($location.search()['q']) && angular.isUndefined(q)) {
+                q = $location.search()['q'];
+            }
+            $location.url('/search?q=' + q + '&time=' + moment().unix());
+        };
+      }
+    ]
+  };
+});

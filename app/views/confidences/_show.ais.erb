@@ -1,0 +1,14 @@
+<% confidence = confidences.where(:is_official=>true).max_by(&:created_at) %>
+<% # If we have an official confidence, the source in the AIS output must be "NCCIC" %>
+<% if confidence %>
+<%   confidence.source = "NCCIC" %>
+<% else %>
+<% # If we do not have an official confidence, then if there was a confidence in the original input file, use that %>
+<%   confidence = confidences.min_by(&:created_at) %>
+<%   confidence = nil unless confidence.from_file %>
+<% end %>
+<% if confidence.present? %>
+    <<%= type %>:Confidence timestamp="<%= confidence.stix_timestamp.try(:to_atom) %>">
+    <%= render partial: 'confidences/attributes.ais.erb', locals: {confidence: confidence}  %>
+    </<%= type %>:Confidence>
+<% end %>

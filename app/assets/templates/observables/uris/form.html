@@ -1,0 +1,52 @@
+<form class="form-horizontal">
+    <div class="col-md-12">
+        <div class="form-group" ng-class="{'has-error': error.uri_normalized_sha256 || error.uri}">
+            <label class="col-md-4 control-label">URI *</label>
+            <div class="col-md-8">
+                <input type="text" ng-model="uri.uri_input" name="uri_label" class="col-md-8" placeholder="URI Label" auto-focus ng-disabled="uri.cybox_object_id.length">
+                <i class="ace-icon fa fa-info-circle fa-3x ciap_mleft_25" tooltip="The field level marking for this field is defined by the object level marking."></i> 
+                <ul ng-show="error.uri_normalized_sha256" class="help-block">
+                <li ng-repeat="e in error.uri_normalized_sha256">This URI {{e}}</li>
+                </ul>
+                <ul ng-show="error.uri" class="help-block">
+                <li ng-repeat="e in error.uri">This URI {{e}}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="form-group" ng-class="{'has-error': error.uri_condition}">
+            <label class="col-md-4 control-label">URI Condition *</label>
+            <div class="col-md-8">
+                <select class="col-md-8" ng-model="uri.uri_condition" ng-options="condition for condition in conditions" ng-disabled="uri.cybox_object_id.length"></select>
+                <br/>
+                <ul ng-show="error.uri_condition" class="help-block">
+                    <li ng-repeat="e in error.uri_condition">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <acs-associate-form sets="sets" object="uri" objecttype="URI" disable-save="is_saving" editform="editform" fieldname="cybox"></acs-associate-form>
+    </div>
+</form>
+
+<div class="row">
+    <div class="col-xs-12">
+        <form class="form-horizontal" role="form" ng-submit="save(uri)">
+            <div class="clearfix form-actions">
+                <span ng-show="is_saving">
+                    <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+                </span>
+                <div class="col-md-offset-3">
+                    <button class="btn btn-info" ng-disabled="is_saving" type="submit">
+                        <i class="ace-icon fa fa-check bigger-110"></i> Save
+                    </button>
+                    <button class="btn btn-default" ng-disabled="is_saving" type="button" ng-click="cancel()">
+                        <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                    </button>
+                </div>
+            </div>
+            <div class="hr hr-24"></div>
+        </form>
+    </div>
+</div>

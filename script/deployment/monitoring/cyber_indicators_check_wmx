@@ -1,0 +1,226 @@
+#!/bin/bash
+
+ORIGINAL_DIRECTORY=/tmp
+BACKUP_CSV_DIRECTORY=/usr/share/weathermap/data_loading/batches
+BACKUP_PNG_DIRECTORY=/usr/share/weathermap/bin/backup_png
+
+parse_yaml() {
+   local prefix=$2
+   local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
+   sed -ne "s|^\($s\)\($w\)$s:$s\"\(.*\)\"$s\$|\1$fs\2$fs\3|p" \
+        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
+   awk -F$fs '{
+      indent = length($1)/2;
+      vname[indent] = $2;
+      for (i in vname) {if (i > indent) {delete vname[i]}}
+      if (length($3) > 0) {
+         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
+         printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
+      }
+   }'
+}
+
+# read yaml file (first param = yml file path, second param = variable prefix
+eval $(parse_yaml /etc/cyber-indicators/config/monitoring.yml "")
+
+date=`date +"%Y-%m-%d"`
+
+retcode=0
+return_text=""
+check_address=1
+check_domain=1
+check_heatmap=1
+# Check for the presence of the csv files and the heatmap file
+if [ ! -f $ORIGINAL_DIRECTORY/ciap_file-$date.csv ] && [ ! -f $BACKUP_CSV_DIRECTORY/ciap_file-$date.csv ]
+then
+  return_text+="HIGH-0004 Address Weathermap file does not exist"$'\n'
+  check_address=0
+  retcode=2
+fi
+
+if [ ! -f $ORIGINAL_DIRECTORY/ciap_domains_file-$date.csv ] && [ ! -f $BACKUP_CSV_DIRECTORY/ciap_domains_file-$date.csv ]
+then
+  return_text+="HIGH-0005 Domain Weathermap file does not exist"$'\n'
+  check_domain=0
+  retcode=2
+fi
+
+if [ ! -f $ORIGINAL_DIRECTORY/weathermap_$date.png ] && [ ! -f $BACKUP_PNG_DIRECTORY/weathermap_$date.png ]
+then
+  return_text+="HIGH-0006 Heatmap PNG file does not exist"$'\n'
+  check_heatmap=0
+  retcode=2
+fi
+
+if [[ $check_address -eq 1 ]]
+then
+  if [ ! -f /tmp/cron-$date.log ]
+  then
+    return_text+="HIGH-0007 Address Weathermap file load did not run"$'\n'
+    retcode=2
+  else
+    check1=0
+    check2=0
+    check3=0
+    check4=0
+    check5=0
+    check6=0
+    regexp1='^Total Good = ([0-9]+), Rejects = ([0-9]+)$'
+    regexp2='^Indexing Addresses from:'
+    regexp3='^Done.$'
+    regexp4='^Purge started at'
+    regexp5='^Purged [0-9]+ records$'
+    regexp6='^Purge finished at'
+    readarray -t addresses < /tmp/cron-$date.log
+    for output in "${addresses[@]}"
+    do
+      if [[ "$output" =~ $regexp1 ]]
+      then
+        if [ ${BASH_REMATCH[1]} -ne 0 ] && [ ${BASH_REMATCH[2]} -eq 0 ]
+        then
+          check1=1
+        else
+          if [ ${BASH_REMATCH[1]} -eq 0 ]
+          then
+            return_text+="HIGH-0008 No addresses loaded successfully"$'\n'
+            retcode=2
+          fi
+          if [ ${BASH_REMATCH[2]} -eq 0 ]
+          then
+            return_text+="HIGH-0009 There were addresses which were rejected"$'\n'
+            retcode=2
+          fi
+        fi
+      elif [[ "$output" =~ $regexp2 ]]
+      then
+        check2=1
+      elif [[ "$output" =~ $regexp3 ]]
+      then
+        check3=1
+      elif [[ "$output" =~ $regexp4 ]]
+      then
+        check4=1
+      elif [[ "$output" =~ $regexp5 ]]
+      then
+        check5=1
+      elif [[ "$output" =~ $regexp6 ]]
+      then
+        check6=1
+      fi
+    done
+    if [ $check2 -eq 0 ] || [ $check3 -eq 0 ]
+    then
+      return_text+="HIGH-0010 There was a problem during Address Weathermap indexing"$'\n'
+      retcode=2
+    fi
+    if [ $check4 -eq 0 ] || [ $check5 -eq 0 ] || [ $check6 -eq 0 ]
+    then
+      return_text+="HIGH-0011 There was a problem during Address Weathermap purging"$'\n'
+      retcode=2
+    fi
+  fi
+fi
+
+if [[ $check_domain -eq 1 ]]
+then
+  if [ ! -f /tmp/cron_domains-$date.log ]
+  then
+    return_text+="HIGH-0012 Domain Weathermap file load did not run"$'\n'
+    retcode=2
+  else
+    check1=0
+    check2=0
+    check3=0
+    check4=0
+    check5=0
+    check6=0
+    regexp1='^Total Good = ([0-9]+), Rejects = ([0-9]+)$'
+    regexp2='^Indexing Domains from:'
+    regexp3='^Done.$'
+    regexp4='^Purge started at'
+    regexp5='^Purged [0-9]+ records$'
+    regexp6='^Purge finished at'
+    readarray -t domains < /tmp/cron_domains-$date.log
+    for output in "${domains[@]}"
+    do
+      if [[ "$output" =~ $regexp1 ]]
+      then
+        if [ ${BASH_REMATCH[1]} -ne 0 ] && [ ${BASH_REMATCH[2]} -eq 0 ]
+        then
+          check1=1
+        else
+          if [ ${BASH_REMATCH[1]} -eq 0 ]
+          then
+            return_text+="HIGH-0013 No domains loaded successfully"$'\n'
+            retcode=2
+          fi
+          if [ ${BASH_REMATCH[2]} -eq 0 ]
+          then
+            return_text+="HIGH-0014 There were domains which were rejected"$'\n'
+            retcode=2
+          fi
+        fi
+      elif [[ "$output" =~ $regexp2 ]]
+      then
+        check2=1
+      elif [[ "$output" =~ $regexp3 ]]
+      then
+        check3=1
+      elif [[ "$output" =~ $regexp4 ]]
+      then
+        check4=1
+      elif [[ "$output" =~ $regexp5 ]]
+      then
+        check5=1
+      elif [[ "$output" =~ $regexp6 ]]
+      then
+        check6=1
+      fi
+    done
+    if [ $check2 -eq 0 ] || [ $check3 -eq 0 ]
+    then
+      return_text+="HIGH-0015 There was a problem during Domain Weathermap indexing"$'\n'
+      retcode=2
+    fi
+    if [ $check4 -eq 0 ] || [ $check5 -eq 0 ] || [ $check6 -eq 0 ]
+    then
+      return_text+="HIGH-0016 There was a problem during Domain Weathermap purging"$'\n'
+      retcode=2
+    fi
+  fi
+fi
+
+if [[ $check_heatmap -eq 1 ]]
+then
+  if [ ! -f /tmp/cron_heatmap-$date.log ]
+  then
+    return_text+="HIGH-0017 Heatmap PNG file load did not run"$'\n'
+    retcode=2
+  else
+    # Look for   0  289k    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0< HTTP/1.1 100 Continue
+    #          100  289k    0     0  100  289k      0  42608  0:00:06  0:00:06 --:--:--     0< HTTP/1.1 201 Created
+    # If you find 201, GOOD.  Otherwise, NOT GOOD
+    regexp='HTTP/1\.1 201 Created$'
+    check=0
+    readarray -t heatmap < /tmp/cron_heatmap-$date.log
+    for output in "${heatmap[@]}"
+    do
+      if [[ "$output" =~ $regexp ]]
+      then
+        check=1
+      fi
+    done
+    if [ $check -eq 0 ]
+    then
+      return_text+="HIGH-0018 The heatmap PNG image file did not upload successfuly"$'\n'
+      retcode=2
+    fi
+  fi
+fi
+if [[ $retcode -eq 0 ]]; then
+  echo "OK"
+else
+  return_text="${return_text%$'\n'}"
+  echo "$return_text"
+fi
+exit $retcode

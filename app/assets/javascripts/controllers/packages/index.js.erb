@@ -1,0 +1,14 @@
+app.controller('PackagesIndexController', ['$scope','$rootScope','Restangular',
+  function ($scope, $rootScope, Restangular) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'All Packages',link:'#/packages',icon:'fa-list'}];
+    $scope.fetching = true;
+    Restangular.one('/stix_packages').get().then(function(data){
+      $scope.packages = data.stix_packages;
+      $scope.metadata = data.metadata;
+      $scope.fetching= false;
+    },function(res){
+      toastr.error("Unable to load Packages");
+      $scope.fetching= false;
+    });
+  }
+]);

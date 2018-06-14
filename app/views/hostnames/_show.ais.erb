@@ -1,0 +1,6 @@
+<cybox:Object id="<%=hostname.cybox_object_id%>">
+  <cybox:Properties is_domain_name="<%= hostname.is_domain_name %>" xsi:type="HostnameObj:HostnameObjectType">
+    <HostnameObj:Hostname_Value condition="<%= hostname.hostname_condition %>"><%= hostname.hostname %></HostnameObj:Hostname_Value>
+    <HostnameObj:Naming_System><%= hostname.naming_system %></HostnameObj:Naming_System>
+  </cybox:Properties>
+</cybox:Object>

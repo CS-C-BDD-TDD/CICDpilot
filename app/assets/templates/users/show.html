@@ -1,0 +1,163 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}"> 
+
+<div ng-show="canAny(['create_modify_user_organization','view_user_organization']) || user.username==current_user">
+  <div class="page-header">
+    <h1>
+      {{user.username}}
+      <span class="pull-right" ng-show="can('create_modify_user_organization')">
+        <a ng-href="#/users/{{user.id | encodeURIComponent}}/edit" class="btn btn-info no-radius btn-xs"><i class="ace-icon fa fa-pencil-square-o bigger-160"></i> Edit</a>
+      </span>
+      <span class="label label-sm label-warning" ng-show="user.expired_at">
+          Account Expired
+      </span>
+      <span class="label label-sm label-warning" ng-show="user.disabled_at">
+          Account Disabled
+      </span>
+    </h1>
+  </div>
+
+  <p class="pull-right">
+  </p>
+
+  <div class="profile-user-info profile-user-info-striped">
+    <div class="profile-info-row">
+      <div class="profile-info-name"> Username </div>
+      <div class="profile-info-value">
+        <span>{{user.username}}</span>
+      </div>
+    </div>
+
+    <div class="profile-info-row">
+      <div class="profile-info-name"> Name </div>
+      <div class="profile-info-value">
+        <span>{{user.first_name}} {{user.last_name}}</span>
+      </div>
+    </div>
+
+    <div class="profile-info-row">
+      <div class="profile-info-name"> Email </div>
+      <div class="profile-info-value">
+        <span>{{user.email}}</span>
+      </div>
+    </div>
+
+    <div class="profile-info-row">
+      <div class="profile-info-name"> Phone Number </div>
+      <div class="profile-info-value">
+        <span>{{user.phone}}</span>
+      </div>
+    </div>
+
+    <div class="profile-info-row">
+      <div class="profile-info-name"> Organization </div>
+      <div class="profile-info-value">
+        <span>
+          <span ng-show="user.organization">
+            <span ng-show="can('view_user_organization')">
+              <a ng-href="#/organizations/{{user.organization.guid}}">{{user.organization.short_name}}</a>
+            </span>
+            <span ng-hide="can('view_user_organization')">
+              {{user.organization.short_name}}
+            </span>
+          </span>
+        </span>
+      </div>
+    </div>
+
+    <div class="profile-info-row">
+      <div class="profile-info-name"> Permission Groups </div>
+      <div class="profile-info-value">
+        <span>
+          <span ng-repeat="group in user.groups">
+            <div ng-show="can('view_user_organization')">
+              <a ng-href="#/groups/{{group.id}}">{{group.name}}</a>
+            </div>
+            <div ng-hide="can('view_user_organization')">
+              {{group.name}}
+            </div>
+          </span>
+        </span>
+      </div>
+    </div>
+
+    <div class="profile-info-row">
+      <div class="profile-info-name"> Created Date </div>
+      <div class="profile-info-value">
+        <span>{{user.created_at | date:"medium"}}</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div ng-hide="setting_value('SSO_AD') || user.username != current_user" class="profile-user-info">
+    <div ng-show="showPasswordChange">
+      <div class="profile-info-row">
+          <div class="profile-info-name">Old Password</div>
+          <div class="profile-info-value" ng-class="error.password ? 'has-error' : ''">
+              <input type="password" autocomplete="off" ng-model="user.old_password" name="old_password" placeholder="Old Password">
+              <ul ng-show="errors.old_password">
+                  <li class="red" ng-repeat="e in errors.old_password track by $index">{{e}}</li>
+              </ul>
+          </div>
+      </div>
+      <div class="profile-info-row">
+        <div class="profile-info-name">Password</div>
+        <div class="profile-info-value" ng-class="error.password ? 'has-error' : ''">
+          <input type="password" autocomplete="off" ng-model="user.password" name="password" placeholder="Password">
+          <ul ng-show="errors.password">
+            <li class="red" ng-repeat="e in errors.password track by $index">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="profile-info-row">
+        <div class="profile-info-name">Password Confirmation</div>
+        <div class="profile-info-value" ng-class="error.password_confirmation ? 'has-error' : ''">
+          <input type="password" autocomplete="off" ng-model="user.password_confirmation" name="password_confirmation" class="form-control" placeholder="Password Confirmation" style="width: 100%;">
+          <ul ng-show="errors.password_confirmation">
+            <li class="red" ng-repeat="e in errors.password_confirmation">{{e}}</li>
+          </ul>
+          <span class="label label-warning" ng-show="user.password != user.password_confirmation">
+            <i class="ace-icon fa fa-exclamation-triangle bigger-120"></i>&nbsp;Passwords do not match
+          </span>
+          <span class="label label-danger" ng-show="(user.password.length < 1) && (user.password_confirmation.length < 1)">
+            <i class="ace-icon fa fa-exclamation-triangle bigger-120"></i>&nbsp;Password must be non-zero
+          </span>
+        </div>
+      </div>
+
+
+      <div class="container">
+
+      <button class="btn btn-primary pull-left" ng-click="change_password(user)">
+        <i class="ace-icon fa fa-check bigger-110"></i> Change Password
+      </button>
+
+      <button class="btn btn-danger pull-left" ng-click="showPasswordChange = !showPasswordChange">
+        <i class="ace-icon fa fa-close bigger-110"></i> Cancel
+      </button>
+
+      </div>
+
+    </div>
+
+    <div ng-show="!showPasswordChange" class="pull-left">
+      <button class="btn btn-primary" ng-click="showPasswordChange = !showPasswordChange">
+        Click to Change Password
+      </button>
+    </div>
+  </div>
+
+
+  <div class="space-12"></div>
+
+  <entity-table marking="user.isa_entity_cache"></entity-table>
+
+  <div class="space-12"></div>
+
+  <audits-table audits="user.audits"></audits-table>
+</div>
+
+</div>
+
+<show-spinner> </show-spinner>

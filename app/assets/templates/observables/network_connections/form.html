@@ -1,0 +1,189 @@
+<form name="networkconnectionform" class="form-horizontal">
+  <div class="col-md-12" ng-show="current_page == 0">
+
+    <div class="form-group" ng-class="{'has-error': error.source_socket_address}">
+      <div class="col-md-4 control-label">
+        <select ng-model="networkconnection.source_socket_addr_or_hostname"
+                ng-options="o as 'Source ' + o for o in socket_addr_or_hostname_options"
+                ng-change="socket_addr_or_hostname_changed('source')">
+        </select>
+        *
+      </div>
+      <div class="col-md-8">
+        <address-suggester object="networkconnection" field-name="source_socket_address" page-path="/network_connections/" show-markings="show_markings" portion-marking="source_socket_address_c" ng-show="networkconnection.source_socket_addr_or_hostname == 'Address'" hide-edit="true"></address-suggester>
+        <input type="text" name="source_socket_hostname" class="col-md-8"
+               placeholder="Source Hostname"
+               ng-show="networkconnection.source_socket_addr_or_hostname == 'Hostname'"
+               ng-model="networkconnection.source_socket_hostname">
+        <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="source_address_toggle.toggle > 0" ng-click="source_address_toggle.clear = source_address_toggle.clear + 1">Clear Markings</button>
+        <button class="btn btn-primary btn-sm pull-right" ng-click="source_address_toggle.toggle = source_address_toggle.toggle + 1" ng-show="show_markings.source_socket_address == 1">Custom ISA Markings</button>
+        <ul ng-show="error.source_socket_address"
+            class="help-block">
+          <li ng-repeat="e in error.source_socket_address">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+    <field-markings-edit sets="sets" object="networkconnection" disablesave="is_saving" editform="editform" fieldname="{{networkconnection.source_socket_addr_or_hostname=='Address'?'source_socket_address':'source_socket_hostname'}}" togglebuttons="source_address_toggle" fieldtext="networkconnection.source_socket_addr_or_hostname=='Address'?'Source Address':'Source Hostname'"></field-markings-edit>
+
+    <div class="form-group" ng-show="networkconnection.source_socket_addr_or_hostname == 'Address'">
+      <label class="col-md-4 control-label">Source is spoofed</label>
+      <div class="col-md-8">
+        <input type="checkbox" ng-model="networkconnection.source_socket_is_spoofed" name="source_socket_is_spoofed">
+      </div>
+    </div>
+    
+    <div class="form-group" ng-class="{'has-error': error.source_socket_port}">
+      <label class="col-md-4 control-label">Source Port</label>
+      <div class="col-md-8">
+        <input type="text" ng-model="networkconnection.source_socket_port" only-digits name="source_socket_port" class="col-md-8" placeholder="Source Port">
+        <ul ng-show="error.source_socket_port" class="help-block">
+          <li ng-repeat="e in error.source_socket_port">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="form-group" ng-class="{'has-error': error.dest_socket_address}">
+      <div class="col-md-4 control-label">
+        <select ng-model="networkconnection.dest_socket_addr_or_hostname"
+                ng-options="o as 'Dest. ' + o for o in socket_addr_or_hostname_options"
+                ng-change="socket_addr_or_hostname_changed('dest')">
+        </select>
+      </div>
+      <div class="col-md-8">
+        <address-suggester object="networkconnection" field-name="dest_socket_address" page-path="/network_connections/" show-markings="show_markings" portion-marking="dest_socket_address_c" ng-show="networkconnection.dest_socket_addr_or_hostname == 'Address'" hide-edit="true"></address-suggester>
+        <input type="text" name="dest_socket_hostname" class="col-md-8"
+               placeholder="Destination Hostname"
+               ng-show="networkconnection.dest_socket_addr_or_hostname == 'Hostname'"
+               ng-model="networkconnection.dest_socket_hostname">
+        <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="dest_address_toggle.toggle > 0" ng-click="dest_address_toggle.clear = dest_address_toggle.clear + 1">Clear Markings</button>
+        <button class="btn btn-primary btn-sm pull-right" ng-click="dest_address_toggle.toggle = dest_address_toggle.toggle + 1" ng-show="show_markings.dest_socket_address == 1">Custom ISA Markings</button>
+        <ul ng-show="error.dest_socket_address"
+            class="help-block">
+          <li ng-repeat="e in error.dest_socket_address">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+    <field-markings-edit sets="sets" object="networkconnection" disablesave="is_saving" editform="editform" fieldname="{{networkconnection.dest_socket_addr_or_hostname=='Address'?'dest_socket_address':'dest_socket_hostname'}}" togglebuttons="dest_address_toggle" fieldtext="networkconnection.dest_socket_addr_or_hostname=='Address'?'Destination Address':'Destination Hostname'"></field-markings-edit>
+    
+    <div class="form-group" ng-show="networkconnection.dest_socket_addr_or_hostname == 'Address'">
+      <label class="col-md-4 control-label">Dest. is spoofed</label>
+      <div class="col-md-8">
+        <input type="checkbox" ng-model="networkconnection.dest_socket_is_spoofed" name="dest_socket_is_spoofed">
+      </div>
+    </div>
+    
+    <div class="form-group" ng-class="{'has-error': error.dest_socket_port}">
+      <label class="col-md-4 control-label">Dest. Port</label>
+      <div class="col-md-8">
+        <input type="text" ng-model="networkconnection.dest_socket_port" only-digits name="dest_socket_port" class="col-md-8" placeholder="Destination Port">
+        <ul ng-show="error.dest_socket_port" class="help-block">
+          <li ng-repeat="e in error.dest_socket_port">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="col-md-4 control-label">Layer 3 Protocol</label>
+      <div class="col-md-8">
+        <select class="col-md-8" ng-model="networkconnection.layer3_protocol" ng-init="networkconnection.layer3_protocol=networkconnection.layer3_protocol || ''" ng-options="p for p in Observable.layer3ProtocolList">
+        </select>
+        &nbsp;
+        <button class="btn btn-info btn-xs" ng-show="networkconnection.layer3_protocol" ng-click="networkconnection.layer3_protocol=undefined"><i class="ace-icon fa fa-times-circle"></i>Clear</button>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="col-md-4 control-label">Layer 4 Protocol</label>
+      <div class="col-md-8">
+        <select class="col-md-8" ng-model="networkconnection.layer4_protocol" ng-init="networkconnection.layer4_protocol=networkconnection.layer4_protocol || ''" ng-options="p for p in Observable.layer4ProtocolList">
+        </select>
+        &nbsp;
+        <button class="btn btn-info btn-xs" ng-show="networkconnection.layer4_protocol" ng-click="networkconnection.layer4_protocol=undefined"><i class="ace-icon fa fa-times-circle"></i>Clear</button>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="col-md-4 control-label">Layer 7 Protocol</label>
+      <div class="col-md-8">
+        <select class="col-md-8" ng-model="networkconnection.layer7_protocol" ng-init="networkconnection.layer7_protocol=networkconnection.layer7_protocol || ''" ng-options="p for p in Observable.layer7ProtocolList">
+        </select>
+        &nbsp;
+        <button class="btn btn-info btn-xs" ng-show="networkconnection.layer7_protocol" ng-click="networkconnection.layer7_protocol=undefined"><i class="ace-icon fa fa-times-circle"></i>Clear</button>
+      </div>
+    </div>
+    
+    <!-- Layer 7 Connections Browser -->
+      <div>
+        <div class="widget-header widget-header-small">
+            <h4 class="widget-title blue smaller">
+                <i class="ace-icon fa fa-tasks orange"></i>
+                Attached Layer 7 Connections
+            </h4>
+        </div>
+
+        <div class="space-6"></div>
+
+        <div class="width-90 center-block" ng-show="networkconnection.layer_seven_connections.length">
+          <div class="ciap_table_scroll_500">
+          <ol class="dd-list">
+            <li class="dd-item" ng-repeat="layer_seven_connection in networkconnection.layer_seven_connections">
+              <div class="dd-handle">
+                {{layer_seven_connection.guid | prefixWithPortionMarking: layer_seven_connection.portion_marking}}
+                <div class="pull-right action-buttons">
+                    <a class="red" href="" ng-click="removeLayerSevenConnections(layer_seven_connection)">
+                        <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                    </a>
+                </div>
+              </div>
+            </li>
+          </ol>
+          </div>
+        </div>
+      </div>
+
+      <div ng-hide="networkconnection.layer_seven_connections.length">
+      No Attached Layer 7 Connections
+      </div>
+
+      <layer-seven-connections-browser selected-layer-seven-connections="networkconnection.layer_seven_connections" select-only="true"></layer-seven-connections-browser>
+
+      <div class="space-12"></div>
+      <!-- Layer 7 Connections Browser End-->
+  </div>
+
+  <div class="col-md-12" ng-show="current_page == 1">
+    <acs-associate-form sets="sets" object="networkconnection" objecttype="Network Connection" disable-save="is_saving" editform="editform" fieldname="cybox"></acs-associate-form>
+  </div>
+</form>
+
+<div class="row">
+  <div class="col-xs-12">
+    <form class="form-horizontal" role="form" ng-submit="save(networkconnection)">
+      <div class="clearfix form-actions">
+        <span ng-show="is_saving">
+          <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+        </span>
+        <div class="col-md-offset-3" ng-show="current_page == 0">
+          <button class="btn btn-warning pull-right ciap_mleft_5" ng-disabled="is_saving" type="button" ng-click="current_page = 1">
+            <i class="ace-icon fa fa-arrow-right bigger-110"></i> Next
+          </button>
+          <button class="btn btn-default pull-right ciap_mleft_5" ng-disabled="is_saving" type="button" ng-click="cancel()">
+            <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+          </button>
+        </div>
+        <div class="col-md-offset-3" ng-show="current_page == 1">
+          <button class="btn btn-info pull-right ciap_mleft_5" ng-disabled="is_saving" type="submit">
+            <i class="ace-icon fa fa-check bigger-110"></i> Save
+          </button>
+          <button class="btn btn-warning pull-right ciap_mleft_5" ng-disabled="is_saving" type="button" ng-click="current_page = 0">
+            <i class="ace-icon fa fa-arrow-left bigger-110"></i> Back
+          </button>
+          <button class="btn btn-default pull-right ciap_mleft_5" ng-disabled="is_saving" type="button" ng-click="cancel()">
+            <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+          </button>
+        </div>
+      </div>
+      <div class="hr hr-24"></div>
+    </form>
+  </div>
+</div>

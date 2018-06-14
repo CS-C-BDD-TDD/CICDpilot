@@ -1,0 +1,104 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('addressForm', function(){
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("observables/addresses/form.html",type: :template)%>',
+        scope: {
+            address: '=',
+            saved: '=',
+            failed: '=',
+            cancel: '=',
+            editform: '='
+        },
+        controller: ['$scope','$rootScope','Observable','Restangular','Gfi', 'CiapCommon', 'Classification', 'objectSuggesterService', 
+            function($scope,$rootScope,Observable,Restangular,Gfi, CiapCommon, Classification, objectSuggesterService) {
+                $scope.Observable = Observable;
+                $scope.showGFIs = Gfi.showGFIs();
+                $scope.sets = [];
+                $scope.cybox = "cybox";
+
+                // Toggles for field level markings
+
+                Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+                    $scope.sets = data;
+                },function(res){
+                    toastr.error("Unable to load ACS Set List");
+                });
+                
+                $scope.conditions=CiapCommon.conditions;
+                $scope.$watch('address',function(newval,oldval) {
+                  Gfi.set_gfi_attributes($scope.address);
+                });
+                $scope.save = function(address){
+                    $scope.is_saving = true;
+                    $scope.address.errors = {};
+
+                    var promise;
+                    var save_text;
+                    
+                    /*
+                    Rules for when CLASSIFICATION is true
+
+                    and ACS Set or Classification must be selected. When Classification is above unclassified, 
+                    details must be filled out.
+                    */
+                    if ($rootScope.setting_value('CLASSIFICATION') == true){
+                        $scope.address.stix_markings_attributes = Classification.check_classification_details($scope.address.stix_markings_attributes);
+                        var problems = $scope.address.stix_markings_attributes.problems;
+                        var classification_check = $scope.address.stix_markings_attributes.classification_check;
+                    }
+
+                    if (Object.keys($scope.address.errors).length > 0 || classification_check) {
+                        $scope.is_saving = false;
+                        if(classification_check){
+                            for (var i = 0; i < problems.length; i++){
+                                if(problems[i].field == null){
+                                    toastr.error("Unable to save due to classification errors in the Object level markings");
+                                } else {
+                                    toastr.error("Unable to save due to classification errors in the " + problems[i].field + " markings");
+                                }
+                            }
+                        }
+                        return;
+                    }
+
+                    if (angular.isUndefined(address.cybox_object_id) || address.cybox_object_id == null) {
+                        promise = Restangular.all("addresses").post(address);
+                        save_text = "save";
+                    } else {
+                        promise = Restangular.one("addresses/" + address.cybox_object_id).customPUT(address);
+                        save_text = "update";
+                    }
+
+                    promise.then(
+                            function(data){
+                                toastr.success("Address record observable "+save_text+"d");
+                                if (objectSuggesterService.is_data_set()){
+                                    objectSuggesterService.update_portion_marking(data);
+                                }
+                                if (angular.isDefined($scope.saved) && jQuery.isFunction($scope.saved)){
+                                    $scope.saved(data);
+                                }
+                                $scope.is_saving = false;
+                            },
+                            function(res){
+                                toastr.error("Unable to "+save_text+" Address observable");
+                                if (angular.isDefined(res.data.errors)) {
+                                    $scope.error = res.data.errors;
+                                  Gfi.set_errors_on_gfiable_observables($scope, res.data.errors);
+                                }
+                                if (angular.isDefined(res)) {
+                                    $rootScope.show_res_errors(res);
+                                }
+                                if (angular.isDefined($scope.failed) && jQuery.isFunction($scope.failed)){
+                                    $scope.failed(res.data);
+                                }
+                                $scope.is_saving = false;
+                            }
+                    );
+                };
+            }
+        ]
+    };
+});

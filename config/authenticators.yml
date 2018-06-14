@@ -1,0 +1,12 @@
+production:
+  - Auth::Provider::ActiveDirectory
+  - Auth::Provider::API
+  - Auth::Provider::Basic
+
+development:
+  - Auth::Provider::API
+  - Auth::Provider::Basic
+
+test:
+  - Auth::Provider::API
+  - Auth::Provider::Basic

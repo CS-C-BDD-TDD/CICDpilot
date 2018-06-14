@@ -1,0 +1,48 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('weatherMapStatsDashboardAddresses', function () {
+  return {
+    restrict: 'E',
+    templateUrl: function (elem, attrs) {
+        return '<%=asset_path("weather_map_stats/addresses/dashboard.html", type: :template) %>';
+    },
+    scope: {
+      wmdstats: '='
+    },
+    controller: ['$scope', 'Restangular', function ($scope, Restangular) {
+      $scope.wmdstats = {
+        counts: null,
+        loads: null
+      };
+      // Cleanup
+      $scope.$on('$destroy', function() {
+        $('.daterangepicker').remove();
+      });
+      
+      $scope.date_picker_opts = {
+        defaultRanges: true
+      };
+      $scope.dateRangePicker = function (picker) {
+        $scope.date_picker_object = picker;
+        $scope.getWMDStats();
+      };
+      $scope.getWMDStats = function () {
+        Restangular.one('weather_map_address_stats').get({
+          ebt: $scope.date_picker_object.getStartDate(),
+          iet: $scope.date_picker_object.getEndDate()
+        }).then(
+            function (data) {
+              $scope.wmdstats = data;
+            },
+            function () {
+              $scope.wmdstats = {
+                counts: null,
+                loads: null
+              };
+              toastr.error("Unable to load Weather Map Data Stats");
+            }
+        );
+      };
+    }]
+  };
+});

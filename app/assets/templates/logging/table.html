@@ -1,0 +1,35 @@
+<div class="widget-box widget-color-blue ui-sortable-handle">
+  <div class="widget-header">
+    <h5 class="widget-title bigger lighter">
+      <a class="fake-link white" ng-click="showTable = !showTable">
+        <i class="ace-icon fa fa-hand-o-right"></i>
+        {{tlabel}}
+      </a>
+      
+    </h5>
+  </div>
+  <div class="widget-body" ng-show="showTable">
+    <div class="widget-main no-padding">
+      <table class="table table-bordered" >
+        <thead>
+          <tr>
+            <th class="ciap_width_10">Source</th>
+            <th class="ciap_width_6">Log Level</th>
+            <th class="ciap_width_30">Message</th>
+            <th class="ciap_width_30">Text</th>
+            <th class="ciap_width_10">Timestamp</th>
+          </tr>
+        </thead>
+        <tbody ng-repeat="log in logs">
+          <tr>
+            <td>{{log.source}}</td>
+            <td>{{log.log_level}}</td>
+            <td>{{log.message}}</td>
+            <td>{{log.text}}</td>
+            <td>{{log.timestamp}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,24 @@
+app.controller('AddressesShowController', ['$scope','$location','$routeParams','$rootScope','Restangular',
+  function ($scope, $location, $routeParams, $rootScope, Restangular) {
+    $scope.fetching = true;
+    Restangular.one('/addresses',$routeParams.id).get().then(function(data){
+      $scope.address = data;
+      if (angular.isDefined($scope.address) && angular.isDefined($scope.address.ind_course_of_actions)){
+        $scope.address.course_of_actions = $scope.address.course_of_actions.concat($scope.address.ind_course_of_actions);
+      }
+      $scope.showGFIs = $rootScope.setting_value('CLASSIFICATION');
+      $scope.showTable = {coa_data: true, collapse: false};
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Addresses',link:'#/addresses',icon:'fa-group'},{text:data.address,link:'#/addresses/'+encodeURIComponent(data.cybox_object_id)}];
+
+      Restangular.one('/dns_records').get({"address": data.address}).then(function(data){
+        $scope.address.dns_records = data.dns_records;
+      },function(res){
+        toastr.error("Unable to load matching DNS Records");
+      });
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load Address");
+      $scope.fetching = false;
+    });
+  }
+]);

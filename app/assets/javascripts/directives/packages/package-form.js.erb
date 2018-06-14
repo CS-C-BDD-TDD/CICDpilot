@@ -1,0 +1,124 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('packageForm',function() {
+  return {
+    restrict: 'E',
+    scope: {
+      package: '=',
+      save: '=',
+      editform: '='
+    },
+    templateUrl: '<%=asset_path("packages/package-form.html",type: :template)%>',
+    controller: ['$scope', '$rootScope', 'Restangular','Indicator','Color','Package', '$location', 'Classification', function($scope, $rootScope, Restangular, Indicator, Color,Package,$location, Classification){
+      $scope.can = $rootScope.can;
+      $scope.Color = Color;
+      $scope.Indicator = Indicator;
+      $scope.Package = Package;
+      $scope.sets = [];
+
+      // toggles for field level markings.
+      $scope.title_toggle = {toggle: 0, clear: 0};
+      $scope.des_toggle = {toggle: 0, clear: 0};
+      $scope.short_des_toggle = {toggle: 0, clear: 0};
+      $scope.intent_toggle = {toggle: 0, clear: 0};
+
+
+      Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+          $scope.sets = data;
+      },function(res){
+          toastr.error("Unable to load ACS Set List");
+      });
+      $scope.start_save = function(package){
+        $scope.is_saving = true;
+        $scope.package.errors = {};
+        if ($rootScope.is_undefined_or_null($scope.package.title)) {
+          $scope.package.errors.title = [" can't be blank"];
+        }
+        /*
+        Rules for when CLASSIFICATION is true
+
+        and ACS Set or Classification must be selected. When Classification is above unclassified, 
+        details must be filled out.
+        */
+        if ($rootScope.setting_value('CLASSIFICATION') == true){
+          $scope.package.stix_markings_attributes = Classification.check_classification_details($scope.package.stix_markings_attributes);
+          var problems = $scope.package.stix_markings_attributes.problems; 
+          var classification_check = $scope.package.stix_markings_attributes.classification_check;
+          /*
+          If customized was not clicked and ISA Assertion Structure is not defined.
+          In this case we need to make sure that an ACS Set is selected because an ACS Set is required to have a classification.
+          */
+          var obj_level_index = _.findIndex($scope.package.stix_markings_attributes, function(sm){
+            return ($rootScope.is_undefined_or_null(sm.remote_object_field) || (angular.isDefined(sm.remote_object_field) && sm.remote_object_field == null)) && angular.isDefined(sm.isa_assertion_structure_attributes);
+          })
+          if ($rootScope.is_undefined_or_null($scope.package.stix_markings_attributes[obj_level_index]) && $rootScope.is_undefined_or_null($scope.package.acs_set_id)) {
+            $scope.package.errors.acs_set_id = ["You either need to associate an ACS Set or Click Customize and set a Classification"];
+            if (angular.isDefined($scope.package.stix_markings_attributes[obj_level_index]) && angular.isDefined($scope.package.stix_markings_attributes[obj_level_index].isa_assertion_structure_attributes)){
+              $scope.package.stix_markings_attributes[obj_level_index].isa_assertion_structure_attributes.errors.acs_set_id = ["You either need to associate an ACS Set or set a Classification"];
+            }
+            classification_check = true;
+          }
+        }
+        if (Object.keys($scope.package.errors).length > 0 || classification_check) {
+            $scope.is_saving = false;
+            toastr.error("Unable to save package");
+            $("html, body").animate({ scrollTop: 0 }, 200);
+            if(classification_check){
+                for (var i = 0; i < problems.length; i++){
+                    if(problems[i].field == null){
+                        toastr.error("Unable to save due to classification errors in the Object level markings");
+                    } else {
+                        toastr.error("Unable to save due to classification errors in the " + problems[i].field + " markings");
+                    }
+                }
+            }
+            return;
+        }
+        $scope.save(package, function(){
+          $scope.is_saving = false;
+        });
+      };
+
+      $scope.cancel = function() {
+        if (angular.isDefined($scope.package.stix_id)){
+          $location.path('/packages/' + $scope.package.stix_id);
+        } else {
+          $location.path('/packages');
+        }
+      };
+
+      $scope.$watch('package',function(){
+          if (angular.isDefined($scope.package)){
+              if ($scope.package.submission_mechanism instanceof Array) {
+                  $scope.package.submission_mechanism = $scope.package.submission_mechanism[0]
+              }
+          }
+      });
+
+      $scope.removeIndicator = function(indicator) {
+        _.remove($scope.package.indicators, function(package_indicator){
+          if (package_indicator == indicator) {
+            return package_indicator;
+          }
+        });
+      };
+
+      $scope.removeCoa = function(coa) {
+        _.remove($scope.package.course_of_actions, function(course_of_action){
+          if (course_of_action == coa) {
+            return course_of_action;
+          }
+        });
+      };
+      
+      $scope.removeExploitTarget = function(exploit_target) {
+        _.remove($scope.package.exploit_targets, function(et){
+          if (et == exploit_target) {
+            return et;
+          }
+        });
+      };
+
+    }]
+  };
+});

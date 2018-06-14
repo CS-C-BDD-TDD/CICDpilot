@@ -1,0 +1,54 @@
+<div class="page-header">
+   <h1>Upload</h1>
+</div>
+
+<div class="col-sm-12 space-8"></div>
+<div class="col-sm-3"></div>
+
+<div class="col-sm-4" ng-show="can('upload_for_transfer')">
+  <div class="widget-box">
+    <div class="widget-header">
+      <h4 class="widget-title">Upload ZIP File</h4>
+    </div>
+
+    <div class="widget-body">
+      <div class="widget-main no-padding">
+        <div class='widget-main no-padding-bottom'>
+          <div class="form-group">
+            <div class="col-xs-12">
+              <label class="ace-file-input">
+                <input type='file' nv-file-select uploader="uploader" accept=".zip"/>
+                <span class="ace-file-container" data-title="Choose">
+                  <span class="ace-file-name" data-title="{{uploader.queue.length > 0 ? uploader.queue[0].file.name : 'No File'}}">
+                    <i class=" ace-icon fa fa-upload"></i>
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin:40px 0 10px 12px">
+          </div>
+        </div>
+
+        <div class='clearfix form-actions' style='margin-bottom: 0' ng-show='uploader.queue.length'>
+          <span ng-show="is_uploading">
+            <i class="ace-icon fa fa-sun-o fa-spin green bigger-250 pull-right" ng-show="is_uploading"></i>
+          </span>
+          <button ng-disabled="is_uploading" class="btn btn-sm btn-success pull-right" type="button" ng-click="uploader.queue[0].upload()">
+            {{is_uploading ? 'Uploading' : 'Upload'}}
+            <i ng-class="is_uploading ? 'fa-arrow-right' : 'fa-arrow-up'" class="ace-icon fa icon-on-right"></i>
+          </button>
+        </div>
+        <div ng-show="is_uploading">
+          Please wait...this can take a long time...<p/>
+          <div ng-show="live_updates">
+            {{total}}<br/>
+            {{remaining}}<br/>
+            {{status}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

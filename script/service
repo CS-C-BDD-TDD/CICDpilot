@@ -1,0 +1,4 @@
+#!/bin/bash
+
+RAILS_RELATIVE_URL_ROOT=$1 thin $2 --ssl -p ${PORT:=8443} --prefix /$1
+#thin $2 --ssl -p 8443 --prefix /$1

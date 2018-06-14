@@ -1,0 +1,82 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('EmailsShowController', ['$scope','$location','$routeParams','$rootScope','Restangular','Email', 'Marking', 
+  function ($scope, $location, $routeParams, $rootScope, Restangular, Email, Marking) {
+    $scope.fetching = true;
+    $scope.Email = Email;
+    
+    Restangular.one("/email_messages",$routeParams.id).get().then(function(data){
+      $scope.email = Marking.translate_existing_attributes(data);
+      if (angular.isDefined($scope.email) && angular.isDefined($scope.email.ind_course_of_actions)){
+        $scope.email.course_of_actions = $scope.email.course_of_actions.concat($scope.email.ind_course_of_actions);
+      }
+      $scope.showGFIs = $rootScope.setting_value('CLASSIFICATION');
+      $scope.showTable = {coa_data: true, collapse: false};
+      // Split the links and URI's up for the show page ONLY
+      if ($scope.email.links) {
+        $scope.email.links.forEach(function(link) {
+          if (angular.isUndefined(link.label)) {
+            if (angular.isUndefined($scope.email.uris)) {
+              $scope.email.uris=[];
+            }
+            $scope.email.uris.push(link.uri_attributes);
+            _.remove($scope.email.links,{cybox_object_id:link.cybox_object_id});
+          }
+        });
+      }
+
+      if ($scope.email.addresses.length > 0) {
+        // this is needed in case we have multiple of the same address
+        var marker = {"from": 0, "reply": 0};
+        _.forEach($scope.email.addresses, function(address){
+          var remote_field = "";
+
+          if (!$rootScope.is_undefined_or_null($scope.email.from_normalized) && _.contains(address.address.toLowerCase().trim(), $scope.email.from_normalized.toLowerCase().trim())){
+            remote_field = "from_normalized";
+            marker.from = 1;
+          }
+
+          if (!$rootScope.is_undefined_or_null($scope.email.reply_to_normalized) && _.contains(address.address.toLowerCase().trim(), $scope.email.reply_to_normalized.toLowerCase().trim())){
+            remote_field = "reply_to_normalized";
+            marker.reply = 1;
+          }
+
+          if (!$rootScope.is_undefined_or_null($scope.email.sender_normalized) && _.contains(address.address.toLowerCase().trim(), $scope.email.sender_normalized.toLowerCase().trim())){
+            remote_field = "sender_normalized";
+          }
+
+          if (!$rootScope.is_undefined_or_null($scope.email.x_originating_ip) && _.contains(address.address.toLowerCase().trim(), $scope.email.x_originating_ip.toLowerCase().trim())){
+            remote_field = "x_originating_ip";
+          }
+
+          if (address.stix_markings.length > 0 && remote_field != ""){
+            _.forEach(address.stix_markings, function(sm) {
+              sm.remote_object_field = remote_field;
+              $scope.email.stix_markings.push(sm);
+            });
+          }
+        });
+
+        // we need the view to send all instances even if dups exist because
+        // we need to populate the isa markings for each field but we don't want 
+        // multiple to show on the address table.
+        $scope.email.addresses = _.uniq($scope.email.addresses, 'address');
+
+      }
+
+      Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+          $scope.sets = data;
+      },function(res){
+          toastr.error("Unable to load ACS Set List");
+      });
+
+      $scope.is_saving = false;
+      $scope.can = $rootScope.can;
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Email Messages',link:'#/emails',icon:'fa-group'},{text:Email.get_value(data),link:'#/emails/'+encodeURIComponent(data.cybox_object_id)}];
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load Email");
+      $scope.fetching = false;
+    });
+  }
+]);

@@ -1,0 +1,15 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('auditsTable',function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("audits/audits-table.html",type: :template)%>',
+    scope: {
+      audits: '='
+    },
+    controller: ['$scope','$rootScope', function($scope,$rootScope){
+      $scope.canAny = $rootScope.canAny;
+      $scope.is_open = new Array();
+    }]
+  };
+});

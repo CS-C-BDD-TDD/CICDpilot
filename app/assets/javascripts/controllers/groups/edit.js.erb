@@ -1,0 +1,66 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('GroupsEditController', ['$scope','$location','$routeParams','$rootScope','$q','Restangular', 'orderByFilter',
+  function ($scope, $location, $routeParams, $rootScope,$q,Restangular, orderByFilter) {
+    var group_promise = Restangular.one("groups/"+$routeParams.id).get()
+    group_promise.then(function(data){
+      $scope.group = data;
+    });
+    var all_permissions_promise = Restangular.one("permissions").get();
+    $q.all([all_permissions_promise,group_promise]).then(function(res){
+      var all=res[0];
+      var g=res[1];
+      $scope.unselected_permissions = all.filter(function(p){
+        return !$scope.group.permissions.some(function(q){return p.id == q.id;});
+      });
+      $scope.heightStyle={ 'min-height' : (all.length*31+6)+'px' };
+      $rootScope.breadcrumbs = [
+                                 {text:'Home',link:'#/',icon:'fa-home'},
+                                 {text:'Groups',link:'#/groups',icon:'fa-group'},
+                                 {text:g.name,link:'#/groups/'+g.id+'/edit'}
+                               ];
+    });
+    $scope.save = function(group){
+      var permission_ids=_.map(group.permissions,function(p) {
+        return p.id;
+      });
+      group.permission_ids=permission_ids;
+      Restangular.one("groups/"+$routeParams.id).customPUT(group).then(function(data){
+        toastr.success('Group saved');
+        Restangular.one('users','current').get().then(function(data){
+            $rootScope.current_user = data;
+        });
+        $location.path('/groups/'+data.id);
+      },function(res){
+        toastr.error("Unable to save group");
+        $scope.error=res.data.errors;
+        $("html, body").animate({ scrollTop: 0 }, 200);
+      });
+    };
+    $scope.list_options = {
+                            placeholder: "sortable-placeholder",
+                            connectWith: ".sortable-container"
+                          };
+    $scope.cancelEdit = function() {
+      $location.path('/groups');
+    };
+    $scope.deleteGroup = function(group) {
+      Restangular.one("groups/"+$routeParams.id).remove().then(function(data){
+        toastr.success("Group removed");
+        $location.path('/groups');
+      },function(res){
+        toastr.error("Unable to remove group");
+      });
+    };
+
+    $scope.$watchCollection('unselected_permissions', function () {
+        $scope.unselected_permissions = orderByFilter($scope.unselected_permissions, ['display_name']);
+     });
+     
+    $scope.$watchCollection('group.permissions', function () {
+        if (angular.isDefined($scope.group)){
+          $scope.group.permissions = orderByFilter($scope.group.permissions, ['display_name']);
+        }
+    });
+    
+}]);

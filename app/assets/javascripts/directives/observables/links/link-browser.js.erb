@@ -1,0 +1,84 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('linkBrowser', function(){
+  return {
+    restrict: 'E',
+    scope: {
+      selectedLinks: '=',
+      modified: '=',
+      accessor: '='
+    },
+    templateUrl: '<%=asset_path("observables/links/link_browser.html",type: :template)%>',
+    controller: ['$scope','$rootScope','Restangular','Marking','Link','$timeout',function($scope,$rootScope,Restangular,Marking,Link,$timeout) {
+      $scope.q = '';
+
+      $scope.sortOptions = {
+        'uri' : 'asc',
+        'label' : 'asc'
+      };
+
+      $scope.$watch("accessor",function(value) {
+        if (angular.isDefined(value)) {
+          value.reset_search = function() {
+            $scope.links = undefined;
+          }
+        };
+      });
+
+      $scope.searchLinks = function() {
+        $scope.fetching = true;
+        var curr_obj = Link.fetch_markings_object_from_scope($scope);
+        var curr_markings = curr_obj.stix_markings_attributes;
+        getLinkList(curr_markings);
+      };
+
+      function getLinkList(current_markings){
+        var classification_limit = Marking.get_classification_attributes(current_markings);
+        Restangular.one('/links').get({
+          q: $scope.q,
+          column: $scope.method,
+          direction: $scope.sortOptions[$scope.method],
+          classification_limit: classification_limit
+        }).then(
+          function(data){
+            $scope.links = data.links;
+            $scope.sortOptions[$scope.method] = ($scope.sortOptions[$scope.method]=='desc')?'asc':'desc';
+            _.forEach($scope.links,function(link) {
+              link.uri_attributes = link.uri;
+              delete(link.uri);
+            });
+            $scope.fetching = false;
+          },
+          function(res){
+            toastr.error("Unable to load Links");
+            $scope.fetching = false;
+          }
+        );
+      }
+
+      $scope.checked = function(link){
+        return _.findIndex($scope.selectedLinks, function(l){return l.cybox_object_id == link.cybox_object_id;}) > -1;
+      };
+
+      $scope.sort = function(method) {
+        $scope.method = method;
+        $scope.fetching = true;
+        var curr_obj = Link.fetch_markings_object_from_scope($scope);
+        var curr_markings = curr_obj.stix_markings_attributes;
+        getLinkList(curr_markings);
+      }
+
+      $scope.selectLink = function(link,$event) {
+        var checkbox = $event.target;
+        if (checkbox.checked){
+          if (_.findIndex($scope.selectedLinks, function(l){return l.cybox_object_id == link.cybox_object_id}) == -1){
+            $scope.selectedLinks.push(link);
+          }
+        } else {
+          $scope.selectedLinks = _.filter($scope.selectedLinks, function(l){return l.cybox_object_id != link.cybox_object_id});
+        }
+        $scope.modified = true;
+      };
+    }]
+  };
+});

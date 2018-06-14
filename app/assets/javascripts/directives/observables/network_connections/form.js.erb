@@ -1,0 +1,168 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('networkConnectionForm', function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("observables/network_connections/form.html",type: :template)%>',
+    scope: {
+             networkconnection: '=',
+             saved: '=',
+             failed: '=',
+             cancel: '=',
+             editform: '='
+           },
+    controller: ['$scope','$rootScope','Observable','Restangular', 'Classification', 'objectSuggesterService',
+      function($scope,$rootScope,Observable,Restangular, Classification, objectSuggesterService) {
+        $scope.Observable = Observable;
+        $scope.sets = [];
+        $scope.cybox = "cybox";
+        $scope.saved_params = objectSuggesterService.get_params() || {};
+        $scope.current_page = $scope.saved_params.current_page || 0;
+
+        // Toggles for field level markings
+        $scope.source_address_toggle = {toggle: 0, clear: 0};
+        $scope.dest_address_toggle = {toggle: 0, clear: 0};
+
+        $scope.show_markings = {source_socket_address: 0, dest_socket_address: 0};
+
+        Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+            $scope.sets = data;
+        },function(res){
+            toastr.error("Unable to load ACS Set List");
+        });
+
+        var initializer = $scope.$watch("networkconnection", function() {
+          if (angular.isDefined($scope.networkconnection) && angular.isDefined($scope.networkconnection.cybox_object_id)) {
+            $scope.networkconnection.addresses = [];
+
+            if (angular.isDefined($scope.networkconnection.socket_addresses) && $scope.networkconnection.socket_addresses.length > 0) {
+              _.forEach($scope.networkconnection.socket_addresses, function(address){
+                $scope.networkconnection.addresses = $scope.networkconnection.addresses.concat(address.addresses);
+              });
+            }
+
+            initializer();
+          }
+        });
+
+        $scope.socket_addr_or_hostname_options = ['Address', 'Hostname'];
+
+        $scope.socket_addr_or_hostname_changed = function(source_or_dest) {
+          if (source_or_dest == 'source') {
+            if ($scope.networkconnection.source_socket_addr_or_hostname == 'Address') {
+              $scope.networkconnection.source_socket_hostname = undefined;
+              $scope.show_markings.source_socket_address = 0;
+            }
+            else {
+              $scope.show_markings.source_socket_address = 1;
+              $scope.networkconnection.source_socket_address = undefined;
+              $scope.networkconnection.source_socket_is_spoofed = undefined;
+            }
+          }
+          else {
+            if ($scope.networkconnection.dest_socket_addr_or_hostname == 'Address') {
+              $scope.networkconnection.dest_socket_hostname = undefined;
+              $scope.show_markings.dest_socket_address = 0;
+            }
+            else {
+              $scope.show_markings.dest_socket_address = 1;
+              $scope.networkconnection.dest_socket_address = undefined;
+              $scope.networkconnection.dest_socket_is_spoofed = undefined;
+            }
+          }
+        };
+      
+        $scope.removeLayerSevenConnections = function(obj) {
+          _.remove($scope.networkconnection.layer_seven_connections, function(o){
+            if (o == obj) {
+              return o;
+            }
+          });
+        };
+
+        $scope.save = function(networkconnection){
+          $scope.is_saving = true;
+          $scope.networkconnection.errors = {};
+          
+          networkconnection=update_undefined_fields(networkconnection);
+
+          var promise;
+          var save_text;
+
+          var layer_seven_connection_ids = _.map(networkconnection.layer_seven_connections, function(obj) {
+            return obj.guid;
+          });
+
+          networkconnection.layer_seven_connection_guids = layer_seven_connection_ids;
+
+          /*
+          Rules for when CLASSIFICATION is true
+
+          and ACS Set or Classification must be selected. When Classification is above unclassified, 
+          details must be filled out.
+          */
+          if ($rootScope.setting_value('CLASSIFICATION') == true){
+              $scope.networkconnection.stix_markings_attributes = Classification.check_classification_details($scope.networkconnection.stix_markings_attributes);
+              problems = $scope.networkconnection.stix_markings_attributes.problems;
+              var classification_check = $scope.networkconnection.stix_markings_attributes.classification_check;
+          }
+
+          if (Object.keys($scope.networkconnection.errors).length > 0 || classification_check) {
+            $scope.is_saving = false;
+            if(classification_check){
+                for (var i = 0; i < problems.length; i++){
+                    if(problems[i].field == null){
+                        toastr.error("Unable to save due to classification errors in the Object level markings");
+                    } else {
+                        toastr.error("Unable to save due to classification errors in the " + problems[i].field + " markings");
+                    }
+                }
+            }
+            return;
+          }
+
+          if (angular.isUndefined(networkconnection.cybox_object_id) || networkconnection.cybox_object_id == null) {
+            promise = Restangular.all("network_connections").post(networkconnection);
+            save_text = "save";
+          } else {
+            promise = Restangular.one('network_connections/' + networkconnection.cybox_object_id.id).customPUT(networkconnection);
+            save_text = "update";
+          }
+
+          promise.then(
+            function(data){
+              toastr.success("Network connection observable "+save_text+"d");
+              if (angular.isDefined($scope.saved) && jQuery.isFunction($scope.saved)){
+                $scope.saved(data);
+              }
+              $scope.is_saving = false;
+            },
+            function(res){
+              toastr.error("Unable to "+save_text+" Network Connection observable");
+              $scope.error = res.data.errors;
+              if (angular.isDefined(res.data) && angular.isDefined(res.data.errors) && angular.isDefined(res.data.errors.base)) {
+                  _.each(res.data.errors.base,function(e){
+                      toastr.error(e);
+                  });
+              }
+              if (angular.isDefined($scope.failed) && jQuery.isFunction($scope.failed)){
+                $scope.failed(res.data);
+              }
+              $scope.is_saving = false;
+            }
+          );
+        };
+
+        update_undefined_fields = function(data) {
+          fields_to_update = [ 'dest_socket_address', 'dest_socket_hostname', 'dest_socket_is_spoofed', 'dest_socket_port', 'source_socket_address', 'source_socket_hostname', 'source_socket_is_spoofed', 'source_socket_port', 'layer3_protocol', 'layer4_protocol', 'layer7_protocol'];
+          fields_to_update.forEach(function(field) {
+            if (angular.isUndefined(data[field])) {
+              data[field]=null;
+            }
+          })
+          return(data);
+        }
+      }
+    ]
+  };
+});

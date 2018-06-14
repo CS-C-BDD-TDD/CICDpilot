@@ -1,0 +1,34 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.factory('User', function() {
+  var service = {};
+  service.can = function(user, permission){
+    if (angular.isUndefined(user)){ return false; }
+    return _.any(user.permissions, function(p){ return p.name == permission; });
+  };
+  service.canAny = function(user, perms){
+    if (angular.isUndefined(user)){ return false; }
+    return _.any(perms,function(n){return _.find(user.permissions,function(p){return n == p.name})});
+  };
+  service.canAll = function(user, perms){
+    if (angular.isUndefined(user)){ return false; }
+    return _.all(perms,function(n){return _.find(user.permissions,function(p){return n == p.name})});
+  };
+  service.canModify = function(user, item){
+    if (angular.isUndefined(user.permissions)){ return false; }
+    if(_.filter(user.permissions, function(p){return p.name == 'modify_all_items'}).length == 1){ return true; }
+    if (angular.isUndefined(user.organization)){ return false; }
+    if (angular.isUndefined(item.created_by_user.organization)){ return false; }
+    if(_.filter(user.permissions, function(p){return p.name == 'modify_organization_items'}).length != 1){ return false; }
+    return user.organization.guid == item.created_by_user.organization.guid;
+  };
+  service.canDelete = function(user, item){
+    if (angular.isUndefined(user.permissions)){ return false; }
+    if(_.filter(user.permissions, function(p){return p.name == 'delete_all_items'}).length == 1){ return true; }
+    if (angular.isUndefined(user.organization)){ return false; }
+    if (angular.isUndefined(item.created_by_user.organization)){ return false; }
+    if(_.filter(user.permissions, function(p){return p.name == 'delete_organization_items'}).length != 1){ return false; }
+    return user.organization.guid == item.created_by_user.organization.guid;
+  };
+  return service;
+});

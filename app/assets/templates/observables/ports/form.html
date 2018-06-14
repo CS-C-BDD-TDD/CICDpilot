@@ -1,0 +1,58 @@
+<form class="form-horizontal">
+    <div class="">
+        <div class="form-group" ng-class="{'has-error': port.errors.port}">
+            <label class="col-md-3 control-label">Port *</label>
+            <div class="col-md-9">
+                <input type="text" ng-model="port.port" name="port" only-digits class="col-md-8" placeholder="Port" auto-focus>
+                <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="port_toggle.toggle > 0" ng-click="port_toggle.clear = port_toggle.clear + 1">Clear Markings</button>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="port_toggle.toggle = port_toggle.toggle + 1">Custom ISA Markings</button>
+            </div>
+            <div class="col-md-3"></div>
+            <div class="col-md-9">
+              <ul ng-show="port.errors.port" class="help-block">
+                  <li ng-repeat="e in port.errors.port">Port {{e}}</li>
+              </ul>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="port" disablesave="is_saving" editform="editform" fieldname="port" togglebuttons="port_toggle"></field-markings-edit>
+
+        <div class="form-group" ng-class="{'has-error': port.errors.layer4_protocol}">
+            <label class="col-md-3 control-label">Layer4 Protocol *</label>
+            <div class="col-md-9">
+                <select class="col-md-8" ng-model="port.layer4_protocol" ng-init="port.layer4_protocol=port.layer4_protocol || ''" ng-options="p for p in Observable.layer4ProtocolList">
+                </select>
+                <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="layer4_protocol_toggle.toggle > 0" ng-click="layer4_protocol_toggle.clear = layer4_protocol_toggle.clear + 1">Clear Markings</button>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="layer4_protocol_toggle.toggle = layer4_protocol_toggle.toggle + 1">Custom ISA Markings</button>
+            </div>
+            <div class="col-md-3"></div>
+            <div class="col-md-9">
+              <ul ng-show="port.errors.layer4_protocol" class="help-block">
+                  <li ng-repeat="e in port.errors.layer4_protocol">Layer 4 Protocol {{e}}</li>
+              </ul>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="port" disablesave="is_saving" editform="editform" fieldname="layer4_protocol" togglebuttons="layer4_protocol_toggle"></field-markings-edit>
+
+        <acs-associate-form sets="sets" object="port" objecttype="Port" disable-save="is_saving" editform="editform" fieldname="cybox"></acs-associate-form>
+    </div>
+</form>
+<div class="row">
+    <div class="col-xs-12">
+        <form class="form-horizontal" role="form" ng-submit="save(port)">
+            <div class="clearfix form-actions">
+                <span ng-show="is_saving">
+                    <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+                </span>
+                <div class="col-md-offset-3">
+                    <button class="btn btn-info" ng-disabled="is_saving" type="submit">
+                        <i class="ace-icon fa fa-check bigger-110"></i> Save
+                    </button>
+                    <button class="btn btn-default" ng-disabled="is_saving" type="button" ng-click="cancel()">
+                        <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                    </button>
+                </div>
+            </div>
+            <div class="hr hr-24"></div>
+        </form>
+    </div>
+</div>

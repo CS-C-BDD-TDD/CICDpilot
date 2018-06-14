@@ -1,0 +1,36 @@
+<div class="tags multi_tag_attributes">
+  <div class="col-lg-9 ciap_pleft_6" ng-show="attribute.length" >
+    <span ng-repeat="val in attribute track by $index" class="tag label label-margin label-info ciap_lheight_9">
+      {{val}}
+      <button class="close"
+              type="button"
+              ng-click="remove($index)">
+        <i class="fa fa-times white"></i>
+      </button>
+    </span>
+  </div>
+  <div ng-hide="attribute.length" class="col-lg-9 ciap_pleft_6">
+        <span class='label label-margin label-inverse'>
+            NONE
+        </span>
+  </div>
+</div>
+
+<div class="space-8"></div>
+
+<div class="col-md-10 ciap_mtop_10">
+  <div style="width:48%; float: left;" tooltip="The country associated with the contributing source">
+  	<label for="country_select">Country</label>
+    <select id="country_select" class="col-md-12" ng-model='selected_country'
+            ng-options="val.id as val.label for val in ::countries"
+            ng-change="selectCountry(selected_country)"
+        ></select>
+  </div>
+  <div style="width:48%; margin-left:4%; float: left;"  tooltip="The administrative area associated with the contributing source. Codes ending in -XX are placeholders for countries that do not have any Administrative Areas. Codes ending in -XX will not be exported.">
+  	<label for="area_select">Administrative Area</label>
+    <select id="area_select" class="col-md-12" ng-model='selected_area'
+            ng-options="val.id as val.label for val in country_areas"
+            ng-change="add(selected_area)"
+        ></select>
+  </div>
+</div>

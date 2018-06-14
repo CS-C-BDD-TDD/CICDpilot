@@ -1,0 +1,37 @@
+app.service('NetworkConnection', ['$filter', function($filter){
+  return {
+    get_value: function(network_connection){
+      if (angular.isUndefined(network_connection)){ return ""; }
+      var value = '';
+      if (network_connection.source_socket_address) {
+        value += network_connection.source_socket_address;
+      }
+      else if (network_connection.source_socket_hostname) {
+        value += network_connection.source_socket_hostname;
+      }
+      if (network_connection.source_socket_port) {
+        value += ':' + network_connection.source_socket_port;
+      }
+      if (network_connection.layer4_protocol) {
+        value += '/' + network_connection.layer4_protocol;
+      }
+      if (network_connection.dest_socket_address) {
+        value += ' ' + network_connection.dest_socket_address;
+      }
+      else if (network_connection.dest_socket_hostname) {
+        value += ' ' + network_connection.dest_socket_hostname;
+      }
+      if (network_connection.source_socket_port) {
+        value += ':' + network_connection.dest_socket_port;
+      }
+      if (network_connection.layer4_protocol) {
+        value += '/' + network_connection.layer4_protocol;
+      }
+      if (value == '') {
+        value = network_connection.cybox_object_id;
+      }
+      return $filter('prefixWithPortionMarking')(value,
+          network_connection.portion_marking);
+    }
+  };
+}]);

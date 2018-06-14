@@ -1,0 +1,40 @@
+app.service('Link', ['$rootScope', '$filter', function($rootScope, $filter){
+  var fetch_markings_object_from_scope=function(scope) {
+    var object = _.find(Object.getOwnPropertyNames(scope),function(name) {
+      return ((scope[name] instanceof Object) && Object.getOwnPropertyNames(scope[name]).includes('stix_markings_attributes'));
+    });
+    if (angular.isDefined(object) && object != null) {
+      return scope[object]
+    }
+    else {
+      return fetch_markings_object_from_scope(scope.$parent);
+    }
+  };
+  return {
+    get_value: function(link){
+      if (angular.isUndefined(link)){ return ""; }
+
+      value='';
+      if (link.uri.uri!=null) {
+        value+=link.uri.uri;
+      }
+      if (link.label!=null) {
+        if (value) {
+          value+=' ';
+        }
+        value+='"'+link.label+'"';
+      }
+      if (value == '') {
+        return 'Link: ';
+      }
+      else {
+        return $filter('prefixWithPortionMarking')(value,
+            link.portion_marking);
+      }
+    },
+
+    fetch_markings_object_from_scope: function(scope) {
+      return fetch_markings_object_from_scope(scope)
+    }
+  };
+}]);

@@ -1,0 +1,28 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('NetworkConnectionsEditController', ['$scope','$routeParams','Restangular','$rootScope','NetworkConnection','$location','Marking','objectSuggesterService',
+  function($scope,$routeParams,Restangular,$rootScope,NetworkConnection,$location,Marking,objectSuggesterService) {
+    Restangular.one('/network_connections/'+$routeParams.id).get().then(function(data){
+      $scope.networkconnection = Marking.translate_existing_attributes(data);
+      $scope.networkconnection.source_socket_addr_or_hostname='Address';
+      if (angular.isDefined($scope.networkconnection.source_socket_hostname) && $scope.networkconnection.source_socket_hostname) {
+        $scope.networkconnection.source_socket_addr_or_hostname='Hostname';
+      }
+      $scope.networkconnection.dest_socket_addr_or_hostname='Address';
+      if (angular.isDefined($scope.networkconnection.dest_socket_hostname) && $scope.networkconnection.dest_socket_hostname) {
+        $scope.networkconnection.dest_socket_addr_or_hostname='Hostname';
+      }
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Network Connections',link:'#/network_connections',icon:'fa-group'},{text:data.display_name,link:'#/network_connections/'+encodeURIComponent(data.cybox_object_id)}];
+    },function(res){
+      toastr.error("Unable to load network connection observable");
+    });
+
+    $scope.cancel = function() {
+      $location.path('/network_connections/'+$routeParams.id);
+    };
+
+    $scope.failed = function() {
+      $("html, body").animate({ scrollTop: 0 }, 200);
+    }
+  }
+]);

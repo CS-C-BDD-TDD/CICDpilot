@@ -1,0 +1,67 @@
+<div class="dataTables_wrapper form-inline no-footer">
+  <div class="row">
+    <div class="col-xs-4">
+    </div>
+    <div class="col-xs-4">
+      <div style="text-align: center">
+        <div class="input-group">
+          <span class="input-group-addon">
+            <i class="fa fa-calendar"></i>
+          </span>
+          <input date-range-picker style="margin-left: 0px" type="text" class="form-control" options="date_picker_opts" />
+        </div>
+      </div>
+    </div>
+    <div class="col-xs-4">
+      <div style="text-align: right">
+        <span class="input-icon">
+          <input class="form-control search-query" placeholder="Search Domains..." type="search"
+                 ng-enter="startSearch()" ng-model="q">
+          <i class="ace-icon fa fa-search nav-search-icon" style="margin-left: 4px"></i>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="widget-box widget-color-blue ui-sortable-handle">
+  <pagination-header metadata="metadata" offset="offset"></pagination-header>
+  <pagination-footer metadata="metadata" offset="offset" get_records="getDomains"></pagination-footer>
+</div>
+<div class="widget-body">
+  <div class="widget-main no-padding" style="height: 220px; overflow-y: scroll;">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Condition</th>
+          <th>Created At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr ng-repeat="domain in domains | orderBy:'-created_at' | filter:search:strict" ng-click="setSelected()" class="{{classSelected()}}">
+          <td ng-show="domain.combined_score||domain.com_threat_score||domain.gov_threat_score" class="pointer">{{domain.name | prefixWithPortionMarking:domain.portion_marking:domain.name_c:"U"}}</td>
+          <td ng-hide="domain.combined_score||domain.com_threat_score||domain.gov_threat_score" class="pointer">{{domain.name | prefixWithPortionMarking:domain.portion_marking:domain.name_c}}</td>
+          <td class="pointer">{{domain.name_condition}}</td>
+          <td class="pointer">{{domain.created_at | date:"medium"}}</td>
+          <td>
+            <button class="btn btn-primary btn-xs" tooltip="Edit Field" ng-click="setEdit()" ng-hide="domain.read_only">
+                  <i class="ace-icon fa fa-pencil "></i>
+                  Edit
+            </button>
+            <small ng-show="domain.read_only">
+              <span style="margin-left: 10px" class="label label-warning arrowed arrowed-right">
+                <span class="white">Read Only</span>
+              </span>
+            </small>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="widget-box widget-color-blue">
+  <pagination-footer metadata="metadata" offset="offset" get_records="getDomains"></pagination-footer>
+</div>

@@ -1,0 +1,450 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<stix:STIX_Package xmlns:FileObj="http://cybox.mitre.org/objects#FileObject-2" xmlns:URIObj="http://cybox.mitre.org/objects#URIObject-2" xmlns:cybox="http://cybox.mitre.org/cybox-2" xmlns:cyboxCommon="http://cybox.mitre.org/common-2" xmlns:indicator="http://stix.mitre.org/Indicator-2" xmlns:marking="http://data-marking.mitre.org/Marking-1" xmlns:simpleMarking="http://data-marking.mitre.org/extensions/MarkingStructure#Simple-1" xmlns:stix="http://stix.mitre.org/stix-1" xmlns:stixCommon="http://stix.mitre.org/common-1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="NCCIC:IB-14-20167" version="1.0" xmlns:NCCIC="http://www.us-cert.gov/nccic" xmlns:cyboxVocabs="http://cybox.mitre.org/default_vocabularies-2" xmlns:stixVocabs="http://stix.mitre.org/default_vocabularies-1" xmlns:tlpMarking="http://data-marking.mitre.org/extensions/MarkingStructure#TLP-1">
+  <stix:STIX_Header>
+    <stix:Title>CosmicDuke Malware</stix:Title>
+    <stix:Package_Intent xsi:type="stixVocabs:PackageIntentVocab-1.0">Indicators - Malware Artifacts</stix:Package_Intent>
+    <stix:Description>This is the first in a series of informational indicators bulletins providing technical information on sophisticated malware that has been recently reported by various private cyber security organizations.
+
+In February 2013, various private cyber security corporations published information regarding the "MiniDuke" APT malware program.  Shortly after the public releases, the unattributed APT actors seemingly abandoned -- or at least greatly reduced -- use of known MiniDuke Infrastructure and malware.
+
+In June-July 2014, several security researchers published articles indicating a probable resurgence of MiniDuke activity.  Analysis of the new activity conducted by several cyber security corporations note the malware now shares similarities with the Cosmu family of information stealing malware.  These characteristics were not previously observed in MiniDuke malware analyzed in 2013. These newer variants have been referred to as CosmicDuke by public security researchers.
+
+Based on open source analysis of the activity, MiniDuke / CosmicDuke targets victims in:
+* Government and diplomatic establishments
+* Energy
+* Telecommunications corporations
+* Military and military contractors
+
+Analysis of the activity also indicates that possible victims in the US comprise a significant portion of the total.
+
+This advisory is to disseminate known cyber threat indicators associated with MiniDuke / CosmicDuke malware.
+
+References:
+
+[1] F-Secure, "CosmicDuke: Cosmu with a twist of MiniDuke," 3 July 2014. [Online]. Available: http://www.f-secure.com/static/doc/labs_global/Whitepapers/cosmicduke_whitepaper.pdf.
+[2] National Cybersecurity and Communications Integration Center, "Weekly Analytic Synopsis Product for 8 July 2014," Department of Homeland Security, 2014.
+[3] National Cybersecurity and Communications Integration Center, "Weekly Analytic Synopsis Product for 19 March 2013," Department of Homeland Security, 2013.
+[4] National Cybersecurity and Communications Integration Center, "Weekly Analytic Synopsis Product for 5 March 2013," Department of Homeland Security, 2013.</stix:Description>
+    <stix:Handling>
+      <marking:Marking>
+        <marking:Controlled_Structure>//node()</marking:Controlled_Structure>
+        <marking:Marking_Structure color="GREEN" xsi:type="tlpMarking:TLPMarkingStructureType" />
+      </marking:Marking>
+      <marking:Marking>
+        <marking:Controlled_Structure>//node()</marking:Controlled_Structure>
+        <marking:Marking_Structure xsi:type="simpleMarking:SimpleMarkingStructureType">
+          <simpleMarking:Statement>This Indicator Bulletin is provided "as is" for informational purposes only. The Department of Homeland Security (DHS) does not provide any warranties of any kind regarding any information contained within. The DHS does not endorse any commercial product or service, referenced in this bulletin or otherwise. This document is marked TLP: GREEN. Recipients may only share TLP: GREEN information with peers and partner organizations within their sector or community, but not via publicly accessible channels. For more information on the Traffic Light Protocol, see http://www.us-cert.gov/tlp .</simpleMarking:Statement>
+        </marking:Marking_Structure>
+      </marking:Marking>
+    </stix:Handling>
+    <stix:Information_Source>
+      <stixCommon:Time>
+        <cyboxCommon:Produced_Time>2014-09-11T19:44:11Z</cyboxCommon:Produced_Time>
+      </stixCommon:Time>
+    </stix:Information_Source>
+  </stix:STIX_Header>
+  <stix:Indicators>
+    <stix:Indicator id="NCCIC:indicator-111a84a0-c326-4292-b731-6a227fde0cca" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Composite_Indicator_Expression operator="OR">
+        <indicator:Indicator idref="NCCIC:indicator-76657921-6407-4fb3-873c-5a99993a90fb" />
+        <indicator:Indicator idref="NCCIC:indicator-cf655e46-8cf0-433a-9c09-e34b9f73cde7" />
+        <indicator:Indicator idref="NCCIC:indicator-ec03cd3b-8da8-4c37-8f26-8ad35823f8a6" />
+      </indicator:Composite_Indicator_Expression>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-76657921-6407-4fb3-873c-5a99993a90fb" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Malware Artifacts</indicator:Type>
+      <indicator:Description>Analysis of MiniDuke malware reveals several key features:
+* Use of a customizable backdoor written in the Assembly. 
+* Use of twitter accounts for command and control
+* Communications and updates disguised as GIF files.
+
+Strings associated with the malware:
+C:\Projects\nemesis-gemina\nemesis\bin\carriers\ezlzma_x86_exe.pdb</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-0e195bc6-de2f-458a-bf0e-ba628883a4dd">
+        <cybox:Object id="NCCIC:Object-9a4bfc75-920d-4128-bce3-be6eb82551e4">
+          <cybox:Properties xsi:type="FileObj:FileObjectType">
+            <FileObj:Hashes>
+              <cyboxCommon:Hash>
+                <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                <cyboxCommon:Simple_Hash_Value condition="Equals">93382e0b2db1a1283dbed5d9866c7bf2</cyboxCommon:Simple_Hash_Value>
+              </cyboxCommon:Hash>
+            </FileObj:Hashes>
+          </cybox:Properties>
+          <cybox:Related_Objects>
+            <cybox:Related_Object id="NCCIC:Object-759576a3-0223-4f05-a35e-54eae77127e6">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">Cf5a5239ada9b43592757c0d7bf66169</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Related_To</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-3be6ca3a-9cb3-4b1e-9145-0b16c84fc2a1">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">b80232f25dbceb6953994e45fb7ff749</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Related_To</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-b8e101f7-ae48-423b-ba4f-12092f485fa5">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">7fcf05f7773dc3714ebad1a9b28ea8b9</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Related_To</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-42c817a9-0e7b-4189-9deb-d88fbea60a20">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">edf7a81dab0bf0520bfb8204a010b730</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Related_To</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-054cae7f-0d0a-4c28-baae-f6d2206e8e35">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">ba57f95eba99722ebdeae433fc168d72</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Related_To</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-3c0ef2c3-3e9e-4fad-b848-e78a71c3e549">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">3668b018b4bb080d1875aee346e3650a</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Related_To</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-93385d12-3c72-4cbb-904e-f53816d76f13">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">88292d7181514fda5390292d73da28d4</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Related_To</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-e54a379f-4eb7-459f-a7d9-f08e69a1a463">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">0cdf55626e56ffbf1b198beb4f6ed559</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Related_To</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-c1c0dc26-9866-4066-a452-befa8cc9994f">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">1e1b0d16a16cf5c7f3a7c053ce78f515</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Related_To</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-19637a51-c629-44db-bfbb-14d9df8f9a57">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">C03bcb0cde62b3f45b4d772ab635e2b0</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Related_To</cybox:Relationship>
+            </cybox:Related_Object>
+          </cybox:Related_Objects>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-cf655e46-8cf0-433a-9c09-e34b9f73cde7" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Malware Artifacts</indicator:Type>
+      <indicator:Description>Analysis of MiniDuke malware reveals several key features:
+* Use of a customizable backdoor written in the Assembly. 
+* Use of twitter accounts for command and control
+* Communications and updates disguised as GIF files.</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-791101d3-13fa-476c-834c-236bbf26773a">
+        <cybox:Object id="NCCIC:Object-9b371a3a-a1f0-49ad-b465-9e7506103d98">
+          <cybox:Properties type="URL" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">http://rtproductionsusa.com/wp-includes/images/smilies/icon_gif.php</URIObj:Value>
+          </cybox:Properties>
+          <cybox:Related_Objects>
+            <cybox:Related_Object id="NCCIC:Object-a170df98-b077-4853-a388-0882a03f245b">
+              <cybox:Properties type="URL" xsi:type="URIObj:URIObjectType">
+                <URIObj:Value condition="Equals">http://tangentialreality.com/cache/template/yoo_cache.php</URIObj:Value>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Related_To</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-ff557f26-0e92-463f-aea8-0d2e73d250f4">
+              <cybox:Properties type="URL" xsi:type="URIObj:URIObjectType">
+                <URIObj:Value condition="Equals">http://algherolido.it/img/common/thumb/thumb.php</URIObj:Value>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Related_To</cybox:Relationship>
+            </cybox:Related_Object>
+          </cybox:Related_Objects>
+        </cybox:Object>
+      </indicator:Observable>
+      <indicator:Kill_Chain_Phases>
+        <stixCommon:Kill_Chain_Phase kill_chain_id="stix:KillChain-af3e707f-2fb9-49e5-8c37-14026ca0a5ff" kill_chain_name="LM Cyber Kill Chain" name="Command and Control" ordinality="6" phase_id="stix:KillChainPhase-d6dc32b9-2538-4951-8733-3cb9ef1daae2" />
+      </indicator:Kill_Chain_Phases>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-ec03cd3b-8da8-4c37-8f26-8ad35823f8a6" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Malware Artifacts</indicator:Type>
+      <indicator:Description>The CosmicDuke malware communicates over HTTP, WebDAV, and FTP channels.
+
+The following is a sample of network traffic generated from the malware on an infected host over the HTTP channel:
+GET /news.php?m&amp;Auth=80B8A0BA&amp;Session=11DCD48428DF85C5&amp;DataID=1&amp;FamilyID=41F70E48DB904D2BAB945D
+999D4BB7B1&amp;BranchID=37&amp;VolumeID=1021&amp;User=39452552&amp;Query=bovtb[...]5eh2u HTTP/1.1
+Accept: */*
+Accept-Encoding: gzip, deflate
+User-Agent: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; .NET4.0C; .NET4.0E)
+Host: 199.xxx.xxx.xxx
+Connection: Keep-Alive
+
+COMMENT:  Full GET line of the above traffic was edited for brevity.
+
+The following is a sample of network traffic generated from the malware on an infected host over the WebDAV channel:
+PUT /catalog/outgoing/wd80B8A0BA11DCD48428DF85C5000C5CAFC22FB126C957.bin HTTP/1.1
+translate: f
+User-Agent: Microsoft-WebDAV-MiniRedir/5.1.2600
+Host: 199.xxx.xxx.xxx
+Content-Length: 0
+Connection: Keep-Alive
+Cache-Control: no-cache
+
+The following is a sample of network traffic generated from the malware on an infected host over the FTP channel:
+STOR fp80B8A0BA11DCD48428DF85C50001F563C7C5FFDE778F.bin</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-7c75ab8a-b3b3-464c-9cf0-da61c7990509">
+        <cybox:Object id="NCCIC:Object-75b5add8-ffcf-4881-a2d1-baed2783b2a2">
+          <cybox:Properties xsi:type="FileObj:FileObjectType">
+            <FileObj:Hashes>
+              <cyboxCommon:Hash>
+                <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">SHA1</cyboxCommon:Type>
+                <cyboxCommon:Simple_Hash_Value condition="Equals">65681390d203871e9c21c68075dbf38944e782e8</cyboxCommon:Simple_Hash_Value>
+              </cyboxCommon:Hash>
+            </FileObj:Hashes>
+          </cybox:Properties>
+          <cybox:Related_Objects>
+            <cybox:Related_Object id="NCCIC:Object-904f64f1-8558-4180-81e0-f0e905d23e31">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">SHA1</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">7631f1db92e61504596790057ce674ee90570755</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-5a316c9e-685d-4fe7-b9ca-3b495ca519fb">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">SHA1</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">8949c1d82dda5c2ead0a73b532c4b2e1fbb58a0e</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-df4f1d90-863b-4289-970a-6604bb5c543e">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">SHA1</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">C671786abd87d214a28d136b6bafd4e33ee66951</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-0b55dc0e-1877-4957-8ec1-21b2ddfcfe0e">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">SHA1</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">B072577447cdf3936d95e612057e510dd3435963</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-4a21def3-ca9e-4244-a4b4-788e651c1584">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">SHA1</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">5295b09592d5a651ca3f748f0e6401bd48fe7bda</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-7cd8a111-308b-4d1a-be05-4709f62d41c9">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">SHA1</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">353540c6619f2bba2351babad736599811d3392e</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-39bb333e-d80f-4fa2-b5a8-9657d5686ddb">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">SHA1</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">8aa9f5d426428ec360229f4cb9f722388f0e535c</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-5bdb97ac-805c-495f-80b5-cd542900ca78">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">SHA1</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">5c4697f71076d56026aef26158b31bfe48fe4920</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-b0d2f229-3312-4133-afa6-2172e9d05f8f">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">SHA1</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">08e97167cdc699958e117f285f96bde6cb9da9a9</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-dc3bd7de-3573-4e41-8181-99ed4ffb9b56">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">SHA1</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">B9e3108c7b63d09af4eee6e1d298806c60b97a</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-3762c43a-d4be-4668-9c4d-58a79b9f4303">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">1A874e5ecd67dffav45e17e9b730daed</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-cf45c9e1-b3b8-40a7-ac56-ec8b8e9a6fc8">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">4e0c3a6462638f712135789ae322c1ca</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-97aa37df-08e8-458e-abcf-a95c36d93b04">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">86def08de2c531ee625d45b7a92bf739</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-725ce668-6f70-4990-9ccd-f81bedcad250">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">6d503c3b983fbc8736475131d90fc95</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-06cf84f3-8f3c-4f64-9efb-768f90b5cb2e">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">Dffcd7f930f8874fc9f5115d0ae50b57</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-962ed5e7-a2e4-4e09-b189-6c6f8165e3d3">
+              <cybox:Properties xsi:type="FileObj:FileObjectType">
+                <FileObj:Hashes>
+                  <cyboxCommon:Hash>
+                    <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                    <cyboxCommon:Simple_Hash_Value condition="Equals">9943253862474976eba51e4e2a84a2</cyboxCommon:Simple_Hash_Value>
+                  </cyboxCommon:Hash>
+                </FileObj:Hashes>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+          </cybox:Related_Objects>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+  </stix:Indicators>
+  <stix:TTPs>
+    <stix:Kill_Chains>
+      <stixCommon:Kill_Chain definer="LMCO" id="stix:KillChain-af3e707f-2fb9-49e5-8c37-14026ca0a5ff" name="LM Cyber Kill Chain" number_of_phases="7" reference="http://www.lockheedmartin.com/content/dam/lockheed/data/corporate/documents/LM-White-Paper-Intel-Driven-Defense.pdf">
+        <stixCommon:Kill_Chain_Phase name="Reconnaissance" ordinality="1" phase_id="stix:KillChainPhase-af1016d6-a744-4ed7-ac91-00fe2272185a" />
+        <stixCommon:Kill_Chain_Phase name="Weaponization" ordinality="2" phase_id="stix:KillChainPhase-445b4827-3cca-42bd-8421-f2e947133c16" />
+        <stixCommon:Kill_Chain_Phase name="Delivery" ordinality="3" phase_id="stix:KillChainPhase-79a0e041-9d5f-49bb-ada4-8322622b162d" />
+        <stixCommon:Kill_Chain_Phase name="Exploitation" ordinality="4" phase_id="stix:KillChainPhase-f706e4e7-53d8-44ef-967f-81535c9db7d0" />
+        <stixCommon:Kill_Chain_Phase name="Installation" ordinality="5" phase_id="stix:KillChainPhase-e1e4e3f7-be3b-4b39-b80a-a593cfd99a4f" />
+        <stixCommon:Kill_Chain_Phase name="Command and Control" ordinality="6" phase_id="stix:KillChainPhase-d6dc32b9-2538-4951-8733-3cb9ef1daae2" />
+        <stixCommon:Kill_Chain_Phase name="Actions on Objectives" ordinality="7" phase_id="stix:KillChainPhase-786ca8f9-2d9a-4213-b38e-399af4a2e5d6" />
+      </stixCommon:Kill_Chain>
+    </stix:Kill_Chains>
+  </stix:TTPs>
+</stix:STIX_Package>

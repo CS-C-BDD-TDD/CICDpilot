@@ -1,0 +1,43 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('layerSevenConnectionsTable', function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("observables/network_connections/layer_seven_connections/table.html",type: :template)%>',
+    scope: {
+             layerSevenConnections: '='
+           },
+    controller: ['$scope', function($scope) {
+      $scope.showTable = true;
+      $scope.http_sessions = [];
+      $scope.dns_queries = [];
+      $scope.network_connections = [];
+
+      var initializer = $scope.$watch("layerSevenConnections", function() {
+        if (angular.isDefined($scope.layerSevenConnections)) {
+          _.each($scope.layerSevenConnections, function(lsc){
+
+            if (angular.isDefined(lsc.dns_queries)) {
+                _.each(lsc.dns_queries, function(dns){
+                  $scope.dns_queries.push(dns);
+                })
+            }
+
+            if (angular.isDefined(lsc.network_connections)) {
+                _.each(lsc.network_connections, function(dns){
+                  $scope.network_connections.push(dns);
+                })
+            }
+
+            if (angular.isDefined(lsc.http_session)) {
+                $scope.http_sessions.push(lsc.http_session);
+            }
+          });
+
+          initializer();
+        }
+      });
+
+    }]
+  };
+});

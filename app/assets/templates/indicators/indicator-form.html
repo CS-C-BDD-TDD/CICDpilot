@@ -1,0 +1,310 @@
+<form class="form-horizontal" role="form">
+  <div class="col-md-12 col-sm-12 widget-container-co ciap_mbottom_15">
+    <div class="widget-box">
+      <div class="widget-header">
+        <h5 class="widget-title">
+          Indicator: {{indicator.title}}
+        </h5>
+      </div>
+      <div class="widget-body" ng-show="current_page == 0">
+        <div class="widget-main">
+          <div class="form-group" ng-class="{'has-error': indicator.errors.title}" tooltip="The Title field provides a simple title for this Indicator.">
+            <label class="control-label col-md-3 no-padding-right">Title *</label>
+            <div class="col-md-9">
+                <input type="text" class="col-md-8" id="title_textbox" ng-model="indicator.title" auto-focus></input>
+                <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="title_toggle.toggle > 0" ng-click="title_toggle.clear = title_toggle.clear + 1">Clear Markings</button>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="title_toggle.toggle = title_toggle.toggle + 1">Custom ISA Markings</button>
+            </div>
+            <div ng-show="indicator.errors.title" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in indicator.errors.title" class="col-md-12">Title {{error}}</span>
+            </div>
+          </div>
+          <field-markings-edit sets="sets" object="indicator" disablesave="is_saving" editform="editform" fieldname="title" togglebuttons="title_toggle"></field-markings-edit>
+
+          <div class="form-group" ng-class="{'has-error': indicator.errors.description}" tooltip="The Description field provides an unstructured, text description for this Indicator.">
+            <label class="control-label col-md-3 no-padding-right">Description *</label>
+            <div class="col-md-9">
+              <textarea class="col-md-8" id="form-field-8" placeholder="Description" ng-model="indicator.description"></textarea>
+              <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="des_toggle.toggle > 0" ng-click="des_toggle.clear = des_toggle.clear + 1">Clear Markings</button>
+              <button class="btn btn-primary btn-sm pull-right" ng-click="des_toggle.toggle = des_toggle.toggle + 1">Custom ISA Markings</button>
+            </div>
+            <div ng-show="indicator.errors.description" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in indicator.errors.description" class="col-md-12">Description {{error}}</span>
+            </div>
+          </div>
+          <field-markings-edit sets="sets" object="indicator" disablesave="is_saving" editform="editform" fieldname="description" togglebuttons="des_toggle"></field-markings-edit>
+
+          <div class="form-group" ng-class="{'has-error': indicator.errors.indicator_type, 'has-warning': indicator.warnings.indicator_type.length > 0}" tooltip="The default set of Indicator types to use for characterizing Indicators in STIX.">
+            <label class="control-label col-md-3 no-padding-right">Indicator Type *</label>
+            <div class="col-md-9">
+              <select class="col-md-8" id="indicator_type_dropdown" ng-model="indicator.indicator_type" ng-options="key as name for (key,name) in Indicator.indicatorSelectTypes" ng-change="changeObservableTypes()">
+              </select>
+              <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="type_toggle.toggle > 0" ng-click="type_toggle.clear = type_toggle.clear + 1">Clear Markings</button>
+              <button class="btn btn-primary btn-sm pull-right" ng-click="type_toggle.toggle = type_toggle.toggle + 1">Custom ISA Markings</button>
+            </div>
+            <div ng-show="indicator.errors.indicator_type" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in indicator.errors.indicator_type" class="col-md-12">Indicator Type {{error}}</span>
+            </div>
+            <div ng-show="indicator.warnings.indicator_type" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="warning in indicator.warnings.indicator_type" class="col-md-12">Indicator Type {{warning}}</span>
+            </div>
+          </div>
+          <field-markings-edit sets="sets" object="indicator" disablesave="is_saving" editform="editform" fieldname="indicator_type" togglebuttons="type_toggle"></field-markings-edit>
+
+          <div class="form-group" ng-class="{'has-error': indicator.errors.reference}" >
+            <label class="control-label col-md-3 no-padding-right">
+              Reference
+              <span class="ace-icon ciap_fa_icon_sm fa-stack ciap_tooltip_150min" tooltip="Not Exportable Field">
+                <i class="fa fa-ban fa-stack-2x"> </i>
+                <i class="fa fa-download fa-stack-1x"> </i>
+              </span>
+            </label>
+            <div class="col-md-9">
+              <input type="text" class="col-md-8" ng-model="indicator.reference" tooltip="Report name or any alternative ID for an indicator that a user may want to store for reference purposes."></input>
+              <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="ref_toggle.toggle > 0" ng-click="ref_toggle.clear = ref_toggle.clear + 1">Clear Markings</button>
+              <button class="btn btn-primary btn-sm pull-right" ng-click="ref_toggle.toggle = ref_toggle.toggle + 1">Custom ISA Markings</button>
+            </div>
+            <div ng-show="indicator.errors.reference" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in indicator.errors.reference" class="col-md-12">Reference {{error}}</span>
+            </div>
+          </div>
+          <field-markings-edit sets="sets" object="indicator" disablesave="is_saving" editform="editform" fieldname="reference" togglebuttons="ref_toggle"></field-markings-edit>
+
+          <div class="form-group" ng-class="{'has-error': indicator.errors.downgrade_request_id}">
+            <label class="control-label col-md-3 no-padding-right">
+              Downgrade Request ID
+              <span class="ace-icon ciap_fa_icon_sm fa-stack ciap_tooltip_150min" tooltip="Not Exportable Field">
+                <i class="fa fa-ban fa-stack-2x"> </i>
+                <i class="fa fa-download fa-stack-1x"> </i>
+              </span>
+            </label>
+            <div class="col-md-9">
+              <input type="text" class="col-md-8" ng-model="indicator.downgrade_request_id" tooltip="If this indicator was formerly classified but the status has been downgraded, put the request number here."></input>
+              <button class="btn btn-default btn-sm pull-right ciap-mleft-6" ng-show="down_toggle.toggle > 0" ng-click="down_toggle.clear = down_toggle.clear + 1">Clear Markings</button>
+              <button class="btn btn-primary btn-sm pull-right" ng-click="down_toggle.toggle = down_toggle.toggle + 1">Custom ISA Markings</button>
+            </div>
+            <div ng-show="indicator.errors.downgrade_request_id" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in indicator.errors.downgrade_request_id" class="col-md-12">Downgrade Request ID {{error}}</span>
+            </div>
+          </div>
+          <field-markings-edit sets="sets" object="indicator" disablesave="is_saving" editform="editform" fieldname="downgrade_request_id" togglebuttons="down_toggle"></field-markings-edit>
+
+          <div class="form-group">
+            <label class="control-label col-md-3 no-padding-right">Kill Chain Phases</label>
+
+            <div class="col-md-9">
+              <kill-chains-select kill_chain_phases="indicator.kill_chain_phases"></kill-chains-select>
+            </div>
+          </div>
+
+          <indicator-system-tag indicator="indicator" ng-show="can('tag_item_with_system_tag')"></indicator-system-tag>
+
+          <indicator-user-tag indicator="indicator" ng-show="can('tag_item_with_user_tag')"></indicator-user-tag>
+
+          <!-- Valid Time Pickers -->
+          <div class="form-group">
+            <label class="control-label col-md-3 no-padding-right">Valid Start Time</label>
+            <div class="col-md-3" tooltip="The start of the temporal window when the Indicator is valid">
+              <div style="white-space: nowrap">
+                <span class="input-icon input-icon-right ciap_width_100">
+                  <input class="ciap_mleft_0 ciap_width_100" date-range-picker type="text" options="date_picker_start_opts" id="start_time_picker"
+                    picker="dateRangePickerStartTime"
+                    value="{{indicator.start_time | date:'MM/dd/yyyy':'UTC'}}"/>
+                  <i class="ace-icon fa fa-calendar"></i>
+                </span>
+                <button ng-click="clear_start_date()">Clear</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="control-label col-md-3 no-padding-right">Valid End Time</label>
+            <div class="col-md-3" tooltip="The end of the temporal window when the Indicator is valid">
+              <div style="white-space: nowrap">
+                <span class="input-icon input-icon-right ciap_width_100">
+                  <input class="ciap_mleft_0 ciap_width_100" date-range-picker type="text" options="date_picker_end_opts" id="end_time_picker"
+                    picker="dateRangePickerEndTime"
+                    value="{{indicator.end_time | date:'MM/dd/yyyy':'UTC'}}"/>
+                  <i class="ace-icon fa fa-calendar"></i>
+                </span>
+                <button ng-click="clear_end_date()">Clear</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="widget-box" ng-show="can('create_modify_indicator_scoring')">
+            <div class="widget-header" align="center">
+              <a class='fake-link widget-title ng-cloak' ng-click="ind_scoring = !ind_scoring" ng-init="ind_scoring = false">
+                <div tooltip="">
+                  <i class="ace-icon fa" ng-class="ind_scoring ? 'fa-minus' : 'fa-plus'"></i>
+                  Indicator Scorings
+                  <span class="ace-icon ciap_fa_icon_sm fa-stack ciap_pleft_6" tooltip="Not Exportable Field">
+                    <i class="fa fa-ban fa-stack-2x"> </i>
+                    <i class="fa fa-download fa-stack-1x"> </i>
+                  </span>
+                </div>
+              </a>
+            </div>
+            <div class="widget-body" ng-show="ind_scoring">
+              <div class="space-12"></div>
+              <div class="widget-main">
+
+                <div class="form-group">
+                  <label class="control-label col-md-3 no-padding-right">Timelines</label>
+
+                  <div class="col-md-9">
+                    <select class="col-md-8" id="" ng-model="indicator.timelines" ng-options="obj.name as obj.name for obj in Indicator.timelines">
+                    <option value="">None</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="control-label col-md-3 no-padding-right">Source of Report</label>
+
+                  <div class="col-md-9">
+                    <select class="col-md-8" id="" ng-model="indicator.source_of_report" ng-options="obj.name as obj.name for obj in Indicator.sourceOfReport">
+                    <option value="">None</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="control-label col-md-3 no-padding-right">Target of Activity</label>
+
+                  <div class="col-md-9">
+                    <select class="col-md-8" id="" ng-model="indicator.target_of_attack" ng-options="obj.name as obj.name for obj in Indicator.targetOfAttack">
+                    <option value="">None</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="control-label col-md-3 no-padding-right">Target Scope</label>
+
+                  <div class="col-md-9">
+                    <select class="col-md-8" id="" ng-model="indicator.target_scope" ng-options="obj.name as obj.name for obj in Indicator.targetScope">
+                    <option value="">None</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="control-label col-md-3 no-padding-right">Actor Attribution</label>
+
+                  <div class="col-md-9">
+                    <select class="col-md-8" id="" ng-model="indicator.actor_attribution" ng-options="obj.name as obj.name for obj in Indicator.actorAttribution">
+                    <option value="">None</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="control-label col-md-3 no-padding-right">Actor Type</label>
+
+                  <div class="col-md-9">
+                    <select class="col-md-8" id="" ng-model="indicator.actor_type" ng-options="obj.name as obj.name for obj in Indicator.actorType">
+                    <option value="">None</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="control-label col-md-3 no-padding-right">Modus Operandi</label>
+
+                  <div class="col-md-9">
+                    <select class="col-md-8" id="" ng-model="indicator.modus_operandi" ng-options="obj.name as obj.name for obj in Indicator.modusOperandi">
+                    <option value="">None</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <confidence-new ng-show="can('set_confidence_level')" object='indicator'></confidence-new>
+
+          <acs-associate-form sets="sets" object=indicator objecttype="Indicator" disable-save=is_saving editform=editform></acs-associate-form>
+
+
+          <div class="widget-container-col">
+            <observable-select observable-types="observableTypes" observables="indicator.observables" link-an-observable="linkAnObservable" unlink-an-observable="unlinkAnObservable" ng-show='indicator.indicator_type'></observable-select>
+          </div>
+
+          <div class="widget-container-col ui-sortable">
+            <div class="clearfix form-actions">
+              <span ng-show="is_saving">
+                      <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+              </span>
+              <button ng-disabled="is_saving" id="save_button" class="btn btn-info pull-right ciap_mleft_12" type="button" ng-click="current_page = current_page + 1">
+                <i class="fa fa-arrow-right"></i>
+                Next
+              </button>
+              <button class="btn btn-default pull-right" type="button" ng-click="cancel()" ng-disabled="is_saving">
+                <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End Part 1 -->
+      <div class="widget-body" ng-show="current_page == 1">
+        <div class="widget-main">
+          <div>
+            <div class="widget-header widget-header-small">
+              <h4 class="widget-title blue smaller">
+                <i class="ace-icon fa fa-tasks orange"></i>
+                Attached TTPs
+              </h4>
+            </div>
+
+            <div class="space-6"></div>
+
+            <div class="width-90 center-block" ng-show="indicator.ttps.length">
+              <div class="ciap_table_scroll_500">
+                <ol class="dd-list">
+                  <li class="dd-item" ng-repeat="ttp in indicator.ttps">
+                    <div class="dd-handle">
+                      <a href="#/ttps/{{ttp.stix_id}}">{{ttp.stix_id | prefixWithPortionMarking: ttp.portion_marking}}</a>
+                      <div class="pull-right action-buttons">
+                        <a class="red" href="" ng-click="removeTtp(ttp)">
+                          <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+          <div ng-hide="indicator.ttps.length">
+            No Attached TTPs
+          </div>
+
+          <ttp-browser selected_ttps="indicator.ttps" classification-direction="down"></ttp-browser>
+
+          <div class="widget-container-col ui-sortable">
+            <div class="clearfix form-actions">
+              <span ng-show="is_saving">
+                      <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+              </span>
+              <button ng-disabled="is_saving" id="save_button" class="btn btn-info pull-right ciap_mleft_12" type="button" ng-click="start_save()">
+                <i class="fa fa-check"></i>
+                Save
+              </button>
+              <button class="btn btn-warning pull-right ciap_mleft_12" type="button" ng-click="current_page = current_page - 1" ng-disabled="is_saving">
+                <i class="ace-icon fa fa-arrow-left bigger-110"></i> Back
+              </button>
+              <button class="btn btn-default pull-right" type="button" ng-click="cancel()" ng-disabled="is_saving">
+                <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End Part 2 -->
+    </div>
+  </div>
+
+</form>

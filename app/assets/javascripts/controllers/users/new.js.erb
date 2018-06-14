@@ -1,0 +1,42 @@
+app.controller('UsersNewController', ['$scope','$location','$rootScope','Restangular',
+  function ($scope, $location, $rootScope, Restangular) {
+    $scope.user={};
+    $scope.user.groups=[];
+    Restangular.one('/groups').get().then(function(data){
+      $scope.unselected_groups = data;
+      $scope.heightStyle={ 'min-height' : (data.length*31+6)+'px' };
+      $rootScope.breadcrumbs = [
+                                 {text:'Home',link:'#/',icon:'fa-home'},
+                                 {text:'Users',link:'#/users',icon:'fa-group'},
+                                 {text:'New user',link:'#/users/new'}
+                               ];
+    },function(res){
+        toastr.error("Unable to fetch Groups");
+    });
+    Restangular.all('/organizations').getList().then(function(data){
+      $scope.organizations = data;
+    });
+    $scope.save = function(user){
+      if (user.organization){ user.organization_guid = user.organization.guid; }
+      var group_ids=_.map(user.groups,function(p) {
+        return p.id;
+      });
+      user.group_ids=group_ids;
+      Restangular.all('/users').post(user).then(function(data){
+        toastr.success('New user created');
+        $location.path('/users/'+data.id);
+      },function(res){
+        toastr.error("Unable to create user");
+        $scope.error=res.data.errors;
+        $("html, body").animate({ scrollTop: 0 }, 200);
+      });
+    };
+    $scope.list_options = {
+                            placeholder: "sortable-placeholder",
+                            connectWith: ".sortable-container"
+                          };
+    $scope.cancel = function() {
+      $location.path('/users');
+    };
+  }
+]);

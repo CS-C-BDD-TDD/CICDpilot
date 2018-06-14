@@ -1,0 +1,15 @@
+<cybox:Object id="<%= socket_address.cybox_object_id %>">
+  <cybox:Properties xsi:type="SocketAddressObj:SocketAddressObjectType">
+    <% socket_address.addresses.each do |address| %>
+      <SocketAddressObj:IP_Address object_reference="<%= address.cybox_object_id %>"></SocketAddressObj:IP_Address>
+    <% end %>
+
+    <% socket_address.hostnames.each do |hostname| %>
+      <SocketAddressObj:Hostname object_reference="<%= hostname.cybox_object_id %>"></SocketAddressObj:Hostname>
+    <% end %>
+
+    <% socket_address.ports.each do |port| %>
+      <SocketAddressObj:Port object_reference="<%= port.cybox_object_id %>"></SocketAddressObj:Port>
+    <% end %>
+  </cybox:Properties>
+</cybox:Object>

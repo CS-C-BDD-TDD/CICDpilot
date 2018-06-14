@@ -1,0 +1,20 @@
+app.directive('confidenceNew', function(){
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("confidence/new.html",type: :template)%>',
+        scope: {object: '='},
+        controller: ['$scope', '$rootScope','Confidence', function($scope, $rootScope, Confidence){
+            $scope.can = $rootScope.can
+            $scope.canAny = $rootScope.canAny
+            $scope.values = Confidence.values;
+            $scope.changeConfidence = false;
+
+            $scope.$watch("object", function(newVal,oldVal){
+                if (angular.isDefined($scope.object)){
+                    $scope.object.confidences_attributes = [{}];
+                    $scope.object.confidences_attributes[0].source = 'US-CERT';
+                }
+            });
+        }]
+    };
+});

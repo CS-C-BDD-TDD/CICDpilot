@@ -1,0 +1,49 @@
+  address: 127.0.0.1 # set to '*' to bind to all interfaces
+  port: 3000 # port where Trinidad is running
+  http: # HTTP connector setup
+    acceptCount: 100
+    maxThreads: 200
+    maxKeepAliveRequests: 100
+    # @see https://github.com/trinidad/trinidad/wiki/HTTP-Connector
+  #ssl: # SSL configuration
+    #port: 3443
+    #keystore: $JAVA_HOME/jre/lib/security/cacerts
+    #keystorePass: changeit
+    # @see https://github.com/trinidad/trinidad/wiki/Secure-Socket-Layer
+  #ajp: # AJP configuration
+    #port: 8009
+    # @see https://github.com/trinidad/trinidad/wiki/AJP-Configuration
+  #apps_base: # directory where several applications are located
+  #
+  # Begin: Configuration options that can be overrided per web-application
+  #
+  #environment: production # specify with `trinidad -e production`
+  threadsafe: true # overrides config.threadsafe! detection
+  #jruby_min_runtimes: 1 # min number of JRuby runtimes to use
+  #jruby_max_runtimes: 1 # max number of JRuby runtimes to use
+  #jruby_compat_version: 1.9 # or 1.8 by default uses the same as trinidad is running
+  context_path: /cyber-indicators # default context path
+  root_dir: "." # system path where the application is located, by default is PWD
+  #rackup: config.ru # rackup script if you are running a (non-Rails) Rack application
+  public: public # system path (relative to root) where your public files are located
+  # If you do not put a web-server in front of Trinidad you might tune asset caching :
+  #public: 
+  #  root: public # same as the above "public: public" setting
+  #  aliases: # allows to "link" other directories into the public root e.g. :
+  #    /home: /var/local/www
+  #  cached: true # enable (in-memory) asset caching on for env != 'development'
+  #  cache_ttl: 5000 # cache TTL in millis (might want to increase this)
+  #  cache_max_size: 10240 # the maximum cache size in kB
+  #  cache_object_max_size: 512 # max size for a cached object (asset) in kB
+  java_lib: ./lib # directory where libraries packed as jars can be found
+  #java_classes: lib/java/classes # directory where compiled java classes can be found
+  #default_web_xml: config/trinidad-web.xml # if you are using a custom web.xml
+  reload_strategy: default # alternatively you might use "rolling"
+  #
+  # End: Configuration options that can be overrided per web-application
+  #
+  extensions: # if you are using any Trinidad extension
+    #daemon: # sample daemon extension
+      #pid_file: # pid file
+      #jvm_args: # additional arguments for the thread that runs the daemon
+  #

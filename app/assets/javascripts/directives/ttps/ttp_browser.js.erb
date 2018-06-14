@@ -1,0 +1,107 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('ttpBrowser', function(){
+  return {
+    restrict: 'E',
+    scope: {
+      selectedTtps: '=',
+      selectOnly: '@',
+      classificationDirection: '@?'
+    },
+    templateUrl: '<%=asset_path("ttps/ttp_browser.html",type: :template)%>',
+    controller: ['$scope','$rootScope','Restangular','CiapCommon','Marking', function($scope,$rootScope,Restangular,CiapCommon,Marking) {
+      $scope.CiapCommon = CiapCommon;
+      $scope.q = '';
+      $scope.metadata = { total_count: 0 };
+
+      $scope.sortOptions = {
+        'stix_id' : 'asc',
+        'created_at' : 'asc',
+        'updated_at' : 'asc'
+      };
+
+      if (angular.isUndefined($scope.offset)) {
+        $scope.offset = 0;
+      }
+      if (angular.isUndefined($scope.amount)) {
+        $scope.amount = $rootScope.setting_value('DEFAULT_MAX_RECORDS');
+      }
+
+      $scope.startSearch = function() {
+        $scope.offset=0;
+        $scope.searchTtps($scope.offset);
+      }
+
+      $scope.searchTtps = function() {
+        $scope.fetching = true;
+        var curr_obj = CiapCommon.fetch_markings_object_from_scope($scope);
+        var curr_markings = curr_obj.stix_markings_attributes;
+        if (!$rootScope.is_undefined_or_null(curr_obj.acs_set_id)){
+          Restangular.one('acs_sets').get({id: curr_obj.acs_set_id}).then(function(data){
+            // set it equal to the existing markings
+            if (angular.isDefined(data.stix_markings)){
+              curr_markings = data.stix_markings;
+            }
+            getTtpList(curr_markings);
+          },function(res){
+              toastr.error("Unable to load ACS Set Markings");
+          });
+        } else {
+          getTtpList(curr_markings);
+        }        
+      };
+
+      function getTtpList(current_markings){
+        var classification_limit = Marking.get_classification_attributes(current_markings);
+        Restangular.one('/ttps').get({
+          q: $scope.q,
+          classification_limit: $scope.classificationDirection == "down" ? classification_limit : null,
+          classification_greater: $scope.classificationDirection == "up" ? classification_limit : null
+        }).then(
+          function(data){
+            $scope.ttps = data.ttps;
+            $scope.fetching = false;
+        },
+          function(res){
+            toastr.error("Unable to load Ttps");
+            $scope.fetching = false;
+          }
+        );
+      }
+
+      $scope.disabled = function(ttp) {
+         if ($scope.checked(ttp) && $scope.selectOnly) {
+             return true;
+         }
+         return false;
+      }
+
+      $scope.checked = function(ttp){
+        return _.findIndex($scope.selectedTtps, function(t){return t.stix_id == ttp.stix_id;}) > -1;
+      };
+
+      $scope.sort = function(method) {
+        Restangular.one('/ttps').get({q: $scope.q,column: method, direction: $scope.sortOptions[method]}).then(function(data){
+          $scope.ttps = data.ttps;
+          if ($scope.sortOptions[method] == 'asc') {
+            $scope.sortOptions[method] = 'desc';
+          }
+          else if ($scope.sortOptions[method] == 'desc') {
+            $scope.sortOptions[method] = 'asc';
+          }
+        });
+      }
+
+      $scope.selectTtp = function(ttp,$event) {
+        var checkbox = $event.target;
+        if (checkbox.checked){
+          if (_.findIndex($scope.selectedTtps, function(t){return t.stix_id == ttp.stix_id}) == -1){
+            $scope.selectedTtps.push(ttp);
+          }
+        } else {
+          $scope.selectedTtps = _.filter($scope.selectedTtps, function(t){return t.stix_id != ttp.stix_id});
+        }
+      };
+    }]
+  };
+});

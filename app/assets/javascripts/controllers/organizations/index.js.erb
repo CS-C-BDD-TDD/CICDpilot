@@ -1,0 +1,9 @@
+app.controller('OrganizationsIndexController', ['$scope','$rootScope','Restangular',
+  function ($scope, $rootScope, Restangular) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Organizations',link:'#/organizations',icon:'fa-user'}];
+    $scope.fetching = true;
+    Restangular.all('/organizations').getList().then(function(data){
+      $scope.organizations = data;
+      $scope.fetching = false;
+    });
+}]);

@@ -1,0 +1,94 @@
+app.controller('HumanReviewIndexController',
+        ['$scope','$rootScope','$routeParams','Restangular',
+            function ($scope, $rootScope,$routeParams, Restangular) {
+                $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'}];
+                $scope.can = $rootScope.can;
+                $scope.fetching = true;
+                Restangular.one('human_reviews').get().then(
+                   function(data){
+                       $scope.human_reviews = data.human_reviews;
+                       $scope.metadata = data.metadata;
+                       $scope.offset = 0;
+                       $scope.amount = $scope.metadata.limit || $rootScope.setting_value('DEFAULT_MAX_RECORDS');
+                       $scope.fetching = false;
+                       $rootScope.updateHRCount();
+                   }
+                );
+
+                // Cleanup
+                $scope.$on('$destroy', function() {
+                  $('.daterangepicker').remove();
+                });
+      
+                $scope.dateRangePicker = function(picker) {
+                    $scope.date_picker_object = picker;
+                    $scope.offset=0;
+                    $scope.getHumanReviews(0);
+                };
+
+                $scope.open = function($event) {
+                    $event.preventDefault();
+                    $event.stopPropagation();
+                };
+
+                $scope.date_picker_opts = {
+                    defaultRanges: true
+                };
+
+                $scope.sortOptions = {
+                    'decided_at' : 'desc',
+                    'created_at' : 'desc',
+                    'status' : 'desc',
+                    'file_name': 'desc'
+                };
+                $scope.sortMethod = '';
+
+                $scope.sort = function(method) {
+                    $scope.sortMethod = method;
+                    $scope.sortOptions[method]=($scope.sortOptions[method]=='desc')?'asc':'desc';
+                    $scope.offset=0;
+                    $scope.getHumanReviews($scope.offset);
+                };
+
+                $scope.getHumanReviews = function(offset) {
+                    if (angular.isDefined(offset)){
+                        $scope.offset = offset
+                    }
+
+                    Restangular.one("human_reviews").get({
+                        ebt: $scope.date_picker_object.getStartDate(),
+                        iet: $scope.date_picker_object.getEndDate(),
+                        column: $scope.sortMethod,
+                        direction: $scope.sortOptions[$scope.sortMethod],
+                        amount: $scope.amount,
+                        offset: $scope.offset
+                    }).then(
+                            function(data){
+                                $scope.human_reviews = data.human_reviews;
+                                $scope.metadata = data.metadata;
+                                $scope.fetching = false;
+                            },
+                            function(res){
+                                $scope.human_reviews = null;
+                                $scope.metadata={total_count: 0};
+                                toastr.error("Unable to load Human Reviews");
+                                $scope.fetching = false;
+                            }
+                    );
+
+                    $rootScope.updateHRCount();
+                };
+
+                $scope.save = function(index) {
+                    Restangular.one('human_reviews',$scope.human_reviews[index].id).customPUT($scope.human_reviews[index]).then(function(data){
+                        $scope.human_reviews[index] = data;
+                        toastr.success('Human Review of File '+ data.uploaded_file.file_name +  ' Completed')
+                    },function(res){
+                        $scope.human_reviews[index].status = 'N';
+                        toastr.error("Unable to save Human Review");
+                        toastr.error(res.data.errors.join(', '));
+                    });
+                }
+            }
+        ]
+);

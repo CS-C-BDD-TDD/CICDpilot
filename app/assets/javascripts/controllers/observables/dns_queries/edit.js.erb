@@ -1,0 +1,21 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('DnsQueriesEditController', ['$scope','$routeParams','Restangular','$rootScope','$location','Marking', 
+    function($scope,$routeParams,Restangular,$rootScope,$location,Marking) {
+        Restangular.one('/dns_queries/'+$routeParams.id).get().then(function(data){
+            $scope.dns_query = Marking.translate_existing_attributes(data);
+            
+            $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'DNS Query',link:'#/dns_queries',icon:'fa-group'},{text:$scope.dns_query.cybox_object_id,link:'#/dns_queries/'+encodeURIComponent(data.cybox_object_id)}];
+        },function(res){
+            toastr.error("Unable to load DNS Query");
+        });
+
+        $scope.cancel = function() {
+            $location.path('/dns_queries/'+$routeParams.id);
+        };
+
+        $scope.failed = function() {
+            $("html, body").animate({ scrollTop: 0 }, 200);
+        }
+    }
+]);

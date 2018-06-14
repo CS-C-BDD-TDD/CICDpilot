@@ -1,0 +1,61 @@
+<div class="widget-box widget-color-blue ui-sortable-handle" ng-show="audits.length > 0">
+  <div class="widget-header fake-link" ng-click="showTable = !showTable">
+    <h5 class="widget-title bigger lighter">
+      <span tooltip="Show/Hide Table">
+        <i class="ace-icon fa fa-history"></i>
+        Audit History
+      </span>
+      <span class="ace-icon ciap_fa_icon_sm fa-stack ciap_pleft_6" tooltip="Not Exportable Field">
+      	<i class="fa fa-ban fa-stack-2x"> </i> 
+ 		<i class="fa fa-download fa-stack-1x"> </i> 
+      </span>
+    </h5>
+  </div>
+  <div class="widget-body" ng-show="showTable">
+    <div class="widget-main no-padding">
+      <table class="table table-bordered" >
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Type</th>
+            <th>Message</th>
+            <th>User</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="(id, audit) in audits">
+          <td>{{audit.event_time | date:'medium'}}</td>
+          <td>{{audit.audit_type}}</td>
+          <td>
+            <span ng-show="audit.details || audit.justification">
+              <a class="fake-link" ng-click="is_open[id] = !is_open[id]">
+                <i class="fa" ng-class="{'fa-plus-square-o': !is_open[id], 'fa-minus-square-o': is_open[id]}" style="font-size: 1.5em;"></i>
+              </a>
+            </span>
+            {{audit.message}}
+            <div ng-show="is_open[id]">
+              <div>
+                <span ng-show="audit.details && audit.audit_type == 'upload'"><a target="_blank" ng-href="/cyber-indicators/show_xml/{{ audit.details }}">Original XML</a></span>
+              </div>
+              <div>
+                <span ng-show="audit.details && audit.audit_type == 'upload'"><a target="_blank" ng-href="/cyber-indicators/show_xml/{{ audit.details }}?human_review=true">Transmitted XML</a></span>
+              </div>
+              <div ng-show="audit.details && audit.audit_type != 'upload'">
+                {{audit.details}}
+              </div>
+              <div ng-show="audit.justification">
+                Justification: {{audit.justification}}
+              </div>
+            </div>
+          </td>
+          <td ng-show="audit.user">
+            <span ng-show="canAny(['create_modify_user_organization','view_user_organization'])"><a ng-href="#/users/{{audit.user.id}}">{{audit.user.username}}</a></span>
+            <span ng-hide="canAny(['create_modify_user_organization','view_user_organization'])">{{audit.user.username}}</span>
+          </td>
+          <td ng-hide="audit.user">system</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

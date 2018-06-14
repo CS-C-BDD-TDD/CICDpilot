@@ -1,0 +1,63 @@
+<style>
+  .selected {
+    font-weight: bold;
+    background: #eeeeee;
+  }
+
+  .full-width {
+    width: 100%;
+  }
+</style>
+
+<div class="form-group">
+  <label class="col-sm-3 control-label no-padding-right">
+    System Tags
+    <span class="ace-icon ciap_fa_icon_sm fa-stack ciap_tooltip_150min" tooltip="Not Exportable Field">
+      	<i class="fa fa-ban fa-stack-2x"> </i> 
+ 		<i class="fa fa-download fa-stack-1x"> </i> 
+    </span>
+  </label>
+
+  <div class="col-sm-9">
+    <div class="inline full-width">
+      <div class="tags full-width">
+        <span class='label label-margin' 
+          ng-class="tag.type" 
+              ng-repeat="tag in indicator.system_tags " ng-show="indicator">
+            {{tag.name}}
+            <button class="close-label" 
+                    type="button" 
+                    ng-click="onRemoveClick(tag)">x</button>
+        </span>
+
+        <span class='label label-margin' ng-class="tag.type" ng-repeat="tag in selectedtags" ng-show="selectedtags">
+            {{tag.name}}
+            <button class="close-label" 
+                    type="button" 
+                    ng-click="onRemoveClick(tag)">x</button>
+        </span>  
+
+        <input ng-model="tagName" 
+               ng-change="onChange(tagName)"
+               ng-keyup="onKeyup($event)"
+               ng-model-options="{debounce: 250}"
+               ng-blur="blur()"
+               type="text"
+               style="width: 100%">
+        </input>
+
+
+        <ul class="dropdown-menu typeahead" style="left: 18.8px; display: block" ng-hide="!suggestions.length">
+          <li ng-repeat="suggestion in suggestions " 
+              ng-class="{selected: $index==suggestionsIndex}"
+              ng-mouseover="updateSuggestionByMouse($index)"
+              ng-mousedown="stopBlur()"
+              ng-mouseup="onAddClick(suggestion)"
+              style="cursor: pointer">
+            {{suggestion.name}}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

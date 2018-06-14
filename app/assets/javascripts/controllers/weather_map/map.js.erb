@@ -1,0 +1,8 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('WeatherMapVizController', ['$scope','$rootScope','Restangular',
+  function ($scope, $rootScope, Restangular) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'}];
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Weather Map',link:'#/weathermapviz',icon:'fa-thumb-tack'}];
+    $scope.current_user = $rootScope.current_user;
+}]);

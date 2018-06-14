@@ -1,0 +1,17 @@
+<% confidences = confidences.select {|c| c.is_official} %>
+<% if confidences.present? %>
+    <<%= type %>:Confidence timestamp="<%= confidences.first.stix_timestamp.try(:to_atom) %>">
+    <% confidence = confidences.first %>
+    <%= render partial: 'confidences/attributes.stix.erb', locals: {confidence: confidence}  %>
+    <% confidences = confidences.values_at(1..confidences.length-1) %>
+    <% if confidences.present? %>
+        <stixCommon:Confidence_Assertion_Chain>
+        <% confidences.each do |confidence| %>
+            <stixCommon:Confidence_Assertion timestamp="<%= confidence.stix_timestamp.try(:to_atom) %>">
+                <%= render partial: 'confidences/attributes.stix.erb', locals: {confidence: confidence} %>
+            </stixCommon:Confidence_Assertion>
+        <% end %>
+        </stixCommon:Confidence_Assertion_Chain>
+    <% end %>
+    </<%= type %>:Confidence>
+<% end %>

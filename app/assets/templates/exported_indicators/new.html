@@ -1,0 +1,46 @@
+<div class='widget-box' ng-class="showHeader ? '' : 'no-border'">
+    <div class="widget-header" ng-show="showHeader">
+        <h5 class="widget-title">Export Indicator</h5>
+    </div>
+    <div class="widget-body ">
+        <div class="widget-main">
+            <form class="form-horizontal">
+                <div class='form-group' tooltip="Destination System for Indicator to be exported to">
+                    <label class="col-md-2 control-label no-padding-right">System *</label>
+                    <div class="col-md-10">
+                        <select class="col-sm-10 col-xs-10 pull-right" ng-model="exported_indicator.system" ng-options="s for s in Indicator.exportable_systems(indicator) track by s.toLowerCase()">
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" tooltip="TLP Color for Indicator on Export">
+                    <label class="control-label col-md-2 no-padding-right">Color *</label>
+                    <div class="col-md-10">
+                        <select class="col-sm-10 pull-right" ng-model="exported_indicator.color">
+                            <option ng-repeat="color in getColors(indicator)" value="{{color}}"
+                                style="background-image: url('{{Color.imagePath(color)}}');
+                                background-repeat: no-repeat;
+                                background-position: left;
+                                padding-left:40px">
+                                {{Color.displayText(color)}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class='form-group' tooltip="Description/Justification for Export">
+                    <label class="col-md-2 control-label no-padding-right">Justification</label>
+                    <div class="col-md-10">
+                        <textarea class="col-sm-10 col-xs-10 pull-right" ng-model="exported_indicator.description">
+                        </textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions" style="background-color: #ffffff">
+                    <button ng-disabled="is_saving" class="btn btn-info pull-right" type="button" ng-click="save(exported_indicator)" data-dismiss="modal">
+                        <i class="fa fa-check"></i>
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

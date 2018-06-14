@@ -1,0 +1,210 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('fieldMarkingsForm',function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("markings/field-markings-form.html",type: :template)%>',
+    scope: {
+      object: '=',
+      sets: '=',
+      fieldname: '@',
+      fieldtext: '=?'
+    },
+    controller: ['$scope', '$rootScope', 'Marking', 'Restangular', function($scope,$rootScope,Marking,Restangular){
+      $scope.show_classifications = $rootScope.setting_value('CLASSIFICATION');
+      $scope.toggler = 0;
+      // init existing index
+      $scope.existing_index = {index: -3};
+      $scope.marking_sets = [];
+      $scope.disablesave = false;
+      $scope.editform = false;
+
+      var initializer = $scope.$watch("object", function() {
+        if (angular.isDefined($scope.object)) {
+          $scope.existing_index.index = find_field_attributes_index();
+          
+          initializer();
+        }
+      });
+
+      // Try to find the existing marking attributes.
+      function find_field_attributes_index(){
+        if (angular.isDefined($scope.object) && angular.isDefined($scope.object.stix_markings_attributes)){
+          for (var i = 0; i < $scope.object.stix_markings_attributes.length; i++){
+            if (angular.isDefined($scope.object.stix_markings_attributes[i]) && angular.isDefined($scope.object.stix_markings_attributes[i].remote_object_field) && $scope.object.stix_markings_attributes[i].remote_object_field != null && $scope.object.stix_markings_attributes[i].remote_object_field == $scope.fieldname && $scope.object.stix_markings_attributes[i]._destroy != "1"){
+              return i;
+            }
+          }
+        }
+        return -1;
+      }
+
+      $scope.get_field_id = function(){
+        return "id_" + $scope.fieldname + "_" + $scope.$id;
+      }
+
+      /* 
+
+      This watch is needed to be written like this so 
+      recursive firing doesn't happen.  
+      We unwatch the function while changing anything. 
+      Then immediately rewatch it. 
+      This works because listener function is called asynchronously
+      */
+      $scope.buildMarkings = function(){
+        $scope.toggler += 1;
+        $scope.object = Marking.translate_existing_attributes($scope.object);
+
+        // ensure we are on the correct index.
+        $scope.existing_index.index = find_field_attributes_index();
+
+        // need to make sure the custom flag is set.
+        if (angular.isDefined($scope.existing_index) && $scope.existing_index.index > -1 && angular.isDefined($scope.object) && angular.isDefined($scope.object.stix_markings_attributes) && angular.isDefined($scope.object.stix_markings_attributes[$scope.existing_index.index]) && $scope.object.stix_markings_attributes[$scope.existing_index.index].custom != true){
+          $scope.object.stix_markings_attributes[$scope.existing_index.index].custom = true;
+        }
+        // field level markings logic.
+        if(angular.isDefined($scope.object)){
+          if(_.isEmpty($scope.object)){
+            if(angular.isDefined($scope.existing_index)){
+              $scope.existing_index.index = -3;
+            }
+          }
+
+          if(angular.isDefined($scope.object.stix_markings_attributes)){
+            if (angular.isDefined($scope.existing_index.index) && $scope.existing_index.index <= 0){
+              $scope.existing_index.index = find_field_attributes_index();
+              if ($scope.existing_index.index > 0){
+                $scope.object.stix_markings_attributes[$scope.existing_index.index].custom = true;
+              }
+            }
+
+            // If it exists use it. 
+            if ($scope.existing_index.index > -1 && angular.isDefined($scope.object.stix_markings_attributes[$scope.existing_index.index])){
+              $scope.object.stix_markings_attributes[$scope.existing_index.index].custom = true;
+
+              if (angular.isDefined($scope.object.stix_markings_attributes[$scope.existing_index.index].id)){
+                $scope.editform = true;
+              }
+              return;
+            //Else build the stix marking attributes
+            } else {
+              $scope.existing_index.index = $scope.object.stix_markings_attributes.length;
+              
+              $scope.object.stix_markings_attributes[$scope.existing_index.index] = {
+                isa_marking_structure_attributes: Marking.build_default_isa_marking(), 
+                isa_assertion_structure_attributes: Marking.build_default_isa_assertion()
+              };
+
+              // If the object level attributes exist, set the field level attributes to match
+              var obj_level_index = _.findIndex($scope.object.stix_markings_attributes, function(sm){
+                return sm.remote_object_field == null && angular.isDefined(sm.isa_assertion_structure_attributes);
+              });
+              
+              if (angular.isDefined($scope.object.stix_markings_attributes[obj_level_index])){
+                $scope.object.stix_markings_attributes[$scope.existing_index.index] = Marking.translate_existing_markings($scope.object.stix_markings_attributes[$scope.existing_index.index], $scope.object.stix_markings_attributes[obj_level_index]);
+              }
+
+              if ($scope.object.acs_set_id != null){
+                var saved_markings = $scope.marking_sets.find(function(markings_set){
+                  return $scope.object.acs_set_id == markings_set.guid;
+                });
+                if (saved_markings == null){
+                  Restangular.one('acs_sets').get({id: $scope.object.acs_set_id}).then(function(data){
+                    // add the acs_set into the markings_set to cache;
+                    $scope.marking_sets.push(data);  
+                    // set it equal to the existing markings
+                    if (angular.isDefined(data.stix_markings)){
+                      $scope.object.stix_markings_attributes[$scope.existing_index.index] = Marking.translate_acs_markings($scope.object.stix_markings_attributes[$scope.existing_index.index], data.stix_markings[0]);
+                    }
+                  },function(res){
+                      toastr.error("Unable to load ACS Set Markings");
+                  });
+                } else {
+                  if (angular.isDefined(saved_markings.stix_markings)){
+                    $scope.object.stix_markings_attributes[$scope.existing_index.index] = Marking.translate_acs_markings($scope.object.stix_markings_attributes[$scope.existing_index.index], saved_markings.stix_markings[0]);
+                  }
+                }
+                
+              }
+
+              $scope.object.stix_markings_attributes[$scope.existing_index.index].remote_object_field = $scope.fieldname;
+              $scope.object.stix_markings_attributes[$scope.existing_index.index].setup = true;
+              $scope.object.stix_markings_attributes[$scope.existing_index.index].custom = true;
+            }
+          }
+        }
+      }
+
+      $scope.cancel = function(){
+        $scope.toggler += 1;
+      }
+
+      $scope.save = function(){
+        var stix_markings = $scope.object.stix_markings_attributes[$scope.existing_index.index];
+
+        if ($rootScope.is_undefined_or_null(stix_markings.stix_id)){
+          // if we are saving we need to set id + type on our new sm object
+          // get the object level marking so we can get the remote object id + type
+          var object_markings = _.find($scope.object.stix_markings_attributes, function(sm){
+            return sm.remote_object_field == null;
+          });
+
+          stix_markings.remote_object_id = object_markings.remote_object_id;
+          stix_markings.remote_object_type = object_markings.remote_object_type;
+
+          promise = Restangular.all("stix_markings").post(stix_markings);
+          save_text = "save";
+        } else {
+          promise = Restangular.one("stix_markings/" + stix_markings.stix_id).customPUT(stix_markings);
+          save_text = "update";
+        }
+
+        promise.then(
+          function(data){
+            toastr.success("Stix Marking "+save_text+"d");
+            // remove the old one too so users dont get confused about why there is two
+            _.remove($scope.object.stix_markings, function(sm) {return sm.stix_id == data.stix_id});
+            _.remove($scope.object.stix_markings_attributes, function(sm) {return sm.stix_id == data.stix_id || sm.remote_object_field == data.remote_object_field});
+
+            // add the stix markings to the stix markings array so the views will come up.  we don't need to do anything else since next time the page is rendered it'll come up anyways.
+            $scope.object.stix_markings.push(data);
+            $scope.object.stix_markings_attributes.push(data);
+
+            // reset the index now that we pushed new data
+            $scope.existing_index.index = find_field_attributes_index();
+
+            $scope.is_saving = false;
+            $scope.toggler += 1;
+          },
+          function(res){
+            toastr.error("Unable to "+save_text+" Stix Marking");
+            
+            $rootScope.show_res_errors(res);
+            
+            $scope.is_saving = false;
+          }
+        );
+      }
+
+      $scope.deleteFieldMarkings = function(){
+        var markings_obj = _.find($scope.object.stix_markings, {remote_object_field: $scope.fieldname}) || (angular.isDefined($scope.fieldname) && $scope.fieldname == 'field_rep_obj');
+        
+        if (angular.isDefined(markings_obj.stix_id)){
+          Restangular.one("stix_markings/" + markings_obj.stix_id).remove().then(function(data){
+            _.remove($scope.object.stix_markings, function(m) { return m.stix_id == markings_obj.stix_id});
+            _.remove($scope.object.stix_markings_attributes, function(m) { return m.stix_id == markings_obj.stix_id});
+            $scope.existing_index.index = -1;
+
+            $scope.editform = false;
+            toastr.success("Markings deleted");
+          },function(res){
+            toastr.error("Could not remove Stix Marking");
+            $rootScope.show_res_errors(res);
+          });
+        }
+        
+      }
+
+    }]
+  };
+});

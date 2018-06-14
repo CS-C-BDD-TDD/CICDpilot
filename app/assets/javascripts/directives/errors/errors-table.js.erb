@@ -1,0 +1,31 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('errorsTable',function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("uploads/errors-table.html",type: :template)%>',
+    scope: {
+      errors: '=',
+      tlabel: '='
+    },
+    controller: ['$scope', function($scope){
+      $scope.parsed_errors = {};
+      $scope.showTable = true;
+
+      var initializer = $scope.$watch("errors",function(newVal,OldVal){
+        if(!angular.equals(newVal, OldVal)) {
+          if (angular.isDefined($scope.errors)){
+            _.each($scope.errors, function(error){
+              if (angular.isDefined($scope.parsed_errors[error])){
+                $scope.parsed_errors[error] += 1
+              } else {
+                $scope.parsed_errors[error] = 1
+              }
+            });
+          }
+        }
+      });
+
+    }]
+  };
+});

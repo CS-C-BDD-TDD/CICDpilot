@@ -1,0 +1,6 @@
+<%- headers = ['STIX ID', 'Created at', 'Last Updated'] %>
+<%= raw CSV.generate_line addPortionMarkingToCSV(headers), :row_sep => '', :force_quotes => true %>
+<% @ttps.each do |t| %>
+  <%- row = [t.stix_id, t.created_at, t.updated_at] -%>
+<%= raw CSV.generate_line addPortionMarkingToCSV(nil, row, t), :row_sep => '', :force_quotes => true %>
+<% end %>

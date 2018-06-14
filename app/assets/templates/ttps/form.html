@@ -1,0 +1,325 @@
+<form class="form-horizontal" role="form">
+  <div class="col-md-12 col-sm-12 widget-container-col ui-sortable">
+    <div class="widget-box ui-sortable-handle">
+      <div class="widget-header">
+        <h5 class="widget-title">
+          TTP: {{ttp.stix_id}}
+        </h5>
+      </div>
+      <div class="widget-body" ng-show="page==1">
+        <div class="widget-main">
+
+          <div class="space-12"></div>
+
+          <acs-associate-form sets="sets" object=ttp objecttype="TTP" disable-save=is_saving editform=editform></acs-associate-form>
+
+          <div class="space-12"></div>
+
+          <div class="clearfix form-actions">
+            <span ng-show="is_saving">
+              <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+            </span>
+            <button ng-disabled="is_saving" class="btn btn-info pull-right ciap_mleft_12" type="button" ng-click="to_attack_pattern()">
+              <i class="fa fa-arrow-right"></i>
+              Next
+            </button>
+            <button class="btn btn-default pull-right" type="button" ng-click="cancel()" ng-disabled="is_saving">
+              <i class="ace-icon fa fa-times bigger-110"></i>
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="widget-body" ng-show="page==2">
+        <div class="widget-main">
+
+          <div ng-show="can('add_attack_patterns_to_ttps')">
+            <div>
+
+              <span class="pull-right">
+                <button ng-click="add_attack_pattern()" class="btn btn-sm btn-white btn-info">
+                  <i class="ace-icon fa fa-plus"></i>
+                  Add New Attack Pattern
+                </button>
+              </span>
+            </div>
+
+            <div class="space-32"></div>
+            <div style="margin-top: 20px" ng-repeat="attack_pattern in added_attack_patterns | filter:{_destroy: '!1'}" class="row">
+              <div class="col-lg-1 col-md-1"></div>
+              <div class="col-lg-10 col-md-10">
+                <div ng-class="{red: attack_pattern.validation_error==true}" class="row">
+                  <div class="col-lg-1 col-md-1 no-padding-right">
+                    <span class="badge badge-danger" style="margin-top: 8px" tooltip="Remove Attack Pattern">
+                      <a href="" class="fake-link center white" ng-click="remove_attack_pattern(attack_pattern)"> <i class="fa fa-remove"></i> </a>
+                    </span>
+                  </div>
+                  <attack-pattern-form attack-pattern="attack_pattern" save="false" editform="false"></attack-pattern-form>
+                </div>
+              </div>
+              <div class="col-lg-2 col-md-2"></div>
+              <div class="space-12 ciap_margin_060"></div>
+            </div>
+
+            <div class="space-12"></div>
+            <div>
+              <div class="widget-header widget-header-small ">
+                <h4 class="widget-title blue smaller"><i class="ace-icon fa fa-tasks orange"></i> Attached Attack Patterns </h4>
+              </div>
+              <div class="space-6"></div>
+
+              <div class="width-90 center-block" ng-show="ttp.attack_patterns.length">
+                <div class="ciap_table_scroll_500">
+                  <ol class="dd-list">
+                    <li class="dd-item" ng-repeat="attack_pattern in ttp.attack_patterns">
+                      <div class="dd-handle">
+                        <a ng-if="attack_pattern.title" ng-class="{red: attack_pattern.validation_error==true}" href="#/attack_patterns/{{attack_pattern.stix_id}}">{{attack_pattern.title | prefixWithPortionMarking: attack_pattern.portion_marking}}</a>
+                        <a ng-if="!attack_pattern.title" ng-class="{red: attack_pattern.validation_error==true}" href="#/attack_patterns/{{attack_pattern.stix_id}}">{{attack_pattern.capec_id | prefixWithPortionMarking: attack_pattern.portion_marking}}</a>
+                        <div class="pull-right action-buttons">
+                          <a class="red" href="" ng-click="editAttackPattern(attack_pattern)"> <i class="ace-icon fa fa-pencil bigger-130"></i> </a>
+                          <a class="red" href="" ng-click="removeAttackPattern(attack_pattern)"> <i class="ace-icon fa fa-trash-o bigger-130"></i> </a>
+                        </div>
+                      </div>
+                    </li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+            <!-- Add Attack Pattern Browser here -->
+            <div ng-hide="ttp.attack_patterns.length">
+              No Attack Patterns
+            </div>
+
+            <attack-pattern-browser selected-attack-patterns="ttp.attack_patterns" classification-direction="down"></attack-pattern-browser>
+
+            <div class="space-12"></div>
+          </div>
+
+          <div class="clearfix form-actions">
+            <span ng-show="is_saving">
+              <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+            </span>
+            <button ng-disabled="is_saving" class="btn btn-info pull-right ciap_mleft_12" type="button" ng-click="to_exploit_targets()">
+              <i class="fa fa-arrow-right"></i>
+              Next
+            </button>
+            <button class="btn btn-warning pull-right ciap_mleft_12" type="button" ng-click="page=1" ng-disabled="is_saving">
+              <i class="ace-icon fa fa-arrow-left bigger-110"></i>
+              Back
+            </button>
+            <button class="btn btn-default pull-right" type="button" ng-click="cancel()" ng-disabled="is_saving">
+              <i class="ace-icon fa fa-times bigger-110"></i>
+              Cancel
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="widget-body" ng-show="page==3">
+        <div class="widget-main">
+
+          <div class="space-12"></div>
+
+          <div ng-show="can('add_exploit_targets_to_ttps')">
+            <div>
+              <div class="widget-header widget-header-small ">
+                <h4 class="widget-title blue smaller"><i class="ace-icon fa fa-tasks orange"></i> Attached Exploit Targets </h4>
+              </div>
+              <div class="space-6"></div>
+
+              <div class="width-90 center-block" ng-show="ttp.exploit_targets.length">
+                <div class="ciap_table_scroll_500">
+                  <ol class="dd-list">
+                    <li class="dd-item" ng-repeat="exploit_target in ttp.exploit_targets">
+                      <div class="dd-handle">
+                        <a href="#/exploit_targets/{{exploit_target.stix_id}}">{{exploit_target.stix_id | prefixWithPortionMarking: exploit_target.portion_marking}}</a>
+                        <div class="pull-right action-buttons">
+                          <a class="red" href="" ng-click="removeExploitTarget(exploit_target)"> <i class="ace-icon fa fa-trash-o bigger-130"></i> </a>
+                        </div>
+                      </div>
+                    </li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+            <div ng-hide="ttp.exploit_targets.length">
+              No Exploit Targets
+            </div>
+
+            <exploit-target-browser selected-exploit-targets="ttp.exploit_targets" classification-direction="down"></exploit-target-browser>
+
+            <div class="space-12"></div>
+          </div>
+
+          <div class="clearfix form-actions">
+            <span ng-show="is_saving">
+              <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+            </span>
+            <button ng-disabled="is_saving" class="btn btn-info pull-right ciap_mleft_12" type="button" ng-click="to_suggested_packages()">
+              <i class="fa fa-arrow-right"></i>
+              Next
+            </button>
+            <button class="btn btn-warning pull-right ciap_mleft_12" type="button" ng-click="page=2" ng-disabled="is_saving">
+              <i class="ace-icon fa fa-arrow-left bigger-110"></i>
+              Back
+            </button>
+            <button class="btn btn-default pull-right" type="button" ng-click="cancel()" ng-disabled="is_saving">
+              <i class="ace-icon fa fa-times bigger-110"></i>
+              Cancel
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="widget-body" ng-show="page==4">
+        <div class="widget-main">
+
+          <!-- Attached Indicators -->
+
+          <div ng-show="can('add_ttp_to_indicators')">
+            <div>
+              <div class="widget-header widget-header-small ">
+                <h4 class="widget-title blue smaller">
+                  <i class="ace-icon fa fa-tasks orange"></i>
+                  Attached Indicators
+                </h4>
+              </div>
+              <div class="space-6"></div>
+
+              <div class="width-90 center-block" ng-show="ttp.indicators.length">
+                <div class="ciap_table_scroll_500">
+                  <ol class="dd-list">
+                    <li class="dd-item" ng-repeat="indicator in ttp.indicators">
+                      <div class="dd-handle">
+                        <a href="#/indicators/{{indicator.stix_id}}">{{indicator.title | prefixWithPortionMarking: indicator.portion_marking:indicator.title_c}}</a>
+                        <div class="pull-right action-buttons">
+                          <a class="red" href="" ng-click="removeIndicator(indicator)">
+                            <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                          </a>
+                        </div>
+                      </div>
+                    </li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+            <!-- Add Indicator Browser here -->
+            <div ng-hide="ttp.indicators.length">
+              No Indicators
+            </div>
+
+            <indicator-browser selected-indicators="ttp.indicators" classification-direction="up"></indicator-browser>
+          </div>
+
+          <!-- Suggested Packages -->
+
+          <div ng-show="can('add_ttp_to_stix_packages')">
+            <div class="widget-header widget-header-small">
+              <h4 class="widget-title blue smaller">
+                <i class="ace-icon fa fa-tasks orange"></i>
+                Attached Packages
+              </h4>
+            </div>
+            <div class="space-6"></div>
+
+            <div class="width-90 center-block" ng-show="ttp.stix_packages.length">
+              <div class="ciap_table_scroll_500">
+                <ol class="dd-list">
+                  <li class="dd-item" ng-repeat="package in ttp.stix_packages">
+                    <div class="dd-handle">
+                      <a href="#/packages/{{package.stix_id}}">{{package.title}}</a>
+                      <div class="pull-right action-buttons">
+                        <a class="red" href="" ng-click="removePackage(package)">
+                          <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+            </div>
+
+            <div ng-hide="ttp.stix_packages.length">
+              No Packages
+            </div>
+
+            <div class="space-12"></div>
+
+            <!-- Add Package Browser here -->
+            <div class="widget-box">
+              <div class="widget-header">
+                <h5 class="widget-title">
+                  Suggested Packages
+                </h5>
+              </div>
+              <div class="widget-body">
+                <div class="widget-main">
+                  <div class="ciap_table_scroll_500">
+                    <table id="sample-table-1" class="table table-striped table-bordered table-hover dataTable">
+                      <thead>
+                      <tr role="row">
+                        <th class="ciap_width_15">Title</th>
+                        <th class="ciap_width_15">Description</th>
+                        <th class="ciap_width_15">Created By</th>
+                        <th class="ciap_width_15">Last Updated</th>
+                        <th class="ciap_width_6">Select</th>
+                      </tr>
+                      </thead>
+                      <tbody ng-hide="fetchingPackages">
+                        <tr ng-repeat="package in suggested_packages">
+                          <td><a href="#/packages/{{package.stix_id | encodeURIComponent}}">{{package.title | prefixWithPortionMarking:package.portion_marking}}</a></td>
+                          <td>{{package.description | prefixWithPortionMarking: package.portion_marking:package.description_c}}</td>
+                          <td>{{package.created_by_user.username}}</td>
+                          <td>{{package.updated_at | date: 'medium'}}</td>
+                          <td>
+                            <input ng-disabled="disabledPackage(package)" type="checkbox"
+                                   ng-click="selectPackage(package, $event)"
+                                   ng-checked="checkedPackage(package)"/>
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tbody ng-show="fetchingPackages">
+                        <tr>
+                          <td colspan="5" class="center">
+                            <i class="fa fa-spinner fa-spin bigger-300 blue"></i>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- Suggested Packages End-->
+
+          <!-- Buttons -->
+          <div class="clearfix form-actions">
+            <span ng-show="is_saving">
+              <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+            </span>
+
+            <button ng-disabled="is_saving" class="btn btn-info pull-right ciap_mleft_12" type="button" ng-click="start_save()">
+              <i class="fa fa-check"></i>
+              Save
+            </button>
+
+            <button class="btn btn-warning pull-right ciap_mleft_12" type="button" ng-click="page=3" ng-disabled="is_saving">
+              <i class="ace-icon fa fa-arrow-left bigger-110"></i> Back
+            </button>
+
+            <button class="btn btn-default pull-right" type="button" ng-click="cancel()" ng-disabled="is_saving">
+              <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</form>

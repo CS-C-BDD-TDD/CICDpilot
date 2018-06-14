@@ -1,0 +1,232 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('isaAssertion',function() {
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("markings/isa_assertion.html",type: :template)%>',
+        scope: {
+            justification: '=',
+            isaAssertion: '=',
+            editform: '=',
+            acsedit: '=?',
+            disablededit: '=?'
+        },
+        controller: ['$scope', '$rootScope', '$timeout', 'Marking', function($scope, $rootScope,$timeout,Marking){
+            $scope.Marking = Marking;
+            $scope.show_classifications = $rootScope.setting_value('CLASSIFICATION');
+            $scope.editwjustification = false;
+            if(angular.isUndefined($scope.acsedit) || $scope.acsedit == '' || $scope.acsedit == null){
+                $scope.acsedit = false;
+            } else {
+                $scope.acsedit = true;
+            }
+
+            var setMulti = function(attribute) {
+                if (angular.isUndefined(attribute) || attribute == null || attribute == [] || attribute == '') {
+                    return attribute = [];
+                }
+                else {
+                    if (typeof attribute.split === 'function') {
+                        return attribute = attribute.split(",");
+                    } else {
+                        return attribute;
+                    }
+                }
+            }
+
+            $scope.setFD = function() {
+                if ($scope.isaAssertion.public_release == true) {
+                    if (!_.include($scope.isaAssertion.cs_formal_determination,'PUBREL')){
+                        $scope.isaAssertion.cs_formal_determination.push("PUBREL")
+                    }
+                    if ($scope.show_classifications == true){
+                        $timeout(function() {
+                            if (angular.isUndefined($scope.justification) || $scope.justification == null){
+                                $scope.justification = [];
+                            }
+                            var j_index = $scope.justification.length;
+                            $scope.justification.push({justification: prompt("Justification for changing classification of this object"), field: $scope.$parent.fieldname});
+                            if ($scope.justification[j_index].justification == null || $scope.justification[j_index].justification == '') {
+                                if ($scope.justification[j_index].justification == '') {
+                                  $scope.isaAssertion.errors = {};
+                                  $scope.isaAssertion.errors.pubrel = ["Justification can't be blank"];
+                                }
+                                $scope.justification.splice(j_index,1);
+                                //angular.element('#ACS_Set_P_Release')[0].checked = false;
+                                $scope.isaAssertion.public_release = false;
+                                _.remove($scope.isaAssertion.cs_formal_determination,function(n){
+                                    return n == 'PUBREL';
+                                })
+                                return;
+                            }
+                            $scope.editwjustification = true;
+                        })
+                    }
+                }
+                else {
+                    if(!_.include($scope.isaAssertion.cs_orgs, "USA.USG")){
+                        $scope.isaAssertion.cs_orgs.push("USA.USG");
+                    }
+                    _.remove($scope.isaAssertion.cs_formal_determination,function(n){
+                        return n == 'PUBREL';
+                    })
+                }
+            }
+
+            $scope.date_picker_opts = {
+                singleDatePicker: true,
+                startDate: moment()
+            };
+
+            $scope.dateRangePickerClassifiedOn = function(picker) {
+                $scope.isaAssertion.classified_on = $rootScope.convert_date_to_date_time(picker.getStartDate());
+            };
+
+            $scope.dateRangePickerPublicReleasedOn = function(picker) {
+                $scope.isaAssertion.public_released_on = $rootScope.convert_date_to_date_time(picker.getStartDate());
+            }
+
+            $scope.add_further_sharing = function(){
+                $scope.isaAssertion.further_sharings_attributes.push({scope: "", effect: true});
+            }
+
+            $scope.remove_further_sharing = function(fshr){
+                if (_.has(fshr,'id')){
+                    fshr['_destroy'] = '1';
+                } else {
+                    _.remove($scope.isaAssertion.further_sharings_attributes, function(f){
+                        return f == fshr;
+                    })
+                }
+            }
+
+            $scope.change_classification = function(attribute){
+                $timeout(function() {
+                    if(attribute == 'U'){
+                        document.getElementById('isaAssertion.classified_on').value = '';
+                        $scope.isaAssertion.classified_on = '';
+                        $scope.isaAssertion.classified_by = '';
+                        $scope.isaAssertion.classification_reason = '';
+                    }
+                })
+            }
+
+            $scope.edit_classification_details = function() {
+                $timeout(function() {
+                    if (angular.isUndefined($scope.justification) || $scope.justification == null){
+                        $scope.justification = [];
+                    }
+                    var j_index = $scope.justification.length;
+                    $scope.justification.push({justification: prompt("Justification for changing classification of this object"), field: $scope.$parent.fieldname});
+                    if ($scope.justification[j_index].justification == null || $scope.justification[j_index].justification == '') {
+                        if ($scope.justification[j_index].justification == '') {
+                          $scope.isaAssertion.errors = {};
+                          $scope.isaAssertion.errors.edit_class_justification = ["Justification can't be blank"];
+                        }
+                        $scope.justification.splice(j_index,1);
+                        return;
+                    }
+                    $scope.editwjustification = true;
+                })
+            }
+
+            $scope.$watch('isaAssertion',function(){
+                if(angular.isDefined($scope.isaAssertion) && angular.isDefined($scope.isaAssertion.cs_classification)){
+                    $scope.attr = {id:$scope.isaAssertion.cs_classification[0]};
+                }
+                if (angular.isDefined($scope.isaAssertion) && $scope.isaAssertion != {} && angular.isDefined($scope.isaAssertion.isa_privs_attributes)){
+                    $scope.dsply = $scope.isaAssertion.isa_privs_attributes[_.findIndex($scope.isaAssertion.isa_privs_attributes,function(a){return a.action == 'DSPLY'})]
+                    if ($scope.dsply == null) {
+                        $scope.dsply = {action: 'DSPLY',effect: 'deny', scope_is_all: true};
+                        $scope.isaAssertion.isa_privs_attributes.push($scope.dsply);
+                    }
+
+                    $scope.legal = $scope.isaAssertion.isa_privs_attributes[_.findIndex($scope.isaAssertion.isa_privs_attributes,function(a){return a.action == 'LEGAL'})]
+                    if ($scope.legal == null) {
+                        $scope.legal = {action: 'LEGAL',effect: 'deny', scope_is_all: true};
+                        $scope.isaAssertion.isa_privs_attributes.push($scope.legal);
+                    }
+
+                    $scope.idsrc = $scope.isaAssertion.isa_privs_attributes[_.findIndex($scope.isaAssertion.isa_privs_attributes,function(a){return a.action == 'IDSRC'})]
+                    if ($scope.idsrc == null) {
+                        $scope.idsrc = {action: 'IDSRC',effect: 'deny', scope_is_all: true};
+                        $scope.isaAssertion.isa_privs_attributes.push($scope.idsrc);
+                    }
+
+                    $scope.tenot = $scope.isaAssertion.isa_privs_attributes[_.findIndex($scope.isaAssertion.isa_privs_attributes,function(a){return a.action == 'TENOT'})]
+                    if ($scope.tenot == null) {
+                        $scope.tenot = {action: 'TENOT',effect: 'deny', scope_is_all: true};
+                        $scope.isaAssertion.isa_privs_attributes.push($scope.tenot);
+                    }
+
+                    $scope.intel = $scope.isaAssertion.isa_privs_attributes[_.findIndex($scope.isaAssertion.isa_privs_attributes,function(a){return a.action == 'INTEL'})]
+                    if ($scope.intel == null) {
+                        $scope.intel = {action: 'INTEL',effect: 'deny', scope_is_all: true};
+                        $scope.isaAssertion.isa_privs_attributes.push($scope.intel);
+                    }
+
+                    $scope.netdef = $scope.isaAssertion.isa_privs_attributes[_.findIndex($scope.isaAssertion.isa_privs_attributes,function(a){return a.action == 'NETDEF'})]
+                    if ($scope.netdef == null) {
+                        $scope.netdef = {action: 'NETDEF',effect: 'deny', scope_is_all: true};
+                        $scope.isaAssertion.isa_privs_attributes.push($scope.netdef);
+                    }
+
+                    $scope.tearline = $scope.isaAssertion.isa_privs_attributes[_.findIndex($scope.isaAssertion.isa_privs_attributes,function(a){return a.action == 'TEARLINE'})]
+                    if ($scope.tearline == null) {
+                        $scope.tearline = {action: 'TEARLINE',effect: 'deny', scope_is_all: true};
+                        $scope.isaAssertion.isa_privs_attributes.push($scope.tearline);
+                    }
+
+                    $scope.opaction = $scope.isaAssertion.isa_privs_attributes[_.findIndex($scope.isaAssertion.isa_privs_attributes,function(a){return a.action == 'OPACTION'})]
+                    if ($scope.opaction == null) {
+                        $scope.opaction = {action: 'OPACTION',effect: 'deny', scope_is_all: true};
+                        $scope.isaAssertion.isa_privs_attributes.push($scope.opaction);
+                    }
+
+                    $scope.request = $scope.isaAssertion.isa_privs_attributes[_.findIndex($scope.isaAssertion.isa_privs_attributes,function(a){return a.action == 'REQUEST'})]
+                    if ($scope.request == null) {
+                        $scope.request = {action: 'REQUEST',effect: 'deny', scope_is_all: true};
+                        $scope.isaAssertion.isa_privs_attributes.push($scope.request);
+                    }
+
+                    $scope.anonymousaccess = $scope.isaAssertion.isa_privs_attributes[_.findIndex($scope.isaAssertion.isa_privs_attributes,function(a){return a.action == 'ANONYMOUSACCESS'})]
+                    if ($scope.anonymousaccess == null) {
+                        $scope.anonymousaccess = {action: 'ANONYMOUSACCESS',effect: 'deny', scope_is_all: true};
+                        $scope.isaAssertion.isa_privs_attributes.push($scope.anonymousaccess);
+                    }
+
+                    $scope.cisauses = $scope.isaAssertion.isa_privs_attributes[_.findIndex($scope.isaAssertion.isa_privs_attributes,function(a){return a.action == 'CISAUSES'})]
+                    if ($scope.cisauses == null) {
+                        $scope.cisauses = {action: 'CISAUSES',effect: 'deny', scope_is_all: true};
+                        $scope.isaAssertion.isa_privs_attributes.push($scope.cisauses);
+                    }
+
+                    $scope.dsply.effect = ($scope.dsply.effect == 'permit') || ($scope.dsply.effect == true)
+                    $scope.legal.effect = ($scope.legal.effect == 'permit') || ($scope.legal.effect == true)
+                    $scope.idsrc.effect = ($scope.idsrc.effect == 'permit') || ($scope.idsrc.effect == true)
+                    $scope.tenot.effect = ($scope.tenot.effect == 'permit') || ($scope.tenot.effect == true)
+                    $scope.intel.effect = ($scope.intel.effect == 'permit') || ($scope.intel.effect == true)
+                    $scope.netdef.effect = ($scope.netdef.effect == 'permit') || ($scope.netdef.effect == true)
+                    $scope.tearline.effect = ($scope.tearline.effect == 'permit') || ($scope.tearline.effect == true)
+                    $scope.opaction.effect = ($scope.opaction.effect == 'permit') || ($scope.opaction.effect == true)
+                    $scope.request.effect = ($scope.request.effect == 'permit') || ($scope.request.effect == true)
+                    $scope.anonymousaccess.effect = ($scope.anonymousaccess.effect == 'permit') || ($scope.anonymousaccess.effect == true)
+                    $scope.cisauses.effect = ($scope.cisauses.effect == 'permit') || ($scope.cisauses.effect == true)
+
+                    _.forEach($scope.isaAssertion.further_sharings_attributes,function(fshr){
+                        fshr.effect = (fshr.effect == 'permit') || (fshr.effect == true);
+                    });
+
+                    $scope.isaAssertion.cs_countries = setMulti($scope.isaAssertion.cs_countries);
+                    $scope.isaAssertion.cs_formal_determination = setMulti($scope.isaAssertion.cs_formal_determination);
+                    $scope.isaAssertion.cs_orgs = setMulti($scope.isaAssertion.cs_orgs);
+                    $scope.isaAssertion.cs_entity = setMulti($scope.isaAssertion.cs_entity);
+                    $scope.isaAssertion.cs_cui = setMulti($scope.isaAssertion.cs_cui);
+                    $scope.isaAssertion.cs_shargrp = setMulti($scope.isaAssertion.cs_shargrp);
+                    $scope.isaAssertion.cs_classification = setMulti($scope.isaAssertion.cs_classification);
+                }
+            })
+        }]
+
+    }
+});

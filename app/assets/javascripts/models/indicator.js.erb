@@ -1,0 +1,79 @@
+app.service('Indicator', ['Observable','Confidence',function(Observable,Confidence){
+  var fetch_markings_object_from_scope = function(scope) {
+    var object = _.find(Object.getOwnPropertyNames(scope),function(name) {
+        return ((scope[name] instanceof Object) && Object.getOwnPropertyNames(scope[name]).includes('stix_markings_attributes'));
+    });
+    if (angular.isDefined(object) && object != null) {
+        return scope[object]
+    }
+    else {
+        return fetch_markings_object_from_scope(scope.$parent);
+    }
+  };
+
+  function types(){
+      var keys = <%= Indicator::INDICATOR_TYPES.keys.collect(&:to_s) %>
+      var values = <%= Indicator::INDICATOR_TYPES.values.collect { |name| name.first } %>
+      var hash = {};
+        for(var i = 0;i<keys.length;i++){
+            hash[keys[i]] = values[i];
+        }
+        return(hash);
+  }
+  return {
+    objectTypes: ["IPv4",
+                  "E-mail",
+                  "File",
+                  "Link",
+                  "FQDN",
+                  "Mutex",
+                  "Network Connection",
+                  "Registry",
+                  "URL",
+                  "User Agent"],
+    indicatorTypes: types(),
+    indicatorSelectTypes: _.omit(types(),'needs_definition'),
+    classifications: ["Unclassified",
+                      "Restricted",
+                      "Confidential",
+                      "Secret",
+                      "Top Secret"],
+    responsibleEntityCountries: ["AUT",
+                                 "USA",
+                                 "GBR"],
+    submissionMechanism: ["public web form",
+    					  "public email",
+    					  "taxii"],
+    responsibleEntityOrganizations: ["AFCYBER",
+                                     "CDC",
+                                     "CIA",
+                                     "DHS / US-CERT"],
+    timelines: <%= Indicator::TIMELINES.to_json %>,
+    sourceOfReport: <%= Indicator::SOURCE_OF_REPORT.to_json %>,
+    targetOfAttack: <%= Indicator::TARGET_OF_ATTACK.to_json %>,
+    targetScope: <%= Indicator::TARGET_SCOPE.to_json %>,
+    actorAttribution: <%= Indicator::ACTOR_ATTRIBUTION.to_json %>,
+    actorType: <%= Indicator::ACTOR_TYPE.to_json %>,
+    modusOperandi: <%= Indicator::MODUS_OPERANDI.to_json %>,
+    observable_values: function(indicator){
+      return _.map(indicator.observables, function(o){return Observable.get_value(o);});
+    },
+    confidence: function(indicator){
+        return Confidence.confidence(indicator);
+    },
+    exportable_systems: function(indicator) {
+        var systems = <%= ExportedIndicator::EXPORTABLE_SYSTEMS.collect(&:upcase) %>;
+
+        if (angular.isDefined(indicator) && angular.isDefined(indicator.exported_indicators)){
+            indicator.exported_indicators.forEach(function(exported_indicator){
+                systems = _.remove(systems,function(system){
+                    return system.toLowerCase() != exported_indicator.system
+                });
+            });
+        }
+
+        return systems;
+    },
+      fetch_markings_object_from_scope: function(scope) {return fetch_markings_object_from_scope(scope)}
+  };
+}]);

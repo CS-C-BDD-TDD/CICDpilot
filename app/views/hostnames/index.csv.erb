@@ -1,0 +1,8 @@
+<%- headers = ['Cybox Object ID', 'Hostname', 'Hostname Condition', 'Naming System', 'Created At', 'Last Updated'] %>
+<%= raw CSV.generate_line addPortionMarkingToCSV(headers), :row_sep => '', :force_quotes => true %>
+<%- hostName = String.new %>
+<% @hostnames.each do |host| %>
+  <% if host.hostname_normalized != nil then hostName = host.hostname_normalized else hostName = host.hostname_raw end %>
+  <%- row = [host.cybox_object_id, hostName, host.hostname_condition, host.naming_system, host.created_at, host.updated_at] -%>
+<%= raw CSV.generate_line addPortionMarkingToCSV(nil, row, host), :row_sep => '', :force_quotes => true %>
+<% end %>

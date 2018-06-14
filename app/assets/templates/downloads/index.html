@@ -1,0 +1,30 @@
+<div class="row">
+  <div class="col-xs-4"></div>
+  <div class="col-xs-4">
+    <div style="text-align: center">
+      Choose date range for download<p/>
+      <form class="form-search" ng-class="{'has-error': error}">
+        <div class="input-group">
+          <span class="input-group-addon">
+            <i class="fa fa-calendar"></i>
+          </span>
+          <input date-range-picker style="margin-left: 0px" type="text" class="form-control" options="date_picker_opts"/>
+        </div>
+        <div ng-show="error" class="help-block inline col-md-12" align="center">
+          <span class="col-md-12">{{error}}</span>
+        </div>
+        <p/>
+        <button ng-click="download()" ng-hide="downloading">Create Zip file</button>
+      </form>
+
+      <div ng-show="downloading">
+        Please wait...<p/>
+        <div ng-show="live_updates">
+          {{total}}<br/>
+          {{remaining}}
+        </div>
+        <i class="fa fa-spinner fa-spin bigger-300 blue"></i>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,5 @@
+app.controller('WelcomeController', ['$scope', '$rootScope',
+  'Restangular', function ($scope, $rootScope, Restangular) {
+    $rootScope.breadcrumbs = [{text: 'Home', link: '#/', icon: 'fa-home'}];
+  }
+]);

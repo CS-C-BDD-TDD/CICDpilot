@@ -1,0 +1,29 @@
+  <div class="widget-box widget-color-blue ui-sortable-handle">
+    <div class="widget-header">
+      <h5 class="widget-title bigger lighter">
+        <a class="fake-link white" ng-click="showTable=!showTable">
+          <span tooltip="Show/Hide Network Connections">
+            <i class="ace-icon fa fa-table"></i>
+            Layer Seven Connections
+          </span>
+        </a>
+      </h5>
+    </div>
+    <div class="widget-body" ng-show="showTable">
+      <div class="widget-main no-padding">
+        <table class="table table-bordered table-hover">
+          <td>
+            <http-session-table http-sessions="http_sessions" ng-show="http_sessions.length" title="'HTTP Session'"></http-session-table>
+
+            <div class="space-6"></div>
+            
+            <dns-query-table dns-queries="dns_queries" ng-show="dns_queries.length"></dns-query-table>
+
+            <div class="space-6"></div>
+            
+            <network-connection-table network-connections="network_connections" ng-show="network_connections.length"></network-connection-table>
+          </td>
+        </table>
+      </div>
+    </div>
+  </div>

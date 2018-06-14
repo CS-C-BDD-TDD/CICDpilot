@@ -1,0 +1,14 @@
+app.controller('OrganizationsShowController', ['$scope','$routeParams','$rootScope','Restangular',
+  function ($scope, $routeParams, $rootScope, Restangular) {
+    $scope.fetching = true;
+    Restangular.one('/organizations/'+$routeParams.id).get().then(function(data){
+      $scope.organization = data;
+      $rootScope.breadcrumbs = [
+                                 {text:'Home',link:'#/',icon:'fa-home'},
+                                 {text:'Organizations',link:'#/organizations',icon:'fa-group'},
+                                 {text:$scope.organization.short_name, link:'#/organizations/'+$scope.organization.guid}
+                               ];
+      $scope.fetching = false;
+    });
+  }
+]);

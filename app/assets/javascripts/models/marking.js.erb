@@ -1,0 +1,490 @@
+app.service('Marking', ['$rootScope', function($rootScope){
+
+  var build_default_isa_marking = function() {
+      var marking = {};
+      <% AcsDefault::MARKING_DEFAULTS.each_pair do |k,v| %>
+      marking.<%=k%> = "<%=v%>";
+      <% end %>
+      marking.data_item_created_at = new Date;
+      return marking;
+  };
+  var build_default_isa_assertion = function() {
+      var assertion = {isa_privs_attributes: []};
+      var privs = [];
+
+      <% AcsDefault::ASSERTION_DEFAULTS.each_pair do |k,v| %>
+      <% if v.is_a? String %>
+      assertion.<%=k%> = "<%=v%>";
+      <% else %>
+      assertion.<%=k%> = <%=v%>;
+      <% end %>
+      <% end %>
+      <% AcsDefault::PRIVS_DEFAULTS.each do |priv| %>
+      var priv = {}
+      <% priv.each_pair do |k,v| %>
+      <% if v.is_a? String %>
+      priv.<%=k%> = "<%=v%>";
+      <% else %>
+      priv.<%=k%> = <%=v%>;
+      <% end %>
+      <% end %>
+      assertion.isa_privs_attributes.push(priv)
+      <% end %>
+      assertion.isa_privs_attributes.push({action: 'CISAUSES',effect: 'permit',scope_is_all: true});
+      assertion.further_sharings_attributes = [];
+      return assertion;
+  }
+  var build_default_attributes = function() {
+      return {
+            stix_markings_attributes: [{
+                isa_marking_structure_attributes: build_default_isa_marking(),
+                isa_assertion_structure_attributes: build_default_isa_assertion(),
+                tlp_marking_structure_attributes: {}
+            }]
+        }
+  }
+  var ensure_correct_type = function(to_markings){
+    for(var property in to_markings.isa_assertion_structure_attributes){
+        // the check for typeof object means its already an array. but null picked up as object also so -.-
+        if (property.substring(0,2) == "cs" && ((to_markings.isa_assertion_structure_attributes[property] != null && (typeof to_markings.isa_assertion_structure_attributes[property]) != 'object') || to_markings.isa_assertion_structure_attributes[property] == null) ){
+            if (to_markings.isa_assertion_structure_attributes[property] == "" || to_markings.isa_assertion_structure_attributes[property] == null){
+                to_markings.isa_assertion_structure_attributes[property] = [];
+            } else if((typeof to_markings.isa_assertion_structure_attributes[property].split) === 'function') {
+                if(_.include(to_markings.isa_assertion_structure_attributes[property], ",")){
+                    to_markings.isa_assertion_structure_attributes[property] = to_markings.isa_assertion_structure_attributes[property].split(",");
+                } else {
+                    to_markings.isa_assertion_structure_attributes[property] = [to_markings.isa_assertion_structure_attributes[property]];
+                }
+            } else {
+                to_markings.isa_assertion_structure_attributes[property] = [to_markings.isa_assertion_structure_attributes[property]];
+            }
+        }
+    }
+    return to_markings;
+  }
+  var delete_old_identifiers = function(to_markings) {
+    if (angular.isDefined(to_markings.isa_assertion_structure_attributes.guid)){
+        delete to_markings.isa_assertion_structure_attributes.guid;
+    }
+    if (angular.isDefined(to_markings.isa_assertion_structure_attributes.id)){
+        delete to_markings.isa_assertion_structure_attributes.id;
+    }
+    if (angular.isDefined(to_markings.isa_assertion_structure_attributes.stix_id)){
+        delete to_markings.isa_assertion_structure_attributes.stix_id;
+    }
+    if (angular.isDefined(to_markings.isa_assertion_structure_attributes.stix_marking_id)){
+        delete to_markings.isa_assertion_structure_attributes.stix_marking_id;
+    }
+    if (angular.isDefined(to_markings.isa_assertion_structure_attributes.isa_privs)){
+        delete to_markings.isa_assertion_structure_attributes.isa_privs;
+    }
+    if (angular.isDefined(to_markings.isa_assertion_structure_attributes.isa_privs_attributes)){
+        for (var i = 0; i < to_markings.isa_assertion_structure_attributes.isa_privs_attributes.length; i++){
+            if (angular.isDefined(to_markings.isa_assertion_structure_attributes.isa_privs_attributes[i].id)){
+                delete to_markings.isa_assertion_structure_attributes.isa_privs_attributes[i].id;
+            }
+            if (angular.isDefined(to_markings.isa_assertion_structure_attributes.isa_privs_attributes[i].guid)){
+                delete to_markings.isa_assertion_structure_attributes.isa_privs_attributes[i].guid;
+            }
+            if (angular.isDefined(to_markings.isa_assertion_structure_attributes.isa_privs_attributes[i].isa_assertion_structure_guid)){
+                delete to_markings.isa_assertion_structure_attributes.isa_privs_attributes[i].isa_assertion_structure_guid;
+            }
+        }
+    }
+    if (angular.isDefined(to_markings.isa_assertion_structure_attributes.further_sharings)){
+        delete to_markings.isa_assertion_structure_attributes.further_sharings;
+    }
+    if (angular.isDefined(to_markings.isa_assertion_structure_attributes.further_sharings_attributes)){
+        for (var i = 0; i < to_markings.isa_assertion_structure_attributes.further_sharings_attributes.length; i++){
+            if (angular.isDefined(to_markings.isa_assertion_structure_attributes.further_sharings_attributes[i].id)){
+                delete to_markings.isa_assertion_structure_attributes.further_sharings_attributes[i].id;
+            }
+            if (angular.isDefined(to_markings.isa_assertion_structure_attributes.further_sharings_attributes[i].guid)){
+                delete to_markings.isa_assertion_structure_attributes.further_sharings_attributes[i].guid;
+            }
+            if (angular.isDefined(to_markings.isa_assertion_structure_attributes.further_sharings_attributes[i].isa_assertion_structure_guid)){
+                delete to_markings.isa_assertion_structure_attributes.further_sharings_attributes[i].isa_assertion_structure_guid;
+            }
+        }
+    }
+    return to_markings;
+  }
+  var delete_old_identifiers_acs = function(to_markings) {
+    if (angular.isDefined(to_markings.isa_assertion_structure.guid)){
+        delete to_markings.isa_assertion_structure.guid;
+    }
+    if (angular.isDefined(to_markings.isa_assertion_structure.id)){
+        delete to_markings.isa_assertion_structure.id;
+    }
+    if (angular.isDefined(to_markings.isa_assertion_structure.stix_id)){
+        delete to_markings.isa_assertion_structure.stix_id;
+    }
+    if (angular.isDefined(to_markings.isa_assertion_structure.stix_marking_id)){
+        delete to_markings.isa_assertion_structure.stix_marking_id;
+    }
+    if (angular.isDefined(to_markings.isa_assertion_structure.isa_privs)){
+        for (var i = 0; i < to_markings.isa_assertion_structure.isa_privs.length; i++){
+            if (angular.isDefined(to_markings.isa_assertion_structure.isa_privs[i].id)){
+                delete to_markings.isa_assertion_structure.isa_privs[i].id;
+            }
+            if (angular.isDefined(to_markings.isa_assertion_structure.isa_privs[i].guid)){
+                delete to_markings.isa_assertion_structure.isa_privs[i].guid;
+            }
+            if (angular.isDefined(to_markings.isa_assertion_structure.isa_privs[i].isa_assertion_structure_guid)){
+                delete to_markings.isa_assertion_structure.isa_privs[i].isa_assertion_structure_guid;
+            }
+        }
+    }
+    if (angular.isDefined(to_markings.isa_assertion_structure.further_sharings)){
+        for (var i = 0; i < to_markings.isa_assertion_structure.further_sharings.length; i++){
+            if (angular.isDefined(to_markings.isa_assertion_structure.further_sharings[i].id)){
+                delete to_markings.isa_assertion_structure.further_sharings[i].id;
+            }
+            if (angular.isDefined(to_markings.isa_assertion_structure.further_sharings[i].guid)){
+                delete to_markings.isa_assertion_structure.further_sharings[i].guid;
+            }
+            if (angular.isDefined(to_markings.isa_assertion_structure.further_sharings[i].isa_assertion_structure_guid)){
+                delete to_markings.isa_assertion_structure.further_sharings[i].isa_assertion_structure_guid;
+            }
+        }
+    }
+    return to_markings;
+  }
+
+  return {
+    re_custodian: [
+        <%(Stix::Native::IsaMarkingStructure::ORGANIZATIONS.merge(Stix::Native::IsaMarkingStructure::ORG_STATES)).each do |k, v| %>
+            { "id": "<%= k %>", "label": "<%= k + ' - ' + v %>"},
+        <% end %>
+    ],
+    re_originator: { values: [
+        <% (Stix::Native::IsaMarkingStructure::ORGANIZATIONS.merge(Stix::Native::IsaMarkingStructure::ORG_STATES).merge(Stix::Native::IsaMarkingStructure::NGO).merge(
+        {
+        'COM'=>'Commercial',
+        'EDU'=>'Educational',
+        'INT'=>'International',
+        'NPO'=>'Nonprofit Organization',
+        'USA.SLTT'=>'State, Local, Tribal and Territorial Governments'
+        })).each do |k, v| %>
+            { "id": "<%= k %>", "label": "<%= k + ' - ' + v %>"},
+        <% end %>
+     ],
+     alertOn: ['COM','EDU','INT','NPO']
+    },
+    cs_formal_determination: [
+        <%Stix::Native::IsaMarkingStructure::FORMAL_DETERMINATION.delete_if {|k,v| k=="PUBREL" || k == 'OC'}.each do |k, v| %>
+        { "id": "<%= k %>", "label": "<%= k + ' - ' + v %>"},
+        <% end %>
+    ],
+    cs_cui: [
+        <%Stix::Native::IsaMarkingStructure::CUI.each do |k, v| %>
+        { "id": "<%= k %>", "label": "<%= k + ' - ' + v %>"},
+        <% end %>
+    ],
+    cs_shargrp: [
+        <%Stix::Native::IsaMarkingStructure::SHAREABILITY_GROUPS.each do |k, v| %>
+        { "id": "<%= k %>", "label": "<%= k + ' - ' + v %>"},
+        <% end %>
+    ],
+    cs_countries: [
+        <%Stix::Native::IsaMarkingStructure::COUNTRIES.each do |k, v| %>
+        { "id": "<%= k %>", "label": "<%= k + ' - ' + v %>"},
+        <% end %>
+    ],
+    cs_countries_a2: [
+        <%Stix::Native::IsaMarkingStructure::COUNTRIES_ALPHA2.each do |k, v| %>
+        { "id": "<%= k %>", "label": "<%= k + ' - ' + v %>"},
+        <% end %>
+    ],
+    cs_admin_areas: [
+    	/* Build a structure containing a list of all administrative areas for each country code 
+    	 *	Doing it this way allows us to populate the Administrative Area dropdown using the index of
+    	 *	the country in the countries list instead of filtering a list of 3000+ admin areas.
+    	 *	Selecting based on index is much faster for the UI. */
+    	<%Stix::Native::IsaMarkingStructure::COUNTRIES_ALPHA2.each do |k, v| %>
+    	{ "country_code": "<%= k %>", "values": [
+	        <%Stix::Native::IsaMarkingStructure::ADMINISTRATIVE_AREAS.select { |val| val[:country] == k }.each do |area| %>
+    	    { "id": "<%= area[:id] %>", "label": "<%= area[:id] + ' - ' + area[:value] %>" },
+        	<% end %>
+        ]},
+        <% end %>
+    ],
+    cs_entity: [
+        <%Stix::Native::IsaMarkingStructure::ENTITY_AFFILIATION.each do |k, v| %>
+        { "id": "<%= k %>", "label": "<%= k + ' - ' + v %>"},
+        <% end %>
+    ],
+    cs_classification: [
+        <%Stix::Native::IsaMarkingStructure::CLASSIFICATION.each do |k, v| %>
+        { "id": "<%= k %>", "label": "<%= k + ' - ' + v %>"},
+        <% end %>
+    ],
+    cs_orgs: [
+        <%(Stix::Native::IsaMarkingStructure::ORG_DISSEMINATION_GROUPS.merge(Stix::Native::IsaMarkingStructure::ORGANIZATIONS.merge(Stix::Native::IsaMarkingStructure::ORG_STATES))).each do |k, v| %>
+        { "id": "<%= k %>", "label": "<%= k + ' - ' + v %>"},
+        <% end %>
+    ],
+    fs_orgs: [
+        <%(Stix::Native::IsaMarkingStructure::ORG_DISSEMINATION_GROUPS.merge(Stix::Native::IsaMarkingStructure::ORGANIZATIONS.merge(Stix::Native::IsaMarkingStructure::ORG_STATES).merge(Stix::Native::IsaMarkingStructure::NGO))).merge({
+        'FOREIGNGOV'=>'Foreign Government',
+        'SECTOR'=>'Sector'
+        }).each do |k, v| %>
+        { "id": "<%= k %>", "label": "<%= k + ' - ' + v %>"},
+        <% end %>
+    ],
+    entity_orgs: [
+        <%Stix::Native::IsaMarkingStructure::ORGANIZATIONS.each do |k, v| %>
+        { "id": "<%= k %>", "label": "<%= k + ' - ' + v %>"},
+        <% end %>
+    ],
+    access_groups: [
+        <%Stix::Native::IsaMarkingStructure::ACCESS_GROUPS.each do |k, v| %>
+        { "id": "<%= k %>", "label": "<%= k + ' - ' + v %>"},
+        <% end %>
+    ],
+	organization_info: [
+					{ id: 'Chemical Sector', label: 'Chemical Sector'},
+					{ id: 'Commercial Facilities Sector', label: 'Commercial Facilities Sector'},
+					{ id: 'Communications Sector', label: 'Communications Sector'},
+					{ id: 'Critical Manufacturing Sector', label: 'Critical Manufacturing Sector'},
+					{ id: 'Dams Sector', label: 'Dams Sector'},
+					{ id: 'Defense Industrial Base Sector', label: 'Defense Industrial Base Sector'},
+					{ id: 'Emergency Services Sector', label: 'Emergency Services Sector'},
+					{ id: 'Energy Sector', label: 'Energy Sector'},
+					{ id: 'Financial Services Sector', label: 'Financial Services Sector'},
+					{ id: 'Food and Agriculture Sector', label: 'Food and Agriculture Sector'},
+					{ id: 'Government Facilities Sector', label: 'Government Facilities Sector'},
+					{ id: 'Healthcare and Public Health Sector', label: 'Healthcare and Public Health Sector'},
+					{ id: 'Information Technology Sector', label: 'Information Technology Sector'},
+					{ id: 'Nuclear Reactors, Materials, and Waste Sector', label: 'Nuclear Reactors, Materials, and Waste Sector'},
+					{ id: 'Transportation Systems Sector', label: 'Transportation Systems Sector'},
+					{ id: 'Water and Wastewater Systems Sector', label: 'Water and Wastewater Systems Sector'},
+					{ id: 'Other', label: 'Other'}
+	],    
+    build_default_attributes: function() {return build_default_attributes()},
+    build_default_isa_marking: function() {return build_default_isa_marking()},
+    build_default_isa_assertion: function() {return build_default_isa_assertion()},
+    translate_existing_attributes: function(object, only_obj_level){
+        if (typeof(only_obj_level) === 'undefined') only_obj_level = false;
+        if (angular.isUndefined(object) || object == null || angular.isUndefined(object.stix_markings)) {
+            return object;
+        }
+        if (!object.stix_markings.length) {
+            object.stix_markings_attributes = build_default_attributes().stix_markings_attributes;
+            if (object.color != '') {
+                object.stix_markings_attributes[0].tlp_marking_structure_attributes.color = object.color;
+            }
+            return object;
+        }
+        object.stix_markings_attributes = object.stix_markings_attributes || [];
+        for (var i=0; i < object.stix_markings.length; i++) {
+            if (only_obj_level && angular.isDefined(object.stix_markings[i].remote_object_field) && object.stix_markings[i].remote_object_field != null){
+                continue;
+            }
+
+            if ((object.stix_markings[i].isa_marking_structure != null &&
+                    angular.isDefined(object.stix_markings[i].isa_marking_structure)) ||
+                    (object.stix_markings[i].isa_assertion_structure != null &&
+                    angular.isDefined(object.stix_markings[i].isa_assertion_structure))) {
+                // you need the i != 0 because you dont want it to translate on objects but you do on acs sets
+                if(object.stix_markings[i].remote_object_type == "AcsSet" && i != 0){
+                    continue;
+                }
+
+                object.stix_markings_attributes[i] = _.cloneDeep(object.stix_markings[i]);
+
+                if (angular.isDefined(object.stix_markings[i].isa_marking_structure) && (object.stix_markings[i].isa_marking_structure != null)) {
+                    object.stix_markings_attributes[i].isa_marking_structure_attributes = _.cloneDeep(object.stix_markings[i].isa_marking_structure);
+                }
+
+                if (angular.isDefined(object.stix_markings[i].isa_assertion_structure) && object.stix_markings[i].isa_assertion_structure != null) {
+                    object.stix_markings_attributes[i].isa_assertion_structure_attributes = _.cloneDeep(object.stix_markings[i].isa_assertion_structure);
+                    object.stix_markings_attributes[i].isa_assertion_structure_attributes.isa_privs_attributes = _.cloneDeep(object.stix_markings[i].isa_assertion_structure.isa_privs) || [];
+                    object.stix_markings_attributes[i].isa_assertion_structure_attributes.further_sharings_attributes = _.cloneDeep(object.stix_markings[i].isa_assertion_structure.further_sharings) || [];
+
+                    // the cs_ attributes should be arrays for some reason after cloning they are just strings.
+                    object.stix_markings_attributes[i] = ensure_correct_type(object.stix_markings_attributes[i]);
+                }
+            }
+        }
+        if (angular.isDefined(object.stix_markings_attributes)){
+            object.stix_markings_attributes = _.compact(object.stix_markings_attributes);
+        }
+        return object;
+    },
+    translate_privs_action: function(action) {
+        switch(action) {
+            case 'DSPLY':
+                return 'Display';
+                break;
+            case 'LEGAL':
+                return 'Legal Preceedings';
+                break;
+            case 'IDSRC':
+                return 'Identity Source';
+                break;
+            case 'TENOT':
+                return 'Target Entity Notification';
+                break;
+            case 'INTEL':
+                return 'Intelligence Analysis';
+                break;
+            case 'NETDEF':
+                return 'Network Defense Action';
+                break;
+            case 'TEARLINE':
+                return 'Tear-line';
+                break;
+            case 'OPACTION':
+                return 'Operation Action';
+                break;
+            case 'REQUEST':
+                return 'Access Privilege Waiver Request';
+                break;
+            case 'ANONYMOUSACCESS':
+                return 'Anonymous Access';
+                break;
+            case 'CISAUSES':
+                return 'CISA Uses';
+                break;
+//            case 'ALL':
+//                return 'ALL';
+//                break;
+        }
+    },
+    translate_acs_markings: function(to_markings, from_markings) {
+        if ((from_markings.isa_marking_structure != null &&
+                angular.isDefined(from_markings.isa_marking_structure)) ||
+                (from_markings.isa_assertion_structure != null &&
+                angular.isDefined(from_markings.isa_assertion_structure))) {
+
+            if (angular.isDefined(from_markings.isa_marking_structure) && (from_markings.isa_marking_structure != null)) {
+                to_markings.isa_marking_structure_attributes.re_custodian = from_markings.isa_marking_structure.re_custodian;
+                to_markings.isa_marking_structure_attributes.re_originator = from_markings.isa_marking_structure.re_originator;
+                to_markings.isa_marking_structure_attributes.data_item_created_at = from_markings.isa_marking_structure.data_item_created_at;
+            }
+
+            if (angular.isDefined(from_markings.isa_assertion_structure) && from_markings.isa_assertion_structure != null) {
+                var from_markings_clean = delete_old_identifiers_acs(from_markings);
+                _.extend(to_markings.isa_assertion_structure_attributes, from_markings_clean.isa_assertion_structure);
+
+                var greater = from_markings_clean.isa_assertion_structure.isa_privs.length > to_markings.isa_assertion_structure_attributes.isa_privs_attributes.length ? from_markings_clean.isa_assertion_structure.isa_privs.length : to_markings.isa_assertion_structure_attributes.isa_privs_attributes.length;
+                
+                for(var i = 0; i < greater; i++){
+                    if(_.isUndefined(to_markings.isa_assertion_structure_attributes.isa_privs_attributes[i])){
+                        to_markings.isa_assertion_structure_attributes.isa_privs_attributes[i] = _.clone(from_markings_clean.isa_assertion_structure.isa_privs[i]);
+                    } else {
+                        _.extend(to_markings.isa_assertion_structure_attributes.isa_privs_attributes[i], from_markings_clean.isa_assertion_structure.isa_privs[i]);
+                    }
+                    if(to_markings.isa_assertion_structure_attributes.isa_privs_attributes[i].effect == "permit"){
+                        to_markings.isa_assertion_structure_attributes.isa_privs_attributes[i].effect = true;
+                    } else {
+                        to_markings.isa_assertion_structure_attributes.isa_privs_attributes[i].effect = false;
+                    }
+                }
+
+                greater = from_markings_clean.isa_assertion_structure.further_sharings.length > to_markings.isa_assertion_structure_attributes.further_sharings_attributes.length ? from_markings_clean.isa_assertion_structure.further_sharings.length : to_markings.isa_assertion_structure_attributes.further_sharings_attributes.length;
+
+                for(var i = 0; i < greater; i++){
+                    if(_.isUndefined(to_markings.isa_assertion_structure_attributes.further_sharings_attributes[i])){
+                        to_markings.isa_assertion_structure_attributes.further_sharings_attributes[i] = _.clone(from_markings_clean.isa_assertion_structure.further_sharings[i]);
+                    } else {
+                        _.extend(to_markings.isa_assertion_structure_attributes.further_sharings_attributes[i], from_markings_clean.isa_assertion_structure.further_sharings[i]);
+                    }
+                    if(to_markings.isa_assertion_structure_attributes.further_sharings_attributes[i].effect == "permit"){
+                        to_markings.isa_assertion_structure_attributes.further_sharings_attributes[i].effect = true;
+                    } else {
+                        to_markings.isa_assertion_structure_attributes.further_sharings_attributes[i].effect = false;
+                    }
+                }
+                // delete non-attributes
+                if (angular.isDefined(to_markings.isa_assertion_structure_attributes.isa_privs)){
+                    delete to_markings.isa_assertion_structure_attributes.isa_privs;
+                }
+                if (angular.isDefined(to_markings.isa_assertion_structure_attributes.further_sharings)){
+                    delete to_markings.isa_assertion_structure_attributes.further_sharings;
+                }
+
+                // the cs_ attributes should be arrays for some reason after cloning they are just strings.
+                to_markings = ensure_correct_type(to_markings);
+            }
+        }
+        return to_markings;
+    },
+    translate_existing_markings: function(to_markings, from_markings) {
+        if ((from_markings.isa_marking_structure_attributes != null &&
+                angular.isDefined(from_markings.isa_marking_structure_attributes)) ||
+                (from_markings.isa_assertion_structure_attributes != null &&
+                angular.isDefined(from_markings.isa_assertion_structure_attributes))) {
+
+            if (angular.isDefined(from_markings.isa_marking_structure_attributes) && (from_markings.isa_marking_structure_attributes != null)) {
+                to_markings.isa_marking_structure_attributes.re_custodian = from_markings.isa_marking_structure_attributes.re_custodian;
+                to_markings.isa_marking_structure_attributes.re_originator = from_markings.isa_marking_structure_attributes.re_originator;
+                to_markings.isa_marking_structure_attributes.data_item_created_at = from_markings.isa_marking_structure_attributes.data_item_created_at;
+            }
+
+            if (angular.isDefined(from_markings.isa_assertion_structure_attributes) && from_markings.isa_assertion_structure_attributes != null) {
+                to_markings.isa_assertion_structure_attributes = _.cloneDeep(from_markings.isa_assertion_structure_attributes);
+                to_markings.isa_assertion_structure_attributes.isa_privs_attributes = _.cloneDeep(from_markings.isa_assertion_structure_attributes.isa_privs_attributes) || [];
+                to_markings.isa_assertion_structure_attributes.further_sharings_attributes = _.cloneDeep(from_markings.isa_assertion_structure_attributes.further_sharings_attributes) || [];
+
+                // the cs_ attributes should be arrays for some reason after cloning they are just strings.
+                to_markings = ensure_correct_type(to_markings);
+                // Delete off any old identifiers
+                to_markings = delete_old_identifiers(to_markings);
+            }
+        }
+        return to_markings;
+    },
+    get_isa_assertion: function(stix_markings) {
+        return _.find(stix_markings,function(sm) {return angular.isDefined(sm) && angular.isDefined(sm.isa_assertion_structure) &&
+                sm.isa_assertion_structure != "" && sm.isa_assertion_structure != null});
+
+    },
+    get_isa_marking: function(stix_markings) {
+        return _.find(stix_markings,function(sm) {return angular.isDefined(sm) && angular.isDefined(sm.isa_marking_structure) &&
+                sm.isa_marking_structure != ""});
+
+    },
+    get_classification_attributes: function(stix_markings) {
+        if ($rootScope.setting_value('CLASSIFICATION')) {
+            /* We need both because we need to account for ACS Sets */
+            var sm = _.find(stix_markings,function(sm) {
+                if (angular.isDefined(sm.isa_assertion_structure_attributes) &&
+                sm.isa_assertion_structure_attributes != "" && sm.isa_assertion_structure_attributes != null){
+                    return true;
+                } else if(angular.isDefined(sm.isa_assertion_structure) &&
+                sm.isa_assertion_structure != "" && sm.isa_assertion_structure != null){
+                    return true;
+                } else{
+                    return false;
+                }
+            });
+
+            if (angular.isDefined(sm) && angular.isDefined(sm.isa_assertion_structure_attributes)) {
+                return sm.isa_assertion_structure_attributes.cs_classification;
+            } else if (angular.isDefined(sm) && angular.isDefined(sm.isa_assertion_structure)){
+                return sm.isa_assertion_structure.cs_classification;
+            }
+        } else {
+            return null;
+        };
+    },
+    get_highest_classification: function(portion_markings){
+        if ($rootScope.setting_value('CLASSIFICATION')) {
+            var CLASSIFICATIONS = ['U', 'C', 'S', 'TS'];
+            var value = -1;
+            var highest = '';
+            portion_markings.forEach(function(marking){
+                if (CLASSIFICATIONS.indexOf(marking) > value) {
+                    value = CLASSIFICATIONS.indexOf(marking);
+                    highest = marking;
+                }
+            });
+            return highest;
+        } else {
+            return null;
+        };
+    }
+  };
+}]);

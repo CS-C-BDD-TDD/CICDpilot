@@ -1,0 +1,53 @@
+<style>
+  .label-title {
+    line-height: 1.15;
+    border-radius: 0;
+    font-weight: normal;
+    text-shadow: none;
+    display: inline-block;
+    padding-top: 0.2em;
+    padding-right: 0.6em;
+    padding-left: 0.6em;
+    padding-bottom: 0.3em;
+    color: #ffffff;
+    text-align: center;
+    white-space: no-wrap;
+    vertical-align: baseline;
+  }
+</style>
+
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">
+
+<div class="page-header">
+  <h1>
+    Items Tagged with <span class="label-title" ng-class="user_tag.type">{{user_tag.name}}</span>
+
+  <span class="pull-right">
+      <a ng-href="<%= Rails.configuration.action_controller.relative_url_root %>/user_tags/{{user_tag.guid}}.stix" class="btn btn-pink no-radius btn-xs">
+        <i class="ace-icon fa fa-share bigger-160"></i>
+        Download as STIX
+      </a>
+      <button class="btn btn-danger no-radius btn-xs"
+              ng-confirm-click='delete(user_tag)'
+              ng-show="can('tag_item_with_user_tag')">
+        <i class="ace-icon fa fa-trash-o bigger-160"></i>
+        Delete Tag
+      </button>
+    </span>
+  </h1>
+</div>
+
+<p class="pull-right">
+</p>
+
+<div class="space-12"></div>
+
+<indicator-table indicators="indicators" indicators_route="indicatorsRoute" metadata="metadata" indexpage=true tags=true></indicator-table>
+
+<div class="space-12"></div>
+
+<audits-table audits="user_tag.audits"></audits-table>
+
+</div>
+
+<show-spinner> </show-spinner>

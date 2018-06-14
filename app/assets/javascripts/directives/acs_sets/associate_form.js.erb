@@ -1,0 +1,389 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('acsAssociateForm',function() {
+    return {
+        restrict: 'E',
+        scope: {
+            object:'=',
+            objecttype: '@?',
+            sets: '=',
+            disableSave: '=',
+            editform:'=',
+            fieldname: '=?',
+            smindex: '=?',
+            fieldtext: '=?',
+            fromlinker: '=?',
+            toggleIsaMarkingsView: '=?'
+        },
+        templateUrl: '<%=asset_path("acs_sets/associate_form.html",type: :template)%>',
+        controller: ['$scope','$rootScope','Restangular','$timeout','Marking','$element',function($scope,$rootScope,Restangular,$timeout,Marking,$element) {
+          $scope.show_classifications = $rootScope.setting_value('CLASSIFICATION');
+          if (angular.isUndefined($scope.smindex) || $scope.smindex.index == '' || $scope.smindex.index == null || $scope.smindex.index == -1){
+            $scope.smindex = {index: 0};
+          }
+          $scope.marking_sets = [];
+
+          if (angular.isDefined($scope.fieldname)) {
+            if ($scope.fieldname != 'cybox' && angular.isUndefined($scope.fieldtext)) {
+              var fieldtext = $element.parent().parent().parent().parent().parent();
+              if (angular.isDefined(fieldtext.prev().html()) && !fieldtext.prev().html().match(/label/)) {
+                fieldtext = fieldtext.prev();
+              }
+              if (fieldtext[0].className == "profile-info-name"){
+                $scope.fieldtext = fieldtext.text().trim();
+              } else {
+                $scope.fieldtext = fieldtext.prev().children('label').text().trim();
+                $scope.fieldtext = $scope.fieldtext.replace('*', '').trim();
+              }
+              
+              $scope.fieldtext += " field";
+            } else if ($scope.fieldname == 'cybox') {
+              if ($scope.objecttype == 'AttackPattern') {
+                $scope.fieldtext = "Attack Pattern";
+              } else if ($scope.objecttype == 'Vulnerability') {
+                $scope.fieldtext = $scope.objecttype;
+              } else {
+                $scope.fieldtext = $scope.objecttype + " Observable";
+              }
+            }
+          } else if (angular.isDefined($scope.objecttype)) {
+            $scope.fieldtext = $scope.objecttype;
+          }
+
+          // Try to find the existing marking attributes.
+          function find_field_attributes_index(){
+            if (angular.isDefined($scope.object) && angular.isDefined($scope.object.stix_markings_attributes)){
+              for (var i = 0; i < $scope.object.stix_markings_attributes.length; i++){
+                if (angular.isDefined($scope.object.stix_markings_attributes[i]) && angular.isDefined($scope.object.stix_markings_attributes[i].remote_object_field) && $scope.object.stix_markings_attributes[i].remote_object_field != null && $scope.object.stix_markings_attributes[i].remote_object_field == $scope.fieldname){
+                  return i;
+                }
+              }
+            }
+            return -1;
+          }
+
+          function find_object_attributes_index(){
+            if (angular.isDefined($scope.object) && angular.isDefined($scope.object.stix_markings_attributes)){
+              for (var i = 0; i < $scope.object.stix_markings_attributes.length; i++){
+                if (angular.isDefined($scope.object.stix_markings_attributes[i]) && ($rootScope.is_undefined_or_null($scope.object.stix_markings_attributes[i].remote_object_field) || (angular.isDefined($scope.object.stix_markings_attributes[i].remote_object_field) && $scope.object.stix_markings_attributes[i].remote_object_field == null)) && angular.isDefined($scope.object.stix_markings_attributes[i].isa_assertion_structure_attributes)){
+                  return i;
+                }
+              }
+            }
+            return -1;
+          }
+
+          function find_object_markings_index(){
+            if (angular.isDefined($scope.object) && angular.isDefined($scope.object.stix_markings_attributes)){
+              for (var i = 0; i < $scope.object.stix_markings_attributes.length; i++){
+                if (angular.isDefined($scope.object.stix_markings_attributes[i]) && ($rootScope.is_undefined_or_null($scope.object.stix_markings_attributes[i].remote_object_field) || (angular.isDefined($scope.object.stix_markings_attributes[i].remote_object_field) && $scope.object.stix_markings_attributes[i].remote_object_field == null)) && angular.isDefined($scope.object.stix_markings_attributes[i].isa_marking_structure_attributes)){
+                  return i;
+                }
+              }
+            }
+            return -1;
+          }
+
+          function return_classification_details(isa_assertion, old_assertion){
+            isa_assertion.cs_classification = old_assertion.cs_classification;
+            isa_assertion.classified_by = old_assertion.classified_by;
+            isa_assertion.classified_on = old_assertion.classified_on;
+            isa_assertion.classification_reason = old_assertion.classification_reason;
+            return isa_assertion;
+          }
+
+          function prompt_classification_justification(m_index, old_attributes, obj_type){
+            if ($scope.show_classifications && $scope.object.stix_markings_attributes[m_index].isa_assertion_structure_attributes.cs_classification[0] != old_attributes.isa_assertion_structure_attributes.cs_classification[0] && (angular.isDefined($scope.object.cybox_object_id) || (angular.isDefined($scope.object.stix_id) && $scope.object.stix_id != 'NEW-INDICATOR'))) {
+              $timeout(function() {
+                if (angular.isUndefined($scope.object.justification) || $scope.object.justification == null){
+                  $scope.object.justification = [];
+                }
+                var j_index = $scope.object.justification.length;
+                $scope.object.justification.push({justification: prompt("Justification for Changing Classification"), field: $scope.fieldname});
+                if ($scope.object.justification[j_index].justification == null || $scope.object.justification[j_index].justification == '') {
+                  if ($scope.object.justification[j_index].justification == '') {
+                    $scope.object.errors = {};
+                    $scope.object.errors.alt_acs_selector = ["Justification for Classification change can't be blank"];
+                  }
+                  $scope.object.justification.splice(j_index,1);
+                  if (obj_type == "cybox"){
+                    $scope.object.stix_markings_attributes[$scope.smindex.index].isa_assertion_structure_attributes = return_classification_details($scope.object.stix_markings_attributes[$scope.smindex.index].isa_assertion_structure_attributes, old_attributes.isa_assertion_structure_attributes);
+                  } else {
+                    $scope.object.stix_markings_attributes[$scope.smindex.index].isa_assertion_structure_attributes = return_classification_details($scope.object.stix_markings_attributes[$scope.smindex.index].isa_assertion_structure_attributes, old_attributes.isa_assertion_structure_attributes);
+                  }
+                  return;
+                }
+
+                // Since we changed the toggle to ng-if, acs_selected name doesnt persist
+                if (angular.isDefined($scope.object)) {
+                    if (angular.isDefined($scope.alt_acs_selector) && !$rootScope.is_undefined_or_null($scope.alt_acs_selector.id)) {
+                        $scope.object.stix_markings_attributes[m_index].template_name = $scope.alt_acs_selector.name;
+                    }
+
+                    // make errors go away since we good now
+                    if (angular.isDefined($scope.object.errors)){
+                      $scope.object.errors = {};
+                    }
+                }
+
+              })
+            } else {
+              if (angular.isDefined($scope.object)) {
+                  if (angular.isDefined($scope.alt_acs_selector) && !$rootScope.is_undefined_or_null($scope.alt_acs_selector.id)) {
+                      $scope.object.stix_markings_attributes[m_index].template_name = $scope.alt_acs_selector.name;
+                  }
+              }
+            }
+          }
+
+          function build_markings_for_custom(){
+            // set the isa assertion index to the markings index because were building the isa assertion into the same markings
+            if (angular.isDefined($scope.smindex.markingsindex)){
+              $scope.smindex.index = $scope.smindex.markingsindex;
+            }
+            if(angular.isUndefined($scope.object.stix_markings_attributes[$scope.smindex.index].isa_assertion_structure_attributes)){
+              $scope.object.stix_markings_attributes[$scope.smindex.index].isa_assertion_structure_attributes = Marking.build_default_isa_assertion();
+            }
+
+            // checks to see if the acs set id is defined. if it is transmute it into the attributes if not build default
+            // check the cache to see if the markings set already exists
+            if (angular.isDefined($scope.object.acs_set_id) && $scope.object.acs_set_id != '' && $scope.object.acs_set_id != null){
+              var saved_markings = $scope.marking_sets.find(function(markings_set){
+                return $scope.object.acs_set_id == markings_set.guid;
+              });
+              if (saved_markings == null){
+                Restangular.one('acs_sets').get({id: $scope.object.acs_set_id}).then(function(data){
+                  // add the acs_set into the markings_set to cache;
+                  $scope.marking_sets.push(data);
+                  // set it equal to the existing markings
+                  if (angular.isDefined(data.stix_markings)){
+                    $scope.object.stix_markings_attributes[$scope.smindex.index] = Marking.translate_acs_markings($scope.object.stix_markings_attributes[$scope.smindex.index], data.stix_markings[0]);
+                  }
+                },function(res){
+                    toastr.error("Unable to load ACS Set Markings");
+                });
+              } else {
+                if (angular.isDefined(saved_markings.stix_markings)){
+                  $scope.object.stix_markings_attributes[$scope.smindex.index] = Marking.translate_acs_markings($scope.object.stix_markings_attributes[$scope.smindex.index], saved_markings.stix_markings[0]);
+                }
+              }
+            }
+
+            // save the acs set stuff because we might need it later if they cancel the customization
+            $scope.object.prev_acs_set_id = $scope.object.acs_set_id;
+            $scope.object.prev_acs_set = $scope.object.acs_set;
+            // since were customizing set the acs set identification to null;
+            $scope.object.acs_set_id = "";
+            $scope.object.acs_set = "";
+            $scope.object.stix_markings_attributes[$scope.smindex.index].custom = true;
+
+            // we had a previous delete flag from switching to an acs_set, now we switch back we need to keep the markings.
+            if (angular.isDefined($scope.object.stix_markings_attributes[$scope.smindex.index]) && angular.isDefined($scope.object.stix_markings_attributes[$scope.smindex.index].isa_assertion_structure_attributes) && angular.isDefined($scope.object.stix_markings_attributes[$scope.smindex.index].isa_assertion_structure_attributes._destroy)){
+              delete $scope.object.stix_markings_attributes[$scope.smindex.index].isa_assertion_structure_attributes._destroy;
+            }
+
+            // make errors go away since we good now
+            if (angular.isDefined($scope.object.errors)){
+              $scope.object.errors = {};
+            }
+          }
+
+          function set_and_destroy_for_acs(){
+            var assertion_index = find_object_attributes_index();
+            if (angular.isDefined($scope.object.stix_markings_attributes) && angular.isDefined($scope.object.stix_markings_attributes[assertion_index])){
+              if(angular.isDefined($scope.object.stix_markings_attributes[assertion_index].isa_assertion_structure_attributes) && angular.isUndefined($scope.object.stix_markings_attributes[assertion_index].isa_marking_structure_attributes)){
+                $scope.object.stix_markings_attributes[assertion_index]._destroy = '1';
+              } else if (angular.isDefined($scope.object.stix_markings_attributes[assertion_index].isa_assertion_structure_attributes) && angular.isDefined($scope.object.stix_markings_attributes[assertion_index].isa_marking_structure_attributes)){
+                if (angular.isDefined($scope.object.stix_markings_attributes[assertion_index].isa_assertion_structure_attributes.id) && $scope.object.stix_markings_attributes[assertion_index].isa_assertion_structure_attributes.id != null){
+                  //Had Custom Markings Prior, Needs Destroy Flag
+                  $scope.object.stix_markings_attributes[assertion_index].isa_assertion_structure_attributes._destroy = '1';
+                } else { //No Prior Markings, No Destroy Flag Needed
+                  delete $scope.object.stix_markings_attributes[assertion_index].isa_assertion_structure_attributes;
+                }
+              }
+
+              $scope.object.stix_markings_attributes[assertion_index].custom = false;
+            }
+            
+
+            // Set the objects acs_set id
+            if (angular.isDefined($scope.object)) {
+              if (angular.isDefined($scope.object.acs_set) && !$rootScope.is_undefined_or_null($scope.object.acs_set.id)) {
+                $scope.object.acs_set_id = $scope.object.acs_set.guid;
+              }
+            }
+
+            // make errors go away since we good now
+            if (angular.isDefined($scope.object.errors)){
+              $scope.object.errors = {};
+            }
+          }
+
+          $scope.$watch('object',function(){
+                if (angular.isDefined($scope.object)){
+                  if(_.isEmpty($scope.object)){
+                    // reinit the index
+                    $scope.smindex.index = -3;
+                    return;
+                  }
+                  if(angular.isDefined($scope.object.stix_markings_attributes) && (angular.isDefined($scope.smindex.index) && angular.isUndefined($scope.object.stix_markings_attributes[$scope.smindex.index]) || angular.isUndefined($scope.smindex.index))){
+                    $scope.smindex.index = 0;
+                  }
+                  // this means we have an object level marking and it is possible this marking is not in the 0 position
+                  if((angular.isUndefined($scope.fieldname) || (angular.isDefined($scope.fieldname) && $scope.fieldname == 'cybox')) && angular.isDefined($scope.object.stix_markings_attributes) && angular.isDefined($scope.object.stix_markings_attributes[$scope.smindex.index].remote_object_field)){
+                    $scope.smindex.index = find_object_attributes_index();
+                  }
+                  if (angular.isDefined($scope.smindex) && angular.isDefined($scope.fieldname) && $scope.fieldname != 'cybox' && angular.isDefined($scope.object.stix_markings_attributes) && $scope.object.stix_markings_attributes.length > 1){
+                    $scope.smindex.index = find_field_attributes_index();
+                  }
+                  if (angular.isDefined($scope.smindex) && angular.isDefined($scope.object.stix_markings_attributes) && (angular.isDefined($scope.object.stix_markings_attributes[$scope.smindex.index]) && angular.isUndefined($scope.object.stix_markings_attributes[$scope.smindex.index].isa_marking_structure_attributes) || angular.isUndefined($scope.object.stix_markings_attributes[$scope.smindex.index]))) {
+                    $scope.smindex.markingsindex = find_object_markings_index();
+                  }
+                  if (angular.isDefined($scope.object.stix_markings_attributes) && angular.isDefined($scope.object.stix_markings_attributes[$scope.smindex.index]) 
+                      && angular.isDefined($scope.object.stix_markings_attributes[$scope.smindex.index].setup) && $scope.object.stix_markings_attributes[$scope.smindex.index].setup) {
+                    if (angular.isUndefined($scope.object.stix_markings_attributes[$scope.smindex.index].custom)){
+                      if (angular.isDefined($scope.object.acs_set_id) && $scope.object.acs_set_id != null && $scope.object.acs_set_id != "" && $scope.object.stix_markings_attributes[$scope.smindex.index].remote_object_field == null) {
+                        $scope.object.stix_markings_attributes[$scope.smindex.index].custom = false;
+                      } else {
+                        $scope.object.stix_markings_attributes[$scope.smindex.index].custom = true;
+                      }
+                    }
+                    
+                    return;
+                  }
+                  if (angular.isDefined($scope.object.stix_markings_attributes)){
+                    if (angular.isDefined($scope.object.stix_markings_attributes[$scope.smindex.index])){
+                      if (angular.isDefined($scope.object.acs_set_id) && $scope.object.acs_set_id != null && $scope.object.acs_set_id != "" && $scope.object.stix_markings_attributes[$scope.smindex.index].remote_object_field == null) {
+                        $scope.object.stix_markings_attributes[$scope.smindex.index].custom = false;
+                      } else {
+                        $scope.object.stix_markings_attributes[$scope.smindex.index].custom = true;
+                      }
+                    }
+                  } else {
+                      $scope.object.stix_markings_attributes = [{
+                          isa_marking_structure_attributes: Marking.build_default_isa_marking(), 
+                          isa_assertion_structure_attributes: Marking.build_default_isa_assertion()
+                      }]
+                      if (angular.isDefined($scope.fieldname) && $scope.fieldname.length>0) {
+                        $scope.alt_acs_selector = {};
+                      }
+                  }
+                  if (angular.isDefined($scope.object.stix_markings_attributes) && angular.isDefined($scope.object.stix_markings_attributes[$scope.smindex.index])){
+                    $scope.object.stix_markings_attributes[$scope.smindex.index].setup = true;
+                  }
+                }
+            }, true);
+
+            $scope.customize = function(){
+               if (angular.isDefined($scope.object.stix_id) && $scope.object.stix_id != 'NEW-INDICATOR' && $scope.object.acs_set_id != '' && $scope.object.acs_set_id != null  && angular.isDefined($scope.object.acs_set) && $scope.object.acs_set != null) {
+                  $timeout(function() {
+                    if (angular.isUndefined($scope.object.justification) || $scope.object.justification == null){
+                      $scope.object.justification = [];
+                    }
+                    var j_index = $scope.object.justification.length;
+                    $scope.object.justification.push({justification: prompt("Justification for disassociating ACS Set with Object"), field: $scope.fieldname});
+                    if ($scope.object.justification[j_index].justification == null || $scope.object.justification[j_index].justification == '') {
+                      if ($scope.object.justification[j_index].justification == '') {
+                        $scope.object.errors = {};
+                        $scope.object.errors.acs_set_id = ["Justification can't be blank"];
+                      }
+                      $scope.object.justification.splice(j_index,1);
+                      return;
+                    }
+
+                    build_markings_for_custom();
+                  })
+               } else {
+                  build_markings_for_custom();
+               }
+            }
+
+          $scope.select_acs_set = function(){
+            if (angular.isDefined($scope.object.stix_id) && $scope.object.stix_id != 'NEW-INDICATOR') {
+              $timeout(function() {
+                if (angular.isUndefined($scope.object.justification) || $scope.object.justification == null){
+                  $scope.object.justification = [];
+                }
+                var j_index = $scope.object.justification.length;
+                $scope.object.justification.push({justification: prompt("Justification for Associating a New ACS Set with Object"), field: $scope.fieldname});
+                if ($scope.object.justification[j_index].justification == null || $scope.object.justification[j_index].justification == '') {
+                  if ($scope.object.justification[j_index].justification == '') {
+                    $scope.object.errors = {};
+                    $scope.object.errors.acs_set_id = ["Justification can't be blank"];
+                  }
+                  $scope.object.justification.splice(j_index,1);
+                  if (angular.isDefined($scope.object.acs_set) && angular.isDefined($scope.object.acs_set_id) && $scope.object.acs_set_id != null) {
+                    angular.element('#acs_set_selector').val($scope.object.acs_set_id);
+                  } else {
+                    angular.element('#acs_set_selector').val(0);
+                    $scope.object.acs_set_id = null;
+                    $scope.object.acs_set = null;
+                    $scope.object.stix_markings_attributes[$scope.smindex.index].custom = true;
+                    delete $scope.object.stix_markings_attributes[$scope.smindex.index].isa_assertion_structure_attributes._destroy;
+                  }
+                  return;
+                } else {
+                  set_and_destroy_for_acs();
+                }
+              })
+            } else if (angular.isUndefined($scope.object.stix_id) || (angular.isDefined($scope.object.stix_id) && $scope.object.stix_id == 'NEW-INDICATOR')){
+              set_and_destroy_for_acs();
+            }
+          }
+
+          $scope.remove_customization = function(){
+            if (angular.isDefined($scope.object)){
+              // if we had a previous acs_set to go back to we go back to that.
+              if (angular.isDefined($scope.object.prev_acs_set_id) && angular.isDefined($scope.object.prev_acs_set)){
+                $scope.object.acs_set_id = $scope.object.prev_acs_set_id;
+                $scope.object.acs_set = $scope.object.prev_acs_set;
+                set_and_destroy_for_acs();
+              } else {
+                // otherwise we set it back to what we started with when we first entered the edit.
+                $scope.object = Marking.translate_existing_attributes($scope.object, true);
+              }
+            }
+          }
+
+          $scope.transmute_attributes = function(){
+            // before anything else happens save the old_attributes incase we need to switch back.
+            var old_attributes = _.cloneDeep($scope.object.stix_markings_attributes[$scope.smindex.index]);
+            // set the index to smindex.index as default and then check if we accessing object level
+            var m_index = $scope.smindex.index;
+            if (arguments[0] == "cybox"){
+              m_index = find_object_attributes_index();
+            }
+
+            // check the cache to see if the markings set already exists
+            var saved_markings = $scope.marking_sets.find(function(markings_set){
+              return $scope.alt_acs_selector.id == markings_set.id;
+            });
+            if (saved_markings == null){
+              Restangular.one('acs_sets').get({id: $scope.alt_acs_selector.id}).then(function(data){
+                // add the acs_set into the markings_set to cache;
+                $scope.marking_sets.push(data);  
+                // set it equal to the existing markings
+                if (angular.isDefined(data.stix_markings)){
+                  $scope.object.stix_markings_attributes[m_index] = Marking.translate_acs_markings($scope.object.stix_markings_attributes[m_index], data.stix_markings[0]);
+                }
+
+                // Prompt for justification if classification change.
+                prompt_classification_justification(m_index, old_attributes, arguments[0]);
+                
+              },function(res){
+                  toastr.error("Unable to load ACS Set Markings");
+              });
+            } else {
+              if (angular.isDefined(saved_markings.stix_markings)){
+                $scope.object.stix_markings_attributes[m_index] = Marking.translate_acs_markings($scope.object.stix_markings_attributes[m_index], saved_markings.stix_markings[0]);
+              }
+
+              // Prompt for justification if classification change.
+              prompt_classification_justification(m_index, old_attributes, arguments[0]);
+              
+            }
+          }
+        }]
+    }
+});
+

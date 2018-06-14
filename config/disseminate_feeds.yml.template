@@ -1,0 +1,22 @@
+FEDGOV:
+    profile:    ISA
+    government: Y
+    directory:  /tmp/isa
+    feed:       ESSA_DOD
+    active:     true
+AIS:
+    profile:    AIS
+    government: N
+    directory:  /tmp/ais
+    feed:       AIS_Private
+    active:     true
+CISCP:
+    profile:    CISCP
+    government: Y
+    directory:  /tmp/ciscp
+    feed:       CISCP
+    active:     false
+SANITIZED_MAPPINGS:
+    directory:  /tmp/json
+    feed:       JSON
+    active:     false

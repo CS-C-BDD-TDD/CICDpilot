@@ -1,0 +1,51 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">
+
+<div class="page-header">
+  <h1>
+    {{group.name}}
+    <span class="pull-right" ng-show="can('create_modify_user_organization')">
+      <a ng-href="#/groups/{{group.id | encodeURIComponent}}/edit" class="btn btn-info no-radius btn-xs"><i class="ace-icon fa fa-pencil-square-o bigger-160"></i> Edit</a>
+    </span>
+  </h1>
+</div>
+
+<p class="pull-right">
+</p>
+
+<div class="profile-user-info profile-user-info-striped">
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Group Name </div>
+    <div class="profile-info-value">
+      <span>{{group.name}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Group Description </div>
+    <div class="profile-info-value">
+      <span>{{group.description}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Created Date </div>
+    <div class="profile-info-value">
+      <span>{{group.created_at | date:"medium"}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Permissions </div>
+    <div class="profile-info-value">
+      <ul>
+        <li ng-repeat="permission in group.permissions | orderBy:'display_name'">{{permission.display_name}}</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<audits-table audits="group.audits"></audits-table>
+
+</div>
+
+<show-spinner> </show-spinner>

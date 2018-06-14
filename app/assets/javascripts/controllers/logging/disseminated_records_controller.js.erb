@@ -1,0 +1,39 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('DisseminatedRecordsController', ['$scope','Restangular', '$rootScope', function($scope, Restangular, $rootScope){
+  $scope.angular = angular;
+  $scope.date_picker_opts = {
+    startDate: moment().startOf('week').subtract(8, 'days').format('MM/DD/YYYY'),
+    endDate: moment().startOf('week').subtract(2, 'days').format('MM/DD/YYYY'),
+    lastWeekRanges: true
+  };
+  $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                {text:'Disseminated Records',link:'#/logging/disseminated_records', icon:'fa-file-text'}];
+
+  // Cleanup
+  $scope.$on('$destroy', function() {
+    $('.daterangepicker').remove();
+  });
+      
+  $scope.dateRangePicker = function(picker) {
+    $scope.date_picker_object = picker;
+    $scope.search();
+  };
+
+  $scope.search = function(){
+    if ($scope.date_picker_object.getStartDate()=="") {
+      $scope.$evalAsync(function() {
+        $scope.fetching = true;
+        $scope.results = undefined;
+      });
+    } else {
+      Restangular.one('logging/disseminated').get({
+        ebt:$scope.date_picker_object.getStartDate(),
+        iet:$scope.date_picker_object.getEndDate()
+      }).then(function(data){
+        $scope.results = data.log;
+        $scope.fetching = false;
+      })
+    }
+  }
+}]);

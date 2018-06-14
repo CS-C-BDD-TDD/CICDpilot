@@ -1,0 +1,20 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('MutexesEditController', ['$scope','$routeParams','Restangular','$rootScope','$location','Marking',
+    function($scope,$routeParams,Restangular,$rootScope,$location,Marking) {
+        Restangular.one('/mutexes/'+$routeParams.id).get().then(function(data){
+            $scope.mutex = Marking.translate_existing_attributes(data);
+            $rootScope.breadcrumbs = [{text:'Home',mutex:'#/',icon:'fa-home'},{text:'Mutexes',mutex:'#/mutexes',icon:'fa-group'},{text:data.name,mutex:'#/mutexes/'+encodeURIComponent(data.cybox_object_id)}];
+        },function(res){
+            toastr.error("Unable to load Mutex record");
+        });
+
+        $scope.cancel = function() {
+            $location.path('/mutexes/'+$routeParams.id);
+        };
+
+        $scope.failed = function() {
+            $("html, body").animate({ scrollTop: 0 }, 200);
+        };
+    }
+]);

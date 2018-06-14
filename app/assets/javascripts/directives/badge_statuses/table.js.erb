@@ -1,0 +1,72 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('badgeStatusesTable', function() {
+  return {
+    restrict: 'E',
+    templateUrl: function(elem,attrs) {
+      return '<%=asset_path("badge_statuses/table.html",type: :template)%>'
+    },
+    scope: {
+              badgeStatuses: '=',
+              audits: '=',
+              parentId: '=',
+              parentClass: '@'
+           },
+    controller: ['$scope', 'Restangular', '$rootScope', function($scope,Restangular,$rootScope) {
+      $scope.can = $rootScope.can;
+
+      $scope.toggleBadgeModal = function(current_badge){
+        $scope.current_badge = current_badge;
+        $('#badge_modal').modal({backdrop: 'static', keyboard: false});
+      };
+
+      $scope.toggleBadgeModalNew = function(){
+        $scope.current_badge = {badge_name:'', badge_status: '', remote_object_id: $scope.parentId, remote_object_type: $scope.parentClass};
+        $('#badge_modal').modal({backdrop: 'static', keyboard: false});
+      };
+
+      $scope.save = function(badge){
+        if ($rootScope.is_undefined_or_null(badge.guid)){
+          Restangular.all("badge_statuses/").post(badge).then(function(data){
+            toastr.success("Badge saved");
+            $scope.badgeStatuses.push(data);
+            $('#badge_modal').modal('toggle');
+            $scope.audits = data.remote_audits;
+          },function(res){
+            toastr.error("Unable to save Badge");
+            $rootScope.show_res_errors(res);
+            $scope.current_badge.errors = res.data.errors;
+          });
+        } else {
+          Restangular.one("badge_statuses/"+badge.guid).customPUT(badge).then(function(data){
+            toastr.success("Badge saved");
+            $('#badge_modal').modal('toggle');
+            $scope.audits = data.remote_audits;
+          },function(res){
+            toastr.error("Unable to save Badge");
+            $rootScope.show_res_errors(res);
+            $scope.current_badge.errors = res.data.errors;
+          });
+        }
+        
+      };
+
+      $scope.delete_badge = function(badge){
+        if (angular.isDefined(badge.guid)){
+          Restangular.one("badge_statuses/"+badge.guid).remove().then(function(data){
+            toastr.success("Badge deleted");
+            _.remove($scope.badgeStatuses, {
+              guid: badge.guid
+            });
+            $('#badge_modal').modal('toggle');
+            $scope.audits = data.remote_audits;
+          },function(res){
+            toastr.error("Unable to delete badge: "+res.data.errors[0]);
+            $('#badge_modal').modal('toggle');
+          });
+        }
+        
+      };
+    }]
+  };
+});

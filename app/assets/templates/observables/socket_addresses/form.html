@@ -1,0 +1,158 @@
+<form class="form-horizontal">
+    <div class="widget-body" ng-show="current_page == 0">
+        <div class="widget-main">
+            <div class="ciap_mbottom_5">
+                <div class="alert alert-block alert-warning">
+                    <button class="close" data-dismiss="alert" type="button">
+                    <i class="ace-icon fa fa-times"></i>
+                    </button>
+                    For the Socket Address Observable you can only add Addresses or Hostnames. You can add ports with either choice.
+                </div>
+            </div>
+            <div>
+                <div class="widget-header widget-header-small">
+                    <h4 class="widget-title blue smaller">
+                        <i class="ace-icon fa fa-tasks orange"></i>
+                        Attached Addresses
+                    </h4>
+                </div>
+
+                <div class="space-6"></div>
+
+                <div class="width-90 center-block" ng-show="socketAddress.addresses.length">
+                    <div class="ciap_table_scroll_500">
+                    <ol class="dd-list">
+                        <li class="dd-item" ng-repeat="address in socketAddress.addresses">
+                            <div class="dd-handle">
+                                <a href="#/addresses/{{address.cybox_object_id}}">{{address.cybox_object_id | prefixWithPortionMarking: address.portion_marking}}</a>
+                                <div class="pull-right action-buttons">
+                                    <a class="red" href="" ng-click="removeAddress(address)">
+                                        <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                    </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-hide="socketAddress.addresses.length">
+            No Attached Addresses
+            </div>
+
+            <address-browser selected_addresses="socketAddress.addresses"></address-browser>
+
+            <div class="space-12"></div>
+
+            <div>
+                <div class="widget-header widget-header-small">
+                    <h4 class="widget-title blue smaller">
+                        <i class="ace-icon fa fa-tasks orange"></i>
+                        Attached Hostnames
+                    </h4>
+                </div>
+
+                <div class="space-6"></div>
+
+                <div class="width-90 center-block" ng-show="socketAddress.hostnames.length">
+                    <div class="ciap_table_scroll_500">
+                    <ol class="dd-list">
+                        <li class="dd-item" ng-repeat="hostname in socketAddress.hostnames">
+                            <div class="dd-handle">
+                                <a href="#/hostnames/{{hostname.cybox_object_id}}">{{hostname.cybox_object_id | prefixWithPortionMarking: hostname.portion_marking}}</a>
+                                <div class="pull-right action-buttons">
+                                    <a class="red" href="" ng-click="removeHostname(hostname)">
+                                        <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                    </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-hide="socketAddress.hostnames.length">
+            No Attached Hostnames
+            </div>
+
+            <hostname-browser selected_hostnames="socketAddress.hostnames"></hostname-browser>
+
+            <div class="space-12"></div>
+
+            <div>
+                <div class="widget-header widget-header-small">
+                    <h4 class="widget-title blue smaller">
+                        <i class="ace-icon fa fa-tasks orange"></i>
+                        Attached Ports
+                    </h4>
+                </div>
+
+                <div class="space-6"></div>
+
+                <div class="width-90 center-block" ng-show="socketAddress.ports.length">
+                    <div class="ciap_table_scroll_500">
+                    <ol class="dd-list">
+                        <li class="dd-item" ng-repeat="port in socketAddress.ports">
+                            <div class="dd-handle">
+                                <a href="#/ports/{{port.cybox_object_id}}">{{port.cybox_object_id | prefixWithPortionMarking: port.portion_marking}}</a>
+                                <div class="pull-right action-buttons">
+                                    <a class="red" href="" ng-click="removePort(port)">
+                                        <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                    </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-hide="socketAddress.ports.length">
+            No Attached Ports
+            </div>
+
+            <port-browser selected_ports="socketAddress.ports"></port-browser>
+
+            <div class="space-12"></div>
+        </div>
+    </div>
+    <!-- End Part 1 -->
+    <div class="widget-body" ng-show="current_page == 1">
+        <div class="widget-main">
+            <acs-associate-form sets="sets" object="socketAddress" objecttype="SocketAddress" disable-save="is_saving" editform="editform" fieldname="cybox"></acs-associate-form>
+        </div>
+    </div>
+</form>
+<div class="row">
+    <div class="col-xs-12">
+        <form class="form-horizontal" role="form" ng-submit="save()">
+            <div class="clearfix form-actions">
+                <span ng-show="is_saving">
+                    <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+                </span>
+                <div class="col-md-offset-3" ng-show="current_page == 0">
+                    <button class="btn btn-warning pull-right ciap_mleft_5" ng-disabled="is_saving" type="button" ng-click="current_page = 1">
+                        <i class="ace-icon fa fa-arrow-right bigger-110"></i> Next
+                    </button>
+                    <button class="btn btn-default pull-right ciap_mleft_5" ng-disabled="is_saving" type="button" ng-click="cancel()">
+                        <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                    </button>
+                </div>
+                <div class="col-md-offset-3" ng-show="current_page == 1">
+                    <button class="btn btn-info pull-right ciap_mleft_5" ng-disabled="is_saving" type="submit">
+                        <i class="ace-icon fa fa-check bigger-110"></i> Save
+                    </button>
+                    <button class="btn btn-default pull-right ciap_mleft_5" ng-disabled="is_saving" type="button" ng-click="cancel()">
+                        <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                    </button>
+                    <button class="btn btn-warning pull-right ciap_mleft_5" ng-disabled="is_saving" type="button" ng-click="current_page = 0">
+                        <i class="ace-icon fa fa-arrow-left bigger-110"></i> Back
+                    </button>
+                </div>
+            </div>
+            <div class="hr hr-24"></div>
+        </form>
+    </div>
+</div>

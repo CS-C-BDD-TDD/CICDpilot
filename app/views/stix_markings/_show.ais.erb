@@ -1,0 +1,44 @@
+<% stix_object ||= nil %>
+<% stix_markings ||= [] %>
+<% field_markings ||= nil %>
+<% top_level_name_space ||= 'stix' %>
+<% if stix_object.present? || stix_markings.present? %>
+    <% if stix_object.present? && stix_markings.blank? %>
+        <% stix_markings = get_markings_for_stix_xml(stix_object) if
+               stix_object.stix_markings.present? ||
+                   (stix_object.respond_to?(:acs_set) &&
+                       stix_object.acs_set.present?) %>
+    <% end %>
+    <% stix_markings.concat(field_markings) if field_markings.present? %>
+    <% stix_markings = stix_markings.flatten.uniq %>
+    <% if stix_markings.present? %>
+    <<%= top_level_name_space %>:Handling>
+      <% reject_markings_of_blank_things(stix_markings).uniq {|sm| sm.stix_id }.each do |marking| %>
+      <% ais_consent = [] %>
+      <% if marking.controlled_structure.present? %>
+        <% ais_consent << {controlled_structure: marking.controlled_structure,marking: marking.ais_consent_marking_structure} if marking.ais_consent_marking_structure.present? %>
+    <% end %>
+    <% ais_consent.each do |consent| %>
+      <marking:Marking>
+        <marking:Controlled_Structure><%= consent[:controlled_structure] %></marking:Controlled_Structure>
+        <marking:Marking_Structure xsi:type="AIS:AISMarkingStructure">
+        <% content_for :consent_attrs, flush: true do %>
+          <AIS:AISConsent consent="<%= consent[:marking].consent.upcase %>"></AIS:AISConsent>
+          <AIS:TLPMarking color="<%= consent[:marking].color.upcase %>"></AIS:TLPMarking>
+        <% end %>
+        <% if consent[:marking].proprietary %>
+          <AIS:Is_Proprietary CISA_Proprietary="true">
+            <%= yield :consent_attrs %>
+          </AIS:Is_Proprietary>
+        <% else %>
+          <AIS:Not_Proprietary CISA_Proprietary="false">
+            <%= yield :consent_attrs %>
+          </AIS:Not_Proprietary>
+        <% end %>
+        </marking:Marking_Structure>
+      </marking:Marking>
+    <% end %>
+  <% end %>
+    </<%= top_level_name_space %>:Handling>
+  <% end %>
+<% end %>

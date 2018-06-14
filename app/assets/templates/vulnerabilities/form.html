@@ -1,0 +1,84 @@
+<form class="form-horizontal">
+    <div class="col-md-12">
+        <div>
+            <div class="col-md-1"> </div>
+            <div class="col-md-10">
+                <p><font size="3">Note: Required fields are either Title and Description, CVE_ID and OSVDB_ID, or all 4 fields.</font></p>
+            </div>
+        </div>
+        <div class="space-12"></div>
+        <div class="form-group" ng-class="{'has-error': vulnerability.errors.title}" tooltip="The Title field provides a simple title for this Vulnerability.">
+            <label class="col-md-2 control-label">Title </label>
+            <div class="col-md-10">
+                <input type="text" class="col-md-8" id="title_textbox" ng-model="vulnerability.title" auto-focus></input>
+                <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="title_toggle.toggle > 0" ng-click="title_toggle.clear = title_toggle.clear + 1">Clear Markings</button>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="title_toggle.toggle = title_toggle.toggle + 1">Custom ISA Markings</button>
+            </div>
+            <div ng-show="vulnerability.errors.title" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in vulnerability.errors.title" class="col-md-12">Title {{error}}</span>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="vulnerability" disablesave="is_saving" editform="editform" fieldname="title" togglebuttons="title_toggle"></field-markings-edit>
+
+        <div class="form-group" ng-class="{'has-error': vulnerability.errors.description}" tooltip="The Description field provides an unstructured, text description for this Vulnerability.">
+            <label class="col-md-2 control-label">Description </label>
+            <div class="col-md-10">
+                <textarea class="col-md-8" id="form-field-8" placeholder="Description" ng-model="vulnerability.description"></textarea>
+                <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="des_toggle.toggle > 0" ng-click="des_toggle.clear = des_toggle.clear + 1">Clear Markings</button>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="des_toggle.toggle = des_toggle.toggle + 1">Custom ISA Markings</button>
+            </div>
+            <div ng-show="vulnerability.errors.description" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in vulnerability.errors.description" class="col-md-12">Description {{error}}</span>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="vulnerability" disablesave="is_saving" editform="editform" fieldname="description" togglebuttons="des_toggle"></field-markings-edit>
+
+        <div class="form-group" ng-class="{'has-error': vulnerability.errors.cve_id}"  tooltip="CVE identifier for a particular vulnerability. This field must be in the format of CVE-####-#">
+            <label class="col-md-2 control-label">CVE_ID</label>
+            <div class="col-md-10">
+                 <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="cve_toggle.toggle > 0" ng-click="cve_toggle.clear = cve_toggle.clear + 1">Clear Markings</button>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="cve_toggle.toggle = cve_toggle.toggle + 1">Custom ISA Markings</button>
+                <input type="text" class="col-md-8" id="cve_id_textbox" ng-model="vulnerability.cve_id" placeholder="CVE-####-#"></input>
+            </div>
+            <div ng-show="vulnerability.errors.cve_id" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in vulnerability.errors.cve_id" class="col-md-12">CVE_ID {{error}}</span>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="vulnerability" disablesave="is_saving" editform="editform" fieldname="cve_id" togglebuttons="cve_toggle"></field-markings-edit>
+        
+        <div class="form-group" ng-class="{'has-error': vulnerability.errors.osvdb_id}" tooltip="OSVDB identifier for a particular vulnerability. This field must be a positive integer.">
+            <label class="col-md-2 control-label">OSVDB_ID</label>
+            <div class="col-md-10">
+                 <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="osvdb_toggle.toggle > 0" ng-click="osvdb_toggle.clear = osvdb_toggle.clear + 1">Clear Markings</button>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="osvdb_toggle.toggle = osvdb_toggle.toggle + 1">Custom ISA Markings</button>
+                <input type="text" class="col-md-8" id="osvdb_id_textbox" ng-model="vulnerability.osvdb_id" placeholder="#" only-digits></input>
+            </div>
+            <div ng-show="vulnerability.errors.osvdb_id" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in vulnerability.errors.osvdb_id" class="col-md-12">OSVDB_ID {{error}}</span>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="vulnerability" disablesave="is_saving" editform="editform" fieldname="osvdb_id" togglebuttons="osvdb_toggle"></field-markings-edit>
+        
+        <acs-associate-form sets="sets" object="vulnerability" objecttype="Vulnerability" disable-save="is_saving" editform="editform" fieldname="cybox"></acs-associate-form>
+    </div>
+</form>
+<div class="row" ng-if="save != false">
+    <div class="col-xs-12" >
+        <form class="form-horizontal" role="form" ng-submit="start_save()">
+            <div class="clearfix form-actions">
+                <span ng-show="is_saving">
+                    <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+                </span>
+                <div class="col-md-offset-3">
+                    <button class="btn btn-info pull-right" ng-disabled="is_saving" type="submit">
+                        <i class="ace-icon fa fa-check bigger-110"></i> Save
+                    </button>
+                    <button class="btn btn-default pull-right" ng-disabled="is_saving" type="button" ng-click="cancel()">
+                        <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                    </button>
+                </div>
+            </div>
+            <div class="hr hr-24"></div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+<div class="widget-box widget-color-blue ui-sortable-handle" ng-show="errors.length > 0">
+  <div class="widget-header">
+    <h5 class="widget-title bigger lighter">
+      <a class="fake-link white" ng-click="showTable = !showTable">
+        <i class="ace-icon fa fa-hand-o-right"></i>
+        {{tlabel}}
+      </a>
+      
+    </h5>
+  </div>
+  <div class="widget-body" ng-show="showTable">
+    <div class="widget-main no-padding">
+      <table class="table table-bordered" >
+        <thead>
+          <tr>
+            <th>Message</th>
+          </tr>
+        </thead>
+        <tbody ng-repeat="(error, value) in parsed_errors track by $index">
+        <tr>
+          <td>'{{error}}', x {{value}}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

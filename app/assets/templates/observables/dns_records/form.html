@@ -1,0 +1,161 @@
+<form name="dnsform" class="form-horizontal">
+  <div class="">
+    <div class="form-group" ng-class="{'has-error': error.address_value_normalized}">
+      <label class="col-md-4 control-label">Address Value *</label>
+      <div class="col-md-8">
+        <address-suggester object="dns" field-name="address_input" page-path="/dns_records/" show-markings="show_markings" portion-marking="address_c" address="dns.dns_address" hide-edit="false"></address-suggester>
+        <!--<input type="text" ng-model="dns.address_input" name="address_input" class="col-md-8" placeholder="Address Value" auto-focus>-->
+        <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="address_toggle.toggle > 0" ng-click="address_toggle.clear = address_toggle.clear + 1">Clear Markings</button>
+        <button class="btn btn-primary btn-sm pull-right" ng-click="address_toggle.toggle = address_toggle.toggle + 1" ng-show="show_markings.address_input == 1">Custom ISA Markings</button>
+        <ul ng-show="error.address_value_normalized" class="help-block">
+          <li ng-repeat="e in error.address_value_normalized">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+    <field-markings-edit sets="sets" object="dns" disablesave="is_saving" editform="editform" fieldname="address_value_normalized" togglebuttons="address_toggle"></field-markings-edit>
+
+    <div class="form-group">
+      <label class="col-md-4 control-label">Address Class *</label>
+      <div class="col-md-8">
+        <select class="col-md-8" ng-model="dns.address_class" ng-init="dns.address_class=dns.address_class || 'IN'" ng-options="d for d in Observable.dnsAddressClasses">
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{'has-error': error.domain_normalized}">
+      <label class="col-md-4 control-label">Domain Name *</label>
+      <div class="col-md-8">
+        <domain-suggester object="dns" field-name="domain_input" page-path="/dns_records/" show-markings="show_markings" portion-marking="domain_c" domain="dns.dns_domain"></domain-suggester>
+        <!--<input type="text" ng-model="dns.domain_input" name="domain" class="col-md-8" placeholder="Domain Name">-->
+        <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="domain_toggle.toggle > 0" ng-click="domain_toggle.clear = domain_toggle.clear + 1">Clear Markings</button>
+        <button class="btn btn-primary btn-sm pull-right" ng-click="domain_toggle.toggle = domain_toggle.toggle + 1" ng-show="show_markings.domain_input == 1">Custom ISA Markings</button>
+        <ul ng-show="error.domain_normalized" class="help-block">
+          <li ng-repeat="e in error.domain_normalized">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+    <field-markings-edit sets="sets" object="dns" disablesave="is_saving" editform="editform" fieldname="domain_normalized" togglebuttons="domain_toggle"></field-markings-edit>
+    
+    <div class="form-group">
+      <label class="col-md-4 control-label">Entry Type *</label>
+      <div class="col-md-8">
+        <select class="col-md-8" ng-model="dns.entry_type" ng-init="dns.entry_type=dns.entry_type || 'A'" ng-options="d for d in Observable.dnsEntryTypes">
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-md-4 control-label">Queried Date</label>
+      <div class="col-md-8">
+        <input date-range-picker style="margin-left: 0px" type="text" class="col-md-4" options="date_picker_opts" value="{{dns.queried_date?dns.queried_date.slice(0,10)+'T'+dns.queried_date.slice(11,19):'' | date:'MM/dd/yyyy HH:mm:ss'}}" />
+        <select ng-model="timeoffsethour" ng-init="timeoffsethour = '+00'">
+          <option>-11</option>
+          <option>-10</option>
+          <option>-09</option>
+          <option>-08</option>
+          <option>-07</option>
+          <option>-06</option>
+          <option>-05</option>
+          <option>-04</option>
+          <option>-03</option>
+          <option>-02</option>
+          <option>-01</option>
+          <option>+00</option>
+          <option>+01</option>
+          <option>+02</option>
+          <option>+03</option>
+          <option>+04</option>
+          <option>+05</option>
+          <option>+06</option>
+          <option>+07</option>
+          <option>+08</option>
+          <option>+09</option>
+          <option>+10</option>
+          <option>+11</option>
+        </select>
+        :
+        <select ng-model="timeoffsetmin" ng-init="timeoffsetmin = '00'">
+          <option>00</option>
+          <option>30</option>
+        </select>
+        UTC
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{'has-error': error.record_name}">
+      <label class="col-md-4 control-label">Record Name</label>
+      <div class="col-md-8">
+        <input type="text" ng-model="dns.record_name" name="record_name" class="col-md-8" placeholder="Record Name">
+        <div ng-show="error.record_name" class="help-block inline col-md-12" align="right">
+          <span ng-repeat="e in error.record_name" class="col-md-12">Record Name {{e}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{'has-error': error.record_type}">
+      <label class="col-md-4 control-label">Record Type</label>
+      <div class="col-md-8">
+        <select class="col-md-8" id="record_type" ng-model="dns.record_type" ng-options="name for name in DnsRecord.dns_record_types">
+        </select>
+        <div ng-show="error.record_type" class="help-block inline col-md-12" align="right">
+          <span ng-repeat="e in error.record_type" class="col-md-12">Record Type {{e}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{'has-error': error.ttl}">
+      <label class="col-md-4 control-label">TTL</label>
+      <div class="col-md-8">
+        <input type="text" ng-model="dns.ttl" name="ttl" class="col-md-8" placeholder="TTL" tooltip="This field can only contain Integer digits." only-digits>
+        <div ng-show="error.ttl" class="help-block inline col-md-12" align="right">
+          <span ng-repeat="e in error.ttl" class="col-md-12">TTL {{e}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{'has-error': error.flags}">
+      <label class="col-md-4 control-label">Flags</label>
+      <div class="col-md-8">
+        <input type="text" ng-model="dns.flags" name="flags" class="col-md-8" placeholder="Flags" tooltip="This field can only contain Hexidecimal values." only-hex>
+        <div ng-show="error.flags" class="help-block inline col-md-12" align="right">
+          <span ng-repeat="e in error.flags" class="col-md-12">Flags {{e}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{'has-error': error.data_length}">
+      <label class="col-md-4 control-label">Data Length</label>
+      <div class="col-md-8">
+        <input type="text" ng-model="dns.data_length" name="data_length" class="col-md-8" placeholder="Data Length" tooltip="This field can only contain Integer digits." only-digits>
+        <div ng-show="error.data_length" class="help-block inline col-md-12" align="right">
+          <span ng-repeat="e in error.data_length" class="col-md-12">Data Length {{e}}</span>
+        </div>
+      </div>
+    </div>
+
+    <acs-associate-form sets="sets" object="dns" objecttype="DNS Record" disable-save="is_saving" editform="editform" fieldname="cybox"></acs-associate-form>
+  </div>
+</form>
+<div ng-show="showGFIs">
+  <gfi-widget widget-mode="form" gfi="dns.gfi" observableScope="gfiScope"></gfi-widget>
+</div>
+<div class="row">
+  <div class="col-xs-12">
+    <form class="form-horizontal" role="form" ng-submit="save(dns)">
+      <div class="clearfix form-actions">
+        <span ng-show="is_saving">
+          <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+        </span>
+        <div class="col-md-offset-3">
+          <button class="btn btn-info" type="submit" ng-disabled="is_saving">
+            <i class="ace-icon fa fa-check bigger-110"></i> Save
+          </button>
+          <button class="btn btn-default" type="button" ng-click="cancel()" ng-disabled="is_saving">
+            <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+          </button>
+        </div>
+      </div>
+      <div class="hr hr-24"></div>
+    </form>
+  </div>
+</div>

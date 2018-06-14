@@ -1,0 +1,23 @@
+<cybox:Object id="<%= socket_address.cybox_object_id %>">
+  <cybox:Properties xsi:type="SocketAddressObj:SocketAddressObjectType">
+    <% socket_address.addresses.each do |address| %>
+      <SocketAddressObj:IP_Address>
+        <AddressObj:Address_Value condition="<%= address.address_condition %>"><%= address.address_value_normalized %></AddressObj:Address_Value>
+      </SocketAddressObj:IP_Address>
+    <% end %>
+
+    <% socket_address.hostnames.each do |hostname| %>
+      <SocketAddressObj:Hostname>
+        <HostnameObj:Hostname_Value condition="<%= hostname.hostname_condition %>"><%= hostname.hostname %></HostnameObj:Hostname_Value>
+        <HostnameObj:Naming_System><%= hostname.naming_system %></HostnameObj:Naming_System>
+      </SocketAddressObj:Hostname>
+    <% end %>
+
+    <% socket_address.ports.each do |port| %>
+      <SocketAddressObj:Port>
+        <PortObj:Port_Value condition="Equals"><%= port.port %></PortObj:Port_Value>
+        <PortObj:Layer4_Protocol condition="Equals"><%= port.layer4_protocol %></PortObj:Layer4_Protocol>
+      </SocketAddressObj:Port>
+    <% end %>
+  </cybox:Properties>
+</cybox:Object>

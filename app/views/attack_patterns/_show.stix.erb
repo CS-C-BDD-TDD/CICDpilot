@@ -1,0 +1,12 @@
+<% if attack_pattern.capec_id.present? && (attack_pattern.capec_id =~ /\ACAPEC-\d+\Z/) %>
+<ttp:Attack_Pattern capec_id="<%= attack_pattern.capec_id %>">
+<% else %>
+<ttp:Attack_Pattern>
+<% end %>
+<% if attack_pattern.title.present? %>
+  <ttp:Title><%= attack_pattern.title %></ttp:Title>
+<% end %>
+<% if attack_pattern.description.present? %>
+  <ttp:Description><%= attack_pattern.description %></ttp:Description>
+<% end %>
+</ttp:Attack_Pattern>

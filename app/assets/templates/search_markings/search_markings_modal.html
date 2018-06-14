@@ -1,0 +1,419 @@
+<form ng-submit="save(form)">
+<div style="overflow-y: auto; max-height: 600px;;padding-left:10px;padding-right:10px;">
+  <div class="col-md-12">
+    <h4><b>Search Markings</b></h4>
+  </div>
+  <hr/>
+  <div ng-show="error.empty" class="alert alert-danger">
+    {{error.empty}}
+  </div>
+  &nbsp;
+  
+  <div class="space-12"></div>
+  <div class="widget-box widget-color-blue">
+    <div class="widget-header fake-link" ng-click="showStixMarkingFields = !showStixMarkingFields">
+      <h5 class="widget-title bigger lighter">
+        <span tooltip="Show/Hide Search Fields">
+          <i class="ace-icon fa fa-search"></i>
+          Main STIX Marking Fields
+        </span>
+      </h5>
+    </div>
+
+    <div class="widget-body" style="height: 190px;" ng-show="showStixMarkingFields">
+      <div class="widget-main no-padding-bottom">
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-4 no-padding-right"><b>Remote Object ID:</b></label>
+          <input type="text" class="col-md-8 ng-pristine ng-untouched ng-valid" ng-model="form.remote_object_id">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-4 no-padding-right"><b>Remote Object Field:</b></label>
+          <input type="text" class="col-md-8 ng-pristine ng-untouched ng-valid" ng-model="form.remote_object_field">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-4 no-padding-right"><b>Controlled Structure:</b></label>
+          <input type="text" class="col-md-8 ng-pristine ng-untouched ng-valid" ng-model="form.controlled_structure">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-4 no-padding-right"><b>Created At:</b></label>
+          <div class="input-group col-md-8">
+            <span class="input-group-addon">
+              <i class="fa fa-calendar"></i>
+            </span>
+            <input id="created_input" ng-model="created_range" date-range-picker type="text" class="ciap_mleft_0 ciap_width_100" picker="dateRangePickerCreated" options="date_picker_opts_created" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="space-12"></div>
+  <div class="widget-box widget-color-blue">
+    <div class="widget-header fake-link" ng-click="showIsaMarkingFields = !showIsaMarkingFields">
+      <h5 class="widget-title bigger lighter">
+        <span tooltip="Show/Hide Search Fields">
+          <i class="ace-icon fa fa-search"></i>
+          ISA Marking Fields
+        </span>
+      </h5>
+    </div>
+
+    <div class="widget-body" style="height: 90px;" ng-show="showIsaMarkingFields">
+      <div class="widget-main no-padding-bottom">
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>Re Custodian:</b></label>
+          <select class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.re_custodian" ng-options="val.id as val.label for val in Marking.re_custodian"></select>
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>Re Originator:</b></label>
+          <select class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.re_originator" ng-options="val.id as val.label for val in Marking.re_originator.values"></select>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="space-12"></div>
+  <div class="widget-box widget-color-blue">
+    <div class="widget-header fake-link" ng-click="showIsaAssertionFields = !showIsaAssertionFields">
+      <h5 class="widget-title bigger lighter">
+        <span tooltip="Show/Hide Search Fields">
+          <i class="ace-icon fa fa-search"></i>
+          ISA Assertion Fields
+        </span>
+      </h5>
+    </div>
+
+    <div class="widget-body" style="height: 390px;" ng-show="showIsaAssertionFields && !showClass">
+      <div class="widget-main no-padding-bottom">
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>CS Countries:</b></label>
+          <select class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.cs_countries" ng-options="val.id as val.label for val in Marking.cs_countries"></select>
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>CS CUI:</b></label>
+          <select class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.cs_cui" ng-options="val.id as val.label for val in Marking.cs_cui"></select>
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>CS Entity:</b></label>
+          <select class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.cs_entity" ng-options="val.id as val.label for val in Marking.cs_entity"></select>
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>CS Orgs:</b></label>
+          <select class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.cs_orgs" ng-options="val.id as val.label for val in Marking.cs_orgs"></select>
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>CS Shargrp:</b></label>
+          <select class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.cs_shargrp" ng-options="val.id as val.label for val in Marking.cs_shargrp"></select>
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>CS Formal Determination:</b></label>
+          <select class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.cs_formal_determination" ng-options="val.id as val.label for val in Marking.cs_formal_determination"></select>
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>Public Release?:</b></label>
+          <input type="text" class="col-md-9 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.public_release" tooltip="Enter T, F, True, or False">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>Released By:</b></label>
+          <input type="text" class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.public_released_by">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>Released On:</b></label>
+          <div class="input-group col-md-9">
+            <span class="input-group-addon">
+              <i class="fa fa-calendar"></i>
+            </span>
+            <input id="released_input1" ng-model="public_released_range" date-range-picker type="text" class="ciap_mleft_0 ciap_width_100" picker="dateRangePickerPublicReleased" options="date_picker_opts_public_released" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="widget-body" style="height: 550px;" ng-show="showIsaAssertionFields && showClass">
+      <div class="widget-main no-padding-bottom">
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>CS Classification:</b></label>
+          <input type="text" class="col-md-9 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.cs_classification" tooltip="Enter Code Only (ex. C, S, etc.)">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>CS Countries:</b></label>
+          <select class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.cs_countries" ng-options="val.id as val.label for val in Marking.cs_countries"></select>
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>CS CUI:</b></label>
+          <select class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.cs_cui" ng-options="val.id as val.label for val in Marking.cs_cui"></select>
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>CS Entity:</b></label>
+          <select class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.cs_entity" ng-options="val.id as val.label for val in Marking.cs_entity"></select>
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>CS Orgs:</b></label>
+          <select class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.cs_orgs" ng-options="val.id as val.label for val in Marking.cs_orgs"></select>
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>CS Shargrp:</b></label>
+          <select class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.cs_shargrp" ng-options="val.id as val.label for val in Marking.cs_shargrp"></select>
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>CS Formal Determination:</b></label>
+          <select class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.cs_formal_determination" ng-options="val.id as val.label for val in Marking.cs_formal_determination"></select>
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>Public Release?:</b></label>
+          <input type="text" class="col-md-9 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.public_release" tooltip="Enter T, F, True, or False">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>Released By:</b></label>
+          <input type="text" class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.public_released_by">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>Released On:</b></label>
+          <div class="input-group col-md-9">
+            <span class="input-group-addon">
+              <i class="fa fa-calendar"></i>
+            </span>
+            <input id="released_input2" ng-model="public_released_range" date-range-picker type="text" class="ciap_mleft_0 ciap_width_100" picker="dateRangePickerPublicReleased" options="date_picker_opts_public_released" />
+          </div>
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>Classified By:</b></label>
+          <input type="text" class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.classified_by">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>Classified On:</b></label>
+          <div class="input-group col-md-9">
+            <span class="input-group-addon">
+              <i class="fa fa-calendar"></i>
+            </span>
+            <input id="classified_input" ng-model="classified_range" date-range-picker type="text" class="ciap_mleft_0 ciap_width_100" picker="dateRangePickerClassified" options="date_picker_opts_classified" />
+          </div>
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>Classification Reason:</b></label>
+          <input type="text" class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.classification_reason">
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="space-12"></div>
+  <div class="widget-box widget-color-blue">
+    <div class="widget-header fake-link" ng-click="showFurtherSharingFields = !showFurtherSharingFields">
+      <h5 class="widget-title bigger lighter">
+        <span tooltip="Show/Hide Search Fields">
+          <i class="ace-icon fa fa-search"></i>
+          Further Sharing Fields
+        </span>
+      </h5>
+    </div>
+
+    <div class="widget-body" style="height: 90px;" ng-show="showFurtherSharingFields">
+      <div class="widget-main no-padding-bottom">
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>Sharing Scope:</b></label>
+          <select class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.sharing_scope"
+              ng-options="val.id as val.label for val in Marking.fs_orgs"></select>
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>Sharing Effect:</b></label>
+          <input type="text" class="col-md-9 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.sharing_effect" tooltip="Enter Permit or Deny">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="space-12"></div>
+  <div class="widget-box widget-color-blue">
+    <div class="widget-header fake-link" ng-click="showIsaPrivFields = !showIsaPrivFields">
+      <h5 class="widget-title bigger lighter">
+        <span tooltip="Show/Hide Search Fields">
+          <i class="ace-icon fa fa-search"></i>
+          ISA Priv Fields
+        </span>
+      </h5>
+    </div>
+
+    <div class="widget-body" style="height: 490px;" ng-show="showIsaPrivFields">
+      <div class="widget-main no-padding-bottom">
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-5 no-padding-right"><b>Display Effect:</b></label>
+          <input type="text" class="col-md-7 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.dsply" tooltip="Enter Permit or Deny">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-5 no-padding-right"><b>Identity Source Effect:</b></label>
+          <input type="text" class="col-md-7 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.idsrc" tooltip="Enter Permit or Deny">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-5 no-padding-right"><b>Target Entity Notification Effect:</b></label>
+          <input type="text" class="col-md-7 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.tenot" tooltip="Enter Permit or Deny">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-5 no-padding-right"><b>Network Defense Action Effect:</b></label>
+          <input type="text" class="col-md-7 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.netdef" tooltip="Enter Permit or Deny">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-5 no-padding-right"><b>Legal Proceedings Effect:</b></label>
+          <input type="text" class="col-md-7 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.legal" tooltip="Enter Permit or Deny">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-5 no-padding-right"><b>Intelligence Analysis Effect:</b></label>
+          <input type="text" class="col-md-7 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.intel" tooltip="Enter Permit or Deny">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-5 no-padding-right"><b>Tear-line Effect:</b></label>
+          <input type="text" class="col-md-7 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.tearline" tooltip="Enter Permit or Deny">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-5 no-padding-right"><b>Operation Action Effect:</b></label>
+          <input type="text" class="col-md-7 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.opaction" tooltip="Enter Permit or Deny">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-5 no-padding-right"><b>Access Privilege Waiver Request Action:</b></label>
+          <input type="text" class="col-md-7 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.request" tooltip="Enter Permit or Deny">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-5 no-padding-right"><b>CISA Uses Effect:</b></label>
+          <input type="text" class="col-md-7 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.cisauses" tooltip="Enter Permit or Deny">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-5 no-padding-right"><b>Anonymous Access Effect:</b></label>
+          <input type="text" class="col-md-7 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.anonymousaccess" tooltip="Enter Permit or Deny">
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="space-12"></div>
+  <div class="widget-box widget-color-blue">
+    <div class="widget-header fake-link" ng-click="showAisConsentFields = !showAisConsentFields">
+      <h5 class="widget-title bigger lighter">
+        <span tooltip="Show/Hide Search Fields">
+          <i class="ace-icon fa fa-search"></i>
+          AIS Consent Fields (Packages Only)
+        </span>
+      </h5>
+    </div>
+
+    <div class="widget-body" style="height: 140px;" ng-show="showAisConsentFields">
+      <div class="widget-main no-padding-bottom">
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>Consent:</b></label>
+          <input type="text" class="col-md-9 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.consent" tooltip="Enter None, USG, or Everyone">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>Proprietary?:</b></label>
+          <input type="text" class="col-md-9 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.proprietary" tooltip="Enter T, F, True, or False">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-3 no-padding-right"><b>Color:</b></label>
+          <input type="text" class="col-md-9 ng-pristine ng-untouched ng-valid" ng-model="form.ais_color">
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="space-12"></div>
+  <div class="widget-box widget-color-blue">
+    <div class="widget-header fake-link" ng-click="showTlpFields = !showTlpFields">
+      <h5 class="widget-title bigger lighter">
+        <span tooltip="Show/Hide Search Fields">
+          <i class="ace-icon fa fa-search"></i>
+          TLP Fields
+        </span>
+      </h5>
+    </div>
+
+    <div class="widget-body" style="height: 70px;" ng-show="showTlpFields">
+      <div class="widget-main no-padding-bottom">
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-2 no-padding-right"><b>Color:</b></label>
+          <input type="text" class="col-md-10 ng-pristine ng-untouched ng-valid" ng-model="form.tlp_color">
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="space-12"></div>
+  <div class="widget-box widget-color-blue">
+    <div class="widget-header fake-link" ng-click="showContributingSourceFields = !showContributingSourceFields">
+      <h5 class="widget-title bigger lighter">
+        <span tooltip="Show/Hide Search Fields">
+          <i class="ace-icon fa fa-search"></i>
+          Contributing Source Fields (Packages Only)
+        </span>
+      </h5>
+    </div>
+
+    <div class="widget-body" style="height: 210px;" ng-show="showContributingSourceFields">
+      <div class="widget-main no-padding-bottom">
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-4 no-padding-right"><b>Organization Names:</b></label>
+          <input type="text" class="col-md-8 ng-pristine ng-untouched ng-valid" ng-model="form.organization_names">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-4 no-padding-right"><b>Countries:</b></label>
+          <select class="col-md-8 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.countries" ng-options="val.id as val.label for val in Marking.cs_countries_a2"></select>
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-4 no-padding-right"><b>Administrative Areas:</b></label>
+          <input type="text" class="col-md-8 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.administrative_areas" tooltip="Enter ISO 3166-2 codes">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-4 no-padding-right"><b>Organization Info:</b></label>
+          <input type="text" class="col-md-8 ng-pristine ng-untouched ng-valid" ng-model="form.organization_info">
+        </div>
+        <div class="col-xs-12" style="min-height: 15px; padding-bottom: 5px;">
+          <label class="control-label col-md-4 no-padding-right"><b>Is Federal?:</b></label>
+          <input type="text" class="col-md-8 ng-pristine ng-untouched ng-valid" 
+              ng-model="form.is_federal" tooltip="Enter T, F, True, or False">
+        </div>
+      </div>
+    </div>
+  </div>
+  &nbsp;<br/>
+  <div ng-show="error.empty" class="alert alert-danger">
+    {{error.empty}}
+  </div>
+  &nbsp;
+
+  <div class="col-md-12" style="padding-bottom: 10px;">
+    <div class="col-md-3"></div>
+    <div class="col-md-9">
+      <button class="btn btn-grey no-radius btn-xs" ng-click="save(form)" type="submit">
+        <i class="ace-icon fa fa-search bigger-160"></i>
+        Search Markings
+      </button>
+      <button class="btn btn-grey no-radius btn-xs" ng-click="close()" type="button">
+        <i class="ace-icon fa fa-ban bigger-160"></i>
+      	Cancel
+      </button>
+      <button class="btn btn-danger no-radius btn-xs" ng-click="clearFilters()" type="button">
+        <i class="ace-icon fa fa-trash-o bigger-160"></i>
+        Clear Filters
+      </button>
+    </div>
+  </div>
+  <div class="space-12"></div>
+
+</div>
+</form>

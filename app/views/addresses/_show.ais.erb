@@ -1,0 +1,9 @@
+<cybox:Object id="<%= address.cybox_object_id %>">
+	<cybox:Properties category="<%= address.category %>" xsi:type="AddressObj:AddressObjectType">
+	<% if address.address_value_normalized.present? && address.address_condition.present? %>
+		<AddressObj:Address_Value condition="<%= address.address_condition %>"><%= address.address_value_normalized %></AddressObj:Address_Value>
+	<% elsif address.address_value_normalized.present? %>
+		<AddressObj:Address_Value><%= address.address_value_normalized %></AddressObj:Address_Value>
+	<% end %>
+	</cybox:Properties>
+</cybox:Object>

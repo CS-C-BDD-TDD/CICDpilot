@@ -1,0 +1,105 @@
+  <div class="widget-box">
+    <div ng-show="link_observable_view=='current'">
+      <div class="widget-header">
+        <h5 class="widget-title">
+          Observable
+        </h5>
+      </div>
+      <div class="widget-body">
+        <div class="widget-main">
+          <table width="100%">
+            <tr ng-show="observables.length" ng-repeat="observable in observables">
+              <td>
+                {{Observable.get_value(observable)}}
+              </td>
+              <td ng-show="unlinking_observable=='yes'">
+                  <input type="text" ng-model="unlink_justification" class="form-control" placeholder="Enter Unlink Justification">
+              </td>
+              <td>
+                  <a class="btn btn-danger pull-right" ng-click="unlinkObservable(observable,unlink_justification)">
+                    <i class="ace-icon fa fa-times-circle-o"></i> Unlink
+                  </a>
+              </td>
+              <td ng-show="unlinking_observable=='yes'">
+                  <a class="btn btn-default pull-right" ng-click="cancelUnlinkObservable(observable)">
+                    <i class="ace-icon fa fa-times-circle-o"></i> Cancel
+                  </a>
+              </td>
+            </tr>
+            <tr ng-hide="observables.length">
+              <td>
+                There is no observable linked to this indicator
+              </td>
+              <td>
+                <button class="btn btn-info pull-right" type="button" ng-click="showLinkObservable()">
+                  <i class="fa fa-plus"></i> Link
+                </button>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div ng-show="link_observable_view=='link'">
+      <div class="widget-header">
+        <h5 class="widget-title">
+          Link Observable
+        </h5>
+      </div>
+      <div class="widget-body">
+        <div class="widget-main">
+          <div class='form-group'>
+                <label class="control-label col-md-2">Type</label>
+                <select class="col-md-6" ng-model='type'
+                        ng-options="Observable.type_to_display_name[t] for t in observableTypes"
+                >
+                </select>
+                &nbsp;&nbsp;&nbsp;
+                <button style="vertical-align: middle;" class="btn btn-info" type="button" ng-click="showCreateObservable()" ng-show="can('create_indicator_observable') && type">
+                  <i class="fa fa-plus"></i> Create New
+                </button>
+
+            <div class="col-md-12">&nbsp;</div>
+
+            <div observable-link-switch type='{{type}}'></div>
+
+            <div class="col-md-12" ng-show="type">
+              <div class="col-md-7"></div>
+              <button class="btn btn-info" type="button" ng-click="linkObservable()">
+                <i class="fa fa-plus"></i> Link
+              </button>
+              <button class="btn btn-default" type="button" ng-click="cancelLinkObservable()">
+                <i class="fa fa-times"></i> Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div ng-show="link_observable_view=='edit'">
+      <div class="widget-header">
+        <h5 class="widget-title">
+          Edit Observable
+        </h5>
+      </div>
+      <div class="widget-body">
+        <div class="widget-main">
+          <div observable-edit-switch type='{{type}}' ng-if="link_observable_view=='edit'"></div>
+        </div>
+      </div>
+    </div>
+
+    <div ng-show="link_observable_view=='create'">
+      <div class="widget-header">
+        <h5 class="widget-title">
+          Create Observable
+        </h5>
+      </div>
+      <div class="widget-body">
+        <div class="widget-main">
+          <div observable-create-switch type='{{type}}' ng-if="link_observable_view=='create'"></div>
+        </div>
+      </div>
+    </div>
+  </div>

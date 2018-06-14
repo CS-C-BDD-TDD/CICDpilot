@@ -1,0 +1,92 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('indicatorBrowser', function(){
+  return {
+    restrict: 'E',
+    scope: {
+      selectedIndicators: '=',
+      selectOnly: '@',
+      classificationDirection: '@?'
+    },
+    templateUrl: '<%=asset_path("indicators/indicator-browser.html",type: :template)%>',
+    controller: ['$scope','$rootScope','Restangular','Indicator','Marking', function($scope,$rootScope,Restangular,Indicator,Marking) {
+      $scope.q = '';
+      $scope.Indicator = Indicator;
+
+      $scope.sortOptions = {
+        'title' : 'asc',
+        'indicator_type' : 'asc',
+        'observable_type' : 'asc',
+        'observable_value' : 'asc'
+      };
+
+      $scope.searchIndicators = function() {
+        $scope.fetching = true;
+        var curr_obj = Indicator.fetch_markings_object_from_scope($scope);
+        var curr_markings = curr_obj.stix_markings_attributes;
+        if (!$rootScope.is_undefined_or_null(curr_obj.acs_set_id)){
+          Restangular.one('acs_sets').get({id: curr_obj.acs_set_id}).then(function(data){
+            // set it equal to the existing markings
+            if (angular.isDefined(data.stix_markings)){
+              curr_markings = data.stix_markings;
+            }
+            getIndicatorList(curr_markings);
+          },function(res){
+              toastr.error("Unable to load ACS Set Markings");
+          });
+        } else {
+          getIndicatorList(curr_markings);
+        }        
+      };
+
+      function getIndicatorList(current_markings){
+        var classification_limit = Marking.get_classification_attributes(current_markings);
+        Restangular.one('/indicators').get({
+          q: $scope.q,
+          column: $scope.sortMethod,
+          direction: $scope.sortOptions[$scope.sortMethod],
+          classification_limit: $scope.classificationDirection == "down" ? classification_limit : null,
+          classification_greater: $scope.classificationDirection == "up" ? classification_limit : null
+        }).then(
+          function(data){
+            $scope.indicators = data.indicators;
+            $scope.fetching = false;
+        },
+          function(res){
+            toastr.error("Unable to load Indicators");
+            $scope.fetching = false;
+          }
+        );
+      }
+
+      $scope.disabled = function(indicator) {
+         if ($scope.checked(indicator) && $scope.selectOnly) {
+             return true;
+         }
+         return false;
+      }
+
+      $scope.checked = function(indicator){
+        return _.findIndex($scope.selectedIndicators, function(i){return i.stix_id == indicator.stix_id;}) > -1;
+      };
+
+      $scope.sort = function(method) {
+        $scope.sortMethod = method;
+        $scope.sortOptions[method]=($scope.sortOptions[method]=='desc')?'asc':'desc';
+        $scope.offset=0;
+        $scope.searchIndicators();
+      }
+
+      $scope.selectIndicator = function(indicator,$event) {
+        var checkbox = $event.target;
+        if (checkbox.checked){
+          if (_.findIndex($scope.selectedIndicators, function(i){return i.stix_id == indicator.stix_id}) == -1){
+            $scope.selectedIndicators.push(indicator);
+          }
+        } else {
+          $scope.selectedIndicators = _.filter($scope.selectedIndicators, function(i){return i.stix_id != indicator.stix_id});
+        }
+      };
+    }]
+  };
+});

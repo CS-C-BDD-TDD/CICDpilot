@@ -1,0 +1,53 @@
+app.controller('NetworkConnectionsShowController', ['$scope','$location','$routeParams','$rootScope','Restangular','NetworkConnection','Marking',
+  function ($scope, $location, $routeParams, $rootScope, Restangular, NetworkConnection, Marking) {
+    $scope.fetching = true;
+    $scope.NetworkConnection = NetworkConnection;
+    Restangular.one("/network_connections",$routeParams.id).get().then(function(data){
+      $scope.networkconnection = Marking.translate_existing_attributes(data);
+      if (angular.isDefined($scope.networkconnection) && angular.isDefined($scope.networkconnection.ind_course_of_actions)){
+        $scope.networkconnection.course_of_actions = $scope.networkconnection.course_of_actions.concat($scope.networkconnection.ind_course_of_actions);
+      }
+
+      Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+          $scope.sets = data;
+      },function(res){
+          toastr.error("Unable to load ACS Set List");
+      });
+      
+      $scope.showTable = {coa_data: true, collapse: false};
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Network Connections',link:'#/network_connections',icon:'fa-group'},{text:data.display_name,link:'#/network_connections/'+encodeURIComponent(data.cybox_object_id)}];
+
+      if ($scope.networkconnection.socket_addresses.length > 0) {
+        _.forEach($scope.networkconnection.socket_addresses, function(address){
+          var remote_field = "";
+
+          if(address.type == "source"){
+            remote_field = "source_socket_address";
+          }
+
+          if(address.type == "dest"){
+            remote_field = "dest_socket_address";
+          }
+
+          if (address.stix_markings.length > 0 && remote_field != ""){
+            _.forEach(address.stix_markings, function(sm) {
+              sm.remote_object_field = remote_field;
+              $scope.networkconnection.stix_markings.push(sm);
+            });
+          }
+        });
+
+        // we need the view to send all instances even if dups exist because
+        // we need to populate the isa markings for each field but we don't want 
+        // multiple to show on the socket_addresses table.
+        $scope.networkconnection.socket_addresses = _.uniq($scope.networkconnection.socket_addresses, 'addresses_normalized_cache');
+
+      }
+
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load Network Connection");
+      $scope.fetching = false;
+    });
+  }
+]);

@@ -1,0 +1,245 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('fileForm', function(){
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("observables/files/form.html",type: :template)%>',
+    scope: {
+             file: '=',
+             saved: '=',
+             failed: '=',
+             cancel: '=',
+             editform: '=',
+             toggleIsaMarkingsView: '=?'
+           },
+    controller: ['$scope','$rootScope','Restangular','File', 'CiapCommon', 'Gfi', 'Classification',
+      function($scope,$rootScope,Restangular,File, CiapCommon, Gfi, Classification) {
+        $scope.showGFIs = Gfi.showGFIs();
+        $scope.sets = [];
+        $scope.cybox = "cybox";
+
+        // Toggles for field level markings
+        $scope.name_toggle = {toggle: 0, clear: 0};
+        $scope.path_toggle = {toggle: 0, clear: 0};
+        $scope.size_toggle = {toggle: 0, clear: 0};
+        $scope.md5_toggle = {toggle: 0, clear: 0};
+        $scope.sha1_toggle = {toggle: 0, clear: 0};
+        $scope.sha256_toggle = {toggle: 0, clear: 0};
+        $scope.ssdeep_toggle = {toggle: 0, clear: 0};
+
+        Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+            $scope.sets = data;
+        },function(res){
+            toastr.error("Unable to load ACS Set List");
+        });
+        
+        $scope.$watch('file',function(newval,oldval){
+          if (angular.isDefined($scope.file)) {
+            if (angular.isDefined($scope.file.cybox_object_id)) {
+              if (angular.isDefined($scope.file.file_hashes) && $scope.file.file_hashes.length != 0) {
+                $scope.file.file_hashes_attributes = $scope.file.file_hashes;
+              } else {
+                $scope.file.file_hashes_attributes=[];
+              }
+
+              $scope.md5 = null;
+              $scope.sha1 = null;
+              $scope.sha256 = null;
+              $scope.ssdeep = null;
+
+              _.each($scope.file.file_hashes_attributes,function(hsh){
+                switch(hsh.hash_type) {
+                  case 'MD5':
+                    $scope.md5 = hsh;
+                    $scope.md5.simple_hash_value = $scope.file.md5;
+                    break;
+                  case 'SHA1':
+                    $scope.sha1 = hsh;
+                    $scope.sha1.simple_hash_value = $scope.file.sha1;
+                    break;
+                  case 'SHA256':
+                    $scope.sha256 = hsh;
+                    $scope.sha256.simple_hash_value = $scope.file.sha256;
+                    break;
+                  case 'SSDEEP':
+                    $scope.ssdeep = hsh;
+                    $scope.ssdeep.fuzzy_hash_value = $scope.file.ssdeep;
+                    break;
+                }
+              });
+
+              if ($scope.md5 == null) {
+                $scope.md5 = {hash_type: 'MD5', simple_hash_value: ''};
+                $scope.file.file_hashes_attributes.push($scope.md5);
+              }
+              if ($scope.sha1 == null) {
+                $scope.sha1 = {hash_type: 'SHA1', simple_hash_value: ''};
+                $scope.file.file_hashes_attributes.push($scope.sha1);
+              }
+              if ($scope.sha256 == null) {
+                $scope.sha256 = {hash_type: 'SHA256', simple_hash_value: ''};
+                $scope.file.file_hashes_attributes.push($scope.sha256);
+              }
+              if ($scope.ssdeep == null) {
+                $scope.ssdeep = {hash_type: 'SSDEEP', fuzzy_hash_value: ''};
+                $scope.file.file_hashes_attributes.push($scope.ssdeep);
+              }
+            }
+            else {
+              $scope.file.file_name_condition="Equals";
+              $scope.file.file_path_condition="Equals";
+              $scope.file.size_in_bytes_condition="Equals";
+              $scope.file.file_hashes_attributes=[
+                {hash_type: 'MD5', simple_hash_value: ''},
+                {hash_type: 'SHA1', simple_hash_value: ''},
+                {hash_type: 'SHA256', simple_hash_value: ''},
+                {hash_type: 'SSDEEP', fuzzy_hash_value: ''}
+              ];
+              $scope.md5 = $scope.file.file_hashes_attributes[0];
+              $scope.sha1 = $scope.file.file_hashes_attributes[1];
+              $scope.sha256 = $scope.file.file_hashes_attributes[2];
+              $scope.ssdeep = $scope.file.file_hashes_attributes[3];
+            }
+          }
+
+          Gfi.set_gfi_attributes($scope.file);
+        });
+
+        $scope.name_conditions=CiapCommon.conditions;
+        $scope.size_conditions=File.size_conditions;
+
+        var check_hash_validity = function(hash){
+            if (angular.isDefined(hash.error)) {
+                delete hash.error;
+            }
+            if (angular.isUndefined(hash.simple_hash_value)) {
+                return hash;
+            }
+            if (hash.hash_type == 'MD5') {
+                if (hash.simple_hash_value.length != 32 && hash.simple_hash_value != '') {
+                    hash.error = hash.hash_type + ' is invalid'
+                    $scope.md5 = hash;
+                }
+            }
+            else if (hash.hash_type == 'SHA1') {
+                if (hash.simple_hash_value.length != 40 && hash.simple_hash_value != '') {
+                    hash.error = hash.hash_type + ' is invalid'
+                    $scope.sha1 = hash;
+                }
+            }
+            if (hash.hash_type == 'SHA256') {
+                if (hash.simple_hash_value.length != 64 && hash.simple_hash_value != '') {
+                    hash.error = hash.hash_type + ' is invalid'
+                    $scope.sha256 = hash;
+                }
+            }
+            return hash;
+        }
+
+        $scope.save = function(file){
+          $scope.is_saving = true;
+          $scope.file.errors = {};
+
+          var valid = true;
+
+          _.each(file.file_hashes_attributes,function(hash) {
+                      hash = check_hash_validity(hash);
+                      if (angular.isDefined(hash.error) && hash.error.length > 0) {
+                          valid = false;
+                      }
+                  }
+          )
+          if (!valid) {
+            $scope.is_saving = false;
+            return;
+          }
+
+          // we added destroy but if we go back and add it we didnt remove destroy
+          file.file_hashes_attributes.forEach(function(hash) {
+            if ((hash.hash_type=='MD5' || hash.hash_type=='SHA1' || hash.hash_type=='SHA256') && $rootScope.is_undefined_or_null(hash.simple_hash_value)) {
+              hash._destroy = '1';
+            } else if ((hash.hash_type=='MD5' || hash.hash_type=='SHA1' || hash.hash_type=='SHA256') && !$rootScope.is_undefined_or_null(hash.simple_hash_value)){
+              delete hash._destroy;
+            }
+            if (hash.hash_type=='SSDEEP' && $rootScope.is_undefined_or_null(hash.fuzzy_hash_value)) {
+              hash._destroy = '1';
+            } else if (hash.hash_type=='SSDEEP' && !$rootScope.is_undefined_or_null(hash.fuzzy_hash_value)){
+              delete hash._destroy;
+            }
+          });
+
+          var promise;
+          var save_text;
+
+          /*
+          Rules for when CLASSIFICATION is true
+
+          and ACS Set or Classification must be selected. When Classification is above unclassified, 
+          details must be filled out.
+          */
+          if ($rootScope.setting_value('CLASSIFICATION') == true){
+              $scope.file.stix_markings_attributes = Classification.check_classification_details($scope.file.stix_markings_attributes);
+              var problems = $scope.file.stix_markings_attributes.problems;
+              var classification_check = $scope.file.stix_markings_attributes.classification_check;
+          }
+
+          if (Object.keys($scope.file.errors).length > 0 || classification_check) {
+            $scope.is_saving = false;
+            
+            if(classification_check){
+              for (var i = 0; i < problems.length; i++){
+                  if(problems[i].field == null){
+                      toastr.error("Unable to save due to classification errors in the Object level markings");
+                  } else {
+                      toastr.error("Unable to save due to classification errors in the " + problems[i].field + " markings");
+                  }
+              }
+            }
+            return;
+          }
+
+          if (angular.isUndefined(file.cybox_object_id) || file.cybox_object_id == null) {
+            promise = Restangular.all("files").post(file);
+            save_text = "save";
+          } else {
+            promise = Restangular.one("files/" + file.cybox_object_id).customPUT(file);
+            save_text = "update";
+          }
+
+          promise.then(
+            function(data){
+              toastr.success("File observable "+save_text+"d");
+              if (angular.isDefined($scope.saved) && jQuery.isFunction($scope.saved)){
+                $scope.saved(data);
+              }
+              $scope.is_saving = false;
+              $scope.name_toggle = {toggle: 0, clear: 0};
+              $scope.path_toggle = {toggle: 0, clear: 0};
+              $scope.size_toggle = {toggle: 0, clear: 0};
+              $scope.md5_toggle = {toggle: 0, clear: 0};
+              $scope.sha1_toggle = {toggle: 0, clear: 0};
+              $scope.sha256_toggle = {toggle: 0, clear: 0};
+              $scope.ssdeep_toggle = {toggle: 0, clear: 0};
+              $scope.error = undefined;
+            },
+            function(res){
+              toastr.error("Unable to "+save_text+" file observable");
+              if (angular.isDefined(res.data.errors)) {
+                Gfi.set_errors_on_gfiable_observables($scope, res.data.errors);
+              }
+              if (angular.isDefined(res.data) && angular.isDefined(res.data.errors) && angular.isDefined(res.data.errors.base)) {
+                  _.each(res.data.errors.base,function(e){
+                      toastr.error(e);
+                  });
+              }
+              if (angular.isDefined($scope.failed) && jQuery.isFunction($scope.failed)){
+                $scope.failed(res.data);
+              }
+              $scope.is_saving = false;
+            }
+          );
+        };
+      }
+    ]
+  };
+});

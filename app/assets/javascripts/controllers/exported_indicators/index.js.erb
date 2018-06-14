@@ -1,0 +1,135 @@
+app.controller('ExportedIndicatorsIndexController',
+        ['$scope','$rootScope','$routeParams','Restangular', 'Color','Indicator','Observable',
+            function ($scope, $rootScope,$routeParams, Restangular, Color,Indicator,Observable) {
+                $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Exported Indicators - '+$routeParams.system.toUpperCase(),link:'#/exported_indicators/'+$routeParams.system,icon:'fa-thumb-tack'}];
+                $scope.Indicator = Indicator;
+                $scope.Color = Color;
+                $scope.can = $rootScope.can;
+	              $scope.Observable = Observable;
+	              $scope.showCSV = $rootScope.setting_value('CLASSIFICATION');
+
+                // Cleanup
+                $scope.$on('$destroy', function() {
+                  $('.daterangepicker').remove();
+                });
+      
+		            var sortOptions = {
+			            'title' : 'desc',
+			            'exported_at' : 'desc',
+			            'detasked_at' : 'desc'
+		            };
+
+		            $scope.sort = function(method) {
+			            $scope.params.column = method;
+			            sortOptions[method]=(sortOptions[method]=='desc')?'asc':'desc';
+			            $scope.params.direction = sortOptions[method];
+			            $scope.offset=0;
+			            $scope.getExports($scope.offset);
+		            };
+
+	              $scope.getExports = function() {
+		              $scope.fetching = true;
+		              Restangular.one('exported_indicators').get($scope.params).then(
+				              function(data){
+					              $scope.system = $routeParams.system;
+					              $scope.exported_indicators = data.exported_indicators;
+					              $scope.metadata = data.metadata;
+					              $scope.fetching= false;
+				              },function(res){
+					              $scope.fetching = false;
+					              $scope.metadata={total_count: 0};
+					              toastr.error("Unable to load Exported Indicator");
+				              }
+		              );
+	              };
+
+		            $scope.dateRangePicker = function(picker) {
+			            $scope.date_picker_object = picker;
+			            $scope.params.ebt = $scope.date_picker_object.getStartDate();
+			            $scope.params.iet = $scope.date_picker_object.getEndDate();
+			            $scope.offset=0;
+		              $scope.getExports();
+	              };
+
+	              $scope.open = function($event) {
+		              $event.preventDefault();
+		              $event.stopPropagation();
+	              };
+
+		            $scope.filterIndicators = function() {
+				            $scope.offset=0;
+				            $scope.getExports();
+			          }
+	              $scope.params = {
+		              system: $routeParams.system || 'All',
+			            show_detasked: false
+	              };
+
+		            $scope.startSearch = function() {
+			            $scope.offset=0;
+			            $scope.getExports();
+		            };
+
+	              $scope.offset = 0;
+	              $scope.getExports();
+
+	              $scope.buildLink = function() {
+		              var pairs = _.pairs($scope.params);
+		              var arr = [];
+		              _.each(pairs,function(pair){
+			              arr.push(pair.join('='));
+		              });
+		              return arr.join('&');
+	              };
+
+
+                $scope.retire = function(exported_indicator){
+		                var justification = prompt("Justification for detasking Indicator");
+		                if (justification){
+                    Restangular.one('exported_indicators',exported_indicator.guid).remove({justification: justification}).then(
+                            function(data){
+	                              var exported_indicator = data.exported_indicator;
+                                toastr.success(exported_indicator.indicator_title+" Detasked");
+	                              if ($scope.params.show_detasked) {
+		                              index = _.findIndex($scope.exported_indicators, function(indicator) {
+			                              return indicator.guid == data.exported_indicator.guid;
+		                              });
+		                              $scope.exported_indicators[index].detasked_at = data.exported_indicator.detasked_at;
+		                              $scope.exported_indicators[index].status = data.exported_indicator.status;
+	                              }
+	                              else {
+	                                _.remove($scope.exported_indicators, function(indicator) {
+	                                    return indicator.guid == exported_indicator.guid;
+	                                });
+	                              }
+                            },
+                            function(res){
+                                toastr.error("Unable to Detask Exported Indicator");
+                            }
+                    );
+		                }
+
+                };
+
+	              $scope.set_status = function() {
+		              _.each($scope.exported_indicators,function(exp) {
+			              exp.status = 'active';
+		              });
+	              }
+
+	              $scope.retask = function(exported_indicator) {
+		              var exp = {guid: exported_indicator, detasked_at: "", status: 'active'}
+		              Restangular.one('exported_indicators',exp.guid).customPUT(exp).then(function(data){
+			              var index = _.findIndex($scope.exported_indicators, function(indicator) {
+				              return indicator.guid == data.guid;
+			              });
+			              $scope.exported_indicators[index].detasked_at = data.detasked_at;
+			              $scope.exported_indicators[index].status = data.status;
+			              toastr.success($scope.exported_indicators[index].indicator_title+" Retasked");
+		              },function(res){
+			              toastr.error("Unable to Retask Exported Indicator");
+		              });
+	              }
+            }
+        ]
+);

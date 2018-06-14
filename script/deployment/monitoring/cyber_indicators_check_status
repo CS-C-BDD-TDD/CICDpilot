@@ -1,0 +1,33 @@
+#!/bin/bash
+
+parse_yaml() {
+   local prefix=$2
+   local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
+   sed -ne "s|^\($s\)\($w\)$s:$s\"\(.*\)\"$s\$|\1$fs\2$fs\3|p" \
+        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
+   awk -F$fs '{
+      indent = length($1)/2;
+      vname[indent] = $2;
+      for (i in vname) {if (i > indent) {delete vname[i]}}
+      if (length($3) > 0) {
+         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
+         printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
+      }
+   }'
+}
+
+# read yaml file (first param = yml file path, second param = variable prefix
+eval $(parse_yaml /etc/cyber-indicators/config/monitoring.yml "")
+
+output=`curl -X GET -s -S --tlsv1.2 -H "Content-type: application/xml" -H "api_key: $API_KEY" -H "api_key_hash: $API_KEY_HASH" -k "https://localhost:8443/cyber-indicators/mutexes" 2> /dev/null`
+regexp='\{"metadata":\{"total_count":'
+if [[ $output =~ $regexp ]]; then
+  retcode=0
+else
+  echo "CRIT-0001 Web Application Not Operational"
+  retcode=2
+fi
+if [ $retcode -eq 0 ]; then
+  echo "OK"
+fi
+exit $retcode

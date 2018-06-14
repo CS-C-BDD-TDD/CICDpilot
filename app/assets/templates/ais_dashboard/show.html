@@ -1,0 +1,83 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">  
+
+  <div class="page-header">
+    <h1>Original ID: {{ais_statistics.stix_package_original_id}}</h1>
+    <div class="space-6"></div>
+    <h1>Sanitized ID: {{ais_statistics.stix_package_stix_id}}</h1>
+  </div>
+
+  <div class="profile-user-info profile-user-info-striped ciap_width_50 ciap_mleft_0">
+    <div class="profile-info-row">
+      <div class="profile-info-name">Sanitized ID</div>
+      <div class="profile-info-value">
+        <span>{{ais_statistics.stix_package_stix_id}}</span>
+      </div>
+    </div>
+
+    <div class="profile-info-row">
+      <div class="profile-info-name">Original ID</div>
+      <div class="profile-info-value">
+        <span>{{ais_statistics.stix_package_original_id}}</span>
+      </div>
+    </div>
+
+    <div class="profile-info-row">
+      <div class="profile-info-name">Indicator Amount</div>
+      <div class="profile-info-value">
+        <span>{{ais_statistics.indicator_amount}}</span>
+      </div>
+    </div>
+
+    <div class="profile-info-row">
+      <div class="profile-info-name">Feeds</div>
+      <div class="profile-info-value">
+        <span>{{ais_statistics.feeds}}</span>
+      </div>
+    </div>
+
+    <div class="profile-info-row">
+      <div class="profile-info-name">Messages</div>
+      <div class="profile-info-value">
+        <span>{{ais_statistics.messages}}</span>
+      </div>
+    </div>
+
+    <div class="profile-info-row">
+      <div class="profile-info-name">Recieved Time</div>
+      <div class="profile-info-value">
+        <span>{{ais_statistics.received_time | date: 'medium'}}</span>
+      </div>
+    </div>
+
+    <div class="profile-info-row">
+      <div class="profile-info-name">Dissemination Time</div>
+      <div class="profile-info-value">
+        <span>{{ais_statistics.dissemination_time | date: 'medium'}}</span>
+      </div>
+    </div>
+
+    <div class="profile-info-row">
+      <div class="profile-info-name">Dissemination Time After Human Review</div>
+      <div class="profile-info-value">
+        <span>{{ais_statistics.dissemination_time_hr | date: 'medium'}}</span>
+      </div>
+    </div>
+
+    <div class="profile-info-row">
+      <div class="profile-info-name">Human Review Count</div>
+      <div class="profile-info-value">
+        <span>{{ais_statistics.human_review_count}}</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="space-6"></div>
+
+  <logging-table logs="ais_statistics.system_logs" tlabel="'System Logs'" ng-show="ais_statistics.system_logs.length"></logging-table>
+
+  <div class="space-12"></div>
+
+</div>
+
+<show-spinner> </show-spinner>

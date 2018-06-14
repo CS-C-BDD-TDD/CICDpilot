@@ -1,0 +1,186 @@
+admin:
+    name: Admin
+    description: Admin Group
+    permissions:
+        add_attack_patterns_to_ttps
+        add_course_of_actions_to_exploit_targets
+        add_course_of_actions_to_exploit_targets
+        add_exploit_targets_to_stix_packages
+        add_exploit_targets_to_ttps
+        add_indicator_to_threat_actor
+        add_ttp_to_indicators
+        add_ttp_to_stix_packages
+        add_vulnerabilities_to_exploit_targets
+        add_vulnerabilities_to_exploit_targets
+        create_analyst_notes
+        create_indicator_observable
+        create_modify_indicator_scoring
+        create_modify_user_organization
+        create_package_report
+        create_remove_attack_patterns
+        create_remove_badge_status
+        create_remove_course_of_actions
+        create_remove_exploit_targets
+        create_remove_system_tags
+        create_remove_threat_actors
+        create_remove_ttps
+        create_remove_vulernabilities
+        delete_all_items
+        delete_organization_items
+        download_for_transfer
+        human_review
+        link_indicators_to_course_of_actions
+        link_packages_to_course_of_actions
+        manage_acs_sets
+        mark_items_for_export
+        modify_all_items
+        modify_organization_items
+        set_confidence_level
+        set_official_confidence_level
+        tag_item_with_system_tag
+        tag_item_with_user_tag
+        view_all_uploads
+        view_analyst_notes
+        view_badge_status
+        view_pii_fields
+        view_uploaded_file_info
+        view_user_organization
+        manage_acs_sets
+        human_review
+        download_for_transfer
+        create_remove_ttps
+        create_remove_attack_patterns
+        add_exploit_targets_to_ttps
+        add_attack_patterns_to_ttps
+        add_ttp_to_indicators
+        add_ttp_to_stix_packages
+        view_stix_data
+contributor:
+    name: Contributor
+    description: Contributor Group
+    permissions:
+        add_attack_patterns_to_ttps
+        add_course_of_actions_to_exploit_targets
+        add_course_of_actions_to_exploit_targets
+        add_exploit_targets_to_stix_packages
+        add_exploit_targets_to_ttps
+        add_indicator_to_threat_actor
+        add_ttp_to_indicators
+        add_ttp_to_stix_packages
+        add_vulnerabilities_to_exploit_targets
+        add_vulnerabilities_to_exploit_targets
+        create_analyst_notes
+        create_indicator_observable
+        create_package_report
+        create_remove_attack_patterns
+        create_remove_badge_status
+        create_remove_exploit_targets
+        create_remove_ttps
+        create_remove_vulernabilities
+        delete_organization_items
+        link_indicators_to_course_of_actions
+        link_packages_to_course_of_actions
+        mark_items_for_export
+        modify_organization_items
+        set_confidence_level
+        tag_item_with_system_tag
+        tag_item_with_user_tag
+        view_analyst_notes
+        view_badge_status
+        view_pii_fields
+        view_stix_data
+trusted_user:
+    name: Trusted User
+    description: Trusted User Group
+    permissions:
+        add_attack_patterns_to_ttps
+        add_course_of_actions_to_exploit_targets
+        add_course_of_actions_to_exploit_targets
+        add_exploit_targets_to_stix_packages
+        add_exploit_targets_to_ttps
+        add_indicator_to_threat_actor
+        add_ttp_to_indicators
+        add_ttp_to_stix_packages
+        add_vulnerabilities_to_exploit_targets
+        add_vulnerabilities_to_exploit_targets
+        create_analyst_notes
+        create_indicator_observable
+        create_package_report
+        create_remove_attack_patterns
+        create_remove_badge_status
+        create_remove_course_of_actions
+        create_remove_exploit_targets
+        create_remove_system_tags
+        create_remove_threat_actors
+        create_remove_ttps
+        create_remove_vulernabilities
+        delete_organization_items
+        link_indicators_to_course_of_actions
+        link_packages_to_course_of_actions
+        mark_items_for_export
+        modify_organization_items
+        set_confidence_level
+        set_official_confidence_level
+        tag_item_with_system_tag
+        tag_item_with_user_tag
+        view_analyst_notes
+        view_badge_status
+        view_pii_fields
+        view_uploaded_file_info
+        view_stix_data
+data_admin:
+    name: Data Admin
+    description: Data Admin Group
+    permissions:
+        add_course_of_actions_to_exploit_targets
+        add_indicator_to_threat_actor
+        add_vulnerabilities_to_exploit_targets
+        create_analyst_notes
+        delete_all_items
+        link_indicators_to_course_of_actions
+        link_packages_to_course_of_actions
+        modify_all_items
+        set_confidence_level
+        set_official_confidence_level
+        tag_item_with_system_tag
+        tag_item_with_user_tag
+        view_analyst_notes
+        view_pii_fields
+        view_uploaded_file_info
+        view_stix_data
+metrics_viewer:
+    name: Metrics Viewer
+    description: Metrics Viewer Group
+    permissions:
+        view_metrics
+        view_pii_fields
+        view_stix_data
+all_metrics_viewer:
+    name: All Metrics Viewer
+    description: All Metrics Viewer Group
+    permissions:
+        view_all_uploads
+        view_metrics
+        view_pii_fields
+        view_stix_data
+nsd_data_auditor:
+    name: NSD Data Auditor
+    description: NSD Data Auditor Group
+    permissions:
+        view_all_uploads
+        view_metrics
+        view_pii_fields
+        view_uploaded_file_info
+        view_user_organization
+        view_stix_data
+limited_user:
+    name: Limited User
+    description: Limited User Group
+    permissions:
+        view_stix_data
+account_manager:
+    name: Account Manager
+    description: Account Manager Group
+    permissions:
+        view_user_organization
+        create_modify_user_organization

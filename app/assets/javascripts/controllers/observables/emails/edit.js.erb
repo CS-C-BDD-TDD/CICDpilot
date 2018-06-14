@@ -1,0 +1,53 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('EmailsEditController', ['$scope','$routeParams','Restangular','$rootScope','Email','Gfi','$location','Marking', 'objectSuggesterService', 
+  function($scope,$routeParams,Restangular,$rootScope,Email,Gfi,$location,Marking, objectSuggesterService) {
+    if (objectSuggesterService.is_data_set()){
+      $scope.email = objectSuggesterService.get_data();
+    } else {
+      Restangular.one('/email_messages/'+$routeParams.id).get().then(function(data){
+        // If you change anything here you also need to change it in the observable select directive, set edit!!!!
+        data.links.forEach(function(link){
+          if (angular.isUndefined(link.stix_markings)){
+            link.stix_markings = []
+          }
+          link.uri_attributes.stix_markings.forEach(function(sm){
+            // this is the case when its not a link and just a uri
+            if (sm.remote_object_field == null && link.stix_markings.length == 0){
+              sm.custom = true;
+              link.stix_markings.push(sm);
+            } else if (sm.remote_object_field == null){
+              sm.custom = true;
+              sm.remote_object_field = "uri_normalized";
+              link.stix_markings.push(sm);
+            }
+          });
+          delete link.uri_attributes.stix_markings;
+          link = Marking.translate_existing_attributes(link);
+        });
+        $scope.email = Marking.translate_existing_attributes(data);
+
+        // init fields
+        $scope.email.from_input = $scope.email.from_normalized;
+        $scope.email.reply_to_input = $scope.email.reply_to_normalized;
+        $scope.email.sender_input = $scope.email.sender_normalized;
+
+        Gfi.init_gfi_edit($scope, $scope.email);
+        $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Email Messages',link:'#/emails',icon:'fa-group'},{text:Email.get_value(data),link:'#/emails/'+encodeURIComponent(data.cybox_object_id)}];
+        if ($rootScope.is_undefined_or_null($scope.email.subject_condition)) {
+          $scope.email.subject_condition = "Equals"; 
+        }
+      },function(res){
+        toastr.error("Unable to load Email");
+      });
+    }
+
+    $scope.cancel = function() {
+      $location.path('/emails/'+$routeParams.id);
+    };
+
+    $scope.failed = function() {
+        $("html, body").animate({ scrollTop: 0 }, 200);
+    }
+  }
+]);

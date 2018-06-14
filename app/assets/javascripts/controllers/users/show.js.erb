@@ -1,0 +1,38 @@
+app.controller('UsersShowController', ['$scope','$routeParams','$rootScope','Restangular',
+  function ($scope, $routeParams, $rootScope, Restangular) {
+    $scope.fetching = true;
+    Restangular.one('/users/'+$routeParams.id).get().then(function(data){
+      $scope.user = data;
+      $scope.showPasswordChange = false;
+      $scope.user.password = "";
+      $scope.user.password_confirmation = "";
+      $scope.current_user = $rootScope.current_user.username;
+      if ($rootScope.canAny(['create_modify_user_organization','view_user_organization'])) {
+        $rootScope.breadcrumbs = [
+                                   {text:'Home',link:'#/',icon:'fa-home'},
+                                   {text:'Users',link:'#/users',icon:'fa-group'},
+                                   {text:$scope.user.username, link:'#/users/'+$scope.user.id}
+                                 ];
+      } else {
+        $rootScope.breadcrumbs = [
+                                   {text:'Home',link:'#/',icon:'fa-home'},
+                                   {text:$scope.user.username, link:'#/users/'+$scope.user.id}
+                                 ];
+      };
+      $scope.fetching = false;
+    });
+
+    $scope.change_password = function(user) {
+      Restangular.one('users/change_password/'+$routeParams.id+'.json').customPUT(user).then(function(data) {
+        toastr.success("Changed password.");
+        $scope.showPasswordChange = false;
+      },function(res) {
+        $scope.errors=res.data.errors;
+        toastr.error("Could not change password.");
+      });
+    }
+
+  }
+
+
+]);

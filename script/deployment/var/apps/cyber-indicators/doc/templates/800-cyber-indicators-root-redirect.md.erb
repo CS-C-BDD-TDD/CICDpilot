@@ -1,0 +1,35 @@
+# Adding a Redirect to Tomcat
+
+## Prerequisites
+
+* Configured Firewall
+
+## Configure Redirect
+
+*Create a root webapp.*
+
+```bash
+mkdir -p /usr/share/tomcat7/webapps/ROOT
+```
+
+*Add the index.jsp redirect file.*
+
+```bash
+touch /usr/share/tomcat7/webapps/ROOT/index.jsp
+```
+
+*Add the redirect to the contents of the index.jsp file.*
+
+Edit index.jsp and add the following entry:
+
+```bash
+<\% response.sendRedirect("/cyber-indicators"); %>
+```
+
+!Note! You must change url-to-redirect-to.
+
+*Change ownership.*
+
+```bash
+chown -R tomcat:tomcat /usr/share/tomcat7/webapps/ROOT
+```

@@ -1,0 +1,35 @@
+app.controller('OrganizationsEditController', ['$scope','$location','$routeParams','$rootScope', '$q', 'Restangular', 'Marking',
+  function ($scope, $location, $routeParams, $rootScope, $q, Restangular, Marking) {
+    var organization_promise = Restangular.one("organizations/"+$routeParams.id).get();
+    organization_promise.then(function(data){
+      $scope.organization = data;
+      $rootScope.breadcrumbs = [
+                                 {text: 'Home',link:'#/',icon:'fa-home'},
+                                 {text: 'Organizations',link:'#/organizations',icon:'fa-group'},
+                                 {text: $scope.organization.short_name,link:'#/organizations/'+$scope.organization.guid}
+                               ];
+    });
+    $scope.Marking = Marking;
+    $scope.save = function(organization){
+      Restangular.one("organizations/"+$routeParams.id).customPUT(organization).then(function(data) {
+        toastr.success('Organization saved');
+        $location.path('/organizations/'+data.guid);
+      },function(res){
+        toastr.error("Unable to save organization");
+        $scope.error=res.data.errors;
+        $("html, body").animate({ scrollTop: 0 }, 200);
+      });
+    };
+    $scope.cancelEdit = function() {
+      $location.path('/organizations');
+    };
+    $scope.deleteOrganization = function(organization) {
+      Restangular.one("organizations/"+$routeParams.id).remove().then(function(data){
+        toastr.success("Organization removed");
+        $location.path('/organizations');
+      },function(res){
+        toastr.error("Could not remove organization");
+      });
+    };
+  }
+]);

@@ -1,0 +1,100 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('portTable', function() {
+  return {
+    restrict: 'E',
+    templateUrl: function(elem,attrs) {
+      if (attrs.indexpage){
+        return '<%=asset_path("observables/ports/advanced_table.html",type: :template)%>';
+      } else {
+        return '<%=asset_path("observables/ports/table.html",type: :template)%>';
+      }
+    },
+    scope: {
+      ports: '=',
+      metadata: '=',
+      fetching: '='
+    },
+    controller: ['$scope', 'Restangular', '$rootScope', '$location', function($scope,Restangular,$rootScope, $location) {
+      $scope.SYSTEM_MODE = $rootScope.SYSTEM_MODE;
+      $scope.date_picker_opts = {
+        defaultRanges: true
+      };
+      $scope.q = '';
+      $scope.marking_search_params = {};
+
+      $scope.showTable=true;
+      if (angular.isUndefined($scope.offset)) {
+        $scope.offset=0;
+      }
+      if (angular.isUndefined($scope.amount)) {
+        $scope.amount=$rootScope.setting_value('DEFAULT_MAX_RECORDS');
+      }
+      
+      $scope.sortOptions = {
+          'port': 'desc',
+          'layer4_protocol': 'desc',
+          'created_at': 'desc',
+          'updated_at': 'desc'
+        };
+      $scope.sortMethod = '';
+
+      // Cleanup
+      $scope.$on('$destroy', function() {
+        $('.daterangepicker').remove();
+      });
+      
+      $scope.dateRangePicker = function(picker) {
+        $scope.date_picker_object = picker;
+        $scope.offset=0;
+        $scope.getPorts($scope.offset);
+      };
+
+      $scope.sort = function(method) {
+        $scope.sortMethod = method;
+        $scope.sortOptions[method]=($scope.sortOptions[method]=='desc')?'asc':'desc';
+        $scope.offset=0;
+        $scope.getPorts($scope.offset);
+      };
+
+      $scope.startSearch = function() {
+        $scope.offset=0;
+        $scope.getPorts($scope.offset);
+      };
+
+      $scope.getPorts = function(offset) {
+        if (angular.isDefined($scope.metadata)) {
+          delete($scope.metadata);
+        }
+        $scope.fetching = true;
+        Restangular.one("ports").get({
+          ebt: $scope.date_picker_object.getStartDate(),
+          iet: $scope.date_picker_object.getEndDate(),
+          q: $scope.q,
+          column: $scope.sortMethod,
+          direction: $scope.sortOptions[$scope.sortMethod],
+          amount: $scope.amount,
+          offset: offset,
+          marking_search_params: $scope.marking_search_params
+        }).then(
+            function(data){
+              $scope.ports = data.ports;
+              $scope.metadata = data.metadata;
+              $scope.fetching = false;
+            },
+            function(res){
+              $scope.ports = null;
+              $scope.metadata={total_count: 0};
+              toastr.error("Unable to load Ports");
+              $scope.fetching = false;
+            }
+        );
+      };
+
+      $scope.buildHref = function() {
+        return $rootScope.buildCSVHref($scope, "ports");
+      };
+
+    }]
+  };
+});

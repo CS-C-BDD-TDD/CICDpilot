@@ -1,0 +1,11 @@
+#ECIS Information
+#FLARE Server
+FLARE_SERVER: docker00
+FLARE_SERVER_USERNAME: cyber
+# FLARE_SERVER_SSH_KEY_PATH: /etc/pki/tls/private/localhost.key
+# API URI information - For https://relayout:1234/publish?collection=<feed>
+#     you would use https://relayout:1234/publish
+#     Do not put ?collection=<feed>
+FLARE_API_URI: https://localhost:3000/cyber-indicators/uploads?overwrite=Y
+# MODE is one of SFTP, API, BOTH
+MODE: SFTP

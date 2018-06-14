@@ -1,0 +1,37 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('paginationFooter', ['paginationService',function(paginationService) {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("pagination/footer.html",type: :template)%>',
+    scope: {
+             metadata: '=',
+             offset: '=',
+             getRecords: '='
+           },
+    controller: ['$scope', '$rootScope', function($scope,$rootScope) {
+      $scope.page = paginationService;
+
+      $scope.$watch('metadata',function(metadata){
+        if (angular.isDefined(metadata)) {
+          if (angular.isUndefined($scope.per_page)) {
+            $scope.per_page=$rootScope.setting_value('MAX_PER_PAGE');
+          }
+          $scope.total_count = $scope.metadata.total_count;
+          $scope.current_page = paginationService.current_page($scope.per_page,$scope.offset);
+          $scope.total_pages = paginationService.total_pages($scope.per_page,$scope.total_count);
+        }
+      });
+
+      $scope.goPage = function(page) {
+        cur_page=isNaN(parseInt(page)) ? null : parseInt(page);
+        if (cur_page===null || cur_page>$scope.total_pages || cur_page<1) {
+          toastr.error('Page '+page+' is not valid');
+        } else {
+          $scope.offset = $scope.per_page*(cur_page-1);
+          $scope.getRecords($scope.offset);
+        }
+      };
+    }]
+  };
+}]);

@@ -1,0 +1,16 @@
+app.controller('AcsSetsNewController', ['$scope','$rootScope','Restangular','Marking','$location',
+    function ($scope, $rootScope, Restangular,Marking,$location) {
+        $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'ACS Sets',link:'#/acs_sets',icon:'fa-thumb-tack'},{text:'New ACS Set',link:'#/acs_sets/new',icon:'fa-thumb-tack'}];
+        $scope.set = {stix_markings_attributes: [{isa_assertion_structure_attributes: Marking.build_default_isa_assertion()}]};
+
+        $scope.save = function(done) {
+            Restangular.all("acs_sets").post($scope.set).then(function(data){
+                done();
+                $location.path('/acs_sets/'+data.guid);
+                toastr.success("ACS Set successfully added");
+            },function(res){
+                done();
+                toastr.error(res.data.errors.join(", "));
+            });
+        }
+    }]);

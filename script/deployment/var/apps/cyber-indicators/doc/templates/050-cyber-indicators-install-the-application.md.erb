@@ -1,0 +1,141 @@
+# Install the Application
+
+## Prerequisites
+
+Before you begin, you must have:
+
+* Installed Java
+* Installed the Oracle client libraries.
+* Set the JAVA_HOME environment variable.
+* Set the ORACLE_HOME, TNS_ADMIN and LD_LIBRARY_PATH environment variables.
+* Set the system PATH environment variable to include the ORACLE_HOME bin path.
+
+## Install the STIG-hardened Tomcat package.
+
+**Install the RPM.**
+
+```bash
+cd [PATH_TO_TOMCAT_7_RPM]
+yum -y install [NAME_OF_TOMCAT_7_RPM]
+```
+
+<%if ENV['NOTE']%>
+!Note! The Yum package manager can install local files in addition to files located in a Yum repository.  As an alternative, you may also use the "rpm" command to install the software.
+<%end%>
+
+## Install the Cyber Indicators package
+
+**Install the RPM.**
+
+```bash
+cd [PATH_TO_CYBER_INDICATORS_RPM]
+yum -y install [NAME_OF_CYBER_INDICATORS_RPM]
+```
+
+<%if ENV['IMPORTANT']%>
+!Important!  This RPM depends on a STIG-hardened version of Tomcat.
+<%end%>
+
+<%if ENV['NOTE']%>
+!Note! The Yum package manager can install local files in addition to files located in a Yum repository.  As an alternative, you may also use the "rpm" command to install the software.
+<%end%>
+
+**Link the Web Application Folders**
+
+```bash
+/var/apps/cyber-indicators/bin/link-tomcat7
+```
+
+<%if ENV['NOTE']%>
+!Note! This command does not produce any output.
+
+!Note! You can verify that this command worked by viewing the newly created /usr/share/tomcat7 directory.
+<%end%>
+
+**Initialize the application web server.**
+
+```bash
+/var/apps/cyber-indicators/bin/initialize-application-webserver
+```
+
+<%if ENV['TROUBLESHOOTING']%>
+## [Troubleshooting] Manually execute the rake task.
+```bash
+TEMPLATE=/etc/cyber-indicators/templates/etc/cyber-indicators/tomcat7/conf/server.xml.erb \
+OUTFILE=/usr/share/tomcat7/conf/server.xml /var/apps/cyber-indicators/bin/rake \
+db:template:create;
+```
+<%end%>
+
+**Initialize the application System Configuration.**
+
+```bash
+TNS_ADMIN=[TNS_ADMIN] /var/apps/cyber-indicators/bin/initialize-sysconfig
+```
+
+**Initialize the application settings.**
+
+```bash
+/var/apps/cyber-indicators/bin/initialize-system-settings
+```
+
+<%if ENV['TROUBLESHOOTING']%>
+## [Troubleshooting] Manually execute the rake task.
+```bash
+TEMPLATE=/etc/cyber-indicators/templates/etc/sysconfig/cyber-indiators.erb \
+OUTFILE=/etc/sysconfig/cyber-indicators \
+/var/apps/cyber-indicators/bin/rake db:template:create;
+```
+<%end%>
+
+<%if ENV['TROUBLESHOOTING']%>
+**Review the System Configuration.**
+
+Edit the application system configuration file.
+
+```bash
+/etc/sysconfig/cyber-indicators
+```
+
+**Review the default environment variables.**
+
+```bash
+# TNS_ADMIN: Specifies the location of the Oracle tnsnames.ora file.
+TNS_ADMIN=/etc
+
+# JAVA_OPTS: Specifies the memory used by Java
+JAVA_OPTS="-XX:PermSize=512m -XX:MaxPermSize=1024m"
+
+# NLS_LANG: Specifies the character set for your connection to Oracle.
+NLS_LANG=AMERICAN_AMERICA.UTF8
+
+# SSL Certificate File:  Location for the server trusted certs.
+SSL_CERT_FILE=/etc/pki/tls/cert.pem
+
+# SOLR URL: The URL that the application uses to connect to theG search engine.
+SOLR_URL=https://localhost:8983/solr/production
+
+# CYBER_INDICATORS_HOME: Cyber indicators application root path
+CYBER_INDICATORS_HOME=/var/apps/cyber-indicators
+```
+<%end%>
+
+<%if ENV['IMPORTANT']%>
+!Important! Replace the TNS_ADMIN value with the root path to your Oracle TNS configuration file.
+<%end%>
+
+<%if ENV['EXAMPLE']%>
+!Example! Setting the TNS_ADMIN environment variable.
+
+If your Oracle TNS configuration file is located here:
+
+```bash
+/etc/tnsnames.ora
+```
+
+Then the TNS_ADMIN environment variable should be set to:
+
+```bash
+TNS_ADMIN=/etc
+```
+<%end%>

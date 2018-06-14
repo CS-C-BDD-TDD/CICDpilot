@@ -1,0 +1,116 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">  
+
+<div class="page-header">
+  <h1>
+    {{vulnerability.title | prefixWithPortionMarking: vulnerability.portion_marking}}
+    <small ng-show="vulnerability.read_only">
+      <span style="margin-left: 10px" class="label label-primary arrowed arrowed-right">
+        <span class="white">Read Only</span>
+      </span>
+    </small>
+    
+    <small ng-show="vulnerability.is_ciscp">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">CISCP</span>
+      </span>
+    </small>   
+    <small ng-show="vulnerability.is_mifr">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">MIFR</span>
+      </span>                 
+    </small>    
+    
+    <span class="pull-right">
+      <a ng-href="#/vulnerabilities/{{vulnerability.guid | encodeURIComponent}}/edit" class="btn btn-info no-radius btn-xs" ng-show="canModify(vulnerability) && vulnerability.read_only == false"><i class="ace-icon fa fa-pencil-square-o bigger-160"></i> Edit</a>
+      <button class="btn btn-danger no-radius btn-xs" ng-show="canDelete(vulnerability)" ng-click="destroy(vulnerability)"><i class="ace-icon fa fa-trash-o bigger-160"></i> Delete</button>
+    </span>
+  </h1>
+  <div class="space-18"></div>
+  <span class="pull-left" ng-show="canAny(['create_remove_badge_status','view_badge_status'])">
+    <badge-statuses-table badge-statuses="vulnerability.badge_statuses" audits="vulnerability.audits" parent-id="vulnerability.guid" parent-class="Vulnerability"></badge-statuses-table>
+  </span>
+  <div class="space-18"></div>
+</div>
+
+<p class="pull-right">
+</p>
+
+<div class="profile-user-info profile-user-info-striped">
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Title </div>
+    <div class="profile-info-value">
+      <span>{{vulnerability.title | prefixWithPortionMarking: vulnerability.portion_marking:vulnerability.title_c}}</span>
+      <field-markings-show markings="vulnerability.stix_markings" fieldname="title"></field-markings-show>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Description </div>
+    <div class="profile-info-value">
+      <multi-line-field field="vulnerability.description" portionmarking="vulnerability.portion_marking" cachemarking="vulnerability.description_c"></multi-line-field>
+      <field-markings-show markings="vulnerability.stix_markings" fieldname="description"></field-markings-show>
+    </div>
+  </div>
+  
+  <div class="profile-info-row" ng-show='vulnerability.feeds'>
+    <div class="profile-info-name"> Disseminated Feeds </div>
+    <div class="profile-info-value">
+      <span>{{vulnerability.feeds}}</span>
+    </div>
+  </div>
+  
+  <div class="profile-info-row">
+    <div class="profile-info-name"> CVE_ID </div>
+    <div class="profile-info-value">
+      <span>{{vulnerability.cve_id | prefixWithPortionMarking: vulnerability.portion_marking:vulnerability.cve_id_c}}</span>
+      <field-markings-show markings="vulnerability.stix_markings" fieldname="cve_id"></field-markings-show>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> OSVDB_ID </div>
+    <div class="profile-info-value">
+      <span>{{vulnerability.osvdb_id | prefixWithPortionMarking: vulnerability.portion_marking:vulnerability.osvdb_id_c}}</span>
+      <field-markings-show markings="vulnerability.stix_markings" fieldname="osvdb_id"></field-markings-show>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Creator </div>
+    <div class="profile-info-value">
+      <span>{{vulnerability.created_by_user.username}}</span>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Created </div>
+    <div class="profile-info-value">
+      <span>{{vulnerability.created_at | date: 'medium'}}</span>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Updated </div>
+    <div class="profile-info-value">
+      <span>{{vulnerability.updated_at | date: 'medium'}}</span>
+    </div>
+  </div>
+</div>
+
+<div class="space-12"></div>
+
+<div ng-show="vulnerability.stix_markings.length">
+   <markings-table markings="vulnerability.stix_markings"></markings-table>
+</div>
+
+<div class="space-12"></div>
+
+<exploit-target-table exploit_targets="vulnerability.exploit_targets" show_table=showTable></exploit-target-table>
+
+<div ng-show="vulnerability.stix_packages.length > 0">
+  <div class="space-12"></div>
+  <package-table packages="vulnerability.stix_packages"></package-table>
+</div>
+
+<div class="space-12"></div>
+
+<audits-table audits="vulnerability.audits"></audits-table>
+
+</div>
+
+<show-spinner> </show-spinner>

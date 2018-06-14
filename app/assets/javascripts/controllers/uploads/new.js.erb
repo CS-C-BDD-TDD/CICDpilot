@@ -1,0 +1,76 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+app.controller('UploadsNewController', ['$scope', '$rootScope','FileUploader', '$location', function($scope,$rootScope, FileUploader, $location) {
+   $scope.validate_only = false;
+   $scope.overwrite = false;
+
+   <% url = (Rails.configuration.action_controller.relative_url_root||"") + "/uploads" %>
+   $scope.uploader = new FileUploader({url: "<%= url %>", queueLimit: 2});
+   $scope.overwrite = false;
+   $scope.validate_only = false;
+   $scope.disable_avp = false;
+   $scope.continue = false;
+   $scope.canceled = false;
+   $scope.avp_fail_continue = false;
+   $scope.avp_valid = false;
+   $scope.hide_ciscp_banner = $rootScope.setting_value('CLASSIFICATION');
+
+   $scope.continueUploadWithErrors = function(){
+    $scope.continue = true;
+    $('#avp_messages').modal('toggle');
+    $('.modal-backdrop').remove();
+    $scope.uploader.queue[0].upload();
+   }
+
+   $scope.cancelUpload = function(){
+    $scope.canceled = true;
+    $('#avp_messages').modal('toggle');
+    $('.modal-backdrop').remove();
+    $scope.uploader.queue[0].upload();
+   }
+
+   $scope.uploader.onBeforeUploadItem = function(fileItem) {
+      fileItem.formData.push(
+        {"validate_only" : ($scope.validate_only ? "Y" : "N"),
+         "overwrite"     : ($scope.overwrite ? "Y" : "N"),
+         "continue" : $scope.continue,
+         "canceled" : $scope.canceled,
+         "avp_valid": $scope.avp_valid,
+         "avp_fail_continue" : $scope.avp_fail_continue,
+         "avp_message_id": angular.isDefined($scope.avp) ? $scope.avp.id : null,
+         "avp_validation": !$scope.disable_avp }
+      );
+      $scope.is_uploading = true;
+   };
+
+    $scope.uploader.onAfterAddingFile = (function(item,filter,options){
+        if ($scope.uploader.queue.length > 1){
+            $scope.uploader.queue.shift();
+        }
+    });
+
+   $scope.uploader.onCompleteItem = function(fileItem,response,status,headers) {
+      $scope.is_uploading = false;
+      $rootScope.updateHRCount();
+      if (angular.isUndefined(response.id)){
+        if (angular.isDefined(response.errors) && response.errors.length > 0){
+          _.each(response.errors, function(e){
+              toastr.error(e);
+          });
+        }
+        $location.path('/uploads/new');
+      } else if (angular.isDefined(response.avp_errors)) {
+        if (response.prohibited != null && response.prohibited.length > 0){
+          response.prohibited = response.prohibited.split(",");
+        }
+
+        if (response.avp_errors != null && response.avp_errors.length > 0){
+          response.avp_errors = response.avp_errors.split(",");
+        }
+        $scope.avp_valid = response.avp_valid;
+        $scope.avp = response;
+        $('#avp_messages').modal({backdrop: 'static', keyboard: false});        
+      } else {
+        $location.path('/uploads/'+(encodeURIComponent(response.id)||""));
+      }
+   };
+}]);

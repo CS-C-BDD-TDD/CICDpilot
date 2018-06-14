@@ -1,0 +1,75 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('fileBrowser', function(){
+  return {
+    restrict: 'E',
+    scope: {
+      selectedFiles: '=',
+      modified: '=',
+      accessor: '='
+    },
+    templateUrl: '<%=asset_path("observables/files/file_browser.html",type: :template)%>',
+    controller: ['$scope','$rootScope','Restangular','Marking','File',function($scope,$rootScope,Restangular,Marking,File) {
+      $scope.q = '';
+
+      $scope.sortOptions = {
+        'file_name' : 'asc'
+      };
+
+      $scope.$watch("accessor",function(value) {
+        if (angular.isDefined(value)) {
+          value.reset_search = function() {
+            $scope.files = undefined;
+          }
+        };
+      });
+
+      $scope.searchFiles = function() {
+        $scope.fetching = true;
+        var curr_obj = File.fetch_markings_object_from_scope($scope);
+        var curr_markings = curr_obj.stix_markings_attributes;
+        getFileList(curr_markings);
+      };
+
+      function getFileList(current_markings){
+        var classification_limit = Marking.get_classification_attributes(current_markings);
+        Restangular.one('/files').get({
+          q: $scope.q,
+          classification_limit: classification_limit
+        }).then(
+          function(data){
+            $scope.files = data.files;
+            $scope.fetching = false;
+          },
+          function(res){
+            toastr.error("Unable to load Files");
+            $scope.fetching = false;
+          }
+        );
+      }
+
+      $scope.checked = function(file){
+        return _.findIndex($scope.selectedFiles, function(i){return i.cybox_object_id == file.cybox_object_id;}) > -1;
+      };
+
+      $scope.sort = function(method) {
+        Restangular.one('/files').get({q: $scope.q,column: method, direction: $scope.sortOptions[method]}).then(function(data){
+          $scope.files = data.files;
+          $scope.sortOptions[method] = ($scope.sortOptions[method]=='desc')?'asc':'desc';
+        });
+      }
+
+      $scope.selectFile = function(file,$event) {
+        var checkbox = $event.target;
+        if (checkbox.checked){
+          if (_.findIndex($scope.selectedFiles, function(i){return i.cybox_object_id == file.cybox_object_id}) == -1){
+            $scope.selectedFiles.push(file);
+          }
+        } else {
+          $scope.selectedFiles = _.filter($scope.selectedFiles, function(i){return i.cybox_object_id != file.cybox_object_id});
+        }
+        $scope.modified = true;
+      };
+    }]
+  };
+});

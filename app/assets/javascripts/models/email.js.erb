@@ -1,0 +1,30 @@
+app.service('Email', ['$rootScope', '$filter', function($rootScope, $filter){
+  return {
+    get_value: function(email){
+      if (angular.isUndefined(email)){ return ""; }
+      var names = ['Subject'];
+      var attributes= ['subject'];
+
+      if ($rootScope.can('view_pii_fields')) {
+          names.push('Sender','Reply-To','From');
+          attributes.push('sender_normalized','reply_to_normalized','from_normalized');
+      }
+
+      var value = '';
+      for (var i=names.length-1;i>=0;i--) {
+        if (email[attributes[i]]) {
+          if (value) {
+            value+=' | ';
+          }
+          value+=names[i]+': '+email[attributes[i]];
+        }
+      }
+      if (value == '') {
+          return 'Subject: [No Subject Specified]';
+      } else {
+        return $filter('prefixWithPortionMarking')(value,
+            email.portion_marking);
+      }
+    }
+  };
+}]);

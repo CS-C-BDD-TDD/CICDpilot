@@ -1,0 +1,119 @@
+<form class="form-horizontal">
+  <div class="widget-body" ng-show="current_page == 0">
+    <div class="widget-main">
+      <!-- Questions Browser -->
+      <div>
+        <div class="widget-header widget-header-small">
+            <h4 class="widget-title blue smaller">
+                <i class="ace-icon fa fa-tasks orange"></i>
+                Attached Questions
+            </h4>
+        </div>
+
+        <div class="space-6"></div>
+
+        <div class="width-90 center-block" ng-show="dnsQuery.questions.length">
+          <div class="ciap_table_scroll_500">
+          <ol class="dd-list">
+            <li class="dd-item" ng-repeat="question in dnsQuery.questions">
+              <div class="dd-handle">
+                <a href="#/questions/{{question.guid}}">{{question.guid | prefixWithPortionMarking: question.portion_marking}}</a>
+                <div class="pull-right action-buttons">
+                    <a class="red" href="" ng-click="removeQuestions(question)">
+                        <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                    </a>
+                </div>
+              </div>
+            </li>
+          </ol>
+          </div>
+        </div>
+      </div>
+
+      <div ng-hide="dnsQuery.questions.length">
+      No Attached Questions
+      </div>
+
+      <question-browser selected_questions="dnsQuery.questions"></question-browser>
+
+      <div class="space-12"></div>
+      <!-- Questions Browser End-->
+
+      <!-- Resource Record Browser -->
+      <div>
+        <div class="widget-header widget-header-small">
+            <h4 class="widget-title blue smaller">
+                <i class="ace-icon fa fa-tasks orange"></i>
+                Attached Resource Records
+            </h4>
+        </div>
+
+        <div class="space-6"></div>
+
+        <div class="width-90 center-block" ng-show="dnsQuery.resource_records.length">
+          <div class="ciap_table_scroll_500">
+          <ol class="dd-list">
+            <li class="dd-item" ng-repeat="resource_record in dnsQuery.resource_records">
+              <div class="dd-handle">
+                <a href="#/resource_records/{{resource_record.guid}}">{{resource_record.guid | prefixWithPortionMarking: resource_record.portion_marking}}</a>
+                <div class="pull-right action-buttons">
+                    <a class="red" href="" ng-click="removeResourceRecord(resource_record)">
+                        <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                    </a>
+                </div>
+              </div>
+            </li>
+          </ol>
+          </div>
+        </div>
+      </div>
+
+      <div ng-hide="dnsQuery.resource_records.length">
+      No Attached Resource Records
+      </div>
+
+      <resource-records-browser selected-resource-records="dnsQuery.resource_records"></resource-records-browser>
+
+      <div class="space-12"></div>
+      <!-- Resource Record Browser End-->
+
+    </div>
+  </div>
+  <!-- End Part 1 -->
+  <div class="widget-body" ng-show="current_page == 1">
+    <div class="widget-main">
+      <acs-associate-form sets="sets" object="dnsQuery" objecttype="DnsQuery" disable-save="is_saving" editform="editform" fieldname="cybox"></acs-associate-form>
+    </div>
+  </div>
+</form>
+<div class="row">
+  <div class="col-xs-12">
+    <form class="form-horizontal" role="form" ng-submit="save()">
+      <div class="clearfix form-actions">
+        <span ng-show="is_saving">
+          <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+        </span>
+        <div class="col-md-offset-3" ng-show="current_page == 0">
+          <button class="btn btn-warning pull-right ciap_mleft_5" ng-disabled="is_saving" type="button" ng-click="current_page = 1">
+            <i class="ace-icon fa fa-arrow-right bigger-110"></i> Next
+          </button>
+          <button class="btn btn-default pull-right ciap_mleft_5" ng-disabled="is_saving" type="button" ng-click="cancel()">
+            <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+          </button>
+        </div>
+        <div class="col-md-offset-3" ng-show="current_page == 1">
+          <button class="btn btn-info pull-right ciap_mleft_5" ng-disabled="is_saving" type="submit">
+            <i class="ace-icon fa fa-check bigger-110"></i> Save
+          </button>
+          <button class="btn btn-warning pull-right ciap_mleft_5" ng-disabled="is_saving" type="button" ng-click="current_page = 0">
+            <i class="ace-icon fa fa-arrow-left bigger-110"></i> Back
+          </button>
+          <button class="btn btn-default pull-right ciap_mleft_5" ng-disabled="is_saving" type="button" ng-click="cancel()">
+            <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+          </button>
+        </div>
+      </div>
+      <div class="hr hr-24"></div>
+    </form>
+  </div>
+</div>

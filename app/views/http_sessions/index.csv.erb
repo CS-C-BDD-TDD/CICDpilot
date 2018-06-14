@@ -1,0 +1,6 @@
+<%- headers = ['Cybox Object ID', 'User Agent', 'User Agent Condition', 'Domain Name', 'Port', 'Referer', 'Pragma', 'Created At', 'Last Updated'] %>
+<%= raw CSV.generate_line addPortionMarkingToCSV(headers), :row_sep => '', :force_quotes => true %>
+<% @http_sessions.each do |session| %>
+  <%- row = [session.cybox_object_id, session.user_agent, session.user_agent_condition, session.domain_name, session.port, session.referer, session.pragma, session.created_at, session.updated_at] -%>
+<%= raw CSV.generate_line addPortionMarkingToCSV(nil, row, session), :row_sep => '', :force_quotes => true %>
+<% end %>

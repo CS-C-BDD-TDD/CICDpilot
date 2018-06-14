@@ -1,0 +1,590 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<stix:STIX_Package xmlns:AddrObj="http://cybox.mitre.org/objects#AddressObject-2" xmlns:FileObj="http://cybox.mitre.org/objects#FileObject-2" xmlns:URIObj="http://cybox.mitre.org/objects#URIObject-2" xmlns:WinRegistryKeyObj="http://cybox.mitre.org/objects#WinRegistryKeyObject-2" xmlns:cybox="http://cybox.mitre.org/cybox-2" xmlns:cyboxCommon="http://cybox.mitre.org/common-2" xmlns:indicator="http://stix.mitre.org/Indicator-2" xmlns:marking="http://data-marking.mitre.org/Marking-1" xmlns:simpleMarking="http://data-marking.mitre.org/extensions/MarkingStructure#Simple-1" xmlns:stix="http://stix.mitre.org/stix-1" xmlns:stixCommon="http://stix.mitre.org/common-1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="NCCIC:IB-14-20168" version="1.0" xmlns:NCCIC="http://www.us-cert.gov/nccic" xmlns:cyboxVocabs="http://cybox.mitre.org/default_vocabularies-2" xmlns:stixVocabs="http://stix.mitre.org/default_vocabularies-1" xmlns:tlpMarking="http://data-marking.mitre.org/extensions/MarkingStructure#TLP-1">
+  <stix:STIX_Header>
+    <stix:Title>Sofacy Malware</stix:Title>
+    <stix:Package_Intent xsi:type="stixVocabs:PackageIntentVocab-1.0">Indicators - Malware Artifacts</stix:Package_Intent>
+    <stix:Description>This is a continuation in a series of informational indicators bulletins providing technical information on sophisticated malware that has been recently reported by various private cyber security organizations.
+
+In 2014, various private cyber security corporations published information regarding the Sofacy malware program. Private sector analysis of the malware suggest that the malware activity is likely state sponsored, based on the sophistication of the malware and its victim target set.  While there is no definitive attribution of the activity, open source reporting indicates this may be from groups which have ties to Eastern Europe.
+
+Based on open source analysis of the activity, Sofacy targets victims associated with:
+* Political
+* Energy
+* Military 
+
+Analysis of the activity also indicates possible victims in the United States and NATO.  
+
+This advisory is to disseminate known cyber threat indicators associated with Sofacy.
+
+References:
+[1] N. Mehta, B. Leonard and S. Huntley, "Peering Into the Aquarium:Analysis of a Sophisticated Multi-Stage Malware Family," Google Security Team, 2014.
+[2] iSIGHT Partners, Inc., "Sofacy Trojan with Nexus to Russia Targets National Security Community," 2013.
+[3] iSIGHT Partners, Inc., "Cyber Espionage Operation Leveraging Ukraine Conflict-Themed Lures Drops Sofacy Trojan," 2014.
+[4] iSIGHT Partners, Inc., "Sofacy Malware Leveraging Polish-Language Lure Tied to US Defense and Government Targeting," 2014.</stix:Description>
+    <stix:Handling>
+      <marking:Marking>
+        <marking:Controlled_Structure>//node()</marking:Controlled_Structure>
+        <marking:Marking_Structure color="GREEN" xsi:type="tlpMarking:TLPMarkingStructureType" />
+      </marking:Marking>
+      <marking:Marking>
+        <marking:Controlled_Structure>//node()</marking:Controlled_Structure>
+        <marking:Marking_Structure xsi:type="simpleMarking:SimpleMarkingStructureType">
+          <simpleMarking:Statement>This Indicator Bulletin is provided "as is" for informational purposes only. The Department of Homeland Security (DHS) does not provide any warranties of any kind regarding any information contained within. The DHS does not endorse any commercial product or service, referenced in this bulletin or otherwise. This document is marked TLP: GREEN. Recipients may only share TLP: GREEN information with peers and partner organizations within their sector or community, but not via publicly accessible channels. For more information on the Traffic Light Protocol, see http://www.us-cert.gov/tlp .</simpleMarking:Statement>
+        </marking:Marking_Structure>
+      </marking:Marking>
+    </stix:Handling>
+    <stix:Information_Source>
+      <stixCommon:Time>
+        <cyboxCommon:Produced_Time>2014-09-11T18:29:07Z</cyboxCommon:Produced_Time>
+      </stixCommon:Time>
+    </stix:Information_Source>
+  </stix:STIX_Header>
+  <stix:Indicators>
+    <stix:Indicator id="NCCIC:indicator-2f1694f2-c394-4b36-b279-def582c2c963" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Composite_Indicator_Expression operator="OR">
+        <indicator:Indicator idref="NCCIC:indicator-ac359db2-28c3-4fa7-9209-ad3bfbde0b45" />
+        <indicator:Indicator idref="NCCIC:indicator-2cf052a7-7314-49a1-8584-a8ef7782b2bb" />
+        <indicator:Indicator idref="NCCIC:indicator-b7cdf0ff-8a0e-4aff-8d57-84a7aa9a5c9d" />
+        <indicator:Indicator idref="NCCIC:indicator-42d5d111-f32b-42ae-a5d4-06d8a24def40" />
+        <indicator:Indicator idref="NCCIC:indicator-4a7abbb8-0388-4977-ad29-18739acbc9aa" />
+        <indicator:Indicator idref="NCCIC:indicator-535d0829-fa51-4812-9942-f2d8102411a2" />
+        <indicator:Indicator idref="NCCIC:indicator-77f51d1d-0da5-4f70-909a-940932e4301f" />
+        <indicator:Indicator idref="NCCIC:indicator-9e3a43fb-f71e-4a56-a7ac-b324fc8e0344" />
+        <indicator:Indicator idref="NCCIC:indicator-0cfb249a-0df9-42c8-b21f-53a01cb38871" />
+        <indicator:Indicator idref="NCCIC:indicator-8cc06f72-791b-4341-ad3c-10fff65d012a" />
+        <indicator:Indicator idref="NCCIC:indicator-e2306f16-a4f8-4f16-bddc-a57e4c1def75" />
+        <indicator:Indicator idref="NCCIC:indicator-365559c7-289a-476c-8631-95f42a06b39d" />
+        <indicator:Indicator idref="NCCIC:indicator-b5b3c373-a6b5-4b54-9ccf-5b05a609f81f" />
+        <indicator:Indicator idref="NCCIC:indicator-b8af821e-6684-4f2f-a79c-4c21d71a66d2" />
+        <indicator:Indicator idref="NCCIC:indicator-264c8bfc-c34e-4c40-a010-cc06fc1a18f8" />
+        <indicator:Indicator idref="NCCIC:indicator-a67c5cf8-e886-4c2f-aff0-efd165ce0ab5" />
+        <indicator:Indicator idref="NCCIC:indicator-fae06cad-f595-47b7-90b3-142e321d3f00" />
+        <indicator:Indicator idref="NCCIC:indicator-2e408eed-0ed5-4439-af6a-91b9f99afb46" />
+        <indicator:Indicator idref="NCCIC:indicator-c2454ba0-cf84-44bf-9e03-2e0fdf87b35e" />
+        <indicator:Indicator idref="NCCIC:indicator-2957b44d-9032-4bef-96b7-cdaa0705f20d" />
+        <indicator:Indicator idref="NCCIC:indicator-97a94620-6729-4232-888e-efb46bbf9ffd" />
+        <indicator:Indicator idref="NCCIC:indicator-107a059d-af37-4c2d-8f7a-2c76d84d3ae3" />
+        <indicator:Indicator idref="NCCIC:indicator-0f6463ae-446d-4734-977f-b15bd63539dc" />
+        <indicator:Indicator idref="NCCIC:indicator-47dd5733-2372-43e5-bf83-8b20d135ed2b" />
+        <indicator:Indicator idref="NCCIC:indicator-5296590e-dd70-4386-9c14-b08210fa514f" />
+        <indicator:Indicator idref="NCCIC:indicator-e2d82567-48e3-4996-9781-196fd06dd74f" />
+        <indicator:Indicator idref="NCCIC:indicator-d419cdd3-6069-4dbe-8af2-53c5bb9cc61f" />
+        <indicator:Indicator idref="NCCIC:indicator-85f91b06-101d-4e1d-8dfd-21157cf0e5d2" />
+        <indicator:Indicator idref="NCCIC:indicator-6f352273-9082-4f93-9f8d-af879fbc285a" />
+        <indicator:Indicator idref="NCCIC:indicator-3b5197ce-cb62-4a0f-bfa9-9dabed1d7f05" />
+        <indicator:Indicator idref="NCCIC:indicator-fab8e613-467a-4e7b-80d4-f1f8f2feaa65" />
+        <indicator:Indicator idref="NCCIC:indicator-1330ba80-bf16-4f2e-be37-91fce349aed8" />
+        <indicator:Indicator idref="NCCIC:indicator-956ad279-e7dc-4b8c-b0d9-a8934b8bbd66" />
+        <indicator:Indicator idref="NCCIC:indicator-e197a7f2-14a5-4c19-9703-efac7cfd76b4" />
+        <indicator:Indicator idref="NCCIC:indicator-9da82f72-0642-4217-b163-76ce8526ba3c" />
+        <indicator:Indicator idref="NCCIC:indicator-466c44f7-f8db-4640-90e5-6b397b045c04" />
+        <indicator:Indicator idref="NCCIC:indicator-839e89bb-9be3-47fa-a6e2-042ce272f32d" />
+      </indicator:Composite_Indicator_Expression>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-ac359db2-28c3-4fa7-9209-ad3bfbde0b45" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-c519f509-f9bf-44dc-9732-ed7a48b0fbdb">
+        <cybox:Object id="NCCIC:Object-5a6c4d95-813e-4000-b03c-eb61b11bc45b">
+          <cybox:Properties category="ipv4-addr" xsi:type="AddrObj:AddressObjectType">
+            <AddrObj:Address_Value condition="Equals">74.52.115.178</AddrObj:Address_Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-2cf052a7-7314-49a1-8584-a8ef7782b2bb" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-5dd26aa6-fed3-4a38-bb48-9ca55a414616">
+        <cybox:Object id="NCCIC:Object-24aaa233-0b8d-4844-ae1c-d0548d901767">
+          <cybox:Properties category="ipv4-addr" xsi:type="AddrObj:AddressObjectType">
+            <AddrObj:Address_Value condition="Equals">88.198.55.146</AddrObj:Address_Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-b7cdf0ff-8a0e-4aff-8d57-84a7aa9a5c9d" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-0256a68c-1999-4205-9c26-03a1547dc920">
+        <cybox:Object id="NCCIC:Object-975ea4d9-d3a5-49a5-94dc-ebcb30365c58">
+          <cybox:Properties category="ipv4-addr" xsi:type="AddrObj:AddressObjectType">
+            <AddrObj:Address_Value condition="Equals">67.18.172.18</AddrObj:Address_Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-42d5d111-f32b-42ae-a5d4-06d8a24def40" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-0cbb6ac8-21a0-4772-a499-943997f95c08">
+        <cybox:Object id="NCCIC:Object-cbc0b626-fd7f-4c68-bfd8-fafc36cb3b18">
+          <cybox:Properties category="ipv4-addr" xsi:type="AddrObj:AddressObjectType">
+            <AddrObj:Address_Value condition="Equals">203.117.68.58</AddrObj:Address_Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-4a7abbb8-0388-4977-ad29-18739acbc9aa" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-976ad49c-78f8-416b-a4dc-29fed3fb70f8">
+        <cybox:Object id="NCCIC:Object-04d9eba1-ec57-4bbf-a319-0965e5e67cb4">
+          <cybox:Properties category="ipv4-addr" xsi:type="AddrObj:AddressObjectType">
+            <AddrObj:Address_Value condition="Equals">200.106.145.122</AddrObj:Address_Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-535d0829-fa51-4812-9942-f2d8102411a2" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-cd83810b-3125-4771-ba99-df80d30cf645">
+        <cybox:Object id="NCCIC:Object-4aa3ee5e-9ce0-4192-abf5-3743b1df8ecb">
+          <cybox:Properties category="ipv4-addr" xsi:type="AddrObj:AddressObjectType">
+            <AddrObj:Address_Value condition="Equals">123.100.229.59</AddrObj:Address_Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-77f51d1d-0da5-4f70-909a-940932e4301f" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-d3ee54bd-c000-4c1d-995e-4d3647e510e9">
+        <cybox:Object id="NCCIC:Object-5052d52a-54b7-43d7-8fb3-a28e87853000">
+          <cybox:Properties category="ipv4-addr" xsi:type="AddrObj:AddressObjectType">
+            <AddrObj:Address_Value condition="Equals">200.74.244.118</AddrObj:Address_Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-9e3a43fb-f71e-4a56-a7ac-b324fc8e0344" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-0305d9e8-2958-4ebc-9078-9f2dca2c30da">
+        <cybox:Object id="NCCIC:Object-fa9b2079-5a8b-46f2-a270-9b6cd8786ce7">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">securitypractic.com</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-0cfb249a-0df9-42c8-b21f-53a01cb38871" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-3e23d435-43ef-4396-be20-dad483d8bc7a">
+        <cybox:Object id="NCCIC:Object-d6746143-d07d-428c-8da3-51dfa97066c8">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">checkmalware.or</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-8cc06f72-791b-4341-ad3c-10fff65d012a" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-04f40869-d1a9-4789-bf9f-884be84199e3">
+        <cybox:Object id="NCCIC:Object-a3762be6-cea7-4191-aa6d-22f8a2377713">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">adawareblock.com</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-e2306f16-a4f8-4f16-bddc-a57e4c1def75" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-a28406b2-68b1-4c1f-a2e9-12f0f241d0b3">
+        <cybox:Object id="NCCIC:Object-0a7ad9ea-f666-4498-ab8c-51fdd56c7c5e">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">checkmalware.info</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-365559c7-289a-476c-8631-95f42a06b39d" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-ba8db01e-dd66-4ad9-abe6-321b7c808134">
+        <cybox:Object id="NCCIC:Object-a9b65464-86ca-4148-b86a-72edd6b04a85">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">scanmalware.info</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-b5b3c373-a6b5-4b54-9ccf-5b05a609f81f" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-120725d0-3228-459c-83eb-43e89773dd0d">
+        <cybox:Object id="NCCIC:Object-e2fe7bbb-70b7-4f37-a270-75cf6b660543">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">updatepc.org</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-b8af821e-6684-4f2f-a79c-4c21d71a66d2" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-ae452322-4e59-4a99-bb6e-b477e00c53ea">
+        <cybox:Object id="NCCIC:Object-f87dbf3e-8075-409e-a9d1-9a6c740450f8">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">updatesoftware24.com</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-264c8bfc-c34e-4c40-a010-cc06fc1a18f8" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-2284597f-85eb-4bbc-bb98-56cb1c90f319">
+        <cybox:Object id="NCCIC:Object-634343dc-07bd-4edd-a516-9e212d3c9dd5">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">testservice24.net</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-a67c5cf8-e886-4c2f-aff0-efd165ce0ab5" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-a49d579e-3147-4d16-b17d-cf8b3d6a12bb">
+        <cybox:Object id="NCCIC:Object-b0248bd5-a99b-4e69-8c56-f36da6a81934">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">symanttec.org</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-fae06cad-f595-47b7-90b3-142e321d3f00" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-ad18130a-dcda-46b4-9242-05196443cf39">
+        <cybox:Object id="NCCIC:Object-bb6f71b6-6f10-4440-a7b5-896993a788e6">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">microsofi.org</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-2e408eed-0ed5-4439-af6a-91b9f99afb46" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">C2</indicator:Type>
+      <indicator:Description>[1]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-0b5f67b8-d6bc-45c8-8afb-fb2c17e713b7">
+        <cybox:Object id="NCCIC:Object-d89d77f2-0482-4295-8400-e0df66ca0cda">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">microsofupdate.
+com</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-c2454ba0-cf84-44bf-9e03-2e0fdf87b35e" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Domain Watchlist</indicator:Type>
+      <indicator:Description>[2]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-4042107a-9230-4ffd-979f-c04a096214a9">
+        <cybox:Object id="NCCIC:Object-92fc5a63-fa8c-4d67-ae67-e31cc20922e6">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">bytly.org</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-2957b44d-9032-4bef-96b7-cdaa0705f20d" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Domain Watchlist</indicator:Type>
+      <indicator:Description>[2]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-3ec8beac-f7d7-46b2-98f9-ada2545614df">
+        <cybox:Object id="NCCIC:Object-08f5df31-bb45-4c1e-88f0-2b5b5f63970c">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">hothookup.net</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-97a94620-6729-4232-888e-efb46bbf9ffd" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Domain Watchlist</indicator:Type>
+      <indicator:Description>[2]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-10b408da-98e9-499d-904c-9b976e2770b9">
+        <cybox:Object id="NCCIC:Object-19874178-5350-421a-bdf0-40e50d598b17">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">Helpmicrosoft.net</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-107a059d-af37-4c2d-8f7a-2c76d84d3ae3" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Domain Watchlist</indicator:Type>
+      <indicator:Description>[2]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-a2012558-95a2-4a47-862e-7f0215ca2649">
+        <cybox:Object id="NCCIC:Object-b46e6662-e561-44b5-9b38-2eeab09201cd">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">junlper.net</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-0f6463ae-446d-4734-977f-b15bd63539dc" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Domain Watchlist</indicator:Type>
+      <indicator:Description>[2]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-4f13e61f-476b-4576-b401-b338dbc98695">
+        <cybox:Object id="NCCIC:Object-f616199b-a16d-4e37-bbc8-5bbc64e95a64">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">youtubeclip.org</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-47dd5733-2372-43e5-bf83-8b20d135ed2b" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Domain Watchlist</indicator:Type>
+      <indicator:Description>[2]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-b730d828-d0ac-4c21-891c-959f3c0ee811">
+        <cybox:Object id="NCCIC:Object-90a0de11-38fb-4125-8031-3f9c791ddb19">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">Windous.kz</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-5296590e-dd70-4386-9c14-b08210fa514f" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Domain Watchlist</indicator:Type>
+      <indicator:Description>[2]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-1ac3617c-6afe-4147-9d66-cab4ad579990">
+        <cybox:Object id="NCCIC:Object-d9f642af-a1a3-4e5f-9884-1074826f78bc">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">Wind0ws.kz</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-e2d82567-48e3-4996-9781-196fd06dd74f" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Domain Watchlist</indicator:Type>
+      <indicator:Description>[2]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-8492d102-10c9-4445-8dbe-6380a07ce6af">
+        <cybox:Object id="NCCIC:Object-a558fd9a-1033-48ae-ab72-b53de11fdf0f">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">Sunmicrosystem.info</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-d419cdd3-6069-4dbe-8af2-53c5bb9cc61f" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Domain Watchlist</indicator:Type>
+      <indicator:Description>[2]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-41bc9ce7-c4fb-4e07-bd5e-03630a798e6e">
+        <cybox:Object id="NCCIC:Object-16a0346f-cac2-407a-8f9c-a5a43d30db9f">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">Sweetcherry.org</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-85f91b06-101d-4e1d-8dfd-21157cf0e5d2" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Domain Watchlist</indicator:Type>
+      <indicator:Description>[2]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-6514b142-7f7c-4191-b219-eac6fb4a1fe1">
+        <cybox:Object id="NCCIC:Object-dfa103e4-3163-4b30-8613-8e99cd2481a6">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">Kavkazcentr.info</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-6f352273-9082-4f93-9f8d-af879fbc285a" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Domain Watchlist</indicator:Type>
+      <indicator:Description>[2]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-96baab8a-b8f7-44eb-b71b-1ef14f1adc46">
+        <cybox:Object id="NCCIC:Object-1c8d97b2-a600-4c47-835b-1b862365bbe0">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">Yavuz16.org</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-3b5197ce-cb62-4a0f-bfa9-9dabed1d7f05" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Domain Watchlist</indicator:Type>
+      <indicator:Description>[2]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-aee81c6d-b45c-4efc-83ea-39acf455ecf5">
+        <cybox:Object id="NCCIC:Object-45ab46ab-b2c6-48ea-9c21-0ea844d3ac38">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">Sex-toy-shop.org</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-fab8e613-467a-4e7b-80d4-f1f8f2feaa65" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Domain Watchlist</indicator:Type>
+      <indicator:Description>[2]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-cc3d40f4-2569-4110-85a5-c981763bb2ab">
+        <cybox:Object id="NCCIC:Object-876861dd-5132-42eb-9227-7dda04fee700">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">Litu.su</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-1330ba80-bf16-4f2e-be37-91fce349aed8" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Domain Watchlist</indicator:Type>
+      <indicator:Description>[2]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-f004dd9c-8576-41fa-89ba-518731e72d59">
+        <cybox:Object id="NCCIC:Object-db8f8dc4-307f-41fb-91ed-0dee62fa774a">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">Lisaedelstein.name</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-956ad279-e7dc-4b8c-b0d9-a8934b8bbd66" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Domain Watchlist</indicator:Type>
+      <indicator:Description>[2]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-0ff6ea4e-aa33-44a6-a7bb-27f614975144">
+        <cybox:Object id="NCCIC:Object-bc95430d-b0fa-4c24-b3ab-5c22bade7318">
+          <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+            <URIObj:Value condition="Equals">Update-windows.org</URIObj:Value>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-e197a7f2-14a5-4c19-9703-efac7cfd76b4" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Malware Artifacts</indicator:Type>
+      <indicator:Description>[2]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-fba01261-3f6c-47fe-b58c-0145dc690d79">
+        <cybox:Object id="NCCIC:Object-4cb83493-a13f-49d0-9eee-eef982a526c3">
+          <cybox:Properties xsi:type="FileObj:FileObjectType">
+            <FileObj:File_Name condition="Equals">question_list.xls</FileObj:File_Name>
+            <FileObj:Size_In_Bytes condition="Equals">109824</FileObj:Size_In_Bytes>
+            <FileObj:Hashes>
+              <cyboxCommon:Hash>
+                <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                <cyboxCommon:Simple_Hash_Value condition="Equals">02dcea4f8d432fbf3e98c415375e371d</cyboxCommon:Simple_Hash_Value>
+              </cyboxCommon:Hash>
+              <cyboxCommon:Hash>
+                <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">SHA1</cyboxCommon:Type>
+                <cyboxCommon:Simple_Hash_Value condition="Equals">5e8534aa57471fa625ab74fb30540bc300d1971d</cyboxCommon:Simple_Hash_Value>
+              </cyboxCommon:Hash>
+            </FileObj:Hashes>
+          </cybox:Properties>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-9da82f72-0642-4217-b163-76ce8526ba3c" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Malware Artifacts</indicator:Type>
+      <indicator:Description>[3]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-a9d3a6f4-52c7-4e7e-8431-1af1b5e9cf09">
+        <cybox:Object id="NCCIC:Object-327207e5-a2e1-4e63-977d-f6b6444a7515">
+          <cybox:Properties xsi:type="FileObj:FileObjectType">
+            <FileObj:Size_In_Bytes condition="Equals">319248</FileObj:Size_In_Bytes>
+            <FileObj:Hashes>
+              <cyboxCommon:Hash>
+                <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                <cyboxCommon:Simple_Hash_Value condition="Equals">5af3afd6dee05f4a9c00bf5c31ad66dd</cyboxCommon:Simple_Hash_Value>
+              </cyboxCommon:Hash>
+              <cyboxCommon:Hash>
+                <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">SHA1</cyboxCommon:Type>
+                <cyboxCommon:Simple_Hash_Value condition="Equals">02b86ec5fcbc3e93b9832dc94d585ceba2219b19</cyboxCommon:Simple_Hash_Value>
+              </cyboxCommon:Hash>
+            </FileObj:Hashes>
+          </cybox:Properties>
+          <cybox:Related_Objects>
+            <cybox:Related_Object id="NCCIC:Object-719bb97e-51ae-49a0-bb78-53866da5aaa8">
+              <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+                <URIObj:Value condition="Equals">securitypractic.com</URIObj:Value>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-ba43d682-0fea-4602-93d1-104096d32c48">
+              <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+                <URIObj:Value condition="Equals">mrhelp.org</URIObj:Value>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+          </cybox:Related_Objects>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-466c44f7-f8db-4640-90e5-6b397b045c04" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Malware Artifacts</indicator:Type>
+      <indicator:Description>[3]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-c8a8a6a2-3e44-4825-b3a3-fabc7dafd945">
+        <cybox:Object id="NCCIC:Object-27718d2e-ee38-454d-9f68-40a0ff393d87">
+          <cybox:Properties xsi:type="FileObj:FileObjectType">
+            <FileObj:File_Name condition="Equals">Increased_U.S._Cooperation_with_Ukraine.doc</FileObj:File_Name>
+            <FileObj:Hashes>
+              <cyboxCommon:Hash>
+                <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                <cyboxCommon:Simple_Hash_Value condition="Equals">ce414f2278ec65e7a11d6db7426bd248</cyboxCommon:Simple_Hash_Value>
+              </cyboxCommon:Hash>
+            </FileObj:Hashes>
+          </cybox:Properties>
+          <cybox:Related_Objects>
+            <cybox:Related_Object id="NCCIC:Object-b195703c-8ea8-4c6a-8f62-aeeb758ba3a0">
+              <cybox:Properties type="Domain Name" xsi:type="URIObj:URIObjectType">
+                <URIObj:Value condition="Equals">adawareblock.com</URIObj:Value>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Contains</cybox:Relationship>
+            </cybox:Related_Object>
+          </cybox:Related_Objects>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+    <stix:Indicator id="NCCIC:indicator-839e89bb-9be3-47fa-a6e2-042ce272f32d" version="2.0" xsi:type="indicator:IndicatorType">
+      <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.0">Malware Artifacts</indicator:Type>
+      <indicator:Description>[4]</indicator:Description>
+      <indicator:Observable id="NCCIC:Observable-76e227ce-02d5-4897-9e54-d50fe9156774">
+        <cybox:Object id="NCCIC:Object-c43adc37-e93f-48eb-9c82-891e47533dd7">
+          <cybox:Properties xsi:type="FileObj:FileObjectType">
+            <FileObj:File_Name condition="Equals">netids.dll</FileObj:File_Name>
+            <FileObj:File_Path condition="Equals">%WINDOWS%\System32\</FileObj:File_Path>
+            <FileObj:Hashes>
+              <cyboxCommon:Hash>
+                <cyboxCommon:Type condition="Equals" xsi:type="cyboxVocabs:HashNameVocab-1.0">MD5</cyboxCommon:Type>
+                <cyboxCommon:Simple_Hash_Value condition="Equals">8d7a94fbb46a0efc64eda8ec1a3ffffe</cyboxCommon:Simple_Hash_Value>
+              </cyboxCommon:Hash>
+            </FileObj:Hashes>
+          </cybox:Properties>
+          <cybox:Related_Objects>
+            <cybox:Related_Object id="NCCIC:Object-a6c4e7d7-3d46-44cf-92dd-f7b687bf3c99">
+              <cybox:Properties xsi:type="WinRegistryKeyObj:WindowsRegistryKeyObjectType">
+                <WinRegistryKeyObj:Key condition="Equals">SOFTWARE\Microsoft\WindowsNT\CurrentVersion\SvcHost</WinRegistryKeyObj:Key>
+                <WinRegistryKeyObj:Hive condition="Equals">HKEY_LOCAL_MACHINE</WinRegistryKeyObj:Hive>
+                <WinRegistryKeyObj:Values>
+                  <WinRegistryKeyObj:Value>
+                    <WinRegistryKeyObj:Name condition="Equals">ntsvcs</WinRegistryKeyObj:Name>
+                    <WinRegistryKeyObj:Data condition="Equals">Network Identification Service</WinRegistryKeyObj:Data>
+                  </WinRegistryKeyObj:Value>
+                </WinRegistryKeyObj:Values>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Created</cybox:Relationship>
+            </cybox:Related_Object>
+            <cybox:Related_Object id="NCCIC:Object-6edb6300-73cf-40c8-a4ac-81cd7f1fd8ab">
+              <cybox:Properties xsi:type="WinRegistryKeyObj:WindowsRegistryKeyObjectType">
+                <WinRegistryKeyObj:Key condition="Equals">System\CurrentControlSet\Services\Network Identification Service\parameters\</WinRegistryKeyObj:Key>
+                <WinRegistryKeyObj:Hive condition="Equals">HKEY_LOCAL_MACHINE</WinRegistryKeyObj:Hive>
+                <WinRegistryKeyObj:Values>
+                  <WinRegistryKeyObj:Value>
+                    <WinRegistryKeyObj:Name condition="Equals">ServiceDll</WinRegistryKeyObj:Name>
+                    <WinRegistryKeyObj:Data condition="Equals">[SYSTEM32]\netids.dll</WinRegistryKeyObj:Data>
+                  </WinRegistryKeyObj:Value>
+                </WinRegistryKeyObj:Values>
+              </cybox:Properties>
+              <cybox:Relationship xsi:type="cyboxVocabs:ObjectRelationshipVocab-1.0">Created</cybox:Relationship>
+            </cybox:Related_Object>
+          </cybox:Related_Objects>
+        </cybox:Object>
+      </indicator:Observable>
+    </stix:Indicator>
+  </stix:Indicators>
+  <stix:TTPs>
+    <stix:Kill_Chains>
+      <stixCommon:Kill_Chain definer="LMCO" id="stix:KillChain-af3e707f-2fb9-49e5-8c37-14026ca0a5ff" name="LM Cyber Kill Chain" number_of_phases="7" reference="http://www.lockheedmartin.com/content/dam/lockheed/data/corporate/documents/LM-White-Paper-Intel-Driven-Defense.pdf">
+        <stixCommon:Kill_Chain_Phase name="Reconnaissance" ordinality="1" phase_id="stix:KillChainPhase-af1016d6-a744-4ed7-ac91-00fe2272185a" />
+        <stixCommon:Kill_Chain_Phase name="Weaponization" ordinality="2" phase_id="stix:KillChainPhase-445b4827-3cca-42bd-8421-f2e947133c16" />
+        <stixCommon:Kill_Chain_Phase name="Delivery" ordinality="3" phase_id="stix:KillChainPhase-79a0e041-9d5f-49bb-ada4-8322622b162d" />
+        <stixCommon:Kill_Chain_Phase name="Exploitation" ordinality="4" phase_id="stix:KillChainPhase-f706e4e7-53d8-44ef-967f-81535c9db7d0" />
+        <stixCommon:Kill_Chain_Phase name="Installation" ordinality="5" phase_id="stix:KillChainPhase-e1e4e3f7-be3b-4b39-b80a-a593cfd99a4f" />
+        <stixCommon:Kill_Chain_Phase name="Command and Control" ordinality="6" phase_id="stix:KillChainPhase-d6dc32b9-2538-4951-8733-3cb9ef1daae2" />
+        <stixCommon:Kill_Chain_Phase name="Actions on Objectives" ordinality="7" phase_id="stix:KillChainPhase-786ca8f9-2d9a-4213-b38e-399af4a2e5d6" />
+      </stixCommon:Kill_Chain>
+    </stix:Kill_Chains>
+  </stix:TTPs>
+</stix:STIX_Package>

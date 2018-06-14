@@ -1,0 +1,11 @@
+<div class="profile-info-row" ng-show="downgrade_request_ids(observable).length > 0">
+  <div class="profile-info-name"> Downgrade Request ID 
+  	<span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+      		<i class="fa fa-ban fa-stack-2x"> </i> 
+ 			<i class="fa fa-download fa-stack-1x"> </i> 
+    </span>
+  </div>
+  <div class="profile-info-value">
+    <span><div ng-repeat="drid in downgrade_request_ids(observable)">{{drid}}</div></span>
+  </div>
+</div>

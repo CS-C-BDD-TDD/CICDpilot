@@ -1,0 +1,36 @@
+<h1>Recent Weather Map Domain Data</h1>
+
+<button ng-click="display_threat_category_information = !display_threat_category_information"><i class="fa fa-question"></i> Threat Category List</button>
+
+<table class="table table-striped table-bordered table-hover" ng-show="display_threat_category_information">
+<tr><th>Category</th><th>Subcategory</th><th>Definition</th></tr>
+ <tr><td>Denial of Service</td><td></td><td>A malicious attempt to make a server or a network resource unavailable to users, usually by temporarily interrupting or suspending the services of a host connected to the Internet.</td></tr>
+ <tr><td>Scanning &amp; Recon</td><td></td><td>A procedure for identifying active hosts on a network, either for the purpose of attacking them or for network security assessment.</td></tr>
+ <tr><td>Scanning &amp; Recon</td><td>Vulnerability Scanning</td><td>The automated process of proactively identifying security vulnerabilities of computing systems in a network in order to determine if and where a system can be exploited and/or threatened.</td></tr>
+ <tr><td>Scanning &amp; Recon</td><td>Darknet</td><td>Web indexing (or Internet indexing) refers to various methods for indexing the contents of a website or the Internet as a whole.</td></tr>
+ <tr><td>Malware &amp; Botnet</td><td></td><td>Software that is intended to damage or disable computers and computer systems.</td></tr>
+ <tr><td>Malware &amp; Botnet</td><td>Malware C2</td><td>Command and control (C2) servers are used by attackers to maintain communications with compromised systems.</td></tr>
+ <tr><td>Malware &amp; Botnet</td><td>Hosting Malware</td><td>Locations known to be hosting or distributing malicious content</td></tr>
+ <tr><td>Malware &amp; Botnet</td><td>Network Behavior</td><td>Behavioral characteristics associated with the execution of potentially malicious content that affects the network. While this could indicate beaconing or C2 channels, this category does not include that level of insight.</td></tr>
+ <tr><td>Malware &amp; Botnet</td><td>Host Behavior</td><td>Behavioral characteristics associated with the execution of potentially malicious content that affects the host system. While these indicators are fewer, they tend to be less volatile than network indicators.</td></tr>
+ <tr><td>Malware &amp; Botnet</td><td>Weaponized Document</td><td>Documents are often used as a stage 1 payload for malicious attacks. They can be the payload from an email, the result of a malicious link, or transferred via hardware such as USB devices. This category includes artifacts associated with documents that generated network traffic. While it can often be inferred that the callback location is either a C2 channel or a site for additional malware downloads, this indicator alone does not provide that level of insight.</td></tr>
+ <tr><td>Malware &amp; Botnet</td><td>Exploit Kit</td><td>Sometimes called an exploit pack, is a toolkit that automates the exploitation of software vulnerabilities, for the purpose of spreading malware.</td></tr>
+ <tr><td>Malware &amp; Botnet</td><td>Backdoor RAT</td><td>The backdoor RAT is a backdoor programs that attackers can use to access your computer system without your knowledge or consent. With the backdoor RAT, an attacker can upload, download, and delete files on your system.</td></tr>
+ <tr><td>Malware &amp; Botnet</td><td>High Threat Samples</td><td>This category includes malware samples that were determined to be more severe based on their behavioral characteristics.</td></tr>
+ <tr><td>Malware &amp; Botnet</td><td>Botnet Victims</td><td>These machines have been identifed as being compromised in a group of botnet infections. While attribution is not always available for the specific actors, it can usually be determined what type of infection is being utilized.</td></tr>
+ <tr><td>Malware &amp; Botnet</td><td>Botnet Controllers</td><td>These machines have been identified as being the controller to an infected victim. Although an attacker could still use several abstraction layers to mask they actions to these machines, it does provide one step closer to the origination of the attack.</td></tr>
+ <tr><td>Phishing &amp; Spam</td><td></td><td>Software that attacks or harasses target systems through the e-mail service.</td></tr>
+ <tr><td>Phishing &amp; Spam</td><td>Spear Phishing</td><td>An e-mail spoofing fraud attempt that targets a specific organization for malicious purposes.</td></tr>
+ <tr><td>Phishing &amp; Spam</td><td>Spam</td><td>Spam (junk e-mail) is a nuisance-level threat where a large number of nearly identical messages are sent to numerous recipients via email.</td></tr>
+ <tr><td>Attacking Activity</td><td></td><td>Attacks on websites or other web based services</td></tr>
+ <tr><td>Espionage</td><td></td><td>An attack in which an unauthorized actor gains access to a network and remains active and undetected for a long period of time. Usually against high value targets or government entities.</td></tr>
+ <tr><td>Espionage</td><td>APT C2</td><td>Command and control (C2) servers are used by attackers to maintain communications with compromised systems.</td></tr>
+ <tr><td>System Compromise</td><td></td><td>A remote system has been observed in activity indicating compromise or control by a possible 3rd party. These systems can be utilized to carry out further malicious activity.</td></tr>
+ <tr><td>Blacklisted &amp; Unwanted Activity</td><td></td><td>This category includes observations of activity that are potentially malicious but do not fall into any of the above categories. Sinkholed domains, and blacklisted Ips/domains are primary examples.</td></tr>
+ <tr><td>Blacklisted &amp; Unwanted Activity</td><td>Blacklisted IP</td><td>An IP address that has been posted to on open source IP blacklist.</td></tr>
+ <tr><td>Blacklisted &amp; Unwanted Activity</td><td>Sinholed Domain</td><td>A domain that has been identified as malicious and sinkholed to re-direct traffic.</td></tr>
+ <tr><td>Blacklisted &amp; Unwanted Activity</td><td>Web Scraping</td><td>Activity that is performed during the reconnaissance phase of the attack life cycle. It often envolves enumerating or scraping the contents of websites for any available information that could be utilized during a future attack.</td></tr>
+</table>
+
+<domain-table domains="domains" metadata="metadata" wmdpage=true fetching="fetching"></domain-table>
+

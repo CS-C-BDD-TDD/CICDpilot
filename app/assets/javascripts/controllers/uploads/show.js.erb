@@ -1,0 +1,53 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('UploadsShowController', ['$scope','$routeParams','$rootScope','Restangular', 'Translator',
+  function ($scope, $routeParams, $rootScope, Restangular, Translator) {
+    $scope.fetching = true;
+    Restangular.one('uploads',$routeParams.id).get().then(function(data) {
+      $scope.upload = data;
+
+      if (angular.isDefined($scope.upload.avp_message)){
+        if ($scope.upload.avp_message.prohibited != null && $scope.upload.avp_message.prohibited.length > 0){
+          $scope.upload.avp_message.prohibited = $scope.upload.avp_message.prohibited.split(",");
+        }
+
+        if ($scope.upload.avp_message.avp_errors != null && $scope.upload.avp_message.avp_errors.length > 0){
+          $scope.upload.avp_message.avp_errors = $scope.upload.avp_message.avp_errors.split(",");
+        }
+      }
+      $scope.translateStatus = Translator.get_display_status;
+      $rootScope.breadcrumbs = [
+         {text:'Home',link:'#/',icon:'fa-home'},
+         {text:'Uploads',link:'#/uploads',icon:'fa-list'},
+         {text:$scope.upload.file_name,link:'#/uploads/'+encodeURIComponent($scope.upload.id),icon:'fa-eye'}];
+      $scope.fetching = false;
+    });
+
+    $scope.makeOptions = function(upload)
+    {
+      if (angular.isUndefined(upload) || upload == null){
+          return '';
+      }
+      combined_options = '';
+      if (upload.overwrite){
+        combined_options = 'overwrite';
+      }
+
+      if (upload.validate_only){
+        combined_options = combined_options + ', validate_only';
+      }
+      if (upload.human_review_needed){
+        combined_options = combined_options + ', human_review';
+      }
+      if (upload.read_only){
+        combined_options = combined_options + ', read_only';
+      }
+
+      if (combined_options.indexOf(',') == 0)
+      {
+        combined_options = combined_options.substr(2, combined_options.length);
+      }
+      return combined_options;
+    }
+
+}]);

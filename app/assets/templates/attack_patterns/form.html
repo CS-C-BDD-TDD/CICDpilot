@@ -1,0 +1,71 @@
+<form class="form-horizontal">
+  <div class="col-md-12">
+    <div>
+      <div class="col-md-1"> </div>
+        <div class="col-md-10">
+          <p><font size="3">Note: Required fields are either Title and Description, CAPEC ID, or all 3 fields.</font></p>
+        </div>
+      </div>
+    <div class="space-12"></div>
+    <div class="form-group" ng-class="{'has-error': attackPattern.errors.title}" tooltip="The Title field provides a simple title for this Attack Pattern.">
+      <label class="col-md-2 control-label">Title </label>
+      <div class="col-md-10">
+        <input type="text" class="col-md-8" id="title_textbox" ng-model="attackPattern.title" placeholder="Title" auto-focus></input>
+        <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="title_toggle.toggle > 0" ng-click="title_toggle.clear = title_toggle.clear + 1">Clear Markings</button>
+        <button class="btn btn-primary btn-sm pull-right" ng-click="title_toggle.toggle = title_toggle.toggle + 1">Custom ISA Markings</button>
+      </div>
+      <div ng-show="attackPattern.errors.title" class="help-block inline col-md-12" align="right">
+        <span ng-repeat="error in attackPattern.errors.title" class="col-md-12">Title {{error}}</span>
+      </div>
+    </div>
+    <field-markings-edit sets="sets" object="attackPattern" disablesave="is_saving" editform="editform" fieldname="title" togglebuttons="title_toggle"></field-markings-edit>
+
+    <div class="form-group" ng-class="{'has-error': attackPattern.errors.description}" tooltip="The Description field provides an unstructured, text description for this Attack Pattern.">
+      <label class="col-md-2 control-label">Description </label>
+      <div class="col-md-10">
+        <textarea class="col-md-8" id="form-field-8" placeholder="Description" ng-model="attackPattern.description"></textarea>
+        <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="des_toggle.toggle > 0" ng-click="des_toggle.clear = des_toggle.clear + 1">Clear Markings</button>
+        <button class="btn btn-primary btn-sm pull-right" ng-click="des_toggle.toggle = des_toggle.toggle + 1">Custom ISA Markings</button>
+      </div>
+      <div ng-show="attackPattern.errors.description" class="help-block inline col-md-12" align="right">
+        <span ng-repeat="error in attackPattern.errors.description" class="col-md-12">Description {{error}}</span>
+      </div>
+    </div>
+    <field-markings-edit sets="sets" object="attackPattern" disablesave="is_saving" editform="editform" fieldname="description" togglebuttons="des_toggle"></field-markings-edit>
+
+    <div class="form-group" ng-class="{'has-error': attackPattern.errors.capec_id}"  tooltip="CAPEC identifier for a particular Attack Pattern. It must be in the format CAPEC-#">
+      <label class="col-md-2 control-label">CAPEC ID</label>
+      <div class="col-md-10">
+        <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="capec_toggle.toggle > 0" ng-click="capec_toggle.clear = capec_toggle.clear + 1">Clear Markings</button>
+        <button class="btn btn-primary btn-sm pull-right" ng-click="capec_toggle.toggle = capec_toggle.toggle + 1">Custom ISA Markings</button>
+        <input type="text" class="col-md-8" id="capec_id_textbox" ng-model="attackPattern.capec_id" placeholder="CAPEC-ID"></input>
+      </div>
+      <div ng-show="attackPattern.errors.capec_id" class="help-block inline col-md-12" align="right">
+        <span ng-repeat="error in attackPattern.errors.capec_id" class="col-md-12">CAPEC ID {{error}}</span>
+      </div>
+    </div>
+    <field-markings-edit sets="sets" object="attackPattern" disablesave="is_saving" editform="editform" fieldname="capec_id" togglebuttons="capec_toggle"></field-markings-edit>
+
+    <acs-associate-form sets="sets" object="attackPattern" objecttype="AttackPattern" disable-save="is_saving" editform="editform" fieldname="cybox"></acs-associate-form>
+  </div>
+</form>
+<div class="row" ng-if="save != false">
+  <div class="col-xs-12" >
+    <form class="form-horizontal" role="form" ng-submit="start_save()">
+      <div class="clearfix form-actions">
+        <span ng-show="is_saving">
+          <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+        </span>
+        <div class="col-md-offset-3">
+          <button class="btn btn-info pull-right" ng-disabled="is_saving" type="submit">
+            <i class="ace-icon fa fa-check bigger-110"></i> Save
+          </button>
+          <button class="btn btn-default pull-right" ng-disabled="is_saving" type="button" ng-click="cancel()">
+            <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+          </button>
+        </div>
+      </div>
+      <div class="hr hr-24"></div>
+    </form>
+  </div>
+</div>

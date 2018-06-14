@@ -1,0 +1,16 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('HttpSessionsIndexController', ['$scope','$rootScope','Restangular',
+  function ($scope, $rootScope, Restangular) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'HTTP Sessions',link:'#/http_sessions',icon:'fa-group'}];
+    $scope.fetching = true;
+    Restangular.one('/http_sessions').get().then(function(data){
+      $scope.http_sessions = data.http_sessions;
+      $scope.metadata = data.metadata;
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load HTTP Sessions");
+      $scope.fetching = false;
+    });
+  }
+]);

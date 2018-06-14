@@ -1,0 +1,25 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('DomainsEditController', ['$scope','$routeParams','Restangular','$rootScope','Gfi','$location','Marking','objectSuggesterService',
+    function($scope,$routeParams,Restangular,$rootScope,Gfi,$location,Marking,objectSuggesterService) {
+        Restangular.one('/domains/'+$routeParams.id).get().then(function(data){
+            $scope.domain = Marking.translate_existing_attributes(data);
+            Gfi.init_gfi_edit($scope, $scope.domain);
+            $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Domains',link:'#/domains',icon:'fa-group'},{text:data.name,link:'#/domains/'+encodeURIComponent(data.cybox_object_id)}];
+        },function(res){
+            toastr.error("Unable to load Domain");
+        });
+
+        $scope.cancel = function() {
+            if (objectSuggesterService.is_data_set()){
+                $location.path(objectSuggesterService.get_path());
+            } else {
+                $location.path('/domains/'+$routeParams.id);
+            }
+        };
+
+        $scope.failed = function() {
+            $("html, body").animate({ scrollTop: 0 }, 200);
+        }
+    }
+]);

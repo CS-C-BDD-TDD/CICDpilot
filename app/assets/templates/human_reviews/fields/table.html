@@ -1,0 +1,97 @@
+<div class="widget-box widget-color-blue ui-sortable-handle">
+    <div class="widget-header" style="min-height: 50px">
+        <h5 class="widget-title bigger lighter">
+            <i class="ace-icon fa fa-table"></i>
+            Fields for Human Review ({{getPercentage()}}% Loaded)
+
+            <span class="pull-right" style="padding: 8px 12px 8px 0" ng-disabled="review.status == 'N' || review.status == 'I'" ng-hide="review.status == 'A' && !is_saving">
+                    <button tooltip="Save all currently updated values - No Dissemination will occur" class="btn btn-success no-radius btn-sm" ng-click="save()" ng-disabled="bulk_action_occurring">
+                        <i class="ace-icon fa fa-check-circle"></i>
+                        Save Changes
+                    </button>
+                        <i ng-show="is_saving" class="fa fa-sun-o fa-spin green bigger-150"></i>
+            </span>
+        </h5>
+    </div>
+
+    <div class="widget-body">
+        <div class="widget-main no-padding">
+            <scrollable-table watch="fields">
+            <table class="table table-striped table-bordered table-hover" style="table-layout: fixed">
+                <thead class="thin-border-bottom">
+                <tr>
+                    <th col="object_field" style="width: 7.5%">Object Field</th>
+                    <th col="object_type" style="width: 7.5%">Object Type</th>
+                    <th col="object_uid" style="width: 22%">Object ID</th>
+                    <th col="object_field_original" style="width: 25%">Original Value</th>
+                    <th col="object_field_revised" style="width: 25%">Accepted Value</th>
+                    <th style="width: 13%">Actions</th>
+                </tr>
+                </thead>
+                <tbody style="height: 100px;overflow-y: auto;">
+                <tr ng-repeat="field in fields" ng-show="fields.length" row-id="{{field.object_uid}}" class="items">
+                    <td style="width: 10%">
+                        {{::field.object_field}}
+                    </td>
+                    <td style="width: 10%">{{::field.object_type}}</td>
+                    <td style="width: 20%">{{::field.object_uid}}</td>
+                    <td style="width: 30%">{{::field.object_field_original}}</td>
+                    <td ng-class="{center:!field.object_field_revised}" style="width: 30%">
+                        <span ng-show="field.revising">
+                            <input type="text" style="width:100%" ng-enter="field.revising = false" ng-model="field.object_field_revised" placeholder="Enter New Field Value"/>
+                        </span>
+                        <span ng-show="field.object_field_revised">
+                          <span ng-if="field.has_pii == true" tooltip="PII is necessary to understand the threat" class="label label-warning arrowed-right arrowed">PII</span>
+                          <span ng-if="field.has_pii == false" tooltip="Value is not PII" class="label label-default arrowed-right arrowed">Not PII</span>
+                          <span>  {{field.object_field_revised}}</span>
+                        </span>
+                    </td>
+                    <td class="center" style="vertical-align: middle">
+                        <span ng-hide="field.object_field_revised || field.revising || review.status == 'R' || review.status == 'A'">
+                            <button class="btn btn-info btn-xs" tooltip="Confirm PII is necessary to understand the threat" ng-click="field.has_pii = true; field.object_field_revised = field.object_field_original; set_dirty()">
+                                <i class="ace-icon fa fa-check-square"></i>
+                                Confirm
+                            </button>
+                            <button class="btn btn-primary btn-xs" tooltip="Edit Field" ng-click="field.has_pii = false; field.revising = true; set_dirty()">
+                                <i class="ace-icon fa fa-pencil "></i>
+                                Edit
+                            </button>
+                            <button class="btn btn-success btn-xs" tooltip="Accept Original Value" ng-click="field.has_pii = false; field.object_field_revised = field.object_field_original; set_dirty()">
+                                <i class="ace-icon fa fa-check-circle"></i>
+                                Not PII
+                            </button>
+                            <button class="btn btn-info btn-xs" tooltip="Redact PII" ng-click="field.has_pii = false; field.object_field_revised = default_field_value; set_dirty()">
+                                <i class="ace-icon fa fa-check-square"></i>
+                                Redact
+                            </button>
+                        </span>
+                        <span ng-show="review.status!='A' && field.object_field_revised && !field.revising">
+                            <button class="btn btn-danger btn-xs" tooltip="Revert Edit" ng-click="field.has_pii = null ; field.object_field_revised=null; set_dirty()">
+                                <i class="ace-icon fa fa-exclamation-circle"></i>
+                                Revert Edit
+                            </button>
+                        </span>
+                    </td>
+                </tr>
+                <tr ng-hide="fields.length && !field.revising">
+                    <td colspan="6" style="text-align:center">No Files for Review</td>
+                </tr>
+                </tbody>
+            </table>
+            </scrollable-table>
+        </div>
+    </div>
+    <div class="dataTables_wrapper form-inline">
+        <div class="row">
+            <div class="pull-right col-xs-4" ng-disabled="review.status == 'N' || review.status == 'I'" ng-hide="review.status == 'A' && !is_saving">
+                <span class="pull-right">
+                    <button tooltip="Save all currently updated values - No Dissemination will occur" class="btn btn-success no-radius btn-sm" ng-click="save()" ng-disabled="bulk_action_occurring">
+                        <i class="ace-icon fa fa-check-circle"></i>
+                        Save Changes
+                    </button>
+                        <i ng-show="is_saving" class="fa fa-sun-o fa-spin green bigger-150"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

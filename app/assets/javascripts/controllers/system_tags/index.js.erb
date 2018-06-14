@@ -1,0 +1,27 @@
+app.controller('SystemTagsIndexController',['$scope','$rootScope','Restangular','$location',
+  function($scope,$rootScope,Restangular,$location) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'System Tags',link:'#/system_tags',icon:'fa-thumb-tack'}];
+
+    $scope.fetching = true;
+    Restangular.all('system_tags').getList().then(function(system_tags) {
+      $scope.system_tags = system_tags;
+      $scope.fetching = false;
+    });
+
+    $scope.create = function(system_tag) {
+      Restangular.all('/system_tags').post(system_tag).then(function(created_tag) {
+        $scope.system_tags.push(created_tag);
+        toastr.success("System Tag Created.");
+      },function(response) {
+        toastr.error("Could not create System Tag.");
+      });
+    };
+
+    $scope.check_for_tag=function(tag) {
+      if (angular.isUndefined(_.find($scope.system_tags,{"name":tag}))) {
+        return false;
+      }
+      return true;
+    }
+  }
+]);

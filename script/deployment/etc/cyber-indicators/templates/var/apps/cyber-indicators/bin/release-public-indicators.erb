@@ -1,0 +1,12 @@
+#!/bin/bash
+echo "Releasing Public Indicators ..."
+LOG_PATH=<%=ENV['LOG_PATH']%> \
+SOURCE_API_KEY=<%=ENV['SOURCE_API_KEY']%>\
+SOURCE_API_KEY_HASH=<%=ENV['SOURCE_API_KEY_HASH']%>\
+SOURCE_URL=<%=ENV['SOURCE_URL']%> \
+TARGET_API_KEY=<%=ENV['TARGET_API_KEY']%>\
+TARGET_API_KEY_HASH=<%=ENV['TARGET_API_KEY_HASH']%>\
+TARGET_URL=<%=ENV['TARGET_URL']%> \
+JAVA_HOME=<%=ENV['JAVA_HOME']%> \
+rake indicators:release
+

@@ -1,0 +1,182 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">
+
+<div class="widget-box widget-color-blue ui-sortable-handle" ng-show="showGFIs">
+  <div class="widget-header fake-link" ng-click="showWidget = !showWidget">
+    <h5 class="widget-title bigger lighter">
+      <span tooltip="Show/Hide GFI Fields">
+        <i class="ace-icon fa fa-flag"></i>
+        GFI Fields
+      </span>
+      <span class="ace-icon ciap_fa_icon_sm fa-stack ciap_pleft_6" tooltip="Not Exportable Field">
+      	<i class="fa fa-ban fa-stack-2x"> </i> 
+ 		<i class="fa fa-download fa-stack-1x"> </i> 
+      </span>
+    </h5>
+  </div>
+  <div class="widget-body" ng-show="showWidget">
+    <div class="widget-main" style="padding: 12px 0 12px 0">
+      <div class="profile-user-info profile-user-info-striped">
+        <div class="profile-info-row" ng-show="gfi.gfi_source_name">
+          <div class="profile-info-name"> GFI Source Name </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_source_name}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_action_name">
+          <div class="profile-info-name"> GFI Action Name </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_action_name}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_action_name_class">
+          <div class="profile-info-name"> GFI Action Name Class </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_action_name_class}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_action_name_subclass">
+          <div class="profile-info-name"> GFI Action Name Sub-class </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_action_name_subclass}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_ps_regex">
+          <div class="profile-info-name"> GFI PS RegEx </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_ps_regex}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_ps_regex_class">
+          <div class="profile-info-name"> GFI PS RegEx Class </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_ps_regex_class}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_ps_regex_subclass">
+          <div class="profile-info-name"> GFI PS RegEx Sub-class </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_ps_regex_subclass}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_cs_regex">
+          <div class="profile-info-name"> GFI CS RegEx </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_cs_regex}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_cs_regex_class">
+          <div class="profile-info-name"> GFI CS RegEx Class </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_cs_regex_class}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_cs_regex_subclass">
+          <div class="profile-info-name"> GFI CS RegEx Sub-class </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_cs_regex_subclass}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_exp_sig_loc">
+          <div class="profile-info-name"> GFI Exp Sig Loc </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_exp_sig_loc}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_exp_sig_loc_class">
+          <div class="profile-info-name"> GFI Exp Sig Loc Class </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_exp_sig_loc_class}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_exp_sig_loc_subclass">
+          <div class="profile-info-name"> GFI Exp Sig Loc Sub-class </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_exp_sig_loc_subclass}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_bluesmoke_id">
+          <div class="profile-info-name"> GFI Bluesmoke ID </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_bluesmoke_id}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_uscert_sid">
+          <div class="profile-info-name"> GFI US-CERT SID </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_uscert_sid}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_notes">
+          <div class="profile-info-name"> GFI Notes </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_notes}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_notes_class">
+          <div class="profile-info-name"> GFI Notes Class </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_notes_class}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_notes_subclass">
+          <div class="profile-info-name"> GFI Notes Sub-class </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_notes_subclass}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_status">
+          <div class="profile-info-name"> GFI Status </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_status}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_uscert_doc">
+          <div class="profile-info-name"> GFI US-CERT Doc </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_uscert_doc}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_uscert_doc_class">
+          <div class="profile-info-name"> GFI US-CERT Doc Class </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_uscert_doc_class}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_uscert_doc_subclass">
+          <div class="profile-info-name"> GFI US-CERT Doc Sub-class </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_uscert_doc_subclass}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_special_inst">
+          <div class="profile-info-name"> GFI Special Inst </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_special_inst}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_special_inst_class">
+          <div class="profile-info-name"> GFI Special Inst Class </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_special_inst_class}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_special_inst_subclass">
+          <div class="profile-info-name"> GFI Special Inst Sub-class </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_special_inst_subclass}}</span>
+          </div>
+        </div>
+        <div class="profile-info-row" ng-show="gfi.gfi_type">
+          <div class="profile-info-name"> GFI Type </div>
+          <div class="profile-info-value">
+            <span>{{gfi.gfi_type}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<show-spinner> </show-spinner>

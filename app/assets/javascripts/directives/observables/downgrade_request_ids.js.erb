@@ -1,0 +1,13 @@
+app.directive('downgradeRequestIds', function(){
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("observables/downgradeRequestIds.html",type: :template)%>',
+    scope: {
+      observable: '='
+    },
+    replace: true,
+    controller: ['$scope','Observable', function($scope, Observable) {
+      $scope.downgrade_request_ids = Observable.downgrade_request_ids;
+    }]
+  }
+});

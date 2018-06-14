@@ -1,0 +1,99 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('httpSessionTable', function() {
+  return {
+    restrict: 'E',
+    templateUrl: function(elem,attrs) {
+      return attrs.indexpage ? '<%=asset_path("observables/http_sessions/advanced_table.html",type: :template)%>' :
+                               '<%=asset_path("observables/http_sessions/table.html",type: :template)%>';
+    },
+    scope: {
+             httpSessions: '=',
+             metadata: '=',
+             fetching: '=',
+             title: '=?'
+           },
+    controller: ['$scope', 'Restangular', '$rootScope', function($scope,Restangular,$rootScope) {
+      $scope.date_picker_opts = {
+        defaultRanges: true
+      };
+      $scope.q = '';
+      $scope.marking_search_params = {};
+
+      $scope.showTable=true;
+      if (angular.isUndefined($scope.offset)) {
+        $scope.offset=0;
+      }
+      if (angular.isUndefined($scope.amount)) {
+        $scope.amount=$rootScope.setting_value('DEFAULT_MAX_RECORDS');
+      }
+      $scope.sortOptions = {
+        'user_agent': 'desc',
+        'user_agent_condition': 'desc',
+        'domain_name': 'desc',
+        'port': 'desc',
+        'referer': 'desc',
+        'pragma': 'desc',
+        'created_at': 'desc',
+        'updated_at': 'desc'
+      };
+      $scope.sortMethod = '';
+
+      // Cleanup
+      $scope.$on('$destroy', function() {
+        $('.daterangepicker').remove();
+      });
+      
+      $scope.dateRangePicker = function(picker) {
+        $scope.date_picker_object = picker;
+        $scope.offset=0;
+        $scope.getHttpSessions($scope.offset);
+      };
+
+      $scope.sort = function(method) {
+        $scope.sortMethod = method;
+        $scope.sortOptions[method]=($scope.sortOptions[method]=='desc')?'asc':'desc';
+        $scope.offset=0;
+        $scope.getHttpSessions($scope.offset);
+      };
+
+      $scope.startSearch = function() {
+        $scope.offset=0;
+        $scope.getHttpSessions($scope.offset);
+      };
+
+      $scope.getHttpSessions = function(offset) {
+        if (angular.isDefined($scope.metadata)) {
+          delete($scope.metadata);
+        }
+        $scope.fetching= true;
+        Restangular.one('/http_sessions').get({
+          ebt: $scope.date_picker_object.getStartDate(),
+          iet: $scope.date_picker_object.getEndDate(),
+          q: $scope.q,
+          column: $scope.sortMethod,
+          direction: $scope.sortOptions[$scope.sortMethod],
+          amount: $scope.amount,
+          offset: offset,
+          marking_search_params: $scope.marking_search_params
+        }).then(
+          function(data){
+            $scope.httpSessions = data.http_sessions;
+            $scope.metadata = data.metadata;
+            $scope.fetching= false;
+          },
+          function(res){
+            $scope.httpSessions = null;
+            $scope.metadata={total_count: 0};
+            toastr.error("Unable to load HTTP Sessions");
+            $scope.fetching= false;
+          }
+        );
+      };
+      
+      $scope.buildHref = function() {
+      	return $rootScope.buildCSVHref($scope, "http_sessions");
+      };  
+    }]
+  };
+});

@@ -1,0 +1,46 @@
+  <div class="widget-box widget-color-blue ui-sortable-handle">
+    <div class="widget-header">
+      <h5 class="widget-title bigger lighter">
+        <a class="fake-link white" ng-click="showTable=!showTable">
+          <span tooltip="Show/Hide Domains">
+            <i class="ace-icon fa fa-table"></i>
+            Domains
+          </span>
+        </a>
+      </h5>
+    </div>
+    <div class="widget-body" ng-show="showTable">
+      <div class="widget-main no-padding">
+        <table class="table table-striped table-bordered table-hover">
+          <thead class="thin-border-bottom">
+            <tr>
+              <th>Domain Name</th>
+              <th>Domain Condition</th>
+              <th>Created At</th>
+              <th>Last Updated</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="domain in domains">
+              <td>
+                <a ng-show="domain.combined_score||domain.com_threat_score||domain.gov_threat_score" ng-href="#/domains/{{domain.cybox_object_id | encodeURIComponent}}">{{domain.name | prefixWithPortionMarking: domain.portion_marking : "U"}}</a>
+                <a ng-hide="domain.combined_score||domain.com_threat_score||domain.gov_threat_score" ng-href="#/domains/{{domain.cybox_object_id | encodeURIComponent}}">{{domain.name | prefixWithPortionMarking: domain.portion_marking}}</a>
+              </td>
+              <td>
+                {{domain.name_condition}}
+              </td>
+              <td>
+                {{domain.created_at | date: 'medium'}}
+              </td>
+              <td>
+                {{domain.updated_at | date: 'medium'}}
+              </td>
+            </tr>
+            <tr ng-hide="domains.length">
+              <td colspan="4" style="text-align:center">No Results</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>

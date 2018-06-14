@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="cyber.indicators">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="utf-8" />
+    <title>Cyber Indicators</title>
+
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <%= stylesheet_link_tag "ace/bootstrap", media: "all" %>
+    <%= stylesheet_link_tag "ace/font-awesome", media: "all" %>
+    <%= stylesheet_link_tag "ace/ace", media: "all" %>
+    <%= stylesheet_link_tag "ace/ace-fonts", media: "all" %>
+    <%= stylesheet_link_tag "application", media: "all" %>
+    <%= csrf_meta_tag %>
+
+    <!--[if lte IE 9]>
+      <%= stylesheet_link_tag "ie9", media: "all" %>
+    <![endif]-->
+
+  </head>
+
+  <body class="no-skin ciap_scroll_y" ng-controller="MainController">
+    <!-- #section:basics/navbar.layout -->
+
+
+    <div id="banner_top" class="ng-cloak">
+      <div style="background-color: #<%= Setting.BANNER_COLOR %>">
+        <h2 style="color: #<%= Setting.BANNER_TEXT_COLOR %>" class="text-center"> <%= Setting.BANNER_TEXT %> </h2>
+      </div>
+    </div>
+
+
+    <div id="navbar" class="navbar navbar-default" style="background: #333333">
+      <div class="navbar-container" id="navbar-container">
+        <!-- #section:basics/sidebar.mobile.toggle -->
+        <button type="button" class="navbar-toggle menu-toggler pull-left" id="menu-toggler" data-target="#sidebar">
+          <span class="sr-only">Toggle sidebar</span>
+
+          <span class="icon-bar"></span>
+
+          <span class="icon-bar"></span>
+
+          <span class="icon-bar"></span>
+        </button>
+
+        <!-- /section:basics/sidebar.mobile.toggle -->
+        <div class="navbar-header pull-left">
+          <!-- #section:basics/navbar.layout.brand -->
+          <a id="cyber_indicators_button" href="#" class="navbar-brand">
+            <small>
+              <i class="fa fa-share-alt"></i>
+              <span class="blue bolder">Cyber</span>
+              Indicators
+            </small>
+          </a>
+
+          <!-- /section:basics/navbar.layout.brand -->
+
+          <!-- #section:basics/navbar.toggle -->
+
+          <!-- /section:basics/navbar.toggle -->
+        </div>
+
+        <!-- #section:basics/navbar.dropdown -->
+        <div class="navbar-buttons navbar-header pull-right" role="navigation">
+          <ul class="nav ace-nav">
+            <!-- #section:basics/navbar.user_menu -->
+            <li class="light-blue">
+              <a ng-cloak id="nametag" data-toggle="dropdown" class="fake-link dropdown-toggle">
+                Welcome {{current_user.username}}
+
+                <i class="ace-icon fa fa-caret-down"></i>
+              </a>
+
+              <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+                <li>
+                  <a ng-href="#/users/{{current_user.id}}">
+                    <i class="ace-icon fa fa-user"></i>
+                    Profile
+                  </a>
+                </li>
+
+                <% if !Setting.SSO_AD %>
+                  <li class="divider"></li>
+
+                  <li>
+                    <%= link_to auth_logout_path, method: :delete do %>
+                      <i class="ace-icon fa fa-power-off"></i>
+                      Log out
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+            </li>
+
+            <!-- /section:basics/navbar.user_menu -->
+          </ul>
+        </div>
+
+        <!-- /section:basics/navbar.dropdown -->
+      </div><!-- /.navbar-container -->
+    </div>
+
+    <!-- /section:basics/navbar.layout -->
+    <div class="main-container" id="main-container">
+      <!-- #section:basics/sidebar -->
+      <div id="sidebar" class="sidebar responsive">
+
+        <!--<div class="sidebar-shortcuts" id="sidebar-shortcuts">-->
+          <!--div class="sidebar-shortcuts-large" id="sidebar-shortcuts-large">
+            <button class="btn btn-success">
+              <i class="ace-icon fa fa-signal"></i>
+            </button>
+
+            <button class="btn btn-info">
+              <i class="ace-icon fa fa-pencil"></i>
+            </button>
+
+            #section:basics/sidebar.layout.shortcuts
+            <button class="btn btn-warning">
+              <i class="ace-icon fa fa-users"></i>
+            </button>
+
+            <button class="btn btn-danger">
+              <i class="ace-icon fa fa-cogs"></i>
+            </button>
+
+            /section:basics/sidebar.layout.shortcuts
+          </div-->
+
+          <!--<div class="sidebar-shortcuts-mini" id="sidebar-shortcuts-mini">-->
+            <!--<span class="btn btn-success"></span>-->
+
+            <!--<span class="btn btn-info"></span>-->
+
+            <!--<span class="btn btn-warning"></span>-->
+
+            <!--<span class="btn btn-danger"></span>-->
+          <!--</div>-->
+        <!--</div>&lt;!&ndash; /.sidebar-shortcuts &ndash;&gt;-->
+
+        <ul class="nav nav-list">
+          <li ng-show="can('view_stix_data')">
+            <a class="dropdown-toggle fake-link">
+              <i class="menu-icon fa fa-table"></i>
+              <span class="menu-text"> Indicators </span>
+
+              <b class="arrow fa fa-angle-down"></b>
+            </a>
+
+            <b class="arrow"></b>
+
+            <ul class="submenu">
+              <li class="">
+                <a ng-href="#/indicators">
+                  <i class="menu-icon fa fa-list"></i>
+                  All
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="" ng-show="can('create_indicator_observable')">
+                <a ng-href="#/indicators/new">
+                  <i class="menu-icon fa fa-plus"></i>
+                  New
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+              <% if Setting.MODE == 'CIAP' %>
+                <li class="">
+                  <a class="dropdown-toggle fake-link">
+                    <i class="menu-icon fa fa-caret-right"></i>
+                    Exported Indicators
+
+                    <b class="arrow fa fa-angle-down"></b>
+                  </a>
+
+                  <ul class="submenu">
+                    <li class="">
+                      <a ng-href="#/exported_indicators/e3a">
+                        <i class="menu-icon fa fa-list"></i>
+                        E3A
+                      </a>
+                      <a ng-href="#/exported_indicators/e2">
+                        <i class="menu-icon fa fa-list"></i>
+                        E2
+                      </a>
+                      <a ng-href="#/exported_indicators/ecs">
+                        <i class="menu-icon fa fa-list"></i>
+                        ECS
+                      </a>
+                    </li>
+                  </ul>
+
+                  <b class="arrow"></b>
+                </li>
+              <% end %>
+            </ul>
+          </li>
+
+          <li class="" ng-show="can('view_stix_data')">
+            <a class="dropdown-toggle fake-link">
+              <i class="menu-icon fa fa-rss"></i>
+              <span class="menu-text"> Enrichment Data </span>
+
+              <b class="arrow fa fa-angle-down"></b>
+            </a>
+
+            <b class="arrow"></b>
+
+            <ul class="submenu">
+
+            <% if Setting.MODE == 'CIR' %>
+                <li class="">
+                  <a ng-href="#/weathermapviz">
+                    <i class="menu-icon fa fa-globe"></i>
+                    Weather Map
+                  </a>
+                  <b class="arrow"></b>
+                </li>
+            <% end %>
+              <li class="">
+                <a ng-href="#/weathermapaddresses">
+                  <i class="menu-icon fa fa-cloud"></i>
+                  Weather Map IP Addresses
+                </a>
+                <b class="arrow"></b>
+              </li>
+              <li class="">
+                <a ng-href="#/weathermapdomains">
+                  <i class="menu-icon fa fa-globe"></i>
+                  Weather Map Domains
+                </a>
+                <b class="arrow"></b>
+              </li>
+              <li class="">
+                <a ng-href="#/weathermapstats">
+                  <i class="menu-icon fa fa-dashboard"></i>
+                  Weather Map Stats Dashboard
+                </a>
+                <b class="arrow"></b>
+              </li>
+            </ul>
+          </li>
+
+          <li class="" ng-show="can('view_stix_data')">
+            <a class="dropdown-toggle fake-link">
+              <i class="menu-icon fa fa-cubes"></i>
+              <span class="menu-text"> Packages </span>
+
+              <b class="arrow fa fa-angle-down"></b>
+            </a>
+
+            <b class="arrow"></b>
+
+            <ul class="submenu">
+              <li class="">
+                <a ng-href="#/packages">
+                  <i class="menu-icon fa fa-list"></i>
+                  All
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="" ng-show="can('create_package_report')">
+                <a ng-href="#/packages/new">
+                  <i class="menu-icon fa fa-plus"></i>
+                  New
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+              <li class="" ng-show="can('view_uploaded_file_info')">
+                <a ng-href="#/uploads">
+                  <i class="menu-icon fa fa-plus"></i>
+                  Uploads
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+            </ul>
+          </li>
+
+          <li class="" ng-show="can('view_stix_data')">
+            <a class="dropdown-toggle fake-link">
+              <i class="menu-icon fa fa-users"></i>
+              <span class="menu-text"> Threat Actors </span>
+
+              <b class="arrow fa fa-angle-down"></b>
+            </a>
+
+            <b class="arrow"></b>
+
+            <ul class="submenu">
+              <li class="">
+                <a ng-href="#/threat_actors">
+                  <i class="menu-icon fa fa-list"></i>
+                  All
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="" ng-show="can('create_remove_threat_actors')">
+                <a ng-href="#/threat_actors/new">
+                  <i class="menu-icon fa fa-plus"></i>
+                  New
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li>
+                <a href="#/fo_stats">
+                  <i class="menu-icon fa fa-carat-right"></i>
+                  FO Stats
+                </a>
+              </li>
+
+            </ul>
+          </li>
+
+          <li class="" ng-show="can('view_stix_data')">
+            <a class="dropdown-toggle fake-link">
+              <i class="menu-icon fa fa-globe"></i>
+              <span class="menu-text"> Exploit Targets </span>
+
+              <b class="arrow fa fa-angle-down"></b>
+            </a>
+
+            <b class="arrow"></b>
+
+            <ul class="submenu">
+              <li class="">
+                <a ng-href="#/exploit_targets">
+                  <i class="menu-icon fa fa-list"></i>
+                  All
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="" ng-show="can('create_remove_exploit_targets')">
+                <a ng-href="#/exploit_targets/new">
+                  <i class="menu-icon fa fa-plus"></i>
+                  New
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="">
+                <a ng-href="#/vulnerabilities">
+                  <i class="menu-icon fa fa-list"></i>
+                  All Vulnerabilities
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+            </ul>
+          </li>
+
+          <li class="" ng-show="can('view_stix_data')">
+            <a class="dropdown-toggle fake-link">
+              <i class="menu-icon fa fa-bomb"></i>
+              <span class="menu-text"> TTPs </span>
+
+              <b class="arrow fa fa-angle-down"></b>
+            </a>
+
+            <b class="arrow"></b>
+
+            <ul class="submenu">
+              <li class="">
+                <a ng-href="#/ttps">
+                  <i class="menu-icon fa fa-list"></i>
+                  All
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="" ng-show="can('create_remove_ttps')">
+                <a ng-href="#/ttps/new">
+                  <i class="menu-icon fa fa-plus"></i>
+                  New
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="">
+                <a ng-href="#/attack_patterns">
+                  <i class="menu-icon fa fa-list"></i>
+                  All Attack Patterns
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+            </ul>
+          </li>
+
+          <li class="" ng-show="can('view_stix_data')">
+            <a class="dropdown-toggle fake-link">
+              <i class="menu-icon fa fa-eyedropper"></i>
+              <span class="menu-text"> Course of Action </span>
+
+              <b class="arrow fa fa-angle-down"></b>
+            </a>
+
+            <b class="arrow"></b>
+
+            <ul class="submenu">
+              <li class="">
+                <a ng-href="#/course_of_actions">
+                  <i class="menu-icon fa fa-list"></i>
+                  All
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="" ng-show="can('create_remove_course_of_actions')">
+                <a ng-href="#/course_of_actions/new">
+                  <i class="menu-icon fa fa-plus"></i>
+                  New
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+            </ul>
+          </li>
+
+          <li class="" ng-show="can('view_stix_data')">
+            <a class="dropdown-toggle fake-link">
+              <i class="menu-icon fa fa-list"></i>
+              <span class="menu-text"> Observables </span>
+
+              <b class="arrow fa fa-angle-down"></b>
+            </a>
+
+            <b class="arrow"></b>
+
+            <ul class="submenu">
+              <li class="">
+                <a href="#/addresses">
+                  <i class="menu-icon fa fa-caret-right"></i>
+                  Addresses
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="">
+                <a href="#/dns_queries">
+                  <i class="menu-icon fa fa-caret-right"></i>
+                  DNS Queries
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="">
+                <a href="#/dns_records">
+                  <i class="menu-icon fa fa-caret-right"></i>
+                  DNS Records
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="">
+                <a href="#/domains">
+                  <i class="menu-icon fa fa-caret-right"></i>
+                  Domains
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="">
+                <a href="#/emails">
+                  <i class="menu-icon fa fa-caret-right"></i>
+                  Email Messages
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="">
+                <a href="#/files">
+                  <i class="menu-icon fa fa-caret-right"></i>
+                  Files
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+              
+              <li class="">
+                <a href="#/hostnames">
+                  <i class="menu-icon fa fa-caret-right"></i>
+                  Hostnames
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="">
+                <a href="#/http_sessions">
+                  <i class="menu-icon fa fa-caret-right"></i>
+                  HTTP Sessions
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="">
+                <a href="#/links">
+                  <i class="menu-icon fa fa-caret-right"></i>
+                  Links
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="">
+                <a href="#/mutexes">
+                  <i class="menu-icon fa fa-caret-right"></i>
+                  Mutexes
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="">
+                <a href="#/network_connections">
+                  <i class="menu-icon fa fa-caret-right"></i>
+                  Network Connections
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+              
+              <li class="">
+                <a href="#/ports">
+                  <i class="menu-icon fa fa-caret-right"></i>
+                  Port
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="">
+                <a href="#/registries">
+                  <i class="menu-icon fa fa-caret-right"></i>
+                  Registries
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="">
+                <a href="#/socket_addresses">
+                  <i class="menu-icon fa fa-caret-right"></i>
+                  Socket Addresses
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+
+              <li class="">
+                <a href="#/uris">
+                  <i class="menu-icon fa fa-caret-right"></i>
+                  URIs
+                </a>
+
+                <b class="arrow"></b>
+              </li>
+            </ul>
+          </li>
+
+          <li class="" ng-show="can('view_stix_data')">
+            <a class="dropdown-toggle fake-link">
+              <i class="menu-icon fa fa-flag"></i>
+              <span class="menu-text">Tags</span>
+              <b class="arrow fa fa-angle-down"></b>
+            </a>
+
+            <b class="arrow"></b>
+            <ul class="submenu">
+              <li class="">
+                <a class="dropdown-toggle fake-link">
+                  <i class="menu-icon fa fa-flag"></i>
+                  <span class="menu-text">System Tags</span>
+                  <b class="arrow fa fa-angle-down"></b>
+                </a>
+
+                <ul class="submenu">
+                  <li class="">
+                    <a href="#/system_tags">
+                      <i class="menu-icon fa fa-carat-right"></i>
+                      All
+                    </a>
+                  </li>
+                </ul>
+              </li>
+
+              <li class="" ng-show="can('tag_item_with_user_tag')">
+                <a href="#/user_tags">
+                  <i class="menu-icon fa fa-carat-right"></i>
+                  User Tags
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          <% if User.has_permission(User.current_user,'human_review') && AppUtilities.is_ciap? && Setting.CLASSIFICATION == false %>
+            <li ng-show="can('view_stix_data')">
+              <a ng-href="#/human_reviews">
+                <i class="menu-icon fa fa-pencil"></i>
+                <span class="menu-text"> Human Review </span>
+                <span class="badge badge-primary" ng-cloak>{{human_review_count}}</span>
+              </a>
+            </li>
+          <% end %>
+
+          <% if AppUtilities.is_ciap_dms_1b_or_1c_arch? && Setting.CLASSIFICATION == false %>
+          <li class="" ng-if="can('view_stix_data')">
+            <a class="dropdown-toggle fake-link">
+              <i class="menu-icon fa fa-tachometer"></i>
+              <span class="menu-text">AIS</span>
+              <b class="arrow fa fa-angle-down"></b>
+            </a>
+
+            <b class="arrow"></b>
+            <ul class="submenu">
+              <li class="">
+                <a href="#/ais_dashboard">
+                  <i class="menu-icon fa fa-carat-right"></i>
+                  <span class="menu-text">Dashboard</span>
+                </a>
+              </li>
+
+              <li class="">
+                <a href="#/ais_dashboard/metrics">
+                  <i class="menu-icon fa fa-carat-right"></i>
+                  Metrics
+                </a>
+              </li>
+            </ul>
+          </li>
+          <% end %>
+
+          <li class="" ng-show="can('view_metrics')">
+            <a ng-href="#/logging/dashboard">
+              <i class="menu-icon fa fa-user"></i>
+              Metric Dashboard
+            </a>
+            <b class="arrow"></b>
+          </li>
+
+          <li class="">
+            <a href="" id="Admin" class="dropdown-toggle" ng-show="canAny(['view_user_organization'])">
+              <i class="menu-icon fa fa-desktop"></i>
+
+              <span class="menu-text">Admin</span>
+              <b class="arrow fa fa-angle-down"></b>
+            </a>
+            <b class="arrow"></b>
+            <ul class="submenu">
+              <li>
+                <a id="Admin_ACS_Sets" class="dropdown-toggle fake-link" ng-show="can('view_stix_data')">
+                  <i class="menu-icon fa fa-caret-right"></i>
+                  ACS Sets
+
+                  <b class="arrow fa fa-angle-down"></b>
+                </a>
+                <ul class="submenu">
+                  <li class="">
+                    <a id="Admin_ACS_Sets_List" ng-href="#/acs_sets">
+                      <i class="menu-icon fa fa-carat-right"></i>
+                      List
+                    </a>
+
+                  </li>
+                  <li class="" ng-show="can('manage_acs_sets')">
+                    <a id="Admin_ACS_Sets_New" ng-href="#/acs_sets/new">
+                      <i class="menu-icon fa fa-carat-right"></i>
+                      New
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <a href="#/groups">
+                  <i class="menu-icon fa fa-group"></i>
+                  Groups
+                </a>
+                <b class="arrow"></b>
+              </li>
+
+              <li class="" ng-show="can('view_user_organization')">
+                <a ng-href="#/users">
+                  <i class="menu-icon fa fa-user"></i>
+                  Users
+                </a>
+                <b class="arrow"></b>
+              </li>
+
+              <li>
+                <a ng-href="#/logging/disseminated_records" ng-show="can('view_stix_data')">
+                  <i class="menu-icon fa fa-user"></i>
+                  Disseminated Files Stats
+                </a>
+                <b class="arrow"></b>
+              </li>
+
+              <li class="" ng-show="can('view_user_organization')">
+                <a ng-href="#/organizations">
+                  <i class="menu-icon fa fa-user"></i>
+                  Organizations
+                </a>
+                <b class="arrow"></b>
+              </li>
+
+              <li class="" ng-show="can('download_for_transfer') && '<%= Setting.CLASSIFICATION %>' != 'true'">
+                <a ng-href="#/downloads">
+                  <i class="menu-icon fa fa-user"></i>
+                  Create Download Zip
+                </a>
+                <b class="arrow"></b>
+              </li>
+
+              <li class="" ng-show="can('upload_for_transfer') && '<%= Setting.CLASSIFICATION %>' == 'true'">
+                <a ng-href="#/uploadzip">
+                  <i class="menu-icon fa fa-user"></i>
+                  Upload Transfer Zip
+                </a>
+                <b class="arrow"></b>
+              </li>
+
+              <li class="" ng-show="can('view_all_uploads')">
+                <a ng-href="#/uploads?admin=true">
+                  <i class="menu-icon fa fa-user"></i>
+                  All Uploads
+                </a>
+                <b class="arrow"></b>
+              </li>
+            </ul>
+          </li>
+        </ul><!-- /.nav-list -->
+
+        <!-- #section:basics/sidebar.layout.minimize -->
+        <div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
+          <i class="ace-icon fa fa-angle-double-left" data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
+        </div>
+
+        <!-- /section:basics/sidebar.layout.minimize -->
+      </div>
+
+      <!-- /section:basics/sidebar -->
+      <div class="main-content">
+        <div class="main-content-inner">
+          <!-- #section:basics/content.breadcrumbs -->
+          <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+              <li ng-repeat="b in breadcrumbs"><a ng-cloak ng-href="{{b.link}}"><i ng-class="'ace-icon fa '+b.icon"></i> {{b.text}}</a></li>
+            </ul><!-- /.breadcrumb -->
+
+            <!-- #section:basics/content.searchbox -->
+            <search-field ng-show="can('view_stix_data')"></search-field>
+            <!-- /section:basics/content.searchbox -->
+          </div>
+
+          <!-- /section:basics/content.breadcrumbs -->
+          <div class="page-content">
+            <div class="row">
+              <div class="col-xs-12">
+                <!-- PAGE CONTENT BEGINS -->
+                <%= yield %>
+                <!-- PAGE CONTENT ENDS -->
+              </div><!-- /.col -->
+            </div><!-- /.row -->
+          </div><!-- /.page-content -->
+        </div>
+      </div><!-- /.main-content -->
+
+      <div class="footer">
+        <% if Rails.configuration.version || Rails.env == "development" %>
+          <div class="footer-inner">
+            <div class="footer-content">
+              <span><report-issue></report-issue> | Cyber Indicators | <a ng-href="#/release_notes">Release Notes</a> <span style="font-family:monospace;">
+                <p><%= Rails.configuration.version %><% if Rails.env == "development" %> <%= GIT_BRANCH %>-<%= GIT_COMMIT %><% end %>
+              </span></span>
+            </div>
+          </div>
+        <% end %>
+
+      </div>
+
+      <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+        <i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
+      </a>
+
+    </div><!-- /.main-container -->
+
+    <div id="banner_bottom" class="ng-cloak navbar-fixed-bottom">
+      <div style="background-color: #<%= Setting.BANNER_COLOR %>">
+        <h2 style="color: #<%= Setting.BANNER_TEXT_COLOR %>" class="text-center"> <%= Setting.BANNER_TEXT %> </h2>
+      </div>
+    </div>
+
+    <!-- basic scripts -->
+    <script type="text/javascript">
+      // Don't put too much stuff here.  There's usually a better place to put this.
+      var SYSTEM_MODE = '<%= Setting.MODE %>';
+
+      function detectIE() {
+          var ua = window.navigator.userAgent;
+
+          var msie = ua.indexOf('MSIE ');
+          if (msie > 0) {
+              // IE 10 or older => return version number
+              return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+          }
+
+          var trident = ua.indexOf('Trident/');
+          if (trident > 0) {
+              // IE 11 => return version number
+              var rv = ua.indexOf('rv:');
+              return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+          }
+
+          var edge = ua.indexOf('Edge/');
+          if (edge > 0) {
+             // Edge (IE 12+) => return version number
+             return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
+          }
+
+          // other browser
+          return false;
+      }
+
+      if (detectIE() && sessionStorage.getItem("CIAPwarning")==null) {
+        alert("For best results, please use Firefox");
+        sessionStorage.setItem("CIAPwarning",1);
+      }
+    </script>
+    <%= javascript_include_tag "application" %>
+  </body>
+</html>
+

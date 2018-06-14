@@ -1,0 +1,69 @@
+<form class="form-horizontal">
+    <div class="">
+        <div class="form-group" ng-class="{'has-error': hostname.errors.hostname}">
+            <label class="col-md-3 control-label">Hostname *</label>
+            <div class="col-md-9">
+                <input type="text" ng-model="hostname.hostname_input" name="hostname_input" class="col-md-8" placeholder="Hostname" auto-focus>
+                <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="hostname_input_toggle.toggle > 0" ng-click="hostname_input_toggle.clear = hostname_input_toggle.clear + 1">Clear Markings</button>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="hostname_input_toggle.toggle = hostname_input_toggle.toggle + 1">Custom ISA Markings</button>
+                <ul ng-show="hostname.errors.hostname" class="help-block">
+                    <li ng-repeat="e in hostname.errors.hostname">Hostname {{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="hostname" disablesave="is_saving" editform="editform" fieldname="hostname_normalized" togglebuttons="hostname_input_toggle"></field-markings-edit>
+
+        <div class="form-group" ng-class="{'has-error': hostname.errors.hostname_condition}">
+            <label class="col-md-3 control-label">Hostname Condition *</label>
+            <div class="col-md-9">
+                <select class="col-md-8" ng-model="hostname.hostname_condition" ng-options="condition for condition in conditions"></select>
+                <br/>
+                <ul ng-show="hostname.errors.hostname_condition" class="help-block">
+                    <li ng-repeat="e in hostname.errors.hostname_condition">Hostname Condition {{e}}</li>
+                </ul>
+            </div>
+        </div>
+       
+        <div class="form-group" ng-class="{'has-error': hostname.errors.naming_system}">
+            <label class="col-md-3 control-label">Naming System *</label>
+            <div class="col-md-9">
+                <select class="col-md-8" ng-model="hostname.naming_system" ng-options="naming_system for naming_system in naming_systems"></select>
+                <button style="margin-left: 5px" class="btn btn-default btn-sm pull-right" ng-show="naming_system_toggle.toggle > 0" ng-click="naming_system_toggle.clear = naming_system_toggle.clear + 1">Clear Markings</button>
+                <button class="btn btn-primary btn-sm pull-right" ng-click="naming_system_toggle.toggle = naming_system_toggle.toggle + 1">Custom ISA Markings</button>
+                <ul ng-show="hostname.errors.naming_system" class="help-block">
+                    <li ng-repeat="e in hostname.errors.naming_system">Naming System {{e}}</li>
+                </ul>
+            </div>
+        </div>
+        <field-markings-edit sets="sets" object="hostname" disablesave="is_saving" editform="editform" fieldname="naming_system" togglebuttons="naming_system_toggle"></field-markings-edit>
+
+        <div class="form-group">
+            <label class="col-md-3 control-label">Is Domain Name</label>
+            <div class="col-md-9">
+                <input type="checkbox" ng-model="hostname.is_domain_name" name="is_domain_name">
+            </div>
+        </div>
+
+        <acs-associate-form sets="sets" object="hostname" objecttype="Hostname" disable-save="is_saving" editform="editform" fieldname="cybox"></acs-associate-form>
+    </div>
+</form>
+<div class="row">
+    <div class="col-xs-12">
+        <form class="form-horizontal" role="form" ng-submit="save(hostname)">
+            <div class="clearfix form-actions">
+                <span ng-show="is_saving">
+                    <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+                </span>
+                <div class="col-md-offset-3">
+                    <button class="btn btn-info" ng-disabled="is_saving" type="submit">
+                        <i class="ace-icon fa fa-check bigger-110"></i> Save
+                    </button>
+                    <button class="btn btn-default" ng-disabled="is_saving" type="button" ng-click="cancel()">
+                        <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                    </button>
+                </div>
+            </div>
+            <div class="hr hr-24"></div>
+        </form>
+    </div>
+</div>

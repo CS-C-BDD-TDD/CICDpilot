@@ -1,0 +1,26 @@
+app.directive('multiLocation', function(){
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("multiLocation.html",type: :template)%>',
+        scope: {
+            attribute: '=',
+            countries: '=',
+            administrativeAreas: '='
+        },
+        controller: ['$scope', function($scope){
+            $scope.remove = function(index) {
+                $scope.attribute.splice(index,1)[0];
+            }
+            $scope.add = function(attr) {
+                if(attr != null && _.findIndex($scope.attribute,function(i){return i==attr}) == -1){
+                    $scope.attribute.push(attr);
+                }
+            }
+            $scope.selectCountry = function(selected_country) {
+            	var ctry = selected_country;
+            	var ctryIdx = _.findIndex($scope.countries, function(val){return val.id==ctry});
+            	$scope.country_areas = $scope.administrativeAreas[ctryIdx].values;
+            }
+        }]
+    };
+});

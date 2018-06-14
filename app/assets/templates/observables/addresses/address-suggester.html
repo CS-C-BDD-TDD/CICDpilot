@@ -1,0 +1,48 @@
+<div class="inline col-md-8 ciap_pall_0 ciap_mtop_5" ng-class="{'has-error': errors.edit, 'has-warning': errors.new}">
+  <div ng-class="{'ciap_border_none': object[fieldName].length, 'ciap_border_1_solid': object[fieldName].length == 0}" class="ciap_width_100 ">
+    <span class='ciap_color_black_important ciap_font_medium' ng-show="object[fieldName] && matched">
+        {{object[fieldName] | prefixWithPortionMarking: "U" : object[portionMarking]}}
+    </span>
+
+    <span>
+      <input ng-model="addName" 
+             ng-change="onChange(addName)"
+             ng-model-options="{debounce: 250}"
+             ng-blur="blur()"
+             type="text"
+             class="col-md-8"
+             ng-keyup="onKeyup($event)"
+             ng-hide="object[fieldName] && matched">
+      </input>
+
+      <ul class="dropdown-menu typeahead" style="display: block" ng-hide="!suggestions.length || matched">
+        <li ng-repeat="suggestion in suggestions" 
+            ng-class="{ciap_selected_suggestion: $index == suggestionsIndex}"
+            ng-mouseover="updateSuggestionByMouse($index)"
+            ng-mousedown="stopBlur()"
+            ng-mouseup="onAddClick(suggestion)"
+            style="cursor: pointer">
+          {{suggestion.address_input | prefixWithPortionMarking: suggestion.portion_marking}}
+        </li>
+      </ul>
+    </span>
+    
+    <button tooltip="Remove" class="btn btn-white btn-info btn-xs pull-right ciap_mleft_5" type="button" ng-click="onRemoveClick(add)" ng-show="object[fieldName].length">
+      <i class="fa fa-trash bigger-120 ace-icon" ng-cloak></i>
+    </button>
+
+    <button tooltip="Edit Object" class="btn btn-white btn-info btn-xs pull-right ciap_mleft_5"
+            ng-mousedown="stopBlur()"
+            ng-mouseup="editAddress()"
+            ng-show="object[fieldName].length && showMarkings[fieldName] == 0 && (object.cybox_object_id.length || object.stix_id.length) && hideEdit == false">
+      <i class="fa fa-pencil-square-o bigger-120 ace-icon" ng-cloak></i>
+    </button> 
+
+  </div>
+  <ul ng-show="errors.edit" class="help-block ciap_mtop_50">
+    <li ng-repeat="e in errors.edit">{{e}}</li>
+  </ul>
+  <ul ng-show="errors.new" class="help-block ciap_mtop_50">
+    <li ng-repeat="e in errors.new">{{e}}</li>
+  </ul>
+</div>

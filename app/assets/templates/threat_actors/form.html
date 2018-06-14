@@ -1,0 +1,111 @@
+<form class="form-horizontal" role="form">
+  <div class="col-md-12 col-sm-12 widget-container-col ui-sortable">
+    <div class="widget-box ui-sortable-handle">
+      <div class="widget-header">
+        <h5 class="widget-title">
+          Threat Actor: {{threat_actor.title}}
+        </h5>
+      </div>
+      <div class="widget-body">
+        <div class="widget-main">
+
+          <div class="form-group" ng-class="{'has-error': threat_actor.errors.title}">
+            <label class="control-label col-md-3 no-padding-right">Title *</label>
+            <div class="col-md-9">
+              <input type="text" class="col-md-8" placeholder="Title" ng-model="threat_actor.title"></input>
+            </div>
+            <div ng-show="threat_actor.errors.title" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in threat_actor.errors.title" class="col-md-12">Title * {{error}}</span>
+            </div>
+          </div>
+
+          <div class="form-group" ng-class="{'has-error': threat_actor.errors.description}">
+            <label class="control-label col-md-3 no-padding-right">Description</label>
+            <div class="col-md-9">
+              <textarea class="col-md-8" id="form-field-8" placeholder="Description" ng-model="threat_actor.description"></textarea>
+            </div>
+            <div ng-show="threat_actor.errors.short_description" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in threat_actor.errors.description" class="col-md-12">Description {{error}}</span>
+            </div>
+          </div>
+
+          <div class="form-group" ng-class="{'has-error': threat_actor.errors.short_description}">
+            <label class="control-label col-md-3 no-padding-right">Short Description</label>
+            <div class="col-md-9">
+              <input type="text" class="col-md-8" placeholder="Short Description" ng-model="threat_actor.short_description"></input>
+            </div>
+            <div ng-show="threat_actor.errors.short_description" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in threat_actor.errors.short_description" class="col-md-12">Short description {{error}}</span>
+            </div>
+          </div>
+
+          <div class="form-group" ng-class="{'has-error': threat_actor.errors.identity_name}">
+            <label class="control-label col-md-3 no-padding-right">Identity Name</label>
+            <div class="col-md-9">
+              <input type="text" class="col-md-8" placeholder="Identity Name" ng-model="threat_actor.identity_name"></input>
+            </div>
+            <div ng-show="threat_actor.errors.identity_name" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in threat_actor.errors.identity_name" class="col-md-12">Identity Name {{error}}</span>
+            </div>
+          </div>
+
+          <div class="space-12"></div>
+
+          <acs-associate-form sets="sets" object=threat_actor objecttype="ThreatActor" disable-save=is_saving editform=editform></acs-associate-form>
+
+          <div class="space-12"></div>
+
+          <div ng-show="can('add_indicator_to_threat_actor')">
+              <div>
+                  <div class="widget-header widget-header-small">
+                      <h4 class="widget-title blue smaller">
+                          <i class="ace-icon fa fa-tasks orange"></i>
+                          Attached Indicators
+                      </h4>
+                  </div>
+                <div class="space-6"></div>
+
+                <div class="width-90 center-block" ng-show="threat_actor.indicators.length && show_browser == false">
+                    <div class="ciap_table_scroll_500">
+                        <ol class="dd-list">
+                            <li class="dd-item" ng-repeat="indicator in threat_actor.indicators">
+                                <div class="dd-handle">
+                                    <a href="#/indicators/{{indicator.stix_id}}">{{indicator.title | prefixWithPortionMarking: indicator.portion_marking:indicator.title_c}}</a>
+                                    <div class="pull-right action-buttons">
+                                        <a class="red" href="" ng-click="removeIndicator(indicator)">
+                                            <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-hide="threat_actor.indicators.length || show_browser == true">
+                No Indicators
+            </div>
+
+            <indicator-browser selected-indicators="threat_actor.indicators" classification-direction="down"></indicator-browser>
+
+            <div class="space-12"></div>
+          </div>
+
+          <div class="clearfix form-actions">
+            <span ng-show="is_saving">
+              <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+            </span>
+            <button ng-disabled="is_saving" class="btn btn-info pull-right ciap_mleft_12" type="button" ng-click="start_save(threat_actor)">
+              <i class="fa fa-check"></i>
+              Save
+            </button>
+            <button class="btn btn-default pull-right" type="button" ng-click="cancel()" ng-disabled="is_saving">
+              <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

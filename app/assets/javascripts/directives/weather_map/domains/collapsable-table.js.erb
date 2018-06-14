@@ -1,0 +1,43 @@
+app.directive('weatherMapDomainsCollapsableTable', function(){
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("weather_map/domains/collapsable-table.html",type: :template)%>',
+    scope: {
+             domains: '=?',
+             metadata: '=?',
+             search: '=?',
+             fetching: '=?',
+             mainsearch: '='
+           },
+    controller: ['$scope','Restangular',function($scope,Restangular){
+      $scope.showTable = true;
+
+      $scope.$watch('search',function(search) {
+        if (angular.isDefined(search)) {
+          $scope.showTable = false;
+          $scope.fetching = true;
+          Restangular.one("domains").get({
+            q: search,
+            weather_map_only: true,
+            mainsearch: $scope.mainsearch
+          }).then(
+            function(data){
+              $scope.domains = data.domains;
+              $scope.metadata = data.metadata;
+              if (data.metadata['total_count']>0) {
+                $scope.showTable = true;
+              }
+              $scope.fetching = false;
+            },
+            function(res){
+              $scope.metadata={total_count: 0};
+              toastr.error("Unable to load Weather Map Domains");
+              $scope.fetching = false;
+
+            }
+          );
+        }
+      });
+    }]
+  };
+});

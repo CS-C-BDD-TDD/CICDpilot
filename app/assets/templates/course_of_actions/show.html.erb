@@ -1,0 +1,114 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">
+
+<div class="page-header">
+  <h1>
+    {{course_of_action.title | prefixWithPortionMarking: course_of_action.portion_marking}}
+    <small ng-show="course_of_action.read_only">
+      <span class="label label-primary arrowed arrowed-right ciap_mleft_10">
+        <span class="white">Read Only</span>
+      </span>
+    </small>
+    <small ng-show="course_of_action.is_ciscp">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">CISCP</span>
+      </span>
+    </small>
+    <small ng-show="course_of_action.is_mifr">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">MIFR</span>
+      </span>
+    </small>    
+    <span class="pull-right">
+      <a ng-show="course_of_action.stix_id" ng-href="<%= Rails.configuration.action_controller.relative_url_root %>/course_of_actions/{{course_of_action.stix_id | encodeURIComponent}}?format=stix" class="btn btn-grey no-radius btn-xs"><i class="ace-icon fa fa-download bigger-160"></i>Download Course of action as STIX</a>
+
+      <a ng-href="#/course_of_actions/{{course_of_action.stix_id}}/edit" class="btn btn-info no-radius btn-xs" ng-show="canModify(course_of_action) && course_of_action.read_only == false"><i class="ace-icon fa fa-pencil-square-o bigger-160"></i> Edit</a>
+      
+      <button class="btn btn-danger no-radius btn-xs" ng-show="canDelete(course_of_action)" ng-click="destroy(course_of_action)"><i class="ace-icon fa fa-trash-o bigger-160"></i> Delete</button>
+    </span>
+  </h1>
+  <div class="space-18"></div>
+  <span class="pull-left" ng-show="canAny(['create_remove_badge_status','view_badge_status'])">
+    <badge-statuses-table badge-statuses="course_of_action.badge_statuses" audits="course_of_action.audits" parent-id="course_of_action.guid" parent-class="CourseOfAction"></badge-statuses-table>
+  </span>
+  <div class="space-18"></div>
+</div>
+
+<p class="pull-right">
+</p>
+
+<div class="profile-user-info profile-user-info-striped">
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Title </div>
+    <div class="profile-info-value">
+      <span>{{course_of_action.title | prefixWithPortionMarking: course_of_action.portion_marking:course_of_action.title_c}}</span>
+      <field-markings-show markings="course_of_action.stix_markings" fieldname="title"></field-markings-show>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Description </div>
+    <div class="profile-info-value">
+      <multi-line-field field="course_of_action.description" portionmarking="course_of_action.portion_marking" cachemarking="course_of_action.description_c"></multi-line-field>
+      <field-markings-show markings="course_of_action.stix_markings" fieldname="description"></field-markings-show>
+    </div>
+  </div>
+  
+  <div class="profile-info-row" ng-show='course_of_action.feeds'>
+    <div class="profile-info-name"> Disseminated Feeds </div>
+    <div class="profile-info-value">
+      <span>{{course_of_action.feeds}}</span>
+    </div>
+  </div>  
+  
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Creator </div>
+    <div class="profile-info-value">
+      <span>{{course_of_action.created_by_user.username}}</span>
+    </div>
+  </div>
+  <div class="profile-info-row" ng-show="course_of_action.acs_set.guid">
+    <div class="profile-info-name"> ACS Set </div>
+    <div class="profile-info-value">
+      <a ng-href="#/acs_sets/{{course_of_action.acs_set.guid}}">{{course_of_action.acs_set.name | prefixWithPortionMarking: course_of_action.acs_set.portion_marking}}</a>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Created </div>
+    <div class="profile-info-value">
+      <span>{{course_of_action.created_at | date: 'medium'}}</span>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Updated </div>
+    <div class="profile-info-value">
+      <span>{{course_of_action.updated_at | date: 'medium'}}</span>
+    </div>
+  </div>
+</div>
+
+<div class="space-12"></div>
+
+<div ng-show="course_of_action.stix_markings.length">
+   <markings-table markings="course_of_action.stix_markings"></markings-table>
+</div>
+
+<div class="space-12"></div>
+
+<package-table ng-show="course_of_action.stix_packages.length > 0" packages="course_of_action.stix_packages" show_table="true"></package-table>
+
+<div class="space-12"></div>
+
+<indicator-table ng-show="course_of_action.indicators.length > 0" indicators="course_of_action.indicators"></indicator-table>
+
+<div class="space-12"></div>
+
+<cybox-object-table ng-show="course_of_action.observables.length > 0" observables="course_of_action.observables"></cybox-object-table>
+
+<div class="space-12"></div>
+
+<audits-table audits="course_of_action.audits"></audits-table>
+
+<div class="space-12"></div>
+
+</div>
+
+<show-spinner> </show-spinner>

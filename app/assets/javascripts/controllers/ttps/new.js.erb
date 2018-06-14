@@ -1,0 +1,48 @@
+app.controller('TtpsNewController',['$scope','$location','$rootScope','Restangular', 'bulkActionsService', 'ttpService', 
+  function($scope,$location,$rootScope,Restangular,bulkActionsService, ttpService) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                              {text:'All TTPs',link:'#/ttps',icon:'fa-list'},
+                              {text:'New',link:'#/ttps/new',icon:'fa-plus'}];
+    $scope.ttp = ttpService.get_data() || {};
+    $scope.ttp.indicators = $scope.ttp.indicators || [];
+    $scope.ttp.stix_packages = bulkActionsService.get() || $scope.ttp.stix_packages || [];
+    $scope.ttp.exploit_targets = $scope.ttp.exploit_targets || [];
+    $scope.ttp.attack_patterns = $scope.ttp.attack_patterns || [];
+    $scope.save = function(ttp, done){
+
+      var indicator_ids=_.map(ttp.indicators,function(i) {
+        return i.stix_id;
+      });
+
+      var package_ids=_.map(ttp.stix_packages,function(p) {
+        return p.stix_id;
+      });
+
+      var exploit_target_stix_ids=_.map(ttp.exploit_targets,function(e) {
+        return e.stix_id;
+      });
+      
+      var attack_pattern_stix_ids=_.map(ttp.attack_patterns,function(a) {
+        return a.stix_id;
+      });
+      
+      ttp.indicator_stix_ids = indicator_ids;
+      ttp.stix_package_stix_ids = package_ids;
+      
+      ttp.exploit_target_stix_ids = exploit_target_stix_ids;
+      ttp.attack_pattern_stix_ids = attack_pattern_stix_ids;
+      
+      Restangular.all('ttps').post(ttp).then(function(data){
+        toastr.success("New TTP created");
+        done();
+        $scope.ttp = data;
+        $location.path('/ttps/'+encodeURIComponent($scope.ttp.stix_id));
+      },function(res){
+        done();
+        toastr.error("Unable to save TTP");
+        $rootScope.show_res_errors(res);
+        $scope.ttp.errors = res.data.errors;
+      });
+    };
+  }
+]);

@@ -1,0 +1,46 @@
+app.controller('VulnerabilitiesEditController', ['$scope','$routeParams','$location','$rootScope','Restangular','Marking', 'exploitTargetService', 
+  function ($scope, $routeParams, $location, $rootScope, Restangular,Marking, exploitTargetService) {
+    
+    Restangular.one("/vulnerabilities/"+$routeParams.id).get().then(function(data){
+      $scope.vulnerability = Marking.translate_existing_attributes(data);
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                {text:'All Vulnerabilities',link:'#/vulnerabilities',icon:'fa-list'},
+                                {text:data.title,link:'#/vulnerabilities/'+encodeURIComponent(data.guid),icon:'fa-pencil'}];
+
+    });
+
+    $scope.save = function(vulnerability,done){
+      vulnerability.guid = vulnerability.guid;
+      Restangular.one("vulnerabilities/"+$routeParams.id).customPUT(vulnerability).then(function(data){
+        toastr.success("Vulnerability saved");
+        if (exploitTargetService.is_data_set()){
+          exploitTargetService.update_vulnerability(data);
+          var et = exploitTargetService.get_data_no_clear();
+          if (angular.isDefined(et.stix_id)){
+            $location.path('/exploit_targets/' + et.stix_id + '/edit');
+          } else {
+            $location.path('/exploit_targets/new')
+          }
+        } else {
+          $scope.vulnerability = data;
+          $location.path('/vulnerabilities/'+encodeURIComponent($scope.vulnerability.guid));
+        }
+      },function(res){
+        toastr.error("Unable to save Vulnerability");
+        if (angular.isDefined(res.data) && angular.isDefined(res.data.errors) && angular.isDefined(res.data.errors.base)) {
+            _.each(res.data.errors.base,function(e){
+                if(angular.isDefined(e.base)){
+                    _.each(e.base, function(ex){
+                       toastr.error(ex); 
+                    })
+                }else {
+                    toastr.error(e);
+                }
+            });
+        }
+        $scope.vulnerability.errors = res.data.errors;
+        done();
+      });
+      done();
+    };
+}]);

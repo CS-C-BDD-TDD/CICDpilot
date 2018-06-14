@@ -1,0 +1,93 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('dnsQueriesBrowser', function(){
+  return {
+    restrict: 'E',
+    scope: {
+      selectedDnsQueries: '=',
+      selectOnly: '@',
+      classificationDirection: '@?'
+    },
+    templateUrl: '<%=asset_path("observables/dns_queries/dns-queries-browser.html", type: :template)%>',
+    controller: ['$scope','$rootScope','Restangular','CiapCommon','Marking', function($scope,$rootScope,Restangular,CiapCommon,Marking) {
+      $scope.q = '';
+      $scope.CiapCommon = CiapCommon;
+
+      $scope.sortOptions = {
+        'created_at' : 'asc',
+        'updated_at' : 'asc'
+      };
+
+      $scope.searchObjs = function() {
+        $scope.fetching = true;
+        var curr_obj = CiapCommon.fetch_markings_object_from_scope($scope);
+        var curr_markings = curr_obj.stix_markings_attributes;
+        if (!$rootScope.is_undefined_or_null(curr_obj.acs_set_id)){
+          Restangular.one('acs_sets').get({id: curr_obj.acs_set_id}).then(function(data){
+            // set it equal to the existing markings
+            if (angular.isDefined(data.stix_markings)){
+              curr_markings = data.stix_markings;
+            }
+            getObjList(curr_markings);
+          },function(res){
+              toastr.error("Unable to load ACS Set Markings");
+          });
+        } else {
+          getObjList(curr_markings);
+        }        
+      };
+
+      function getObjList(current_markings){
+        var classification_limit = Marking.get_classification_attributes(current_markings);
+        Restangular.one('/dns_queries').get({
+          q: $scope.q,
+          classification_limit: $scope.classificationDirection == "down" ? classification_limit : null,
+          classification_greater: $scope.classificationDirection == "up" ? classification_limit : null
+        }).then(
+          function(data){
+            $scope.dns_queries = data.dns_queries;
+            $scope.fetching = false;
+        },
+          function(res){
+            toastr.error("Unable to load Dns Queries");
+            $scope.fetching = false;
+          }
+        );
+      }
+
+      $scope.disabled = function(obj) {
+         if ($scope.checked(obj) && $scope.selectOnly) {
+             return true;
+         }
+         return false;
+      }
+
+      $scope.checked = function(obj){
+        return _.findIndex($scope.selectedDnsQueries, function(i){return i.cybox_object_id == obj.cybox_object_id;}) > -1;
+      };
+
+      $scope.sort = function(method) {
+        Restangular.one('/dns_queries').get({q: $scope.q,column: method, direction: $scope.sortOptions[method]}).then(function(data){
+          $scope.dns_queries = data.dns_queries;
+          if ($scope.sortOptions[method] == 'asc') {
+            $scope.sortOptions[method] = 'desc';
+          }
+          else if ($scope.sortOptions[method] == 'desc') {
+            $scope.sortOptions[method] = 'asc';
+          }
+        });
+      }
+
+      $scope.selectObj = function(obj, $event) {
+        var checkbox = $event.target;
+        if (checkbox.checked){
+          if (_.findIndex($scope.selectedDnsQueries, function(i){return i.cybox_object_id == obj.cybox_object_id}) == -1){
+            $scope.selectedDnsQueries.push(obj);
+          }
+        } else {
+          $scope.selectedDnsQueries = _.filter($scope.selectedDnsQueries, function(i){return i.cybox_object_id != obj.cybox_object_id});
+        }
+      };
+    }]
+  };
+});

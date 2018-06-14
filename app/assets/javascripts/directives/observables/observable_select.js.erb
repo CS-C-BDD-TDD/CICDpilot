@@ -1,0 +1,100 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('observableSelect', function(){
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("observables/observable-select.html",type: :template)%>',
+    scope: {
+      observableTypes: '=',
+      observables: '=',
+      linkAnObservable: '=',
+      unlinkAnObservable: '='
+    },
+    controller: ['$scope', '$route', 'Observable', '$rootScope', function($scope,$route,Observable,$rootScope) {
+      $scope.Observable = Observable;
+      $scope.link_observable_view='current';
+      $scope.unlinking_observable='no';
+      $scope.can = $rootScope.can;
+      $scope.metadata = {};
+      $scope.type = '';
+      $scope.selected = {};
+
+      $scope.$watch('observableTypes',function(newVal,oldVal){
+         if(angular.isDefined(newVal)){
+             $scope.type = '';
+             $scope.link_observable_view='current';
+         }
+      });
+
+      $scope.showLinkObservable = function() {
+        $scope.link_observable_view='link';
+        $scope.observableToBeLinked={};
+        $scope.selected={};
+      };
+      $scope.showCreateObservable=function(){
+        $scope.link_observable_view='create';
+      };
+      $scope.showSelectedObservable = function() {
+        $scope.link_observable_view='link';
+        $scope.selected={};
+      };
+      $scope.linkObservable = function() {
+        if (angular.isDefined($scope.observableToBeLinked.remote_object_type)) {
+          $scope.linkAnObservable($scope.observableToBeLinked,function(result) {
+            if (result) {
+              toastr.success('Observable successfully linked');
+              result.value=Observable.get_value(result);
+              $scope.observables.push(result);
+              $scope.link_observable_view='current';
+            } else {
+              toastr.error('Linking of observable failed');
+              $scope.link_observable_view='link';
+            }
+            $scope.observableToBeLinked=undefined;
+          });
+        } else {
+          toastr.error('You must select an observable first');
+        }
+      };
+      $scope.cancelLinkObservable = function() {
+        $scope.link_observable_view='current';
+        $scope.observableToBeLinked=undefined;
+      };
+      $scope.unlinkObservable = function(observable,unlink_justification) {
+        if (observable.stix_indicator_id==='NEW-INDICATOR') {
+          toastr.success('Observable successfully unlinked');
+          _.remove($scope.observables,{remote_object_id:observable.remote_object_id,remote_object_type:observable.remote_object_type})
+          $rootScope.$emit('reloadObservableSelect',observable.remote_object_type);
+        } else {
+          if ($scope.unlinking_observable=='no') {
+            unlink_justification='';
+            $scope.unlinking_observable='yes';
+          } else {
+            var re = /^\s*$/;
+            if (angular.isUndefined(unlink_justification) || unlink_justification.match(re)) {
+              toastr.error('You must give a Unlink Justification first');
+              unlink_justification='';
+            } else {
+              $scope.unlinkAnObservable(observable,unlink_justification,function(result) {
+                if (result) {
+                  toastr.success('Observable successfully unlinked');
+                  _.remove($scope.observables,observable)
+                  $scope.unlinking_observable='no';
+                  $scope.link_observable_view='current';
+                  $rootScope.$emit('reloadObservableSelect',observable.remote_object_type);
+                } else {
+                  toastr.error('Unlinking of observable failed');
+                }
+              });
+            }
+          }
+        }
+      };
+      $scope.cancelUnlinkObservable = function() {
+        $scope.unlink_justification='';
+        $scope.unlinking_observable='no';
+      };
+    }],
+    controllerAs: 'obsCtrl'
+  }
+});

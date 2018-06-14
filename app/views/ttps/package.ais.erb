@@ -1,0 +1,17 @@
+<%=
+  stix_package = StixPackage.new
+  stix_package.title = "Single Ttp: #{@ttp.stix_id}"
+  stix_package.description = "Package with single Ttp #{@ttp.stix_id} at #{Time.now.to_atom}"
+  stix_package.short_description = "Package with single Ttp #{@ttp.stix_id}"
+  stix_package.set_stix_id
+  stix_package.created_at = Time.now
+  stix_package.ttps = [@ttp]
+
+  inherited_markings = nil
+  stix_markings = nil
+  if Setting.CLASSIFICATION == true
+    stix_markings = Marking.clone_markings_into_package(@ttp, stix_package)
+  end
+
+  render "stix_packages/show", stix_package: stix_package, inherited_markings: stix_markings, formats: 'ais'
+%>

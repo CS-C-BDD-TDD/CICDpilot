@@ -1,0 +1,79 @@
+  <div class="widget-box widget-color-blue ui-sortable-handle">
+    <pagination-header metadata="metadata" offset="offset" pagename="'Courses of Action'"></pagination-header>
+    <pagination-footer metadata="metadata" offset="offset" get_records="getCourseOfAction"></pagination-footer>
+    <div class="dataTables_wrapper form-inline no-footer">
+      <div class="row">
+        <div class="col-xs-4">
+        </div>
+        <div class="col-xs-4">
+          <div style="text-align: center">
+            <div class="input-group">
+              <span class="input-group-addon">
+                <i class="fa fa-calendar"></i>
+              </span>
+              <input date-range-picker placeholder="Search Updated At..." style="margin-left: 0px" type="text" class="form-control" options="date_picker_opts" />
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-4">
+          <div style="text-align: right">
+            <search-markings  search-fn="startSearch()" marking-search-params="marking_search_params"></search-markings>
+            <a ng-href="{{buildHref()}}">
+              <button class="btn btn-grey no-radius btn-xs">
+                <i class="ace-icon fa fa-floppy-o bigger-160"></i>
+                Download to CSV
+              </button>
+            </a>
+            <span class="input-icon">
+              <input class="form-control search-query" placeholder="Search Courses of Action..." type="search"
+                     ng-enter="startSearch()" ng-model="q">
+              <i class="ace-icon fa fa-search nav-search-icon" style="margin-left: 4px"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="widget-body">
+      <div class="widget-main no-padding">
+        <table class="table table-striped table-bordered table-hover dataTable">
+          <thead class="thin-border-bottom">
+            <tr>
+              <input type="hidden" ng-model="marking_search_params">
+              <th class="ciap_width_15 sorting" ng-click="sort('title')">Title</th>
+              <th class="ciap_width_15 sorting" ng-click="sort('description_normalized')">Description</th>
+              <th class="ciap_width_15 sorting" ng-click="sort('created_at')">Created at</th>
+              <th class="ciap_width_15 sorting" ng-click="sort('updated_at')">Last Updated</th>
+            </tr>
+          </thead>
+          <tbody ng-hide="fetching">
+          <tr ng-repeat="course_of_action in courseOfActions">
+            <td>
+              <a href="#/course_of_actions/{{course_of_action.stix_id | encodeURIComponent}}">{{course_of_action.title | prefixWithPortionMarking: course_of_action.portion_marking:course_of_action.title_c}}</a>
+            </td>
+            <td>
+              {{course_of_action.description_normalized | prefixWithPortionMarking: course_of_action.portion_marking:course_of_action.description_c}}
+            </td>
+            <td>
+              {{course_of_action.created_at | date: 'medium'}}
+            </td>
+            <td>
+              {{course_of_action.updated_at | date: 'medium'}}
+            </td>
+          </tr>
+          <tr ng-hide="courseOfActions.length || fetching">
+            <td colspan="4" style="text-align:center">No Results</td>
+          </tr>
+          </tbody>
+          <tbody ng-show="fetching">
+            <tr>
+              <td colspan="4" class="center">
+                <i class="fa fa-spinner fa-spin bigger-300 blue"></i>
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+      </div>
+    </div>
+    <pagination-footer metadata="metadata" offset="offset" get_records="getCourseOfAction"></pagination-footer>
+  </div>

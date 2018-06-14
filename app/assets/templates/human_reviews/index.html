@@ -1,0 +1,30 @@
+<div class="widget-box widget-color-blue ui-sortable-handle">
+    <pagination-header metadata="metadata" offset="offset" pagename="'Uploads Designated for Human Review'" downloadable="false"></pagination-header>
+    <pagination-footer metadata="metadata" offset="offset" get_records="getHumanReviews"></pagination-footer>
+    <div class="dataTables_wrapper form-inline no-footer">
+        <div class="row">
+            <div class="col-xs-4">
+
+            </div>
+            <div class="col-xs-4">
+                <div style="text-align: center">
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                        <input date-range-picker style="margin-left: 0px" type="text" class="form-control" options="date_picker_opts" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4">
+
+            </div>
+        </div>
+    </div>
+    <div class="widget-body">
+        <div class="widget-main no-padding">
+            <human-review-table fetching="fetching"></human-review-table>
+        </div>
+    </div>
+    <pagination-footer metadata="metadata" offset="offset" get_records="getHumanReviews"></pagination-footer>
+</div>

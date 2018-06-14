@@ -1,0 +1,209 @@
+#!/usr/bin/perl
+
+# This program will transfer FLARE files from a remote server to the local server.  Then it will upload
+# the files into CIAP for human review.  Once the files have uploaded successfully, they are removed
+# from both servers.
+
+use strict;
+use warnings;
+
+use Cwd 'abs_path';
+
+# Get the path of this script
+my $script_path;
+BEGIN
+{
+  $script_path=abs_path($0);
+  $script_path=~s/^(.+\/).+$/$1/;
+}
+
+use lib $script_path.'lib';
+
+use Net::SFTP::Foreign;
+use Mail::Sendmail;
+use YAML qw(LoadFile);
+
+my $log_file;
+
+sub to_log
+{
+  my ($log_me)=@_;
+
+  my $date = localtime;
+  open (my $log,'>>',$log_file) || die 'Cannot open '.$log_file."\n";
+  print $log $date.' '.$log_me."\n";
+  close ($log);
+}
+
+my $transfer_yml_dir=$ENV{'FLARE_TRANSFER_YML_PATH'};
+
+unless ($transfer_yml_dir)
+{
+  die "The FLARE_TRANSFER_YML_PATH environment variable has not been set\n";
+}
+
+unless (-f $transfer_yml_dir.'/transfer.yml')
+{
+  die "The transfer.yml file was not found.\n";
+}
+my $transfer_opts=LoadFile($transfer_yml_dir.'/transfer.yml');
+
+   $log_file          = $transfer_opts->{'log_file'};
+my $remote_user       = $transfer_opts->{'remote_user'};
+my $remote_hostname   = $transfer_opts->{'remote_hostname'};
+my $remote_directory  = $transfer_opts->{'remote_directory'};
+my $local_directory   = $transfer_opts->{'local_directory'};
+my $ciap_api_key      = $transfer_opts->{'ciap_api_key'};
+my $ciap_api_key_hash = $transfer_opts->{'ciap_api_key_hash'};
+my $ciap_url_preamble = $transfer_opts->{'ciap_url_preamble'};
+my $email_from        = $transfer_opts->{'email_from'};
+my $email_to          = $transfer_opts->{'email_to'};
+my $email_message     = $transfer_opts->{'email_message'};
+
+unless ($log_file && $remote_user && $remote_hostname && $remote_directory && $local_directory && $ciap_api_key && $ciap_api_key_hash && $ciap_url_preamble && $email_from && $email_to && $email_message)
+{
+  print "The following must be set in the transfer.yml file:\n\n";
+  print "   log_file\n";
+  print "   remote_user\n";
+  print "   remote_hostname\n";
+  print "   remote_directory\n";
+  print "   local_directory\n";
+  print "   ciap_api_key\n";
+  print "   ciap_api_key_hash\n";
+  print "   ciap_url_preamble\n";
+  print "   email_from\n";
+  print "   email_to\n";
+  print "   email_message\n";
+  exit;
+}
+
+# Attempt to connect
+my $sftp = Net::SFTP::Foreign->new( $remote_user.'@'.$remote_hostname, stderr_discard => 1, more => [ '-o' => 'PasswordAuthentication no' ] );
+if ($sftp->error)
+{
+  to_log('The user '.$remote_user.' on '.$remote_hostname." either does not exist or does not have SSH keys set up properly.");
+  die 'The user '.$remote_user.' on '.$remote_hostname." either does not exist or does not have SSH keys set up properly.\n";
+}
+
+# Verify the remote_directory exists
+my $result = $sftp->setcwd($remote_directory);
+unless ($result)
+{
+  to_log('The directory '.$remote_directory.' does not exist on '.$remote_hostname);
+  die 'The directory '.$remote_directory.' does not exist on '.$remote_hostname."\n";
+}
+
+# Verify the 'transfer' subdirectory exists
+$result = $sftp->setcwd($remote_directory.'/transfer');
+unless ($result)
+{
+  $result = $sftp->mkdir($remote_directory.'/transfer');
+  unless ($result)
+  {
+    to_log('Unable to create directory '.$remote_directory.'/transfer on '.$remote_hostname);
+    die 'Unable to create directory '.$remote_directory.'/transfer on '.$remote_hostname."\n";
+  }
+}
+
+# Verify the 'transferred' subdirectory exists
+$result = $sftp->setcwd($remote_directory.'/transferred');
+unless ($result)
+{
+  $result = $sftp->mkdir($remote_directory.'/transferred');
+  unless ($result)
+  {
+    to_log('Unable to create directory '.$remote_directory.'/transferred on '.$remote_hostname);
+    die 'Unable to create directory '.$remote_directory.'/transferred on '.$remote_hostname."\n";
+  }
+}
+
+# Verify the local directory exists
+unless (-d $local_directory)
+{
+  mkdir $local_directory;
+}
+
+my $files = $sftp->ls($remote_directory);
+
+my $count=0;
+for my $file (@$files)
+{
+  my $filename = $file->{filename};
+
+  # Skip . .. transfer and transferred directories, and only transfer files ending in .xml
+  if ($filename=~/^(\.(\.)?|transfer(red)?)$/ || $filename!~/.xml/i)
+  {
+    next;
+  }
+
+  # Try to move the current file into the transfer subdirectory
+  $result = $sftp->rename($remote_directory.'/'.$filename,$remote_directory.'/transfer/'.$filename);
+  unless ($result)
+  {
+    # This file must have already been moved by another process, skip it
+    next;
+  }
+
+  # Transfer the file to the local directory
+  $result = $sftp->get($remote_directory.'/transfer/'.$filename,$local_directory.'/'.$filename);
+  unless ($result)
+  {
+    # Try to move the current file into the transfer subdirectory
+    $result = $sftp->rename($remote_directory.'/transfer/'.$filename,$remote_directory.'/'.$filename);
+    to_log('Could not copy '.$filename.' to '.$local_directory);
+    next;
+  }
+
+  # Move the file from transfer to transferred
+  $result = $sftp->rename($remote_directory.'/transfer/'.$filename,$remote_directory.'/transferred/'.$filename);
+  unless ($result)
+  {
+    to_log('Could not move '.$filename.' from transfer to transferred on '.$remote_hostname);
+    next;
+  }
+
+  # Now we have a file.  We need to attempt to upload it into CIAP.
+  open (CMD,'-|','curl -s -o /dev/null -w "%{http_code}" -X POST -H "Content-type: application/xml" -H "api_key: '.$ciap_api_key.'" -H "api_key_hash: '.$ciap_api_key_hash.'" -k --data "@'.$local_directory.'/'.$filename.'" "'.$ciap_url_preamble.'/cyber-indicators/uploads?overwrite=Y"');
+  $result=<CMD>;
+
+  unless ($result == 201)
+  {
+    to_log('Upload of '.$filename." failed");
+    next;
+  }
+
+  # If we have successfully uploaded the file, we need to delete it from the local server as well as the remote server
+  $result = $sftp->remove($remote_directory.'/transferred/'.$filename);
+  unless ($result)
+  {
+    to_log('Could not delete '.$filename.' from transferred on '.$remote_hostname);
+  }
+
+  unlink $local_directory.'/'.$filename;
+
+  $count++;
+}
+
+# If we transferred any files, send out an email
+if ($count)
+{
+  my $time=scalar localtime;
+  my $hostname=`hostname`;
+  chomp $hostname;
+  $email_message =~ s/\%time\%/$time/;
+  $email_message =~ s/\%count\%/$count/;
+  $email_message =~ s/\%directory\%/$local_directory/;
+  $email_message =~ s/\%hostname\%/$hostname/;
+
+# 'At '.scalar localtime.' a total of '.$count.' new files for human review were copied into the '.$local_directory.' directory on '.`hostname`;
+
+  my %mail = ( To      => $email_to,
+            From    => $email_from,
+            Subject => 'New FLARE files are ready for human review',
+            Message => $email_message
+           );
+
+  sendmail(%mail) or die $Mail::Sendmail::error;
+}
+
+

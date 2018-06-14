@@ -1,0 +1,76 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('dashboardField',function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("logging/dashboardField.html",type: :template)%>',
+    scope: {results:'='},
+    controller: ['$scope','$rootScope','$location','Restangular',
+      function($scope,$rootScope,$location,Restangular){
+        $scope.metric_list = ['Login Metrics','Indicators Created','Manual Uploads','Packages Created','Search Metrics','API Calls'];
+        $scope.metric_to_show='Login Metrics';
+
+        $scope.searchLog = function(){
+          $scope.fetching = true;
+          Restangular.one('logging/dashboard').get({
+            start_date:$scope.date_picker_object.getStartDate(),
+            end_date:$scope.date_picker_object.getEndDate()
+          }).then(function(data){
+            $scope.results = data;
+            fix_api_calls();
+            $scope.fetching = false;
+          },function(res){
+            $scope.fetching = false;
+            toastr.error("Unable to load Dashboard Metrics");
+          }
+        )}
+
+        var fix_api_calls=function() {
+          $scope.headers=[];
+          $scope.api_calls=[];
+          var dates=[];
+          var users=[];
+          var row;
+          if (angular.isDefined($scope.results.apiCalls)) {
+            _.forEach(Object.keys($scope.results.apiCalls),function(date) {
+              dates.push(date);
+            });
+            if (dates.length>0) {
+              $scope.headers.push('Date');
+              _.forEach(Object.keys($scope.results.apiCalls[dates[0]]),function(user) {
+                users.push(user);
+                $scope.headers.push(user);
+              });
+            } else {
+              $scope.headers.push('No API calls in the requested time period');
+            }
+            _.forEach(dates,function(date) {
+              row=[];
+              row.push(date);
+              _.forEach(users,function(user) {
+                row.push($scope.results.apiCalls[date][user]);
+              });
+              $scope.api_calls.push(row);
+            });
+          }
+        };
+
+        $scope.date_picker_opts = {
+          startDate: moment().startOf('week').subtract(8, 'days').format('MM/DD/YYYY'),
+          endDate: moment().startOf('week').subtract(2, 'days').format('MM/DD/YYYY'),
+          lastWeekRanges: true
+        };
+
+        // Cleanup
+        $scope.$on('$destroy', function() {
+          $('.daterangepicker').remove();
+        });
+      
+        $scope.dateRangePicker = function(picker) {
+          $scope.date_picker_object = picker;
+          $scope.searchLog();
+        };
+      }
+    ]
+  };
+});

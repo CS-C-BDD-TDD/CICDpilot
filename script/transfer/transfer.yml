@@ -1,0 +1,20 @@
+log_file:          /home/jmackenzie/transfer/logfile
+remote_user:       jmackenzie
+remote_hostname:   localhost
+remote_directory:  /tmp/jim
+local_directory:   /home/jmackenzie/transfer/test
+ciap_api_key:      7a3c834c1f07d46f2384b52df686fb24de499bff14c48112750b0d55c7b7e126
+ciap_api_key_hash: f9e274e528d0733b4454a91bb8db2edc30b78fe356fe9f2f87f527aca06d57fb
+ciap_url_preamble: https://localhost:3000
+email_from:        someone@somewhere.com
+email_to:          jmackenzie@localhost
+
+# For email_message, the following can automatically be inserted:
+#    %time% - the current time
+#    %directory% - the directory the files are copied to
+#    %hostname% - the hostname where the files are copied to
+#    %count% - the number of files that were transferred
+# Example:
+#    email_message: At %time% in %directory% on %hostname%, %count% files were found.
+
+email_message:    An indicator received via the Automated Indicator Sharing program requires review for potential PII.  Please go to %directory% on %hostname% to review the indicator.

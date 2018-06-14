@@ -1,0 +1,27 @@
+    <div class="widget-header" style="color: #fff;background: none repeat scroll 0 0 #307ecc;border-color: #307ecc;filter: none !important;">
+      <h5 class="bigger lighter text-center" ng-show="total_count">
+        <span style="white-space:nowrap;">
+          <span ng-hide="page.first_page(per_page,offset)">
+            <a class="white fake-link" ng-click='goPage(1)'>First</a>
+          </span>
+          <span ng-show="page.previous_page(per_page,offset)">
+            <a class="white fake-link" ng-click='goPage(page.previous_page(per_page,offset))'>Previous</a>
+          </span>
+          <span style="color: #307ecc;" ng-hide="page.previous_page(per_page,offset)">
+            Previous
+          </span>
+          Page
+          <input ng-model="current_page" ng-enter="goPage(current_page)" size="3" type="text" autocomplete="off">
+          of {{total_pages}}
+          <span ng-show="page.next_page(per_page,offset,total_count)">
+            <a class="white fake-link" ng-click='goPage(page.next_page(per_page,offset,total_count))'>Next</a>
+          </span>
+          <span style="color: #307ecc;" ng-hide="page.next_page(per_page,offset,total_count)">
+            Next
+          </span>
+          <span ng-hide="page.last_page(per_page,offset,total_count)">
+            <a class="white fake-link" ng-click='goPage(total_pages)'>Last</a>
+          </span>
+        </span>
+      </h5>
+    </div>

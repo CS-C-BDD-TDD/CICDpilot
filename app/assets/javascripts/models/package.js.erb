@@ -1,0 +1,35 @@
+app.service('Package', function(){
+    var submissions = {'WEBFORM':'Public Web Form' ,'EMAIL':'Public Email'};
+    return {
+        submission_mechanisms: submissions,
+        submission_mechanism: function(sub_mech){
+            if (angular.isUndefined(sub_mech) || sub_mech == '' || sub_mech == null) {return ""}
+            if (sub_mech instanceof Array) {sub_mech = sub_mech[0]}
+            if (_.include(_.keys(submissions), sub_mech)) {return sub_mech}
+            else {return 'External Source'}
+        },
+
+        package_intents: [
+            'Indicators',
+            'Indicators - Phishing',
+            'Indicators - Watchlist',
+            'Indicators - Malware Artifacts',
+            'Indicators - Network Activity',
+            'Indicators - Endpoint Characteristics',
+            'Campaign Characterization',
+            'Threat Actor Characterization',
+            'Collective Threat Intelligence',
+            'Threat Report',
+            'Exploit Characterization',
+            'Attack Pattern Characterization',
+            'Malware Characterization',
+            'TTP - Infrastructure',
+            'TTP - Tools',
+            'Course of Action',
+            'Incident',
+            'Observations','Observations - Email',
+            'Malware Samples'
+        ]
+    };
+
+});

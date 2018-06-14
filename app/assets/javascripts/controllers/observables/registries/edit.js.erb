@@ -1,0 +1,40 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('RegistriesEditController', ['$scope','$routeParams','Restangular','$rootScope','$location','Marking',
+    function($scope,$routeParams,Restangular,$rootScope,$location,Marking) {
+        Restangular.one('/registries/'+$routeParams.id).get().then(function(data){
+            // If you change anything here you also need to change it in the observable select directive, set edit!!!!
+            if(angular.isDefined(data.reg_stix_markings)){
+                for(var i = 0; i < data.reg_stix_markings.length; i++){
+                    if(angular.isDefined(data.reg_stix_markings[i].remote_object_field) && (data.reg_stix_markings[i].remote_object_field == "reg_name" || data.reg_stix_markings[i].remote_object_field == "reg_value")){
+                        data.stix_markings.push(data.reg_stix_markings[i]);
+                    }
+                }
+            }
+            $scope.registry = Marking.translate_existing_attributes(data);
+
+            // init values to show in form
+            $scope.registry.registry_values_attributes = [];
+            $scope.registry.registry_values_attributes[0] = {};
+            $scope.registry.registry_values_attributes[0].reg_value_id = $scope.registry.reg_value_id;
+            $scope.registry.registry_values_attributes[0].reg_name = $scope.registry.reg_name;
+            $scope.registry.registry_values_attributes[0].reg_value = $scope.registry.reg_value;
+            $scope.registry.registry_values_attributes[0].data_condition = $scope.registry.data_condition;
+
+            $rootScope.breadcrumbs = [{text:'Home',registry:'#/',icon:'fa-home'},{text:'Registries',registry:'#/registries',icon:'fa-group'},{text: "Hive:" + data.hive + " | Key:" + data.key,registry:'#/registries/'+encodeURIComponent(data.cybox_object_id)}];
+            if ($rootScope.is_undefined_or_null($scope.registry.registry_values_attributes[0].data_condition)) {
+                $scope.registry.registry_values_attributes[0].data_condition = "Equals";
+            }
+        },function(res){
+            toastr.error("Unable to load Registry record");
+        });
+
+        $scope.cancel = function() {
+            $location.path('/registries/'+$routeParams.id);
+        };
+
+        $scope.failed = function() {
+            $("html, body").animate({ scrollTop: 0 }, 200);
+        };
+    }
+]);

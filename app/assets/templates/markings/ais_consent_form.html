@@ -1,0 +1,42 @@
+<div style="padding-left:2.5%; padding-right:2.5%" ng-show="showsourcestable">
+    <div align="center">
+      <a class='fake-link' ng-model="res_ent" ng-click="res_ent = !res_ent" ng-init="res_ent = true">
+        <i class="ace-icon fa" ng-class="res_ent ? 'fa-minus' : 'fa-plus'"></i>
+        AIS Consent
+      </a>
+    </div>
+    <div class="ciap_border_1_solid" ng-show="res_ent">
+        <div align="center">
+        <br/>All fields required if including AIS Consent
+        </div>    
+        <div class="space-12"></div>
+
+        <div class="form-group" tooltip="The AIS TLP Color">
+            <label class="control-label col-md-3 no-padding-right">Color</label>
+            <div class="col-md-7">
+                <select id="AIS_color" class="col-md-12" ng-model="stixMarking.color" ng-options="color.value as color.label for color in colors" ng-change="cleardelete(stixMarking)"></select>
+            </div>
+        </div>
+        <div class="form-group" tooltip="The AIS Consent Level">
+            <label class="control-label col-md-3 no-padding-right">Consent</label>
+            <div class="col-md-7">
+                <select id="AIS_consent" class="col-md-12" ng-model="stixMarking.consent" ng-options="consent.value as consent.label for consent in consents" ng-change="cleardelete(stixMarking)"></select>
+            </div>
+        </div>
+        <div class="form-group" tooltip="Is this CISA Proprietary?">
+            <label class="control-label col-md-3 no-padding-right">Proprietary</label>
+            <div class="col-md-7">
+                <select id="AIS_proprietary" class="col-md-12" ng-model="stixMarking.proprietary" ng-options="prop.value as prop.label for prop in props" ng-change="cleardelete(stixMarking)">
+				</select>
+				
+            </div>          
+        </div>	
+                    <div align="center">
+              <button class="btn btn-xs btn-danger" tooltip="Remove AIS Consent Data" ng-click="deleteais(stixMarking)">
+                <i class="ace-icon fa fa-trash-o bigger-80"/>                
+              </button>     
+              </div>
+            <div class="space-2"></div>
+
+    </div>
+</div>

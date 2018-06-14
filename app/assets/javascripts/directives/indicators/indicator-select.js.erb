@@ -1,0 +1,33 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('indicatorSelect', function(){
+  return {
+    restrict: 'E',
+    scope: {
+      indicators: '=',
+    },
+    templateUrl: '<%=asset_path("indicators/indicator-select.html",type: :template)%>',
+    controller: ['$scope','Restangular', function($scope,Restangular) {
+
+      Restangular.one('/indicators').get().then(function(data){
+        $scope.allIndicators = data.indicators;
+      });
+
+      $scope.checked = function(indicator){
+        return _.findIndex($scope.indicators, function(i){return i.id == indicator.id;}) > -1;
+      };
+
+      $scope.check = function(indicator, $event){
+        var checkbox = $event.target;
+        if (checkbox.checked){
+          if (_.findIndex($scope.indicators, function(i){return i.id == indicator.id}) == -1){
+            $scope.indicators.push(indicator);
+          }
+        } else {
+          $scope.indicators = _.filter($scope.indicators, function(i){return i.id != indicator.id});
+        }
+      };
+
+    }]
+  };
+});

@@ -1,0 +1,532 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+window.routes =
+{
+  "/downloads": {
+      templateUrl: '<%= asset_path("downloads/index.html", type: :template) %>',
+      controller: 'DownloadsIndexController'
+  },
+  "/acs_sets": {
+      templateUrl: '<%= asset_path("acs_sets/index.html", type: :template) %>',
+      controller: 'AcsSetsIndexController'
+  },
+  "/acs_sets/new": {
+      templateUrl: '<%= asset_path("acs_sets/new.html", type: :template) %>',
+      controller: 'AcsSetsNewController'
+  },
+  "/acs_sets/:id": {
+      templateUrl: '<%= asset_path("acs_sets/show.html", type: :template) %>',
+      controller: 'AcsSetsShowController'
+  },
+  "/acs_sets/:id/edit": {
+      templateUrl: '<%= asset_path("acs_sets/edit.html", type: :template) %>',
+      controller: 'AcsSetsEditController'
+  },
+  "/addresses": {
+    templateUrl: '<%= asset_path("observables/addresses/index.html", type: :template) %>',
+    controller: 'AddressesIndexController'
+  },
+  "/addresses/:id": {
+    templateUrl: '<%= asset_path("observables/addresses/show.html", type: :template) %>',
+    controller: 'AddressesShowController'
+  },
+  "/addresses/:id/edit": {
+    templateUrl: '<%= asset_path("observables/addresses/edit.html", type: :template) %>',
+    controller: 'AddressesEditController'
+  },
+  "/ais_dashboard": {
+    templateUrl: '<%= asset_path("ais_dashboard/index.html", type: :template) %>',
+    controller: 'AisDashboardIndexController'
+  },
+  "/ais_dashboard/metrics": {
+    templateUrl: '<%= asset_path("ais_dashboard/metrics.html", type: :template) %>',
+    controller: 'AisDashboardMetricsController'
+  },
+  "/ais_dashboard/:id": {
+    templateUrl: '<%= asset_path("ais_dashboard/show.html", type: :template) %>',
+    controller: 'AisDashboardShowController'
+  }, 
+  "/course_of_actions": {
+    templateUrl: '<%= asset_path("course_of_actions/index.html", type: :template) %>',
+    controller: 'CourseOfActionIndexController'
+  },
+  "/course_of_actions/new": {
+    templateUrl: '<%= asset_path("course_of_actions/new.html", type: :template) %>',
+    controller: 'CourseOfActionNewController'
+  },
+  "/course_of_actions/:id": {
+    templateUrl: '<%= asset_path("course_of_actions/show.html", type: :template) %>',
+    controller: 'CourseOfActionShowController'
+  },
+  "/course_of_actions/:id/edit": {
+    templateUrl: '<%= asset_path("course_of_actions/edit.html", type: :template) %>',
+    controller: 'CourseOfActionEditController'
+  },
+  "/dns_records": {
+    templateUrl: '<%= asset_path("observables/dns_records/index.html", type: :template) %>',
+    controller: 'DnsRecordsIndexController'
+  },
+  "/dns_records/:id": {
+    templateUrl: '<%= asset_path("observables/dns_records/show.html", type: :template) %>',
+    controller: 'DnsRecordsShowController'
+  },
+  "/dns_records/:id/edit": {
+    templateUrl: '<%= asset_path("observables/dns_records/edit.html", type: :template) %>',
+    controller: 'DnsRecordsEditController'
+  },
+  "/dns_queries": {
+    templateUrl: '<%= asset_path("observables/dns_queries/index.html", type: :template) %>',
+    controller: 'DnsQueriesIndexController'
+  },
+  "/dns_queries/:id": {
+    templateUrl: '<%= asset_path("observables/dns_queries/show.html", type: :template) %>',
+    controller: 'DnsQueriesShowController'
+  },
+  "/dns_queries/:id/edit": {
+    templateUrl: '<%= asset_path("observables/dns_queries/edit.html", type: :template) %>',
+    controller: 'DnsQueriesEditController'
+  },
+  "/domains": {
+    templateUrl: '<%= asset_path("observables/domains/index.html", type: :template) %>',
+    controller: 'DomainsIndexController'
+  },
+  "/domains/:id": {
+    templateUrl: '<%= asset_path("observables/domains/show.html", type: :template) %>',
+    controller: 'DomainsShowController'
+  },
+  "/domains/:id/edit": {
+    templateUrl: '<%= asset_path("observables/domains/edit.html", type: :template) %>',
+    controller: 'DomainsEditController'
+  },
+  "/hostnames": {
+    templateUrl: '<%= asset_path("observables/hostnames/index.html", type: :template) %>',
+    controller: 'HostnamesIndexController'
+  },
+  "/hostnames/:id": {
+    templateUrl: '<%= asset_path("observables/hostnames/show.html", type: :template) %>',
+    controller: 'HostnamesShowController'
+  },
+  "/hostnames/:id/edit": {
+    templateUrl: '<%= asset_path("observables/hostnames/edit.html", type: :template) %>',
+    controller: 'HostnamesEditController'
+  },
+  "/emails": {
+    templateUrl: '<%= asset_path("observables/emails/index.html", type: :template) %>',
+    controller: 'EmailsIndexController'
+  },
+  "/emails/:id": {
+    templateUrl: '<%= asset_path("observables/emails/show.html", type: :template) %>',
+    controller: 'EmailsShowController'
+  },
+  "/emails/:id/edit": {
+      templateUrl: '<%= asset_path("observables/emails/edit.html", type: :template) %>',
+      controller: 'EmailsEditController'
+  },
+  "/files": {
+    templateUrl: '<%= asset_path("observables/files/index.html", type: :template) %>',
+    controller: 'FilesIndexController'
+  },
+  "/files/:id": {
+    templateUrl: '<%= asset_path("observables/files/show.html", type: :template) %>',
+    controller: 'FilesShowController'
+  },
+  "/files/:id/edit": {
+    templateUrl: '<%= asset_path("observables/files/edit.html", type: :template) %>',
+    controller: 'FilesEditController'
+  },
+  '/groups': {
+    templateUrl: '<%= asset_path("groups/index.html", type: :template) %>',
+    controller: 'GroupsIndexController'
+  },
+  '/groups/new': {
+    templateUrl: '<%= asset_path("groups/new.html", type: :template) %>',
+    controller: 'GroupsNewController'
+  },
+  '/groups/bulk': {
+    templateUrl: '<%= asset_path("groups/bulk_add_users.html", type: :template) %>',
+    controller: 'GroupsBulkAddUsersController'
+  },
+  '/groups/:id': {
+    templateUrl: '<%= asset_path("groups/show.html", type: :template) %>',
+    controller: 'GroupsShowController'
+  },
+  '/groups/:id/edit': {
+    templateUrl: '<%= asset_path("groups/edit.html", type: :template) %>',
+    controller: 'GroupsEditController'
+  },
+  "/http_sessions": {
+    templateUrl: '<%= asset_path("observables/http_sessions/index.html", type: :template) %>',
+    controller: 'HttpSessionsIndexController'
+  },
+  "/http_sessions/:id": {
+    templateUrl: '<%= asset_path("observables/http_sessions/show.html", type: :template) %>',
+    controller: 'HttpSessionsShowController'
+  },
+  "/http_sessions/:id/edit": {
+    templateUrl: '<%= asset_path("observables/http_sessions/edit.html", type: :template) %>',
+    controller: 'HttpSessionsEditController'
+  },
+  "/indicators": {
+    templateUrl: '<%= asset_path("indicators/index.html", type: :template) %>',
+    controller: 'IndicatorsIndexController'
+  },
+  "/indicators/new": {
+    templateUrl: '<%= asset_path("indicators/new.html", type: :template) %>',
+    controller: 'IndicatorsNewController'
+  },
+  "/indicators/:id": {
+    templateUrl: '<%= asset_path("indicators/show.html", type: :template) %>',
+    controller: 'IndicatorsShowController'
+  },
+  "/indicators/:id/edit": {
+    templateUrl: '<%= asset_path("indicators/edit.html", type: :template) %>',
+    controller: 'IndicatorsEditController'
+  },
+  "/links": {
+    templateUrl: '<%= asset_path("observables/links/index.html", type: :template) %>',
+    controller: 'LinksIndexController'
+  },
+  "/links/:id": {
+    templateUrl: '<%= asset_path("observables/links/show.html", type: :template) %>',
+    controller: 'LinksShowController'
+  },
+  "/links/:id/edit": {
+    templateUrl: '<%= asset_path("observables/links/edit.html", type: :template) %>',
+    controller: 'LinksEditController'
+  },
+  "/mutexes": {
+    templateUrl: '<%= asset_path("observables/mutexes/index.html", type: :template) %>',
+    controller: 'MutexesIndexController'
+  },
+  "/mutexes/:id": {
+    templateUrl: '<%= asset_path("observables/mutexes/show.html", type: :template) %>',
+    controller: 'MutexesShowController'
+  },
+  "/mutexes/:id/edit": {
+    templateUrl: '<%= asset_path("observables/mutexes/edit.html", type: :template) %>',
+    controller: 'MutexesEditController'
+  },
+  "/network_connections": {
+    templateUrl: '<%= asset_path("observables/network_connections/index.html", type: :template) %>',
+    controller: 'NetworkConnectionsIndexController'
+  },
+  "/network_connections/:id": {
+    templateUrl: '<%= asset_path("observables/network_connections/show.html", type: :template) %>',
+    controller: 'NetworkConnectionsShowController'
+  },
+  "/network_connections/:id/edit": {
+    templateUrl: '<%= asset_path("observables/network_connections/edit.html", type: :template) %>',
+    controller: 'NetworkConnectionsEditController'
+  },
+  "/organizations": {
+    templateUrl: '<%= asset_path("organizations/index.html", type: :template) %>',
+    controller: 'OrganizationsIndexController'
+  },
+  '/organizations/new': {
+    templateUrl: '<%= asset_path("organizations/new.html", type: :template) %>',
+    controller: 'OrganizationsNewController'
+  },
+  "/organizations/:id": {
+    templateUrl: '<%= asset_path("organizations/show.html", type: :template) %>',
+    controller: 'OrganizationsShowController'
+  },
+  '/organizations/:id/edit': {
+    templateUrl: '<%= asset_path("organizations/edit.html", type: :template) %>',
+    controller: 'OrganizationsEditController'
+  },
+  "/packages": {
+    templateUrl: '<%= asset_path("packages/index.html", type: :template) %>',
+    controller: 'PackagesIndexController'
+  },
+  "/packages/new": {
+    templateUrl: '<%= asset_path("packages/new.html", type: :template) %>',
+    controller: 'PackagesNewController'
+  },
+  "/packages/bulk": {
+    templateUrl: '<%= asset_path("packages/bulk_add_indicators.html", type: :template) %>',
+    controller: 'PackagesBulkAddIndicatorsController'
+  },
+  "/packages/:id": {
+    templateUrl: '<%= asset_path("packages/show.html", type: :template) %>',
+    controller: 'PackagesShowController'
+  },
+  "/packages/:id/edit": {
+    templateUrl: '<%= asset_path("packages/edit.html", type: :template) %>',
+    controller: 'PackagesEditController'
+  },
+  "/ports": {
+    templateUrl: '<%= asset_path("observables/ports/index.html", type: :template) %>',
+    controller: 'PortsIndexController'
+  },
+  "/ports/:id": {
+    templateUrl: '<%= asset_path("observables/ports/show.html", type: :template) %>',
+    controller: 'PortsShowController'
+  },
+  "/ports/:id/edit": {
+    templateUrl: '<%= asset_path("observables/ports/edit.html", type: :template) %>',
+    controller: 'PortsEditController'
+  },
+  "/registries": {
+    templateUrl: '<%= asset_path("observables/registries/index.html", type: :template) %>',
+    controller: 'RegistriesIndexController'
+  },
+  "/registries/:id": {
+    templateUrl: '<%= asset_path("observables/registries/show.html", type: :template) %>',
+    controller: 'RegistriesShowController'
+  },
+  "/registries/:id/edit": {
+    templateUrl: '<%= asset_path("observables/registries/edit.html", type: :template) %>',
+    controller: 'RegistriesEditController'
+  },
+  "/questions/:id": {
+    templateUrl: '<%= asset_path("observables/dns_queries/questions/show.html", type: :template) %>',
+    controller: 'QuestionsShowController'
+  },
+  "/resource_records/:id": {
+    templateUrl: '<%= asset_path("observables/dns_queries/resource_records/show.html", type: :template) %>',
+    controller: 'ResourceRecordsShowController'
+  },
+    "/release_notes": {
+    templateUrl: '<%= asset_path("release_notes/index.html", type: :template) %>',
+    controller: 'ReleaseNotesIndexController'
+  },
+  "/search": {
+    templateUrl:'<%= asset_path("search/table.html", type: :template) %>',
+    controller: 'SearchIndexController'
+  },
+  "/socket_addresses": {
+    templateUrl: '<%= asset_path("observables/socket_addresses/index.html", type: :template) %>',
+    controller: 'SocketAddressesIndexController'
+  },
+  "/socket_addresses/:id": {
+    templateUrl: '<%= asset_path("observables/socket_addresses/show.html", type: :template) %>',
+    controller: 'SocketAddressesShowController'
+  },
+  "/socket_addresses/:id/edit": {
+    templateUrl: '<%= asset_path("observables/socket_addresses/edit.html", type: :template) %>',
+    controller: 'SocketAddressesEditController'
+  },
+  "/system_tags/:id" : {
+    templateUrl: '<%=asset_path("system_tags/show.html", type: :template) %>',
+    controller: 'SystemTagsShowController'
+  },
+  "/system_tags": {
+    templateUrl:'<%=asset_path("system_tags/index.html",type: :template)%>',
+    controller:'SystemTagsIndexController'
+  },
+  "/fo_stats": {
+    templateUrl: '<%= asset_path("tag_assignment/index.html", type: :template) %>',
+    controller: 'TagAssignmentIndexController'
+  },
+  "/threat_actors": {
+    templateUrl: '<%= asset_path("threat_actors/index.html", type: :template) %>',
+    controller: 'ThreatActorsIndexController'
+  },
+  "/threat_actors/new": {
+    templateUrl: '<%= asset_path("threat_actors/new.html", type: :template) %>',
+    controller: 'ThreatActorsNewController'
+  },
+  "/threat_actors/bulk": {
+    templateUrl: '<%= asset_path("threat_actors/bulk_add_indicators.html", type: :template) %>',
+    controller: 'ThreatActorsBulkAddIndicatorsController'
+  },
+  "/threat_actors/:id": {
+    templateUrl: '<%= asset_path("threat_actors/show.html", type: :template) %>',
+    controller: 'ThreatActorsShowController'
+  },
+  "/threat_actors/:id/edit": {
+    templateUrl: '<%= asset_path("threat_actors/edit.html", type: :template) %>',
+    controller: 'ThreatActorsEditController'
+  },
+  "/exploit_targets": {
+    templateUrl: '<%= asset_path("exploit_targets/index.html", type: :template) %>',
+    controller: 'ExploitTargetsIndexController'
+  },
+  "/exploit_targets/new": {
+    templateUrl: '<%= asset_path("exploit_targets/new.html", type: :template) %>',
+    controller: 'ExploitTargetsNewController'
+  },
+  "/exploit_targets/:id": {
+    templateUrl: '<%= asset_path("exploit_targets/show.html", type: :template) %>',
+    controller: 'ExploitTargetsShowController'
+  },
+  "/exploit_targets/:id/edit": {
+    templateUrl: '<%= asset_path("exploit_targets/edit.html", type: :template) %>',
+    controller: 'ExploitTargetsEditController'
+  },
+  "/vulnerabilities": {
+    templateUrl: '<%= asset_path("vulnerabilities/index.html", type: :template) %>',
+    controller: 'VulnerabilitiesIndexController'
+  },
+  "/vulnerabilities/:id": {
+    templateUrl: '<%= asset_path("vulnerabilities/show.html", type: :template) %>',
+    controller: 'VulnerabilitiesShowController'
+  },
+  "/vulnerabilities/:id/edit": {
+    templateUrl: '<%= asset_path("vulnerabilities/edit.html", type: :template) %>',
+    controller: 'VulnerabilitiesEditController'
+  },
+  "/ttps": {
+    templateUrl: '<%= asset_path("ttps/index.html", type: :template) %>',
+    controller: 'TtpsIndexController'
+  },
+  "/ttps/new": {
+    templateUrl: '<%= asset_path("ttps/new.html", type: :template) %>',
+    controller: 'TtpsNewController'
+  },
+  "/ttps/:id": {
+    templateUrl: '<%= asset_path("ttps/show.html", type: :template) %>',
+    controller: 'TtpsShowController'
+  },
+  "/ttps/:id/edit": {
+    templateUrl: '<%= asset_path("ttps/edit.html", type: :template) %>',
+    controller: 'TtpsEditController'
+  },
+  "/attack_patterns": {
+    templateUrl: '<%= asset_path("attack_patterns/index.html", type: :template) %>',
+    controller: 'AttackPatternsIndexController'
+  },
+  "/attack_patterns/:id": {
+    templateUrl: '<%= asset_path("attack_patterns/show.html", type: :template) %>',
+    controller: 'AttackPatternsShowController'
+  },
+  "/attack_patterns/:id/edit": {
+    templateUrl: '<%= asset_path("attack_patterns/edit.html", type: :template) %>',
+    controller: 'AttackPatternsEditController'
+  },
+  "/user_tags/:id" : {
+    templateUrl: '<%=asset_path("user_tags/show.html", type: :template) %>',
+    controller: 'UserTagsShowController'
+  },
+  "/user_tags": {
+    templateUrl:'<%=asset_path("user_tags/index.html",type: :template)%>',
+    controller:'UserTagsIndexController'
+  },
+  "/uploads": {
+    templateUrl: '<%= asset_path("uploads/index.html", type: :template) %>',
+    controller: 'UploadsIndexController'
+  },
+  "/uploads/new": {
+    templateUrl: '<%= asset_path("uploads/new.html", type: :template) %>',
+    controller: 'UploadsNewController'
+  },
+  "/uploads/:id": {
+    templateUrl: '<%= asset_path("uploads/show.html", type: :template) %>',
+    controller: 'UploadsShowController'
+  },
+  "/uploadzip": {
+    templateUrl: '<%= asset_path("uploads/zip.html", type: :template) %>',
+    controller: 'UploadZipController'
+  },
+  "/uris": {
+    templateUrl: '<%= asset_path("observables/uris/index.html", type: :template) %>',
+    controller: 'UrisIndexController'
+  },
+  "/uris/:id": {
+    templateUrl: '<%= asset_path("observables/uris/show.html", type: :template) %>',
+    controller: 'UrisShowController'
+  },
+  "/uris/:id/edit": {
+    templateUrl: '<%= asset_path("observables/uris/edit.html", type: :template) %>',
+    controller: 'UrisEditController'
+  },
+  "/users": {
+    templateUrl: '<%= asset_path("users/index.html", type: :template) %>',
+    controller: 'UsersIndexController'
+  },
+  '/users/new': {
+    templateUrl: '<%= asset_path("users/new.html", type: :template) %>',
+    controller: 'UsersNewController'
+  },
+  "/users/:id": {
+    templateUrl: '<%= asset_path("users/show.html", type: :template) %>',
+    controller: 'UsersShowController'
+  },
+  '/users/:id/edit': {
+    templateUrl: '<%= asset_path("users/edit.html", type: :template) %>',
+    controller: 'UsersEditController'
+  },
+  '/exported_indicators/:system': {
+    templateUrl: '<%= asset_path("exported_indicators/index.html", type: :template) %>',
+    controller: 'ExportedIndicatorsIndexController'
+  },
+  '/weathermapaddresses': {
+    templateUrl: '<%= asset_path("weather_map/addresses/index.html", type: :template) %>',
+    controller: 'WeatherMapAddressesController'
+  },
+  '/weathermapdomains': {
+    templateUrl: '<%= asset_path("weather_map/domains/index.html", type: :template) %>',
+    controller: 'WeatherMapDomainsController'
+  },
+  '/weathermapviz': {
+    templateUrl: '<%= asset_path("weather_map/map.html", type: :template) %>',
+    controller: 'WeatherMapVizController'
+  },
+  '/weathermapstats': {
+    templateUrl: '<%= asset_path("weather_map_stats/index.html", type: :template) %>',
+    controller: 'WeatherMapStatsController'
+  },
+  '/human_reviews': {
+    templateUrl: '<%= asset_path("human_reviews/index.html", type: :template) %>',
+    controller: 'HumanReviewIndexController'
+  },
+  '/human_reviews/:id': {
+    templateUrl: '<%= asset_path("human_reviews/show.html", type: :template) %>',
+    controller: 'HumanReviewShowController'
+  },
+  '/welcome': {
+    templateUrl: '<%= asset_path("helpers/welcome.html", type: :template) %>',
+    controller: 'WelcomeController'
+  },
+  '/logging/dashboard': {
+    templateUrl: '<%= asset_path("logging/dashboard.html", type: :template) %>',
+    controller: 'DashboardController'
+  },
+  '/logging/disseminated_records': {
+    templateUrl: '<%= asset_path("logging/disseminated_records.html", type: :template) %>',
+    controller: 'DisseminatedRecordsController'
+  }
+};
+
+app.config(['$routeProvider',
+  function($routeProvider) {
+    var universalResolves = {
+      "current-user": ['$rootScope','Restangular',function($rootScope,Restangular) {
+        if (angular.isUndefined($rootScope.current_user)) {
+          return Restangular.one('users','current').get().then(function(data){
+            $rootScope.current_user = data;
+          })
+        } else {
+          return $rootScope.current_user;
+        };
+      }],
+      "settings": ['$rootScope','Restangular',function($rootScope,Restangular) {
+        if (angular.isUndefined($rootScope.settings)) {
+          return Restangular.one('settings','current').get().then(function(data){
+            $rootScope.settings = data;
+          });
+        } else {
+          return $rootScope.settings;
+        };
+      }]
+    };
+
+    var customRouteProvider = angular.extend({}, $routeProvider, {
+      when: function(path, route) {
+        route.resolve = (route.resolve) ? route.resolve : {};
+        angular.extend(route.resolve, universalResolves);
+        $routeProvider.when(path, route);
+        return this;
+      }
+    });
+
+    //this loads up our routes dynamically from the previous object
+    for(var path in window.routes) {
+      customRouteProvider.when(path, window.routes[path]);
+    }
+    if (angular.isDefined(SYSTEM_MODE) && SYSTEM_MODE == 'CIR'){
+      $routeProvider.otherwise({redirectTo: '/weathermapviz'});
+    } else {
+      $routeProvider.otherwise({redirectTo: '/welcome'});
+    }
+  }]);

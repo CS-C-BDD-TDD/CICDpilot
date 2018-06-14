@@ -1,0 +1,131 @@
+<div class="page-header">
+    <h1>
+        Indicators Exported to {{system | uppercase}}
+         <span class="pull-right">
+             <a ng-href="<%= Rails.configuration.action_controller.relative_url_root %>/exported_indicators.stix?system={{system | lowercase}}"
+                   class="btn btn-pink no-radius btn-xs">
+                    <i class="ace-icon fa fa-share bigger-160"></i>
+                    Download as STIX
+                </a>
+         </span>
+
+	       <span ng-show="showCSV && (params.observable_type == 'Domain' || params.observable_type == 'EmailMessage')" style="margin-right: 5px" class="pull-right">
+             <a ng-href="<%= Rails.configuration.action_controller.relative_url_root %>/exported_indicators.csv?{{buildLink()}}"
+                class="btn btn-grey no-radius btn-xs" ng-click="set_status()">
+               <i class="ace-icon fa fa-download bigger-160"></i>
+               Download as CSV
+             </a>
+         </span>
+    </h1>
+</div>
+
+<div class="space-12"></div>
+
+<div class="widget-box widget-color-blue ui-sortable-handle">
+	  <pagination-header metadata="metadata" offset="offset" pagename="'Indicators'"></pagination-header>
+	  <pagination-footer metadata="metadata" offset="offset" get_records="getExports"></pagination-footer>
+	  <div class="dataTables_wrapper form-inline no-footer">
+	    <div class="row">
+	      <div class="col-xs-4 col-lg-4">
+	        <select class="form-control input-sm" ng-model='params.indicator_type'
+	                ng-options="key as name for (key,name) in Indicator.indicatorTypes" ng-change="filterIndicators()">
+	          <option value="">--Filter by Indicator Type--</option>
+	        </select>
+	        <select class="form-control input-sm" ng-model='params.observable_type'
+	                ng-options="key as name for (name,key) in Observable.display_name_to_type" ng-change="filterIndicators()">
+	          <option value="">--Filter by Cybox Object Type--</option>
+	        </select>
+	      </div>
+	      <div class="col-xs-4 col-lg-4 center">
+	        <div style="text-align: center">
+	          <div class="input-group">
+	              <span class="input-group-addon">
+	                <i class="fa fa-calendar"></i>
+	              </span>
+	            <input date-range-picker style="margin-left: 0px" type="text" class="form-control" options="date_picker_opts" />
+	          </div>
+	        </div>
+	      </div>
+	      <div class="col-xs-4 col-lg-4">
+	        <div style="text-align: right">
+		        <label class="inline">
+		          Show/Hide Detasked Indicators
+		          <input type="checkbox" class="ace" ng-model="params.show_detasked" ng-change="getExports()"/>
+			        <span class="lbl"></span>
+		        </label>
+
+		        <span style="margin-left: 10px " class="input-icon">
+              <input class="form-control search-query" placeholder="Search Indicators..." type="search"
+                     ng-enter="startSearch()" ng-model="params.q">
+              <i class="ace-icon fa fa-search nav-search-icon" style="margin-left: 4px"></i>
+            </span>
+	        </div>
+
+	      </div>
+	    </div>
+	  </div>
+    <div class="widget-body">
+        <div class="widget-main no-padding">
+            <table class="table table-striped table-bordered table-hover dataTable">
+                <thead class="thin-border-bottom">
+                <tr>
+                    <th class="sorting" ng-click="sort('indicator_title')">Title</th>
+                    <th>Observable Values</th>
+                    <th>Justification</th>
+                    <th style="width:5%">Exported as TLP</th>
+                    <th style="width:15%">Indicator Type</th>
+                    <th class="sorting" style="width:15%" ng-click="sort('exported_at')">Date Exported</th>
+                    <th style="width:15%">Exported By</th>
+	                  <th ng-show="params.observable_type == 'Domain' || params.observable_type == 'EmailMessage'" style="width:5%">Status</th>
+	                  <th class="sorting" ng-show="params.show_detasked" ng-click="sort('detasked_at')">Detasked At</th>
+                    <th style="width:7%" ng-show="can('mark_items_for_export')">Actions</th>
+                </tr>
+                </thead>
+                <tbody ng-hide="fetching">
+                <tr ng-repeat="exported_indicator in exported_indicators" ng-show="exported_indicators.length" id="{{exported_indicator.guid}}">
+                    <td>
+                        <a href="#/indicators/{{exported_indicator.indicator_stix_id | encodeURIComponent}}">
+                            {{exported_indicator.indicator_title | prefixWithPortionMarking: exported_indicator.indicator_classification}}
+                        </a>
+                    </td>
+                    <!-- Don't need this because observable_value should already have a portion marking (| prefixWithPortionMarking: exported_indicator.event_classification) -->
+                    <td>{{exported_indicator.observable_value}}</td>
+                    <td><multi-line-field field="exported_indicator.description" portionmarking="exported_indicator.indicator_classification"></multi-line-field></td>
+                    <td class="center" ng-bind-html="Color.image(exported_indicator.color)"></td>
+                    <td>{{Indicator.indicatorTypes[exported_indicator.indicator_type] | prefixWithPortionMarking: exported_indicator.indicator_classification:exported_indicator.indicator_type_classification}}</td>
+                    <td>{{exported_indicator.exported_at | date:"medium"}}</td>
+                    <td>
+                        <a href="#/users/{{exported_indicator.user_id | encodeURIComponent}}">
+                            {{exported_indicator.username}}
+                        </a>
+                    </td>
+                    <td ng-show="params.observable_type == 'Domain' || params.observable_type == 'EmailMessage'">{{exported_indicator.status}}</td>
+	                  <td ng-show="params.show_detasked">{{exported_indicator.detasked_at | date:"medium"}}</td>
+                    <td class="center" ng-show="can('mark_items_for_export')">
+                      <a class="btn btn-xs btn-info" tooltip="Edit Indicator" href="#/indicators/{{exported_indicator.indicator_stix_id | encodeURIComponent}}/edit">
+                        <i class="ace-icon fa fa-pencil-square-o bigger-120"/>
+                      </a>
+                      <button ng-hide="exported_indicator.detasked_at" class="btn btn-xs btn-danger" tooltip="Detask" ng-click="retire(exported_indicator)">
+                        <i class="ace-icon fa fa-trash-o bigger-120"/>
+                      </button>
+                      <button ng-show="exported_indicator.detasked_at" class="btn btn-xs btn-purple" tooltip="Undo Detask" ng-click="retask(exported_indicator.guid)">
+                        <i class="ace-icon fa fa-undo bigger-120"/>
+                      </button>
+                    </td>
+                </tr>
+                <tr ng-hide="exported_indicators.length">
+                    <td colspan="{{can('mark_items_for_export')?8:7}}" style="text-align:center">No Results</td>
+                </tr>
+                </tbody>
+
+                <tbody ng-show="fetching">
+                <tr>
+                  <td colspan="{{can('mark_items_for_export')?8:7}}" class="center">
+                    <i class="fa fa-spinner fa-spin bigger-300 blue"></i>
+                  </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

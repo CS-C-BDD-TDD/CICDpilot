@@ -1,0 +1,16 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('AddressesIndexController', ['$scope','$rootScope','Restangular',
+  function ($scope, $rootScope, Restangular) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Addresses',link:'#/addresses',icon:'fa-group'}];
+    $scope.fetching = true;
+    Restangular.one('/addresses').get().then(function(data){
+      $scope.addresses = data.addresses;
+      $scope.metadata = data.metadata;
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load Addresses");
+      $scope.fetching = false;
+    });
+  }
+]);

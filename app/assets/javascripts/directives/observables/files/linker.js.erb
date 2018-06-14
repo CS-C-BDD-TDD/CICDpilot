@@ -1,0 +1,84 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('fileLinker', function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("observables/files/linker.html",type: :template)%>',
+    scope: {
+             files: '=',
+             email: '='
+           },
+    controller: ['$scope', 'Restangular', '$rootScope', 'File', 'Gfi', function($scope,Restangular,$rootScope,File,Gfi) {
+      $scope.File = File;
+
+      $scope.modified = false;
+      $scope.view = 0;
+      $scope.accessor = {};
+      $scope.showTable = true;
+      $scope.toggle_isa_markings_view = false;
+
+      $scope.set_view = function(value){
+        $scope.view = value;
+        $scope.showTable = true;
+        $scope.toggle_isa_markings_view = false;
+        $scope.orig_files = JSON.parse(JSON.stringify($scope.files));
+        if (value==1) {
+          $scope.file={init: true};
+          Gfi.init_gfi_edit($scope, $scope.file);
+          $scope.toggle_isa_markings_view = true;
+        }
+      };
+
+      $scope.set_visibility = function() {
+        $scope.showTable = !$scope.showTable;
+        if ($scope.showTable) {
+          $scope.view = 0;
+        }
+      };
+
+      $scope.remove_file = function(file) {
+        _.remove($scope.files, function(f) {
+          return f == file;
+        })
+        $scope.modified = true;
+      };
+
+      $scope.cancel = function() {
+        $scope.view = 0;
+        $scope.toggle_isa_markings_view = false;
+      };
+
+      $scope.failed = function() {
+        // Don't do anything
+      };
+
+      $scope.saved = function(new_file) {
+        $scope.files.push(new_file);
+        $scope.apply_changes(true);
+        $scope.view=0;
+        $scope.toggle_isa_markings_view = false;
+      }
+
+      $scope.apply_changes = function(created) {
+        var cybox_object_ids = _.map($scope.files, function(f){
+          return f.cybox_object_id;
+        });
+        Restangular.one("email_files/"+$scope.email.cybox_object_id).customPUT({cybox_object_ids: cybox_object_ids, new: created}).then(function(data) {
+          toastr.success("Linked files have been updated");
+          $scope.orig_files = JSON.parse(JSON.stringify($scope.files));
+          $scope.email.audits = data.audits;
+          $scope.view = 0;
+          $scope.toggle_isa_markings_view = false;
+          $scope.modified = false;
+          $scope.accessor.reset_search();
+        },function(res) {
+          toastr.error("There was a problem updating the linked files.  Changes have been reverted");
+          if (angular.isDefined(res)){
+            $rootScope.show_res_errors(res);
+          }
+          $scope.files = JSON.parse(JSON.stringify($scope.orig_files));
+        });
+      };
+    }]
+  };
+});

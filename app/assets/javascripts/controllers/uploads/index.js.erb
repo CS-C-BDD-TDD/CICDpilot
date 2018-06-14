@@ -1,0 +1,27 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('UploadsIndexController', ['$scope','$rootScope','Restangular', 'User','$routeParams',
+  function ($scope, $rootScope, Restangular, User,$routeParams) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Uploads',link:'#/uploads',icon:'fa-group'}];
+    $scope.fetching= true;
+    Restangular.one('uploads').get($routeParams).then(function(data){
+      $scope.uploads = data.uploads;
+      $scope.metadata = data.metadata;
+      $scope.fetching= false;
+    },function(res){
+      toastr.error("Unable to load Uploads");
+      $scope.fetching= false;
+    });
+
+    if (angular.isDefined($routeParams.admin)){
+      $scope.is_admin = $routeParams.admin;
+    }
+
+    // $http.get('XXXuploads_path ').success(function(data) {
+    //    $scope.uploads = data;
+    // });
+
+    $scope.canAll = function(perms){
+       return User.canAll($rootScope.current_user, perms);
+    };
+}]);

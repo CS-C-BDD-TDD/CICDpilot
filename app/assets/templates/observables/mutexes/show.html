@@ -1,0 +1,99 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">
+
+<div class="page-header">
+  <h1>
+    {{mutex.name | prefixWithPortionMarking: mutex.portion_marking}}
+    <small ng-show="mutex.read_only">
+      <span style="margin-left: 10px" class="label label-warning arrowed arrowed-right">
+        <span class="white">Read Only</span>
+      </span>
+    </small>
+    <small ng-show="mutex.is_ciscp">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">CISCP</span>
+      </span>
+    </small>
+    <small ng-show="mutex.is_mifr">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">MIFR</span>
+      </span>
+    </small>    
+    <span class="pull-right">
+      <a ng-href="#/mutexes/{{mutex.cybox_object_id | encodeURIComponent}}/edit" class="btn btn-info no-radius btn-xs" ng-show="canModify(mutex) && mutex.read_only == false"><i class="ace-icon fa fa-pencil-square-o bigger-160"></i> Edit</a>
+    </span>
+  </h1>
+  <div class="space-18"></div>
+  <span class="pull-left" ng-show="canAny(['create_remove_badge_status','view_badge_status'])">
+    <badge-statuses-table badge-statuses="mutex.badge_statuses" audits="mutex.audits" parent-id="mutex.guid" parent-class="CyboxMutex"></badge-statuses-table>
+  </span>
+  <div class="space-18"></div>
+</div>
+
+<div class="profile-user-info profile-user-info-striped">
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Name </div>
+    <div class="profile-info-value">
+      <span>{{mutex.name | prefixWithPortionMarking: mutex.portion_marking}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Name Condition </div>
+    <div class="profile-info-value">
+      <span>{{mutex.name_condition}}</span>
+    </div>
+  </div>
+  
+  <div class="profile-info-row" ng-show='mutex.feeds'>
+    <div class="profile-info-name"> Disseminated Feeds </div>
+    <div class="profile-info-value">
+      <span>{{mutex.feeds}}</span>
+    </div>
+  </div>  
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Created 
+    	<span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+      		<i class="fa fa-ban fa-stack-2x"> </i> 
+ 			<i class="fa fa-download fa-stack-1x"> </i> 
+    	</span>
+    </div>
+    <div class="profile-info-value">
+      <span>{{mutex.created_at | date:"medium"}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Total Sightings </div>
+    <div class="profile-info-value">
+      <span>{{mutex.total_sightings}}</span>
+    </div>
+  </div>
+  <downgrade-request-ids observable="mutex"></downgrade-request-ids>
+</div>
+
+<div ng-show="mutex.stix_markings.length">
+  <div class="space-12"></div>
+  <markings-table markings="mutex.stix_markings"></markings-table>
+</div>
+
+<div class="space-12"></div>
+
+<div ng-show="mutex.indicators.length">
+  <indicator-table indicators="mutex.indicators"></indicator-table>
+</div>
+
+<div class="space-12" ng-show="mutex.course_of_actions.length"></div>
+<course-of-actions-table course_of_actions="mutex.course_of_actions" show_table=showTable addrelated="false" ng-show="mutex.course_of_actions.length"></course-of-actions-table>
+
+<div ng-show="mutex.stix_packages.length > 0">
+  <div class="space-12"></div>
+  <package-table packages="mutex.stix_packages"></package-table>
+</div>
+
+<div class="space-12"></div>
+<audits-table audits="mutex.audits"></audits-table>
+
+</div>
+
+<show-spinner> </show-spinner>

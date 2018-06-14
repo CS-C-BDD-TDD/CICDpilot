@@ -1,0 +1,23 @@
+app.controller('DomainsShowController', ['$scope','$location','$routeParams','$rootScope','Restangular',
+  function ($scope, $location, $routeParams, $rootScope, Restangular) {
+    $scope.fetching = true;
+    Restangular.one('/domains',$routeParams.id).get().then(function(data){
+      $scope.domain = data;
+      if (angular.isDefined($scope.domain) && angular.isDefined($scope.domain.ind_course_of_actions)){
+        $scope.domain.course_of_actions = $scope.domain.course_of_actions.concat($scope.domain.ind_course_of_actions);
+      }
+      $scope.showGFIs = $rootScope.setting_value('CLASSIFICATION');
+      $scope.showTable = {coa_data: true, collapse: false};
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Domains',link:'#/domains',icon:'fa-group'},{text:data.name,link:'#/domains/'+encodeURIComponent(data.cybox_object_id)}];
+      Restangular.one('/dns_records').get({"name": data.name}).then(function(data){
+        $scope.domain.dns_records = data.dns_records;
+      },function(res){
+        toastr.error("Unable to load matching DNS Records");
+      });
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load Domain");
+      $scope.fetching = false;
+    });
+  }
+]);

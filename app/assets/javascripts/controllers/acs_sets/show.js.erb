@@ -1,0 +1,19 @@
+app.controller('AcsSetsShowController', ['$scope','$rootScope','$routeParams','Restangular','Marking','$location','Color',
+    function ($scope, $rootScope, $routeParams, Restangular,Marking,$location,Color) {
+        $scope.fetching = true;
+        $scope.Color = Color;
+        $scope.can = $rootScope.can;
+        $scope.showTable = {coa_data: true, collapse: false, actions_disabled: true};
+
+        Restangular.one('acs_sets',$routeParams.id).get().then(function(data){
+            $scope.set = data;
+            $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'ACS Sets',link:'#/acs_sets',icon:'fa-thumb-tack'},{text:$scope.set.name,link:'#/acs_sets/'+$scope.set.guid,icon:'fa-thumb-tack'}];
+            $scope.fetching = false;
+
+        },function(res){
+            toastr.error("Unable to load ACS Set");
+            $location.path('/acs_sets/');
+            $scope.fetching = false;
+        });
+    }]
+)

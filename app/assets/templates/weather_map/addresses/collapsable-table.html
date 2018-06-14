@@ -1,0 +1,15 @@
+<div class="widget-box widget-color-blue ui-sortable-handle">
+  <div class="widget-header fake-link" ng-click="showTable = !showTable">
+    <h5 class="widget-title bigger lighter">
+      <span tooltip="Show/Hide Table">
+        <i class="ace-icon fa fa-cloud"></i>
+        Weather Map Address Data
+      </span>
+    </h5>
+  </div>
+  <div class="widget-body" ng-show="showTable">
+    <div class="widget-main no-padding">
+      <weather-map-addresses-table addresses="addresses" fetching="fetching"></weather-map-addresses-table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,155 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">
+
+<div class="col-sm-12 col-md-12 col-lg-12" ng-hide="review.status=='A' || is_fully_loaded()">
+  <div class="alert alert-block alert-warning">
+    <button class="close" data-dismiss="alert" type="button">
+      <i class="ace-icon fa fa-times"></i>
+    </button>
+    <div>Bulk Actions, Accepting the Entire File, and Dissemination are disabled until all records are loaded</div>
+  </div>
+</div>
+
+<div class="col-sm-12 col-md-12 col-lg-12" ng-show="bulk_action_occurring">
+  <div class="alert alert-block alert-warning">
+    <button class="close" data-dismiss="alert" type="button">
+      <i class="ace-icon fa fa-times"></i>
+    </button>
+    <div>Accepting the Entire File, Save Changes and Dissemination are disabled until bulk updates are finished</div>
+  </div>
+</div>
+
+<div class="page-header">
+  <h1>
+    {{review.uploaded_file.file_name}}
+    <span class="pull-right" ng-disabled="review.status == 'N' || review.status == 'I'">
+      <span ng-hide="review.status=='A' && !is_saving">
+        <a ng-href="#/human_reviews">
+          <button class="btn btn-danger btn-sm" id="cancel" tooltip="Cancel and do not save">
+            <i class="ace-icon fa fa-times-circle"></i>
+            Cancel
+          </button>
+        </a>
+      </span>
+      <span ng-hide="review.status=='A' && !is_saving">
+        <div class="btn-group">
+          <button data-toggle="dropdown" id="bulk_actions" class="btn btn-primary btn-white dropdown-toggle" tooltip="Access Bulk Actions Here" ng-disabled="!is_fully_loaded()">
+            Bulk Actions
+            <span ng-show="bulk_action_occurring">
+              <i class="fa fa-sun-o fa-spin green bigger-150"></i>
+              {{get_bulk_percentage()}} % Complete
+            </span>
+            <i class="ace-icon fa fa-angle-down icon-on-right"></i>
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a ng-click="confirm_all()">Confirm all non-set</a>
+            </li>
+            <li>
+              <a ng-click="edit_all()">Edit all non-set</a>
+            </li>
+            <li>
+              <a ng-click="not_pii_all()">Not PII all non-set</a>
+            </li>
+            <li>
+              <a ng-click="redact_all()">Redact all non-set</a>
+            </li>
+            <li>
+              <a ng-click="revert_all()">Revert all</a>
+            </li>
+          </ul>
+        </div>
+      </span>
+      <span ng-hide="review.status=='A' && !is_saving">
+        <a target="_blank" ng-href="/cyber-indicators/show_xml/{{review.uploaded_file_id}}?human_review=true">
+          <button class="btn btn-info btn-sm" tooltip="View Human Review XML">
+            <i class="ace-icon fa fa-file-o"></i>
+            View XML
+          </button>
+        </a>
+      </span>
+      <span ng-hide="(review.status=='A' || review.status=='D')">
+        <button class="btn btn-success no-radius btn-sm" ng-click="accept_entire_file()" tooltip="Accept all fields as Not PII - No dissemination will occur" ng-disabled="!is_fully_loaded() || bulk_action_occurring">
+          <i class="ace-icon fa fa-check-circle"></i>
+          Accept Entire File
+        </button>
+        <i ng-show="is_saving" class="fa fa-sun-o fa-spin green bigger-150"></i>
+      </span>
+      <span ng-show="review.status=='D' && !is_saving">
+        <button class="btn btn-success no-radius btn-sm" ng-click="disseminate()" tooltip="Disseminate the completed file" ng-disabled="!is_fully_loaded() || bulk_action_occurring">
+          <i class="ace-icon fa fa-check-circle"></i>
+          Disseminate File
+        </button>
+        <i ng-show="is_saving" class="fa fa-sun-o fa-spin green bigger-150"></i>
+      </span>
+    </span>
+  </h1>
+</div>
+
+<p class="pull-right">
+</p>
+
+<div class="profile-user-info profile-user-info-striped">
+  <div class="profile-info-row">
+    <div class="profile-info-name"> File Name 
+      <span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+        <i class="fa fa-ban fa-stack-2x"> </i> 
+        <i class="fa fa-download fa-stack-1x"> </i>
+      </span>
+    </div>
+    <div class="profile-info-value">
+      <span>{{review.uploaded_file.file_name}}</span>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Status 
+      <span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+        <i class="fa fa-ban fa-stack-2x"> </i> 
+        <i class="fa fa-download fa-stack-1x"> </i>
+      </span>
+    </div>
+    <div class="profile-info-value">
+      <span>{{full_status(review.status)}}</span>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Uploaded At 
+      <span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+        <i class="fa fa-ban fa-stack-2x"> </i> 
+        <i class="fa fa-download fa-stack-1x"> </i>
+      </span>
+    </div>
+    <div class="profile-info-value">
+      <span>{{review.created_at | date:"medium"}}</span>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Decided By 
+      <span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+        <i class="fa fa-ban fa-stack-2x"> </i> 
+        <i class="fa fa-download fa-stack-1x"> </i>
+      </span>
+    </div>
+    <div class="profile-info-value">
+      <span><a ng-href="#/users/{{review.decided_by.id}}">{{review.decided_by.username}}</a></span>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Decided At
+      <span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+        <i class="fa fa-ban fa-stack-2x"> </i> 
+        <i class="fa fa-download fa-stack-1x"> </i>
+      </span>
+    </div>
+    <div class="profile-info-value">
+      <span>{{review.decided_at | date:"medium"}}</span>
+    </div>
+  </div>
+</div>
+
+<div class='space-16'></div>
+
+<human-review-fields-table></human-review-fields-table>
+
+</div>
+
+<show-spinner> </show-spinner>

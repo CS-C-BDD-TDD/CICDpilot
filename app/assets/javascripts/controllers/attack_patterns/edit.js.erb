@@ -1,0 +1,36 @@
+app.controller('AttackPatternsEditController', ['$scope','$routeParams','$location','$rootScope','Restangular','Marking', 'ttpService', 
+  function ($scope, $routeParams, $location, $rootScope, Restangular,Marking, ttpService) {
+    
+    Restangular.one("/attack_patterns/"+$routeParams.id).get().then(function(data){
+      $scope.attack_pattern = Marking.translate_existing_attributes(data);
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                {text:'All Attack Patterns',link:'#/attack_patterns',icon:'fa-list'},
+                                {text:data.title,link:'#/attack_patterns/'+encodeURIComponent(data.stix_id),icon:'fa-pencil'}];
+
+    });
+
+    $scope.save = function(attack_pattern,done){
+      $scope.attack_pattern.stix_id = attack_pattern.stix_id;
+      Restangular.one("attack_patterns/"+$routeParams.id).customPUT(attack_pattern).then(function(data){
+        toastr.success("Attack Pattern saved");
+        if (ttpService.is_data_set()){
+          ttpService.update_attack_pattern(data);
+          var ttp = ttpService.get_data_no_clear();
+          if (angular.isDefined(ttp.stix_id)){
+            $location.path('/ttps/' + ttp.stix_id + '/edit');
+          } else {
+            $location.path('/ttps/new')
+          }
+        } else {
+          $scope.attack_pattern = data;
+          $location.path('/attack_patterns/'+encodeURIComponent($scope.attack_pattern.stix_id));
+        }
+      },function(res){
+        toastr.error("Unable to save Attack Pattern");
+        $rootScope.show_res_errors(res);
+        $scope.attack_pattern.errors = res.data.errors;
+        done();
+      });
+      done();
+    };
+}]);

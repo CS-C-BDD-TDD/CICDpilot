@@ -1,0 +1,32 @@
+<cybox:Object id="<%=dns_record.cybox_object_id%>">
+   <cybox:Properties xsi:type="DNSRecordObj:DNSRecordObjectType">
+      <% if dns_record.dns_domain.present? %>
+      <DNSRecordObj:Domain_Name type="Domain Name">
+        <URIObj:Value condition="<%= dns_record.dns_domain.name_condition %>"><%= dns_record.dns_domain.name %></URIObj:Value>
+      </DNSRecordObj:Domain_Name>
+      <% end %>
+      <% if dns_record.address_value_raw.present? %>
+      <DNSRecordObj:IP_Address>
+        <AddressObj:Address_Value condition="<%= dns_record.dns_address.address_condition %>"><%= dns_record.dns_address.address_value_raw %></AddressObj:Address_Value>
+      </DNSRecordObj:IP_Address>
+      <% end %>
+      <% if dns_record.entry_type.present? %>
+      <DNSRecordObj:Entry_Type><%=dns_record.entry_type%></DNSRecordObj:Entry_Type>
+      <% end %>
+      <% if dns_record.record_name.present? %>
+      <DNSRecordObj:Record_Name><%=dns_record.record_name%></DNSRecordObj:Record_Name>
+      <% end %>
+      <% if dns_record.record_type.present? %>
+      <DNSRecordObj:Record_Type><%=dns_record.record_type%></DNSRecordObj:Record_Type>
+      <% end %>
+      <% if dns_record.ttl.present? %>
+      <DNSRecordObj:TTL><%=dns_record.ttl%></DNSRecordObj:TTL>
+      <% end %>
+      <% if dns_record.flags.present? %>
+      <DNSRecordObj:Flags><%=dns_record.flags%></DNSRecordObj:Flags>
+      <% end %>
+      <% if dns_record.data_length.present? %>
+      <DNSRecordObj:Data_Length><%=dns_record.data_length%></DNSRecordObj:Data_Length>
+      <% end %>
+   </cybox:Properties>
+</cybox:Object>

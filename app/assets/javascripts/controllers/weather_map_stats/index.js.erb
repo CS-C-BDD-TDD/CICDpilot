@@ -1,0 +1,17 @@
+app.controller('WeatherMapStatsController', ['$scope', '$rootScope',
+  'Restangular', function ($scope, $rootScope, Restangular) {
+    $rootScope.breadcrumbs = [{text: 'Home', link: '#/', icon: 'fa-home'}];
+    $rootScope.breadcrumbs = [{text: 'Home', link: '#/', icon: 'fa-home'},
+      {
+        text: 'Weather Map Dashboard', link: '#/weathermapstats',
+        icon: 'fa-dashboard'
+      }];
+    Restangular.one('weather_map_address_stats').get().then(function (data) {
+      $scope.wmdstatsaddresses = data;
+      Restangular.one('weather_map_domain_stats').get().then(function (data) {
+        $scope.wmdstatsdomains = data;
+      });
+    });
+    
+      
+  }]);

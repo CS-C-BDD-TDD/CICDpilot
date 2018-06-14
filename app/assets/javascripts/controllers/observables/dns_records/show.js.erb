@@ -1,0 +1,50 @@
+app.controller('DnsRecordsShowController', ['$scope','$location','$routeParams','$rootScope','Restangular', 'Marking',
+  function ($scope, $location, $routeParams, $rootScope, Restangular, Marking) {
+    $scope.fetching = true;
+    Restangular.one('/dns_records',$routeParams.id).get().then(function(data){
+      $scope.dns = Marking.translate_existing_attributes(data);;
+      if (angular.isDefined($scope.dns) && angular.isDefined($scope.dns.ind_course_of_actions)){
+        $scope.dns.course_of_actions = $scope.dns.course_of_actions.concat($scope.dns.ind_course_of_actions);
+      }
+      $scope.showGFIs = $rootScope.setting_value('CLASSIFICATION');
+      $scope.showTable = {coa_data: true, collapse: false};
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'DNS Records',link:'#/dns_records',icon:'fa-group'},{text:data.address+' '+data.domain,link:'#/dns_records/'+encodeURIComponent(data.cybox_object_id)}];
+
+      $scope.dns.addresses = [$scope.dns.dns_address];
+      $scope.dns.domains = [$scope.dns.dns_domain];
+
+      if (!$rootScope.is_undefined_or_null($scope.dns.dns_address)) {
+        var remote_field = "address_value_normalized";
+
+        if ($scope.dns.dns_address.stix_markings.length > 0){
+          _.forEach($scope.dns.dns_address.stix_markings, function(sm) {
+            sm.remote_object_field = remote_field;
+            $scope.dns.stix_markings.push(sm);
+          });
+        }
+      }
+
+      if (!$rootScope.is_undefined_or_null($scope.dns.dns_domain)) {
+        var remote_field = "domain_normalized";
+
+        if ($scope.dns.dns_domain.stix_markings.length > 0){
+          _.forEach($scope.dns.dns_domain.stix_markings, function(sm) {
+            sm.remote_object_field = remote_field;
+            $scope.dns.stix_markings.push(sm);
+          });
+        }
+      }
+      
+      Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+          $scope.sets = data;
+      },function(res){
+          toastr.error("Unable to load ACS Set List");
+      });
+
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load DNS Record");
+      $scope.fetching = false;
+    });
+  }
+]);

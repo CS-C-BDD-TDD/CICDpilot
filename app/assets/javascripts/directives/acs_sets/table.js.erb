@@ -1,0 +1,16 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('acsSetTable',function() {
+    return {
+        restrict: 'E',
+        scope: {
+            sets:'='
+        },
+        templateUrl: '<%=asset_path("acs_sets/table.html",type: :template)%>',
+        controller: ['$scope','$rootScope','Color',function($scope,$rootScope,Color) {
+            $scope.Color = Color;
+            $scope.$parent.$watch("fetching", function(fetching){$scope.fetching = fetching;});
+
+        }]
+    }
+});

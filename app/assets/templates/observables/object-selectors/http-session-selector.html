@@ -1,0 +1,72 @@
+<div class="dataTables_wrapper form-inline no-footer">
+  <div class="row">
+    <div class="col-xs-4">
+    </div>
+    <div class="col-xs-4">
+      <div style="text-align: center">
+        <div class="input-group">
+          <span class="input-group-addon">
+            <i class="fa fa-calendar"></i>
+          </span>
+          <input date-range-picker style="margin-left: 0px" type="text" class="form-control" options="date_picker_opts" />
+        </div>
+      </div>
+    </div>
+    <div class="col-xs-4">
+      <div style="text-align: right">
+        <span class="input-icon">
+          <input class="form-control search-query" placeholder="Search HTTP Sessions..." type="search"
+                 ng-enter="startSearch()" ng-model="q">
+          <i class="ace-icon fa fa-search nav-search-icon" style="margin-left: 4px"></i>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="widget-box widget-color-blue ui-sortable-handle">
+  <pagination-header metadata="metadata" offset="offset"></pagination-header>
+  <pagination-footer metadata="metadata" offset="offset" get_records="getHttpSessions"></pagination-footer>
+</div>
+<div class="widget-body">
+  <div class="widget-main no-padding" style="height: 220px; overflow-y: scroll;">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>User Agent</th>
+          <th>Domain Name</th>
+          <th>Port</th>
+          <th>Referer</th>
+          <th>Pragma</th>
+          <th>Created At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr ng-repeat="httpsession in httpSessions | orderBy:'-created_at' | filter:search:strict" ng-click="setSelected()" class="{{classSelected()}}">
+          <td class="pointer">{{httpsession.user_agent | prefixWithPortionMarking: httpsession.portion_marking:httpsession.user_agent_c}}</td>
+          <td class="pointer">{{httpsession.domain_name | prefixWithPortionMarking: httpsession.portion_marking:httpsession.domain_name_c}}</td>
+          <td class="pointer">{{httpsession.port | prefixWithPortionMarking: httpsession.portion_marking:httpsession.port_c}}</td>
+          <td class="pointer">{{httpsession.referer | prefixWithPortionMarking: httpsession.portion_marking:httpsession.referer_c}}</td>
+          <td class="pointer">{{httpsession.pragma | prefixWithPortionMarking: httpsession.portion_marking:httpsession.pragma_c}}</td>
+          <td class="pointer">{{httpsession.created_at | date:"medium"}}</td>
+          <td class="pointer">
+            <button class="btn btn-primary btn-xs" tooltip="Edit Field" ng-click="setEdit()" ng-hide="httpsession.read_only">
+                <i class="ace-icon fa fa-pencil "></i>
+                Edit
+            </button>
+            <small ng-show="httpsession.read_only">
+              <span style="margin-left: 10px" class="label label-warning arrowed arrowed-right">
+                <span class="white">Read Only</span>
+              </span>
+            </small>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="widget-box widget-color-blue">
+  <pagination-footer metadata="metadata" offset="offset" get_records="getHttpSessions"></pagination-footer>
+</div>

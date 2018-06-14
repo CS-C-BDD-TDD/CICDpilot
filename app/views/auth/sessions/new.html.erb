@@ -1,0 +1,111 @@
+<div class="main-container">
+  <div class="main-content">
+    <div class="row">
+      <div class="col-sm-10 col-sm-offset-1">
+        <div class="login-container">
+          <div class="center">
+            <h1>
+              <i class="ace-icon fa fa-share-alt white"></i>
+              <span class="blue">Cyber</span>
+              <span class="white" id="id-text2">Indicators</span>
+            </h1>
+          </div>
+
+          <div class="space-6"></div>
+
+          <div class="position-relative">
+            <div id="login-box" class="login-box visible widget-box no-border">
+              <div class="widget-body">
+                <div class="widget-main">
+
+                  <h4 class="header blue lighter bigger">
+                  </h4>
+
+                  <div class="space-6"></div>
+                  <h5>
+                  <% flash.each do |name, msg| -%>
+                    <%= content_tag :div, class: name do  %>
+                            <%= msg.split("," ).join("<br /><br />").html_safe %>
+                    <% end %>
+                    <div class="space-2"></div>
+                  <% end -%>
+                  </h5>
+
+                  <%=form_tag auth_sessions_path do%>
+                    <fieldset>
+                      <label class="block clearfix">
+                        <span class="block input-icon input-icon-right">
+                          <%=text_field_tag :username,params[:username],class: 'form-control', placeholder: 'Username'%>
+                          <i class="ace-icon fa fa-user"></i>
+                        </span>
+                      </label>
+
+                      <label class="block clearfix">
+                        <span class="block input-icon input-icon-right">
+                          <%=password_field_tag :password,nil,class: 'form-control', placeholder: 'Password', autocomplete: 'off' %>
+                          <i class="ace-icon fa fa-lock"></i>
+                        </span>
+                      </label>
+
+
+                      <div class="clearfix">
+                        <%=button_tag type: 'submit', class: 'btn btn-primary btn-lg btn-block' do%>
+                          <i class="ace-icon fa fa-key"></i>
+                          <span class="bigger-110">Login</span>
+                        <%end%>
+                      </div>
+
+                      <div class="space-4"></div>
+                    </fieldset>
+                  <%end%>
+
+                </div><!-- /.widget-main -->
+
+              </div><!-- /.widget-body -->
+            </div><!-- /.login-box -->
+            
+          </div><!-- /.position-relative -->
+        </div>
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </div><!-- /.main-content -->
+</div><!-- /.main-container -->
+
+<!-- basic scripts -->
+
+<!--[if !IE]> -->
+<script src="/cyber-indicators/assets/jquery.min.js"></script>
+
+<!-- <![endif]-->
+
+<!--[if IE]>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<![endif]-->
+
+<!--[if !IE]> -->
+<script type="text/javascript">
+  window.jQuery || document.write("<script src='<%= javascript_path 'jquery-ui.min' %>'>"+"<"+"/script>");
+</script>
+
+<!-- <![endif]-->
+
+<!--[if IE]>
+<script type="text/javascript">
+window.jQuery || document.write("<script src='assets/js/jquery1x.min.js'>"+"<"+"/script>");
+</script>
+<![endif]-->
+<script type="text/javascript">
+  if('ontouchstart' in document.documentElement) document.write("<script src='assets/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+</script>
+
+<!-- inline scripts related to this page -->
+<script type="text/javascript">
+  jQuery(function($) {
+   $(document).on('click', '.toolbar a[data-target]', function(e) {
+    e.preventDefault();
+    var target = $(this).data('target');
+    $('.widget-box.visible').removeClass('visible');//hide others
+    $(target).addClass('visible');//show target
+   });
+  });  
+</script>

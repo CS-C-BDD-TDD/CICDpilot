@@ -1,0 +1,60 @@
+<div class="widget-box">
+  <div class="widget-header" align="center">
+    <a class='fake-link widget-title ng-cloak' ng-click="confidence_new = !confidence_new" ng-init="confidence_new = false">
+      <i class="ace-icon fa" ng-class="confidence_new ? 'fa-minus' : 'fa-plus'"></i>
+      Confidence
+    </a>
+  </div>
+  <div class="widget-body" ng-show="confidence_new">
+    <div class="space-12"></div>
+    <div class="widget-main">
+      <div class="form-group" ng-show="object.confidence.length">
+        <label class="control-label col-md-3 no-padding-right">Official Confidence:</label>
+        <div class="col-md-3" style="margin-top:7px">
+          {{object.confidences | uppercase}}
+        </div>
+
+      </div>
+      <div class="form-group" ng-hide="changeConfidence">
+        <div class="center" ng-show="canAny(['set_confidence_level','set_official_confidence_level'])">
+          <button  ng-click="changeConfidence = !changeConfidence">
+            Change Confidence
+          </button>
+        </div>
+      </div>
+
+      <div ng-show="changeConfidence && canAny(['set_confidence_level','set_official_confidence_level'])">
+        <div class="form-group" tooltip="Select High, Medium, Low, or Unknown Confidence to add your confidence to this Indicator">
+          <label class="control-label col-md-3 no-padding-right">Confidence</label>
+
+          <div class="col-md-9">
+            <select class="col-md-12" ng-model="object.confidences_attributes[0].value" ng-options="value for value in values">
+              <option value="">-- Select Confidence --</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" tooltip="Add a Description/Justification as to why you have the confidence you have in the Indicator">
+          <label class="control-label col-md-3 no-padding-right">Description</label>
+          <div class="col-xs-9">
+            <textarea type="text" class="form-control" ng-model="object.confidences_attributes[0].description" name="description"/>
+          </div>
+        </div>
+        <div class="form-group" tooltip="The source of the indicator confidence">
+          <label class="control-label col-md-3 no-padding-right">Source</label>
+          <div class="col-xs-9">
+            <textarea type="text" class="form-control" ng-model="object.confidences_attributes[0].source" name="description"/>
+          </div>
+        </div>
+        <div class="form-group" ng-show="can('set_official_confidence_level')" tooltip="Mark your confidence as the OFFICIAL confidence for this Indicator.  This will be the displayed Confidence and the Confidence of the Indicator upon export">
+          <label class="control-label col-md-3 no-padding-right">Official?</label>
+          <div class="col-md-9" style="padding-top: 7px">
+            <input type="checkbox" class="ace" ng-model="object.confidences_attributes[0].is_official" name="is_official"/>
+            <span class="lbl"></span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

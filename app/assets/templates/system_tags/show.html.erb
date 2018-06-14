@@ -1,0 +1,56 @@
+<style>
+  .label-title {
+    line-height: 1.15;
+    border-radius: 0;
+    font-weight: normal;
+    text-shadow: none;
+    display: inline-block;
+    padding-top: 0.2em;
+    padding-right: 0.6em;
+    padding-left: 0.6em;
+    padding-bottom: 0.3em;
+    color: #ffffff;
+    text-align: center;
+    white-space: no-wrap;
+    vertical-align: baseline;
+  }
+</style>
+
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">
+
+<div class="page-header">
+  <h1>
+    Items Tagged with <span class="label-title" ng-class="system_tag.type">{{system_tag.name}}</span>
+
+    <span class="pull-right">
+      <a ng-show="metadata.total_count < 1000" ng-href="<%= Rails.configuration.action_controller.relative_url_root %>/system_tags/{{system_tag.guid}}.stix" 
+         class="btn btn-pink no-radius btn-xs">
+        <i class="ace-icon fa fa-download bigger-160"></i>
+        Download as STIX
+      </a>
+      <button class="btn btn-danger no-radius btn-xs"
+              ng-confirm-click='delete(system_tag)'
+              ng-show="can('create_remove_system_tags') && !system_tag.is_permanent">
+        <i class="ace-icon fa fa-trash-o bigger-160"></i>
+        Delete Tag
+      </button>
+    </span>
+  </h1>
+
+</div>
+
+<p class="pull-right">
+</p>
+
+
+<div class="space-12"></div>
+
+<indicator-table indicators="indicators" indicators_route="indicatorsRoute" metadata="metadata" indexpage=true tags=true></indicator-table>
+
+<div class="space-12"></div>
+
+<audits-table audits="system_tag.audits"></audits-table>
+
+</div>
+
+<show-spinner> </show-spinner>

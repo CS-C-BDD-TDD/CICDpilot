@@ -1,0 +1,39 @@
+<cybox:Object id="<%=http_session.cybox_object_id%>">
+  <cybox:Properties xsi:type="HTTPSessionObj:HTTPSessionObjectType">
+    <HTTPSessionObj:HTTP_Request_Response>
+      <HTTPSessionObj:HTTP_Client_Request>
+        <HTTPSessionObj:HTTP_Request_Header>
+          <HTTPSessionObj:Parsed_Header>
+          <% if http_session.domain_name.present? || http_session.port.present? %>
+            <HTTPSessionObj:Host>
+            <% if http_session.domain_name.present? %>
+              <HTTPSessionObj:Domain_Name>
+                <URIObj:Value condition="Equals"><%= http_session.domain_name %></URIObj:Value>
+              </HTTPSessionObj:Domain_Name>
+            <% end %>
+            <% if http_session.port.present? %>
+              <HTTPSessionObj:Port>
+                <PortObj:Port_Value condition="Equals"><%= http_session.port %></PortObj:Port_Value>
+              </HTTPSessionObj:Port>            
+            <% end %>
+            </HTTPSessionObj:Host>
+          <% end %>
+          <% if http_session.pragma.present? %>
+            <HTTPSessionObj:Pragma condition="Equals"><%= http_session.pragma %></HTTPSessionObj:Pragma>
+          <% end %>
+          <% if http_session.referer.present? %>
+            <HTTPSessionObj:Referer>
+              <URIObj:Value condition="Equals"><%= http_session.referer %></URIObj:Value>
+            </HTTPSessionObj:Referer>
+          <% end %>
+          <% if http_session.user_agent.present? && http_session.user_agent_condition.present? %>
+            <HTTPSessionObj:User_Agent condition="<%= http_session.user_agent_condition %>"><%= http_session.user_agent %></HTTPSessionObj:User_Agent>
+          <% elsif http_session.user_agent.present? %>
+            <HTTPSessionObj:User_Agent><%= http_session.user_agent %></HTTPSessionObj:User_Agent>
+          <% end %>
+          </HTTPSessionObj:Parsed_Header>
+        </HTTPSessionObj:HTTP_Request_Header>
+      </HTTPSessionObj:HTTP_Client_Request>
+    </HTTPSessionObj:HTTP_Request_Response>
+  </cybox:Properties>
+</cybox:Object>

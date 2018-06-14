@@ -1,0 +1,160 @@
+test case started at 14:59:17 on 08/01/16
+test case started at 15:00:20 on 08/01/16
+task: "login" completed successfully at 15:00:41 on 08/01/16
+test case ended at 15:01:41 on 08/01/16
+
+test case started at 15:03:41 on 08/01/16
+task: "login" completed successfully at 15:04:02 on 08/01/16
+test case ended at 15:04:30 on 08/01/16
+
+test case started at 16:21:37 on 08/01/16
+task: "login" completed successfully at 16:21:52 on 08/01/16
+test case ended at 16:22:51 on 08/01/16
+
+test case started at 16:39:39 on 08/01/16
+task: "login" completed successfully at 16:40:01 on 08/01/16
+test case ended at 16:40:18 on 08/01/16
+
+test case started at 16:40:51 on 08/01/16
+task: "login" completed successfully at 16:41:26 on 08/01/16
+test case ended at 16:41:58 on 08/01/16
+
+test case started at 16:53:16 on 08/01/16
+task: "login" completed successfully at 16:53:42 on 08/01/16
+test case ended at 16:54:08 on 08/01/16
+
+test case started at 16:54:50 on 08/01/16
+task: "login" completed successfully at 16:55:07 on 08/01/16
+test case ended at 16:55:34 on 08/01/16
+
+test case started at 09:49:14 on 08/02/16
+task: "login" completed successfully at 09:49:54 on 08/02/16
+test case ended at 09:50:58 on 08/02/16
+
+test case started at 09:52:51 on 08/02/16
+task: "login" completed successfully at 09:53:14 on 08/02/16
+test case ended at 09:53:46 on 08/02/16
+
+test case started at 11:19:45 on 08/02/16
+task: "login" completed successfully at 11:20:00 on 08/02/16
+test case ended at 11:20:21 on 08/02/16
+
+test case started at 11:22:16 on 08/02/16
+task: "login" completed successfully at 11:22:32 on 08/02/16
+test case ended at 11:23:27 on 08/02/16
+
+test case started at 11:25:09 on 08/02/16
+task: "login" completed successfully at 11:25:25 on 08/02/16
+test case ended at 11:26:44 on 08/02/16
+
+test case started at 11:29:50 on 08/02/16
+task: "login" completed successfully at 11:30:10 on 08/02/16
+test case ended at 11:31:20 on 08/02/16
+
+test case started at 11:33:06 on 08/02/16
+task: "login" completed successfully at 11:33:24 on 08/02/16
+task: "edit indicator" completed successfully at 11:34:22 on 08/02/16
+test case ended at 11:34:22 on 08/02/16
+
+test case started at 11:42:24 on 08/03/16
+task: "login" completed successfully at 11:42:53 on 08/03/16
+test case started at 11:43:42 on 08/03/16
+task: "login" completed successfully at 11:44:06 on 08/03/16
+test case ended at 11:45:25 on 08/03/16
+
+test case started at 14:09:18 on 08/03/16
+task: "login" completed successfully at 14:09:37 on 08/03/16
+test case ended at 14:10:59 on 08/03/16
+
+test case started at 14:11:55 on 08/03/16
+task: "login" completed successfully at 14:12:15 on 08/03/16
+task: "edit indicator" completed successfully at 14:13:19 on 08/03/16
+test case ended at 14:13:19 on 08/03/16
+
+test case started at 14:14:20 on 08/03/16
+task: "login" completed successfully at 14:14:38 on 08/03/16
+test case ended at 14:15:43 on 08/03/16
+
+test case started at 14:19:00 on 08/03/16
+task: "login" completed successfully at 14:19:16 on 08/03/16
+test case ended at 14:20:29 on 08/03/16
+
+test case started at 14:21:24 on 08/03/16
+task: "login" completed successfully at 14:21:41 on 08/03/16
+test case ended at 14:22:55 on 08/03/16
+
+test case started at 14:23:33 on 08/03/16
+task: "login" completed successfully at 14:23:49 on 08/03/16
+test case ended at 14:25:07 on 08/03/16
+
+test case started at 14:41:12 on 08/03/16
+task: "login" completed successfully at 14:41:31 on 08/03/16
+test case ended at 14:42:53 on 08/03/16
+
+test case started at 15:04:58 on 08/03/16
+task: "login" completed successfully at 15:05:14 on 08/03/16
+test case started at 15:07:34 on 08/03/16
+task: "login" completed successfully at 15:07:51 on 08/03/16
+task: "edit indicator" completed successfully at 15:08:26 on 08/03/16
+test case ended at 15:08:26 on 08/03/16
+
+test case started at 15:09:35 on 08/03/16
+task: "login" completed successfully at 15:09:52 on 08/03/16
+task: "edit indicator" completed successfully at 15:10:22 on 08/03/16
+test case ended at 15:10:22 on 08/03/16
+
+test case started at 15:33:08 on 08/03/16
+task: "login" completed successfully at 15:33:24 on 08/03/16
+task: "edit indicator" completed successfully at 15:33:50 on 08/03/16
+test case ended at 15:33:50 on 08/03/16
+
+test case started at 15:34:49 on 08/03/16
+task: "login" completed successfully at 15:35:06 on 08/03/16
+test case ended at 15:35:57 on 08/03/16
+
+test case started at 16:45:17 on 08/03/16
+task: "login" completed successfully at 16:45:33 on 08/03/16
+test case ended at 16:46:03 on 08/03/16
+
+test case started at 16:47:35 on 08/03/16
+task: "login" completed successfully at 16:47:52 on 08/03/16
+task: "edit indicator" completed successfully at 16:48:22 on 08/03/16
+test case ended at 16:48:22 on 08/03/16
+
+test case started at 16:51:51 on 08/03/16
+task: "login" completed successfully at 16:52:07 on 08/03/16
+test case started at 10:25:08 on 08/04/16
+task: "login" completed successfully at 10:25:34 on 08/04/16
+task: "edit indicator" completed successfully at 10:26:37 on 08/04/16
+test case ended at 10:26:38 on 08/04/16
+
+test case started at 13:44:46 on 08/04/16
+task: "login" completed successfully at 13:45:07 on 08/04/16
+task: "edit indicator" completed successfully at 13:46:04 on 08/04/16
+test case ended at 13:46:04 on 08/04/16
+
+test case started at 14:21:27 on 08/04/16
+task: "login" completed successfully at 14:21:42 on 08/04/16
+task: "edit indicator" completed successfully at 14:22:09 on 08/04/16
+test case ended at 14:22:10 on 08/04/16
+
+test case started at 14:23:15 on 08/04/16
+task: "login" completed successfully at 14:23:32 on 08/04/16
+task: "edit indicator" completed successfully at 14:24:03 on 08/04/16
+test case ended at 14:24:03 on 08/04/16
+
+test case started at 15:12:13 on 08/04/16
+task: "login" completed successfully at 15:12:32 on 08/04/16
+task: "edit indicator" completed successfully at 15:13:06 on 08/04/16
+test case ended at 15:13:06 on 08/04/16
+
+test case started at 14:19:40 on 08/05/16
+task: "login" completed successfully at 14:19:57 on 08/05/16
+task: "edit indicator" completed successfully at 14:20:24 on 08/05/16
+test case ended at 14:20:24 on 08/05/16
+
+test case started at 09:57:53 on 08/10/16
+task: "login" completed successfully at 09:58:18 on 08/10/16
+task: "edit indicator" completed successfully at 09:58:50 on 08/10/16
+test case ended at 09:58:51 on 08/10/16
+

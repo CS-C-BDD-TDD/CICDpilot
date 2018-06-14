@@ -1,0 +1,15 @@
+app.controller('VulnerabilitiesIndexController', ['$scope','$rootScope','Restangular',
+  function ($scope, $rootScope, Restangular) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'All Vulnerabilities',link:'#/vulnerabilities',icon:'fa-list'}];
+    $scope.fetching = true;
+    $scope.vulnerabilities = [];
+    Restangular.one('/vulnerabilities').get().then(function(data){ 
+      $scope.vulnerabilities = data.vulnerabilities;
+     $scope.metadata = data.metadata;
+      $scope.fetching= false;
+    },function(res){
+      toastr.error("Unable to load Vulnerabilities");
+      $scope.fetching= false;
+    }); 
+  }
+]);

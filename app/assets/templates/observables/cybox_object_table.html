@@ -1,0 +1,46 @@
+  <div class="widget-box widget-color-blue ui-sortable-handle">
+    <div class="widget-header">
+      <h5 class="widget-title bigger lighter">
+        <i class="ace-icon fa fa-table"></i>
+        <a class="fake-link white" ng-click="showTable = !showTable">
+          <span tooltip="Show/Hide Parameter Observables">Parameter Observables</span>
+        </a>
+      </h5>
+    </div>
+    <div class="widget-body">
+      <div class="widget-main no-padding">
+        <table class="table table-striped table-bordered table-hover">
+          <thead class="thin-border-bottom">
+            <tr>
+              <th>Observable Value</th>
+              <th>Observable Type</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody ng-hide="fetching">
+            <tr ng-repeat="observable in observables | uniqCyboxObject">
+              <td>
+                <a ng-href="#/{{fixCyboxLinkType(observable.remote_object_type)}}/{{observable.remote_object_id | encodeURIComponent}}">{{Observable.get_value(observable)}}</a>
+              </td>
+              <td>
+                {{observable.remote_object_type}}
+              </td>
+              <td>
+                {{observable.created_at | date: 'medium'}}
+              </td>
+            </tr>
+            <tr ng-hide="observables.length || fetching">
+              <td colspan="3" style="text-align:center">No Results</td>
+            </tr>
+          </tbody>
+          <tbody ng-show="fetching">
+            <tr>
+              <td colspan="3" class="center">
+                <i class="fa fa-spinner fa-spin bigger-300 blue"></i>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>

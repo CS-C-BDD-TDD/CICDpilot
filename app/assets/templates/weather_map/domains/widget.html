@@ -1,0 +1,31 @@
+<div class="widget-box widget-color-blue ui-sortable-handle">
+    <pagination-header metadata="metadata" offset="offset" pagename="'Weather Map Domains'"></pagination-header>
+    <pagination-footer metadata="metadata" offset="offset" get_records="getDomains"></pagination-footer>
+    <div class="dataTables_wrapper form-inline no-footer">
+        <div class="row">
+            <div class="col-xs-4">
+            </div>
+            <div class="col-xs-4">
+                <div style="text-align: center">
+                    <div class="input-group">
+              <span class="input-group-addon">
+                <i class="fa fa-calendar"></i>
+              </span>
+                        <input date-range-picker style="margin-left: 0px" type="text" class="form-control" options="date_picker_opts" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <div style="text-align: right">
+            <span class="input-icon">
+              <input class="form-control search-query" placeholder="Search Domains..." type="search"
+                     ng-enter="startSearch()" ng-model="q">
+              <i class="ace-icon fa fa-search nav-search-icon" style="margin-left: 4px"></i>
+            </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <weather-map-domains-table domains=domains fetching="fetching"></weather-map-domains-table>
+    <pagination-footer metadata="metadata" offset="offset" get_records="getDomains"></pagination-footer>
+</div>

@@ -1,0 +1,7 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('DashboardController', ['$scope', '$rootScope', function($scope, $rootScope){
+ $scope.results = undefined;
+ $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                {text:'Metric Dashboard',link:'#/logging/dashboard', icon:'fa-search'}];
+}]);

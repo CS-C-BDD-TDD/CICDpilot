@@ -1,0 +1,55 @@
+test case started at 12:10:39 on 08/05/16
+task: "login" completed successfully at 12:11:11 on 08/05/16
+task: "create new indicator" completed successfully at 12:11:20 on 08/05/16
+test case ended at 12:11:20 on 08/05/16
+
+test case started at 12:11:59 on 08/05/16
+test case started at 12:13:23 on 08/05/16
+task: "login" completed successfully at 12:13:50 on 08/05/16
+test case ended at 12:14:35 on 08/05/16
+
+test case started at 12:15:10 on 08/05/16
+task: "login" completed successfully at 12:15:34 on 08/05/16
+task: "create new indicator" completed successfully at 12:15:50 on 08/05/16
+test case ended at 12:15:50 on 08/05/16
+
+test case started at 12:16:34 on 08/05/16
+task: "login" completed successfully at 12:16:52 on 08/05/16
+task: "create new indicator" completed successfully at 12:17:07 on 08/05/16
+test case ended at 12:17:07 on 08/05/16
+
+test case started at 12:28:43 on 08/05/16
+task: "login" completed successfully at 12:29:02 on 08/05/16
+task: "create new indicator" completed successfully at 12:29:34 on 08/05/16
+test case ended at 12:29:34 on 08/05/16
+
+test case started at 12:42:08 on 08/05/16
+task: "login" completed successfully at 12:42:27 on 08/05/16
+task: "create new indicator" completed successfully at 12:42:50 on 08/05/16
+test case ended at 12:42:50 on 08/05/16
+
+test case started at 12:45:31 on 08/05/16
+task: "login" completed successfully at 12:45:47 on 08/05/16
+task: "create new indicator" completed successfully at 12:46:08 on 08/05/16
+test case ended at 12:46:08 on 08/05/16
+
+test case started at 13:58:53 on 08/05/16
+task: "login" completed successfully at 13:59:17 on 08/05/16
+task: "create new indicator" completed successfully at 13:59:41 on 08/05/16
+test case ended at 13:59:41 on 08/05/16
+
+test case started at 14:21:15 on 08/05/16
+task: "login" completed successfully at 14:21:31 on 08/05/16
+task: "create new indicator" completed successfully at 14:21:54 on 08/05/16
+test case ended at 14:21:54 on 08/05/16
+
+test case started at 14:31:26 on 08/05/16
+task: "login" completed successfully at 14:31:43 on 08/05/16
+task: "create new indicator" completed successfully at 14:32:07 on 08/05/16
+test case ended at 14:32:07 on 08/05/16
+
+test case started at 14:20:32 on 08/10/16
+task: "login" completed successfully at 14:20:49 on 08/10/16
+task: "create new indicator" completed successfully at 14:21:08 on 08/10/16
+test case ended at 14:21:08 on 08/10/16
+

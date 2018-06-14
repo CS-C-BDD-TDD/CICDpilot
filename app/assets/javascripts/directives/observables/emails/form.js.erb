@@ -1,0 +1,137 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('emailForm', function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("observables/emails/form.html",type: :template)%>',
+    scope: {
+             email: '=',
+             saved: '=',
+             failed: '=',
+             cancel: '=',
+             editform: '=',
+             insideemail: '@?'
+           },
+    controller: ['$scope','$rootScope','$routeParams','Restangular','CiapCommon','$location','Gfi', 'Classification', 'objectSuggesterService', 
+      function($scope,$rootScope,$routeParams,Restangular,CiapCommon,$location,Gfi, Classification,objectSuggesterService) {
+        $scope.showGFIs = Gfi.showGFIs();
+        $scope.sets = [];
+        $scope.cybox = "cybox";
+        $scope.saved_params = objectSuggesterService.get_params() || {};
+        $scope.pagenum = $scope.saved_params.current_page || 0;
+        $scope.conditions = CiapCommon.conditions;
+
+        // display flags for address fields
+        $scope.show_markings = {from_input: 0, reply_to_input: 0, sender_input: 0, x_originating_ip: 0};
+
+        // display flags for address fields
+        $scope.show_markings = {from_input: 0, reply_to_input: 0, sender_input: 0, x_originating_ip: 0};
+
+        // Toggles for field level markings
+        $scope.from_toggle = {toggle: 0, clear: 0};
+        $scope.reply_toggle = {toggle: 0, clear: 0};
+        $scope.sender_toggle = {toggle: 0, clear: 0};
+        $scope.x_orig_toggle = {toggle: 0, clear: 0};
+
+        Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+            $scope.sets = data;
+        },function(res){
+            toastr.error("Unable to load ACS Set List");
+        });
+        
+        $scope.$watch('email',function(newval,oldval) {
+          Gfi.set_gfi_attributes($scope.email);
+        });
+
+        $scope.can=$rootScope.can;
+
+        $scope.date_picker_opts = {
+          singleDatePicker: true,
+          startDate: moment(),
+          endDate: moment(),
+          timePicker: true
+        };
+        
+        // Cleanup
+        $scope.$on('$destroy', function() {
+          $('.daterangepicker').remove();
+        });
+      
+        $scope.dateRangePicker = function(picker) {
+          $scope.email.email_date = picker.getStartDate();
+        };
+
+        $scope.save = function(email){
+          $scope.is_saving = true;
+          $scope.email.errors = {};
+
+          if (angular.isDefined(email.email_date) && email.email_date != null) {
+            email.email_date += $scope.timeoffsethour + $scope.timeoffsetmin;
+          }
+
+          var promise;
+          var save_text;
+
+          /*
+          Rules for when CLASSIFICATION is true
+
+          and ACS Set or Classification must be selected. When Classification is above unclassified, 
+          details must be filled out.
+          */
+          if ($rootScope.setting_value('CLASSIFICATION') == true){
+              $scope.email.stix_markings_attributes = Classification.check_classification_details($scope.email.stix_markings_attributes);
+              var problems = $scope.email.stix_markings_attributes.problems;
+              var classification_check = $scope.email.stix_markings_attributes.classification_check;
+          }
+
+          if (Object.keys($scope.email.errors).length > 0 || classification_check) {
+            $scope.is_saving = false;
+            
+            if(classification_check){
+              for (var i = 0; i < problems.length; i++){
+                  if(problems[i].field == null){
+                      toastr.error("Unable to save due to classification errors in the Object level markings");
+                  } else {
+                      toastr.error("Unable to save due to classification errors in the " + problems[i].field + " markings");
+                  }
+              }
+            }
+            return;
+          }
+
+          if (angular.isUndefined(email.cybox_object_id) || email.cybox_object_id == null) {
+            promise = Restangular.all("email_messages").post(email);
+            save_text = "save";
+          } else {
+            promise = Restangular.one("email_messages/" + email.cybox_object_id).customPUT(email);
+            save_text = "update";
+          }
+
+          promise.then(
+            function(data){
+              toastr.success("Email Message "+save_text+"d");
+              if (angular.isDefined($scope.saved) && jQuery.isFunction($scope.saved)){
+                $scope.saved(data);
+              }
+              $scope.is_saving = false;
+            },
+            function(res){
+              toastr.error("Unable to "+save_text+" email message observable");
+              if (angular.isDefined(res.data.errors)) {
+                Gfi.set_errors_on_gfiable_observables($scope, res.data.errors);
+                $scope.error = res.data.errors;
+              }
+              if (angular.isDefined(res.data) && angular.isDefined(res.data.errors)) {
+                  $rootScope.show_res_errors(res);
+              }
+              if (angular.isDefined($scope.failed) && jQuery.isFunction($scope.failed)){
+                $scope.failed(res.data);
+              }
+              $scope.is_saving = false;
+            }
+          );
+        };
+      }
+    ]
+  };
+});

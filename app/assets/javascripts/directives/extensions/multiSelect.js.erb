@@ -1,0 +1,20 @@
+app.directive('multiSelect', function(){
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("multiSelect.html",type: :template)%>',
+        scope: {
+            attribute: '=',
+            optionsForSelect: '='
+        },
+        controller: ['$scope', function($scope){
+           $scope.remove = function(index) {
+               $scope.attribute.splice(index,1)[0];
+           }
+           $scope.add = function(attr) {
+               if(_.findIndex($scope.attribute,function(i){return i==attr}) == -1){
+                   $scope.attribute.push(attr);
+               }
+           }
+        }]
+    };
+});

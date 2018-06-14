@@ -1,0 +1,112 @@
+<%=
+    def max_class(max,cl)
+      if cl=='TS'
+        return 'TS'
+      elsif cl=='S' and max!='TS'
+        return 'S'
+      elsif cl=='C' and !(max=='TS' || max=='S')
+        return 'C'
+      elsif cl=='U' and !(max=='TS' || max=='S' || max=='C')
+        return 'U'
+      else
+        return max
+      end
+    end
+
+    stix_package = StixPackage.new
+    stix_package.title = "Indicators for #{params[:system].upcase}"
+    stix_package.description = "Automatically generated STIX file containing all
+    Indicators marked for export to #{params[:system].upcase}"
+    stix_package.short_description = "Indicators to be Exported to #{params[:system].upcase}"
+    stix_package.set_stix_id
+    stix_package.created_at = Time.now
+
+    indicators = @exported_indicators.reject{|export| export.nil? || export.indicator.nil?}.collect do |export|
+      indicator = export.indicator
+      indicator.color = export.color
+      indicator
+    end
+
+    stix_package.indicators = indicators
+
+    inherited_markings = nil
+    stix_markings = nil
+    if Setting.CLASSIFICATION == true
+        max=''
+        stix_package.indicators.each do |indicator|
+            max = max_class(max,indicator.portion_marking)
+        end
+
+        max_ind=nil
+        stix_package.indicators.each do |indicator|
+            if indicator.portion_marking == max
+                max_ind=indicator
+            end
+        end
+
+        inherited_markings = max_ind.dup()
+
+        stix_markings ||= []
+
+        # only clone in the object level markings.
+        if inherited_markings.stix_markings.present?
+            inherited_markings.stix_markings.each do |ihm|
+                if ihm.remote_object_field == nil
+                    stix_markings << ihm
+                end
+            end
+        end
+        stix_markings.flatten!
+        stix_markings << inherited_markings.acs_set.stix_markings if inherited_markings.acs_set.present?
+        stix_markings.flatten!
+
+        stix_markings.each do |markings|
+
+            if markings.isa_marking_structure
+                markings.isa_marking_structure.guid = nil
+                markings.isa_marking_structure.stix_id = nil
+                markings.isa_marking_structure.set_guid
+                markings.isa_marking_structure.set_stix_id
+            end
+
+            if markings.isa_assertion_structure
+
+                markings.isa_assertion_structure.isa_privs.each do |privs|
+                    privs.isa_assertion_structure_guid = nil
+                end
+
+                markings.isa_assertion_structure.further_sharings.each do |share|
+                    share.isa_assertion_structure_guid = nil
+                end
+
+                markings.isa_assertion_structure.guid = nil
+                markings.isa_assertion_structure.stix_id = nil
+                markings.isa_assertion_structure.set_guid
+                markings.isa_assertion_structure.set_stix_id
+
+                markings.isa_assertion_structure.isa_privs.each do |privs|
+                    privs.isa_assertion_structure_guid = markings.isa_assertion_structure.guid
+                end
+
+                markings.isa_assertion_structure.further_sharings.each do |share|
+                    share.isa_assertion_structure_guid = markings.isa_assertion_structure.guid
+                end
+            end
+
+            markings.stix_id = nil
+            markings.guid = nil
+            markings.controlled_structure = nil
+            markings.set_guid
+            markings.set_stix_id
+            markings.controlled_structure = "//*[@id=\"#{stix_package.stix_id}\"]//descendant-or-self::node()"
+            if markings.isa_assertion_structure
+                markings.isa_assertion_structure.stix_marking_id = markings.stix_id
+            end
+            if markings.isa_marking_structure
+                markings.isa_marking_structure.stix_marking_id = markings.stix_id
+            end
+        end
+    end
+
+    render "stix_packages/show", stix_package: stix_package, inherited_markings: stix_markings, formats: 'stix'
+%>

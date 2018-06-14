@@ -1,0 +1,136 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('domainSelector', function(){
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("observables/object-selectors/domain-selector.html",type: :template)%>',
+    scope: {
+      domains: '=',
+      observableToBeLinked: '=',
+      linkObservableView: '='
+    },
+    controller: ['$scope', 'Restangular', '$rootScope', 'Gfi','Marking','Observable',
+      function($scope, Restangular, $rootScope, Gfi,Marking,Observable) {
+      $scope.date_picker_opts = {
+        defaultRanges: true
+      };
+      $scope.q = '';
+      if (angular.isUndefined($scope.offset)) {
+        $scope.offset=0;
+      }
+      if (angular.isUndefined($scope.amount)) {
+        $scope.amount=$rootScope.setting_value('DEFAULT_MAX_RECORDS');
+      }
+
+      // Cleanup
+      $scope.$on('$destroy', function() {
+        $('.daterangepicker').remove();
+      });
+      
+      $scope.dateRangePicker = function(picker) {
+        $scope.date_picker_object = picker;
+        $scope.offset=0;
+        $scope.getDomains($scope.offset);
+      };
+
+      $scope.startSearch = function() {
+        $scope.offset=0;
+        $scope.getDomains($scope.offset);
+      };
+
+      $scope.getDomains = function(offset) {
+        var curr_ind = Observable.fetch_indicator_from_scope($scope);
+        var curr_markings = curr_ind.stix_markings_attributes;
+        if (!$rootScope.is_undefined_or_null(curr_ind.acs_set_id)){
+          Restangular.one('acs_sets').get({id: curr_ind.acs_set_id}).then(function(data){
+            // set it equal to the existing markings
+            if (angular.isDefined(data.stix_markings)){
+              curr_markings = data.stix_markings;
+            }
+            getDomainList(offset, curr_markings);
+          },function(res){
+              toastr.error("Unable to load ACS Set Markings");
+          });
+        } else {
+          getDomainList(offset, curr_markings);
+        }
+      };
+
+      function getDomainList(offset, current_markings){
+        var classification_limit = Marking.get_classification_attributes(current_markings);
+        if (angular.isDefined($scope.metadata)) {
+          $scope.metadata.total_count = null;
+        }
+        Restangular.one("/domains").get({
+          ebt: $scope.date_picker_object.getStartDate(),
+          iet: $scope.date_picker_object.getEndDate(),
+          q: $scope.q,
+          amount: $scope.amount,
+          classification_limit: classification_limit,
+          offset: offset
+        }).then(
+          function(data){
+            $scope.domains = data.domains;
+            $scope.metadata = data.metadata;
+          },
+          function(res){
+            toastr.error("Unable to load Domains");
+          }
+        );
+      }
+
+      $scope.setSelected = function() {
+        var so=$scope.observableToBeLinked;
+
+        if (angular.isDefined(so)) {
+          if (so.remote_object_id===this.domain.cybox_object_id && so.remote_object_type==='Domain') {
+            $scope.observableToBeLinked={};
+          } else {
+            Gfi.init_gfi_edit($scope, this.domain);
+            $scope.observableToBeLinked={remote_object_id:this.domain.cybox_object_id,remote_object_type:'Domain',domain:this.domain};
+          }
+        }
+      }
+      $scope.classSelected = function() {
+        var so=$scope.observableToBeLinked;
+
+        if (angular.isDefined(so)) {
+          if (so.remote_object_id===this.domain.cybox_object_id && so.remote_object_type==='Domain') {
+            return "bg-primary";
+          }
+        }
+      }
+      $scope.$watch('date_picker_object',function(object) {
+        if (angular.isDefined(object)) {
+          $scope.getDomains($scope.offset);
+        }
+      });
+      $rootScope.$on('reloadObservableSelect',function(event,type) {if (type === 'Domain') {$scope.getDomains($scope.offset)}});
+
+      // setEdit is a special function because it's called by an ng-click within an ng-repeat
+      $scope.setEdit = function() {
+          Restangular.one('/domains/'+ this.domain.cybox_object_id).get().then(function(data){
+            $scope.domain = Marking.translate_existing_attributes(data);
+
+            $scope.$parent.$parent.selected = $scope.domain;
+            $scope.$parent.observableToBeLinked={remote_object_id:$scope.domain.cybox_object_id,remote_object_type:'Domain',domain:$scope.domain};
+            $scope.linkObservableView = 'edit';
+          },function(res){
+              toastr.error("Unable to load Domain");
+          });
+      }
+
+      $scope.$parent.$parent.after_domain_save = function() {
+          var match = _.find($scope.$parent.$parent.domains,{'cybox_object_id':data.cybox_object_id});
+          var index = _.indexOf($scope.$parent.$parent.domains, match);
+          $scope.$parent.$parent.domains.splice(index,1,data);
+          $scope.$parent.observableToBeLinked.domain=data;
+          $scope.$parent.$parent.showSelectedObservable();
+          if ($rootScope.setting_value('CLASSIFICATION') == true){
+            $rootScope.$emit('reloadObservableSelect', 'Domain');
+          }
+      }
+    }],
+    controllerAs: 'domainSelCtrl'
+  }
+});

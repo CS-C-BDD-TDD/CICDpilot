@@ -1,0 +1,30 @@
+<%- headers = [
+		'US-CERT SID',
+		'Comments',
+		'Date Added',
+		'Event',
+		'Event Classification',
+		'NAI',
+		'NAI Classification',
+    'Special Instructions',
+    'Status',
+    'US-CERT Reference Document',
+		'BlueSmoke ID'
+] %>
+<%= raw CSV.generate_line headers, :row_sep => '', :force_quotes => false %>
+<% @exported_indicators.each do |exported_indicator| %>
+  <% row = [
+		  exported_indicator.sid,
+		  exported_indicator.comments,
+		  exported_indicator.date_added,
+		  exported_indicator.event,
+      classification(exported_indicator.event_classification),
+      exported_indicator.nai,
+      classification(exported_indicator.nai_classification),
+      exported_indicator.special_instructions,
+      exported_indicator.status,
+      exported_indicator.reference,
+		  exported_indicator.sid2
+  ] %>
+  <%= raw CSV.generate_line row, :row_sep => '', :force_quotes => false %>
+<% end %>

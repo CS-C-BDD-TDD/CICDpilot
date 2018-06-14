@@ -1,0 +1,6 @@
+<%- headers = ['STIX ID', 'Remote Object ID', 'Remote Object Type', 'Remote Object Field', 'Controlled Structure', 'Created At', 'Updated At'] %>
+<%= raw CSV.generate_line addPortionMarkingToCSV(headers), :row_sep => '', :force_quotes => true %>
+<% @stix_markings.each do |marking| %>
+  <%- row = [marking.stix_id, marking.remote_object_id, marking.remote_object_type, marking.remote_object_field, marking.controlled_structure, marking.created_at, marking.updated_at] -%>
+<%= raw CSV.generate_line addPortionMarkingToCSV(nil, row, marking), :row_sep => '', :force_quotes => true %>
+<% end %>

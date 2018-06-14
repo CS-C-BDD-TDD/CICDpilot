@@ -1,0 +1,13 @@
+.gitignore
+/bin
+config/secrets.yml
+config/trinidad_config.yml
+config.ru
+/data
+db/seeds.rb
+do_not_put_these_in_security_package
+README.rdoc
+/script
+/solr
+/specifications
+/test

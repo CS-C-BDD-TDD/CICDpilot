@@ -1,0 +1,279 @@
+<%if ENV['CLONE']%>
+# Clone the Application.
+
+Before you begin, you have:
+
+* Cloned the application server virtual machine.
+* Updated the application server network information (IP address and hostname)
+* Updated the application server DNS record.
+* Cloned an existing Release 6 appuser and dbadmin schema.
+
+<%if ENV['DEVELOPER_NOTE']%>
+## [Developer Note] Updating files for CentOS Clones within the GD Lab.
+
+**Connect to the clone via the VMware Console.**
+
+**Verify that the application server network interface MAC addresse(s) are correct.**
+
+```bash
+/etc/udev/rules.d/70-persistent-net.rules
+```
+
+!Note! If the MAC address in this file does not match the MAC address of the machine, reboot the machine.  The OS rebuilds this file on reboot.
+
+!Note! Record this MAC address.
+
+**Update the hostname.**
+
+```bash
+/etc/sysconfig/network
+```
+
+**Update the NIC information.**
+
+```bash
+/etc/sysconfig/network-scripts/ifcfg-eth0
+```
+
+* Update the HWADDR
+* Update the IPADDR
+* Update any other information if it is required.
+
+!Note! Your NIC may not be eth0.  Please use the NIC that you intend to use for your public interface.
+
+**Update the Oracle connection identifier.**
+
+```bash
+$TNS_ADMIN/tnsnames.ora
+```
+
+!Example!  tnsnames.ora
+
+```bash
+EXAMPLE_NEW_DATABASE_NAME =
+  (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = EXAMPLE_NEW_HOST)(PORT = EXAMPLE_NEW_PORT))
+      (CONNECT_DATA =
+        (SERVER = DEDICATED)
+        (SERVICE_NAME = EXAMPLE_NEW_SERVICE_NAME)
+      )
+  )
+```
+<%if ENV['IMPORTANT']%>
+!Important! Replace the EXAMPLE_NEW_DATABASE_NAME with the name of the new database.
+
+!Important! Replace the EXAMPLE_NEW_HOST with the name of the new database host.
+
+!Important! Replace the EXAMPLE_NEW_PORT with the port used to connect to the new database host.
+
+!Important! Replace the EXAMPLE_NEW_SERVICE_NAME with the new service name hosting the cloned_appuser and cloned_dbadmin schemas.
+<%end%>
+
+<%end%>
+
+**Verify connectivity to the database clone using the new_appuser and new_dbadmin credentials.**
+
+<%if ENV['IMPORTANT']%>
+!Important! You must verify connectivity to the database server out-of-band of the application.  One common way to do this is to use the Oracle toolchain (e.g. SQLPlus) to verify that you can connect from the application server to the database server using the credentials for each schema.
+
+!Important! You must be able to log in to both schemas before proceeding.
+<%end%>
+
+Verify that the privileges for new_appuser and new_dbadmin match the privileges previously specified in this guide.
+
+<%if ENV['NOTE']%>
+!Note! You will need to consult with the Oracle Database Administrator to determine whether or not the permissions are correct.
+<%end%>
+
+**Create the application database configuration file.**
+
+DATABASE=[NEW_DATABASE] \
+DBADMIN_USERNAME=[NEW_DBADMIN_USERNAME] \
+DBADMIN_PASSWORD=[NEW_DBADMIN_PASSWORD] \
+APPUSER_USERNAME=[NEW_APPUSER_USERNAME] \
+APPUSER_PASSWORD=[NEW_APPUSER_PASSWORD] \
+/var/apps/cyber-indicators/bin/initialize-database-configuration
+
+<%if ENV['TROUBLESHOOTING']%>
+## [Troubleshooting] Run the task.
+```bash
+DATABASE=[NEW_DATABASE] \
+DBADMIN_USERNAME=[NEW_DBADMIN_USERNAME] \
+DBADMIN_PASSWORD=[NEW_DBADMIN_PASSWORD] \
+APPUSER_USERNAME=[NEW_APPUSER_USERNAME] \
+APPUSER_PASSWORD=[NEW_APPUSER_PASSWORD] \
+OUTFILE=/etc/cyber-indicators/config/database.yml \
+TEMPLATE=/etc/cyber-indicators/templates/etc/cyber-indicators/database.yml.erb \
+/var/apps/cyber-indicators/bin/rake db:template:create
+```
+<%end%>
+
+<%if ENV['NOTE']%>
+!Note! The ordering of arguments does not matter.
+
+!Note!  To distinguish between previous examples, the database configuration settings are prefixed with "new".  You should replace these values with values that are appropriate for your specific environment.
+
+<%end%>
+
+<%if ENV['IMPORTANT']%>
+!Important!  The TNS_ADMIN environment variable must be set.
+<%end%>
+
+<%if ENV['EXAMPLE']%>
+
+!Example! After running this command, the database.yml file should look like this
+```bash
+/etc/cyber-indicators/config/database.yml
+```
+
+```bash
+production:
+  adapter: oracle_enhanced
+  database: new_example_database_name
+  username: new_appuser_username
+  password: new_appuser_password
+dbadmin:
+  adapter: oracle_enhanced
+  database: new_example_database_name
+  username: new_dbadmin_username
+  password: new_dbadmin_password
+```
+
+!Example! An example of a tnsnames.ora file is as follows:
+
+```bash
+NEW_EXAMPLE_DATABASE_NAME =
+  (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = db)(PORT = 1521))
+      (CONNECT_DATA =
+        (SERVER = DEDICATED)
+        (SERVICE_NAME = EXAMPLE_SERVICE_NAME)
+      )
+  )
+```
+
+<%if ENV['NOTE']%>
+!Note! In this example tnsnames.ora file, the connection string is identified by "NEW_EXAMPLE_DATABASE_NAME".
+<%end%>
+
+<%end%>
+
+<%if ENV['IMPORTANT']%>
+!Important! Replace the new_database_name with the NEW_EXAMPLE_DATABASE_NAME set in the tnsnames.ora file.
+
+!Important! Replace the new_dbadmin_username with the username for the dbadmin schema.
+
+!Important! Replace the new_dbadmin_password with the password for the dbadmin schema.
+
+!Important! Replace the new_appuser_username with the username for the appuser schema.
+
+!Important! Replace the new_appuser_password with the password for the appuser schema.
+
+<%end%>
+
+**Run the database migrations.**
+
+```bash
+RAILS_ENV=dbadmin /var/apps/cyber-indicators/bin/rake db:migrate
+```
+
+**Grant schema privileges.**
+
+```bash
+RAILS_ENV=dbadmin /var/apps/cyber-indicators/bin/rake db:grant
+```
+
+**Apply synonyms**
+
+```bash
+/var/apps/cyber-indicators/bin/rake db:synonyms
+```
+
+**Remove the existing Kerberos keytab file.**
+
+```bash
+rm /usr/share/tomcat7/conf/cyber-indicators.keytab
+```
+
+**Disable application SSO.**
+
+```bash
+/var/apps/cyber-indicators/bin/initialize-application-webserver
+```
+
+<%if ENV['TROUBLESHOOTING']%>
+
+## [Troubleshooting] Run the task.
+```bash
+TEMPLATE=/etc/cyber-indicators/templates/etc/cyber-indicators/tomcat7/conf/server.xml.erb \
+OUTFILE=/usr/share/tomcat7/conf/server.xml /var/apps/cyber-indicators/bin/rake \
+db:template:create
+```
+
+## [Troubleshooting]  Manually disable SSO.
+Edit the tomcat configuration file:
+
+```bash
+/usr/share/tomcat7/conf/server.xml
+```
+
+**Locate the Application Context.**
+
+The application context looks like this:
+
+```xml
+    <Context docBase="cyber-indicators" path="/cyber-indicators" reloadable="true">
+      <Valve className="indicators.cyber.valves.BlackList"
+             disallowedHeaders="REMOTE_USER|AUTH_MODE|REMOTE_USER_GUID"/>
+      <Valve className="indicators.cyber.valves.ActiveDirectory"
+             krb5Conf="/etc/cyber-indicators/tomcat7/conf/krb5.conf"
+             loginConf="/etc/cyber-indicators/tomcat7/conf/login.conf"
+             loginModule="active-directory"
+             />
+    </Context>
+```
+
+Comment-out the Valves in the Application Context.
+
+```xml
+    <Context docBase="cyber-indicators" path="/cyber-indicators" reloadable="true">
+      <!--
+      <Valve className="indicators.cyber.valves.BlackList"
+             disallowedHeaders="REMOTE_USER|AUTH_MODE|REMOTE_USER_GUID"/>
+      <Valve className="indicators.cyber.valves.ActiveDirectory"
+             krb5Conf="/etc/cyber-indicators/tomcat7/conf/krb5.conf"
+             loginConf="/etc/cyber-indicators/tomcat7/conf/login.conf"
+             loginModule="active-directory"
+             />
+      -->
+    </Context>
+```
+<%end%>
+
+**Remove the existing SSL certificates.**
+
+```bash
+$JAVA_HOME/bin/keytool -delete -alias cyber-indicators -keystore $JAVA_HOME/jre/lib/security/cacerts
+$JAVA_HOME/bin/keytool -delete -alias search -keystore $JAVA_HOME/jre/lib/security/cacerts
+```
+
+<%if ENV['NOTE']%>
+!Note! The default password for the keystore is 'changeit'
+<%end%>
+
+**Reconfigure SSL by following the procedure "Configure SSL".**
+
+**If using Active Directory, reconfigure SSO by following the procedure "Configure SSO using Active Directory".**
+
+<%if ENV['IMPORTANT']%>
+!Important! For this procedure, you must choose a different service account name than "tomcat.svc".
+<%end%>
+
+**If using ICAM Authentication, reconfigure SSO by following the procedure "Configure SSO Using ICAM Authentication".**
+
+**Restart the cyber indicators service**
+
+```bash
+service cyber-indicators restart
+```
+<%end%>

@@ -1,0 +1,88 @@
+<form class="form-horizontal" role="form">
+  <div class="col-md-12 col-sm-12 widget-container-co">
+    <div class="widget-box">
+      <div class="widget-header">
+
+        <h5 ng-show='set.name' class="widget-title">
+          Set: {{set.name}}
+        </h5>
+        <h5 ng-hide='set.name' class="widget-title">
+          Set: NEW ACS SET
+        </h5>
+
+      </div>
+      <div class="widget-body">
+        <div class="widget-main">
+
+          <div class="form-group" ng-class="{'has-error': set.errors.name}" tooltip="The Name of the Set that will be shown to users for Selection">
+            <label class="control-label col-md-3 col-lg-3 no-padding-right">
+              Name *
+            </label>
+            <div class="col-md-9">
+              <input id="ACS_Set_Name" type="text" class="col-md-9 col-lg-9" ng-model="set.name" auto-focus/>
+            </div>
+            <div ng-show="set.errors.name" class="help-block inline col-md-12" align="right">
+              <span ng-repeat="error in set.errors.name" class="col-md-12">Name {{error}}</span>
+            </div>
+          </div>
+
+            <div class="form-group" tooltip="Defines groups to which information may be released">
+                <label class="control-label col-md-3 no-padding-right">Restrict to Organizations</label>
+                <div class="col-md-7" ng-show="organizations.length > 0  || !is_saving">
+                    <div class="tags" style="background-color: transparent;border: none;color:transparent;display: block;vertical-align: bottom;width: inherit">
+                        <div class="col-lg-9" style="padding-left: 6px" ng-show="set.acs_sets_organizations_attributes.length" >
+                            <span ng-repeat="org in set.acs_sets_organizations_attributes" class="tag label label-margin label-info" ng-hide="org.destroy == '1'">
+                                {{org.short_name}}
+                                <button id="ACS_Set_Restrict_To_Orgs_Close_Button" class="close"
+                                        type="button"
+                                        ng-click="remove_org($index)">
+                                    x
+                                </button>
+                            </span>
+                        </div>
+                        <div ng-hide="count_orgs()" class="col-lg-9" style="padding-left: 6px">
+                            <span class='label label-margin label-inverse'>
+                                NONE
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="space-8"></div>
+
+                    <div class="col-md-9" style="margin-top: 10px">
+                        <select id="ACS_Set_Restrict_To_Orgs" class="col-md-12" ng-model='org'
+                                ng-options="org as org.long_name for org in organizations"
+                                ng-change="add_org(org)"></select>
+                    </div>
+                </div>
+                <div class="col-md-7" ng-show="is_saving">
+                    <i class="fa fa-spinner fa-spin blue bigger-200"></i>
+                </div>
+            </div>
+
+          <div class="space-16"></div>
+
+          <div class="row">
+            <div class="col-lg-1"></div>
+
+            <isa-assertion class='col-lg-10' isa-assertion=set.stix_markings_attributes[0].isa_assertion_structure_attributes justification="set.justification" editform="editform" acsedit="acsedit"></isa-assertion>
+          </div>
+
+          <div class="clearfix form-actions">
+            <span ng-show="is_saving">
+              <i id="acs_set_spinning_wheel" class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+            </span>
+            <button id="ACS_Set_Save_Button" ng-disabled="is_saving" class="btn btn-info pull-right ciap_mleft_12" type="button" ng-click="start_save()">
+              <i class="fa fa-check"></i>
+              Save
+            </button>
+            <button class="btn btn-default pull-right" type="button" ng-click="cancel()" ng-disabled="is_saving">
+              <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

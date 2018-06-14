@@ -1,0 +1,30 @@
+var threatActorsNewController = app.controller('ThreatActorsNewController',['$scope','$location','$rootScope','Restangular', 'bulkActionsService', 
+  function($scope,$location,$rootScope,Restangular,bulkActionsService) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                              {text:'All Threat Actors',link:'#/threat_actors',icon:'fa-list'},
+                              {text:'New',link:'#/threat_actors/new',icon:'fa-plus'}];
+    $scope.threat_actor = {};
+    $scope.threat_actor.indicators = bulkActionsService.get() || [];
+    $scope.save = function(threat_actor, done){
+      var indicator_ids=_.map(threat_actor.indicators,function(i) {
+        return i.stix_id;
+      });
+      threat_actor.indicator_stix_ids=indicator_ids;
+      Restangular.all('threat_actors').post(threat_actor).then(function(res){
+        toastr.success("New threat actor created");
+        done();
+        $scope.threat_actor = data;
+        $location.path('/threat_actors/'+encodeURIComponent($scope.threat_actor.stix_id));
+      },function(res){
+        done();
+        toastr.error("Unable to save threat_actor");
+        if (angular.isDefined(res.data) && angular.isDefined(res.data.errors) && angular.isDefined(res.data.errors.base)) {
+            _.each(res.data.errors.base,function(e){
+                toastr.error(e);
+            });
+        }
+        $scope.threat_actor.errors = res.data.errors;
+      });
+    };
+  }
+]);

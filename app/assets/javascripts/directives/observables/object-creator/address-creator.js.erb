@@ -1,0 +1,56 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('addressCreator', function(){
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("observables/addresses/new.html",type: :template)%>',
+    scope: {
+      addresses: '=',
+      linkAnObservable: '=',
+      linkObservableView: '=',
+      observables: '='
+    },
+    controller: ['$scope','Restangular','Observable', '$rootScope', 'Gfi',
+      function($scope,Restangular,Observable,$rootScope,
+               Gfi) {
+      $scope.address={address_condition: "Equals"};
+      $scope.cancelCreateObservable = function() {
+          if (angular.isDefined($scope.address)) {
+              delete $scope.address;
+          }
+          $scope.linkObservableView="link";
+      };
+
+      $scope.$watch('linkObservableView',function(newval,oldval) {
+        if (newval == 'create') {
+            if (angular.isDefined($scope.address)) {
+                delete $scope.address;
+            }
+            $scope.address = {init: true, address_condition: "Equals"};
+            Gfi.init_gfi_edit($scope, $scope.address);
+        }
+      });
+
+      $scope.saved = function(address){
+          var new_observable={};
+          new_observable.remote_object_id = address.cybox_object_id;
+          new_observable.remote_object_type = 'Address';
+          $scope.linkAnObservable(new_observable,function(result) {
+            if (result) {
+              toastr.success('Observable successfully linked');
+              result.address=address;
+              $scope.observables.push(result);
+              Gfi.delete_errors_on_gfiable_observables($scope);
+              $scope.linkObservableView="current";
+            } else {
+              toastr.error('Linking of observable failed');
+              $scope.linkObservableView="link";
+            }
+          });
+
+      };
+
+    }],
+    controllerAs: 'addressCreateCtrl'
+  }
+});

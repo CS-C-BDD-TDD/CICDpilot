@@ -1,0 +1,59 @@
+app.controller('TagAssignmentIndexController',['$scope','$rootScope','Restangular','$location',
+  function($scope,$rootScope,Restangular,$location){
+
+    var namePrefix = 'FO';
+    var ebt = '';
+    var iet = '';
+
+    $scope.sortOptions = {
+      'name': 'asc',
+      'count_all': 'desc'
+    };
+    $scope.sortMethod = '';
+    $scope.name_prefix = namePrefix;
+    $scope.fetching = true;
+    Restangular.one('fo_stats').get({
+      column: $scope.sortMethod,
+      direction: $scope.sortOptions[$scope.sortMethod]
+    }).then(function(data) {
+      $scope.results = data.threat_actors;
+      $scope.fetching = false;
+    });
+
+    $scope.tagAssignment = function(){
+      $scope.fetching = true;
+      Restangular.one('fo_stats').get({
+        ebt:$scope.date_picker_object.getStartDate(),
+        iet:$scope.date_picker_object.getEndDate(),
+        column: $scope.sortMethod,
+        direction: $scope.sortOptions[$scope.sortMethod]
+      }).then(function(data){
+        $scope.results = data.threat_actors;
+        $scope.fetching = false;
+      },function(data){
+        $scope.fetching = false;
+      })
+    }
+
+    // Cleanup
+    $scope.$on('$destroy', function() {
+      $('.daterangepicker').remove();
+    });
+      
+    $scope.date_picker_opts = {
+      defaultRanges: true
+    };
+
+    $scope.dateRangePicker = function(picker) {
+      $scope.date_picker_object = picker;
+      $scope.tagAssignment();
+    };
+
+    $scope.sort = function(method) {
+      $scope.sortMethod = method;
+      $scope.sortOptions[method]=($scope.sortOptions[method]=='desc')?'asc':'desc';
+      $scope.tagAssignment();
+    };
+  }
+
+]);

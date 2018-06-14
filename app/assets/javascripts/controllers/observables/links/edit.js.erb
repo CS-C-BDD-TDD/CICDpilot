@@ -1,0 +1,36 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('LinksEditController', ['$scope','$routeParams','Restangular','$rootScope','$location','Marking',
+    function($scope,$routeParams,Restangular,$rootScope,$location,Marking) {
+        Restangular.one('/links/'+$routeParams.id).get().then(function(data){
+            // If you change anything here you also need to change it in the observable select directive, set edit!!!!
+            if(angular.isDefined(data.uri.stix_markings)){
+                for(var i = 0; i < data.uri.stix_markings.length; i++){
+                    if(angular.isDefined(data.uri.stix_markings[i].remote_object_field) && data.uri.stix_markings[i].remote_object_field == null){
+                        // spoof the remote object field for now
+                        data.uri.stix_markings[i].remote_object_field = "uri_normalized";
+                        data.stix_markings.push(data.uri.stix_markings[i]);
+                    }
+                }
+            }
+            $scope.link = Marking.translate_existing_attributes(data);
+            $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Links',link:'#/links',icon:'fa-group'},{text:data.uri.uri + "\"" + data.label + "\"",link:'#/links/'+encodeURIComponent(data.cybox_object_id)}];
+            if ($rootScope.is_undefined_or_null($scope.link.label_condition)) {
+               $scope.link.label_condition = "Equals"; 
+            }
+            $scope.link.uri_attributes = {};
+            $scope.link.uri_attributes.uri_input = $scope.link.uri.uri_input;
+            $scope.link.uri_attributes.uri_condition = $scope.link.uri.uri_condition;
+        },function(res){
+            toastr.error("Unable to load Link record");
+        });
+
+        $scope.cancel = function() {
+            $location.path('/links/'+$routeParams.id);
+        };
+
+        $scope.failed = function() {
+            $("html, body").animate({ scrollTop: 0 }, 200);
+        };
+    }
+]);

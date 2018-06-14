@@ -1,0 +1,8 @@
+<!-- <div class="col-sm-12 col-md-12 col-lg-12" ng-show="canAll(['view_uploaded_file_info', 'create_indicator_observable', 'create_threat_actor', 'create_campaign', 'create_course_of_action', 'create_ttp', 'create_package_report'])"> -->
+<div class="col-sm-12 col-md-12 col-lg-12" ng-show="canAll(['view_uploaded_file_info', 'create_indicator_observable', 'create_package_report']) && !is_admin">
+  <a ng-href="#/uploads/new"><button class="btn btn-info btn-white"><i class="ace-icon fa fa-pencil bigger-110"></i> Upload </button></a>
+</div>
+
+<div class="col-sm-12 col-md-12 col-lg-12">
+  <upload-table uploads="uploads" metadata="metadata" indexpage=true fetching="fetching"></upload-table>
+</div>

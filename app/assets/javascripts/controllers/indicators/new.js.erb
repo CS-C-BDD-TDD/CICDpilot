@@ -1,0 +1,79 @@
+var indicatorsNewController = app.controller('IndicatorsNewController',['$scope','Restangular','$location','$rootScope',
+  function($scope,Restangular,$location,$rootScope) {
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'All Indicators',link:'#/indicators',icon:'fa-thumb-tack'},{text:'New Indicator',link:'#/indicators/new'}];
+
+    $scope.save = function(indicator,done){
+      if ($rootScope.can('tag_item_with_system_tag')) {
+        indicator.system_tag_ids = _.map(indicator.system_tags,function(tag) {
+          return tag.id
+        });
+      };
+
+      if ($rootScope.can('tag_item_with_user_tag')) {
+        indicator.user_tag_ids = _.map(indicator.user_tags,function(tag) {
+          return tag.id
+        });  
+      };
+      
+      var ttp_ids = _.map(indicator.ttps, function(t) {
+        return t.stix_id;
+      });
+
+      indicator.ttp_stix_ids = ttp_ids;
+      
+      var new_observables=false;
+      if (indicator.observables.length) {
+        indicator.observables.forEach(function(observable) {
+          delete(observable.stix_indicator_id);
+        });
+        new_observables=true;
+      }
+      delete(indicator.stix_id);
+      var success = function(indicator_data){
+        if (new_observables) {
+          //TODO: This will only work on the first observable!!!
+          indicator.observables[0].stix_indicator_id=indicator_data.stix_id;
+          Restangular.all('/observables').post(indicator.observables[0]).then(function(observable_data){
+            toastr.info("Indicator has been saved");
+            $location.path('/indicators/'+encodeURIComponent(indicator_data.stix_id));
+          },function(res){
+            toastr.error("Unable to attach observable to indicator");
+            if (angular.isDefined(res.data.errors)){
+              toastr.error(_.map(res.data.errors, function(x){return x[0]}));
+            }
+            $scope.indicator.observables.errors=res.data.errors;
+            // need to take them away from the new page, otherwise they will continue to post new indicators
+            $location.path('/indicators/'+encodeURIComponent(indicator_data.stix_id));
+          });
+        } else {
+          toastr.success("Indicator has been saved");
+          $location.path('/indicators/'+encodeURIComponent(indicator_data.stix_id));
+	    }
+        done();
+      }
+
+      var failure =  function(res){
+        $scope.indicator.errors = res.data.errors;
+        toastr.error("Unable to save indicator.");
+        if (angular.isDefined(res.data) && angular.isDefined(res.data.errors)) {
+            _.each(res.data.errors,function(e, key){
+              if (_.contains(key,".")){
+                key = key.substring(_.lastIndexOf(key,".") + 1, key.length)
+              }
+              toastr.error(key + " " + e);
+            });
+        }
+        $("html, body").animate({ scrollTop: 0 }, 200);
+        done();
+      }
+
+      Restangular.all("indicators").post(indicator).then(success,failure);
+    };
+
+    $scope.indicator={stix_id:'NEW-INDICATOR'};
+    $scope.indicator.observables=[];
+    $scope.indicator.user_tags=[];
+    $scope.indicator.system_tags=[];
+    $scope.indicator.ttps = [];
+  }
+]);

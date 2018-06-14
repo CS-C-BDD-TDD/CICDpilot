@@ -1,0 +1,143 @@
+<div class="page-header">
+  <h1>
+      {{socket_address.cybox_object_id}}
+    <small ng-show="socket_address.read_only">
+      <span style="margin-left: 10px" class="label label-warning arrowed arrowed-right">
+        <span class="white">Read Only</span>
+      </span>
+    </small>
+    <small ng-show="socket_address.is_ciscp">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">CISCP</span>
+      </span>
+    </small>
+    <small ng-show="socket_address.is_mifr">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">MIFR</span>
+      </span>
+    </small>    
+    <span class="pull-right">
+        <a ng-href="#/socket_addresses/{{socket_address.cybox_object_id | encodeURIComponent}}/edit" class="btn btn-info no-radius btn-xs" ng-show="canModify(socket_address) && socket_address.read_only == false"><i class="ace-icon fa fa-pencil-square-o bigger-160"></i> Edit</a>
+    </span>
+  </h1>
+  <div class="space-18"></div>
+  <span class="pull-left" ng-show="canAny(['create_remove_badge_status','view_badge_status'])">
+    <badge-statuses-table badge-statuses="socket_address.badge_statuses" audits="socket_address.audits" parent-id="socket_address.guid" parent-class="SocketAddress"></badge-statuses-table>
+  </span>
+  <div class="space-18"></div>
+</div>
+
+<div class="profile-user-info profile-user-info-striped">
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Cybox Object ID </div>
+    <div class="profile-info-value">
+      <div class="ciap_show_table_formatting">
+          <span>{{socket_address.cybox_object_id | prefixWithPortionMarking: socket_address.portion_marking}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Addresses </div>
+    <div class="profile-info-value">
+      <div class="ciap_show_table_formatting">
+          <span>{{socket_address.addresses_normalized_cache | prefixWithPortionMarking: socket_address.portion_marking}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Hostnames </div>
+    <div class="profile-info-value">
+      <div class="ciap_show_table_formatting">
+          <span>{{socket_address.hostnames_normalized_cache | prefixWithPortionMarking: socket_address.portion_marking}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Ports </div>
+    <div class="profile-info-value">
+      <div class="ciap_show_table_formatting">
+          <span>{{socket_address.ports_normalized_cache | prefixWithPortionMarking: socket_address.portion_marking}}</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="profile-info-row" ng-show='socket_address.feeds'>
+    <div class="profile-info-name"> Disseminated Feeds </div>
+    <div class="profile-info-value">
+      <span>{{socket_address.feeds}}</span>
+    </div>
+  </div>  
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Created 
+    	<span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+    		<i class="fa fa-ban fa-stack-2x"> </i> 
+ 			  <i class="fa fa-download fa-stack-1x"> </i> 
+    	</span>
+    </div>
+    <div class="profile-info-value">
+      <div class="ciap_show_table_formatting">
+        <span>{{socket_address.created_at | date:"medium"}}</span>
+      </div>
+    </div>
+  </div>
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Updated At 
+      <span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+        <i class="fa fa-ban fa-stack-2x"> </i> 
+        <i class="fa fa-download fa-stack-1x"> </i> 
+      </span>
+    </div>
+    <div class="profile-info-value">
+      <div class="ciap_show_table_formatting">
+        <span>{{socket_address.updated_at | date:"medium"}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Total Sightings </div>
+    <div class="profile-info-value">
+      <span>{{socket_address.total_sightings}}</span>
+    </div>
+  </div>
+  <downgrade-request-ids observable="socket_address"></downgrade-request-ids>
+</div>
+
+<div ng-show="socket_address.stix_markings.length">
+  <div class="space-12"></div>
+  <markings-table markings="socket_address.stix_markings"></markings-table>
+</div>
+
+<div class="space-12" ng-show="socket_address.indicators.length"></div>
+<div ng-show="socket_address.indicators.length">
+  <indicator-table indicators="socket_address.indicators"></indicator-table>
+</div>
+
+<div class="space-12" ng-show="socket_address.course_of_actions.length"></div>
+<course-of-actions-table course_of_actions="socket_address.course_of_actions" show_table=showTable addrelated="false" ng-show="socket_address.course_of_actions.length"></course-of-actions-table>
+
+<div class="space-12" ng-show="socket_address.network_connections.length"></div>
+<network-connection-table network-connections="socket_address.network_connections" ng-show="socket_address.network_connections.length"></network-connection-table>
+
+<div class="space-12" ng-show="socket_address.addresses.length"></div>
+<address-table addresses="socket_address.addresses" ng-show="socket_address.addresses.length"></address-table>
+
+<div class="space-12" ng-show="socket_address.hostnames.length"></div>
+<hostname-table hostnames="socket_address.hostnames" ng-show="socket_address.hostnames.length"></hostname-table>
+
+<div class="space-12" ng-show="socket_address.ports.length"></div>
+<port-table ports="socket_address.ports" ng-show="socket_address.ports.length"></port-table>
+
+<div ng-show="socket_address.stix_packages.length > 0">
+  <div class="space-12"></div>
+  <package-table packages="socket_address.stix_packages"></package-table>
+</div>
+
+<div class="space-12"></div>
+<audits-table audits="socket_address.audits"></audits-table>
+
+<div class="space-12"></div>

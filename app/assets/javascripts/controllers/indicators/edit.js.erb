@@ -1,0 +1,69 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('IndicatorsEditController', ['$scope','$location','$routeParams','$rootScope','Restangular','Marking',
+  function ($scope, $location, $routeParams, $rootScope, Restangular, Marking) {
+    $scope.settings=$rootScope.settings;
+    $scope.invalidObservableType='';
+    Restangular.one('/indicators/'+$routeParams.id).get().then(function(data){
+      $scope.indicator = Marking.translate_existing_attributes(data);
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                {text:'All Indicators',link:'#/indicators',icon:'fa-thumb-tack'},
+                                {text:data.title,link:'#/indicators/'+encodeURIComponent(data.stix_id)}];
+      // Fill in necessary values
+      if (angular.isDefined($scope.indicator.observables)) {
+      } else {
+        $scope.indicator.observables=[];
+      }
+
+      if($scope.indicator.read_only){
+        $location.path('/indicators/'+encodeURIComponent($scope.indicator.stix_id));
+        toastr.error("This Indicator is not editable");
+      }
+    });
+
+    $scope.save = function(indicator,done){
+      var ttp_ids = _.map(indicator.ttps, function(t) {
+        return t.stix_id;
+      });
+
+      indicator.ttp_stix_ids = ttp_ids;
+
+      indicator.id = indicator.stix_id;
+
+	    if ($rootScope.can('tag_item_with_system_tag')) {
+		    indicator.system_tag_ids = _.map(indicator.system_tags,function(tag) {
+			    return tag.id;
+		    });
+	    };
+      if ($rootScope.can('tag_item_with_user_tag')) {
+        indicator.user_tag_ids = _.map(indicator.user_tags,function(tag) {
+          return tag.id;
+        });     
+      };
+      if ($rootScope.can('tag_item_with_tag_assign')) {
+        indicator.assignment_tag_ids = _.map(indicator.tag_assign,function(tag) {
+          return tag.id;                           
+        });
+      };
+ 
+      Restangular.one('/indicators/'+indicator.id).customPUT(indicator).then(function(data){
+        toastr.success("Indicator saved");
+        $location.path('/indicators/'+encodeURIComponent(indicator.stix_id));
+        done();
+      },function(res){
+        toastr.error("Unable to save indicator");
+        $scope.indicator.errors = res.data.errors;
+        if (angular.isDefined(res.data) && angular.isDefined(res.data.errors)) {
+            _.each(res.data.errors,function(e, key){
+              if (_.contains(key,".")){
+                key = key.substring(_.lastIndexOf(key,".") + 1, key.length)
+              }
+              toastr.error(key + " " + e);
+            });
+        }
+        $("html, body").animate({ scrollTop: 0 }, 200);
+        done();
+      });
+    };
+  }
+]);

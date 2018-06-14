@@ -1,0 +1,122 @@
+# Start the Application
+
+This section serves as reference only.
+
+Under normal operation, or during initial application installation, you do not need to refer to this section.
+
+*Start the application service*
+
+```bash
+service cyber-indicators start
+```
+
+The application is now started.
+
+<%if ENV['TROUBLESHOOTING']%>
+## [Troubleshooting] OpenSSL::X509::StoreError: setting default path failed: the trustAnchors parameter must be non-empty
+
+Known Causes:
+
+* Java has been updated on the application
+* The Java installation has become corrupt.
+
+Solution:
+
+* Reinstall Java.
+* Ensure that JAVA_HOME is set.
+
+## [Troubleshooting] OpenSSL::SSL::SSLError: certificate verify failed or SOLR_URL is pointing to the wrong host, when running rake sunspot:solr:reindex
+
+*Reindex with the SOLR_URL and SSL_CERT_FILE*
+
+```bash
+SOLR_URL=[SOLR_URL] SSL_CERT_FILE=[SSL_CERT_FILE] /var/apps/cyber-indicators/bin/rake sunspot:solr:reindex
+```
+
+## [Troubleshooting] Net::HTTPBadResponse: wrong status line: "\x15\x03\x01\x00\x02\x02" when running rake tasks that insert data in to the database.
+
+The SOLR URL and SSL certificate are not detected.  Explicitly specify these environment variables on the command line:
+
+```bash
+SOLR_URL=[SOLR_URL] SSL_CERT_FILE=/etc/pki/tls/cert.pem rake [command]
+```
+
+## [Troubleshooting] Could not load core production, or SOLR core related issues.
+
+Symptom:
+
+SOLR appears to start (e.g. you can access the SOLR admin page), but SOLR logs issues starting the production core.
+
+Known Causes:
+
+* Configuration errors in the schema.xml file.
+
+Solution:
+
+Contact the development team, as this is a core application configuration file.
+
+<%end%>
+
+<%if ENV['DEVELOPER_NOTE']%>
+## [Developer Note] Configure Application Redirection
+
+*Create a redirect webapp path*
+
+```bash
+mkdir -p /usr/share/tomcat7/webapps/redirect
+```
+
+*Create an index.jsp file*
+
+```bash
+/usr/share/tomcat7/webapps/redirect/index.jsp
+```
+
+```html
+<\% @ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"\%>
+<html>
+<head>
+    <title>JSP Redirect</title>
+</head>
+<body>
+<\%
+String queryString = request.getQueryString();
+String redirectURL = "https://[APPLICATION_FQDN_AND_PORT]/cyber-indicators";
+response.sendRedirect(redirectURL);
+\%>
+</body>
+</html>
+```
+
+!Note! Replace APPLICATION_FQDN_AND_PORT with the fully-qualified domain name and port for your application server.  For example:  http://indicators.gov:8443/cyber-indicators.
+
+!Note! Providing the port is not necessary if the application is served over the standard HTTPS port 443.  However, explicitly providing the port will not generate any errors.
+
+*Enforce application permissions.*
+
+```bash
+/var/apps/cyber-indicators/bin/enforce-application-permissions
+```
+
+*Add Context for the redirect.*
+
+```bash
+/usr/share/tomcat7/conf/server.xml
+```
+
+```bash
+...
+    <Context docBase="redirect" path="/indicators" reloadable="true"></Context>
+    <Context docBase="redirect" path="/" reloadable="true"></Context>
+...
+```
+
+!Note! Insert the context near the SOLR context.
+
+*Restart the application.*
+
+```bash
+service cyber-indicators restart
+```
+
+<%end%>

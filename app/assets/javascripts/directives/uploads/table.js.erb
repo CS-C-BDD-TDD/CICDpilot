@@ -1,0 +1,116 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('uploadTable', function(){
+  return {
+    restrict: 'E',
+    templateUrl: function(elem,attrs) {
+      return attrs.indexpage ? '<%=asset_path("uploads/advanced_table.html",type: :template)%>' :
+                               '<%=asset_path("uploads/table.html",type: :template)%>';
+    },
+    scope: {
+             uploads: '=',
+             metadata: '=',
+             fetching: '=',
+             title: '=?'
+           },
+    controller: ['$scope','Restangular','$rootScope','Translator','$routeParams', function($scope,Restangular,$rootScope,Translator,$routeParams) {
+      if (angular.isUndefined($scope.title)) {
+        $scope.title="Uploads";
+      }
+      $scope.translateStatus = Translator.get_display_status;
+      $scope.date_picker_opts = {
+        defaultRanges: true
+      };
+      $scope.q = '';
+      if (angular.isUndefined($scope.offset)) {
+        $scope.offset=0;
+      }
+      if (angular.isUndefined($scope.amount)) {
+        $scope.amount=$rootScope.setting_value('DEFAULT_MAX_RECORDS');
+      }
+      $scope.sortOptions = {
+        'file_name' : 'desc',
+        'created_at' : 'desc',
+        'status' : 'desc'
+      };
+      $scope.sortMethod = '';
+
+      // Cleanup
+      $scope.$on('$destroy', function() {
+        $('.daterangepicker').remove();
+      });
+      
+      $scope.dateRangePicker = function(picker) {
+        $scope.date_picker_object = picker;
+        $scope.offset=0;
+        $scope.getUploads($scope.offset);
+      };
+
+      $scope.sort = function(method) {
+        $scope.sortMethod = method;
+        $scope.sortOptions[method]=($scope.sortOptions[method]=='desc')?'asc':'desc';
+        $scope.offset=0;
+        $scope.getUploads($scope.offset);
+      };
+
+      $scope.startSearch = function() {
+        $scope.offset=0;
+        $scope.getUploads($scope.offset);
+      };
+
+      $scope.getUploads = function(offset) {
+        if (angular.isDefined($scope.metadata)) {
+          delete($scope.metadata);
+        }
+        $scope.fetching= true;
+        Restangular.one("uploads").get({
+          ebt: $scope.date_picker_object.getStartDate(),
+          iet: $scope.date_picker_object.getEndDate(),
+          q: $scope.q,
+          column: $scope.sortMethod,
+          direction: $scope.sortOptions[$scope.sortMethod],
+          amount: $scope.amount,
+          offset: offset,
+          admin: $routeParams.admin
+        }).then(
+          function(data){
+            $scope.uploads = data.uploads;
+            $scope.metadata = data.metadata;
+            $scope.fetching= false;
+          },
+          function(res){
+            $scope.uploads = null;
+            $scope.metadata={total_count: 0};
+            toastr.error("Unable to load Uploads");
+            $scope.fetching= false;
+          }
+        );
+      };
+
+      $scope.makeOptions = function(upload)
+      {
+        combined_options = '';
+        if (upload.overwrite){
+          combined_options = 'overwrite';
+        }
+
+        if (upload.validate_only){
+          combined_options = combined_options + ', validate_only';
+        }
+        if (upload.human_review_needed){
+          combined_options = combined_options + ', human_review';
+        }
+
+        if (upload.read_only){
+          combined_options = combined_options + ', read_only';
+        }
+
+        if (combined_options.indexOf(',') == 0)
+        {
+          combined_options = combined_options.substr(2, combined_options.length);
+        }
+        return combined_options;
+      }
+    }]
+  };
+});

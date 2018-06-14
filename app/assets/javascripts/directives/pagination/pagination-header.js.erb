@@ -1,0 +1,27 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('paginationHeader', ['paginationService',function(paginationService) {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("pagination/header.html",type: :template)%>',
+    scope: {
+             metadata: '=',
+             offset: '=',
+             pagename: '=',
+             downloadable: '='
+           },
+    controller: ['$scope', '$rootScope', function($scope,$rootScope) {
+      $scope.page = paginationService;
+
+      $scope.$watch('metadata',function(metadata){
+        $scope.total_count = null;
+        if (angular.isDefined(metadata)) {
+          if (angular.isUndefined($scope.per_page)) {
+            $scope.per_page=$rootScope.setting_value('MAX_PER_PAGE');
+          }
+          $scope.total_count = $scope.metadata.total_count;
+        }
+      });
+    }]
+  };
+}]);

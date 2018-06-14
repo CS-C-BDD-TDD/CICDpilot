@@ -1,0 +1,181 @@
+app.directive('searchMarkings',function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("search_markings/search_markings.html",type: :template)%>',
+    scope: {
+    	markingSearchParams: '=',
+    	searchFn: '&'
+    },
+    controller: ['$scope', 'Restangular', '$rootScope', '$modal', '$location', 'Marking', function($scope,Restangular,$rootScope,$modal,$location,Marking) {
+      $scope.form={};
+
+      $scope.openModal = function(markingSearchParams, form) {
+        var modal;
+        
+        modal = $modal.open({
+          backdrop: 'static',
+          templateUrl: '<%=asset_path("search_markings/search_markings_modal.html",type: :template)%>',
+          size: 'med',
+          resolve: { 
+              getMarkingSearchParams: function() {return markingSearchParams},
+              getForm: function() {return form}
+          },
+          controller: ['$scope','$rootScope','$modalInstance', 'Marking', 'getMarkingSearchParams', 'getForm', function($scope,$rootScope,$modalInstance,Marking,getMarkingSearchParams,getForm) {
+          	$scope.markingSearchParams = getMarkingSearchParams;
+          	$scope.form = getForm;
+          	$scope.error = {};
+          	
+            $scope.showClass = $rootScope.setting_value('CLASSIFICATION');
+            $scope.Marking = Marking;
+          	$scope.showCommonFields = true;
+          	$scope.showStixMarkingFields = false;
+          	$scope.showIsaAssertionFields = false;
+          	$scope.showIsaPrivFields = false;
+          	$scope.showIsaMarkingFields = false;
+          	$scope.showAisConsentFields = false;
+          	$scope.showContributingSourceFields = false;
+          	$scope.showFurtherSharingFields = false;
+
+            // Created Add Date Picker Setup          	
+            $scope.date_picker_opts_created = {
+              format: 'YYYY-MM-DD',
+              defaultRanges: true,
+              startDate: $scope.form.created_at_ebt,
+              endDate: $scope.form.created_at_iet
+            };
+            
+            if (angular.isDefined(form.created_at_ebt)) {
+              $scope.created_range = $scope.form.created_at_ebt + " - " + $scope.form.created_at_iet;
+            }
+
+            $scope.dateRangePickerCreated = function(picker) {
+              $scope.date_picker_object_created = picker;
+              $scope.offset=0;
+              $scope.form.created_at_ebt=$scope.date_picker_object_created.getStartDate();
+              $scope.form.created_at_iet=$scope.date_picker_object_created.getEndDate();
+            };
+
+            // Public Released On Picker Setup
+            $scope.date_picker_opts_public_released = {
+              format: 'YYYY-MM-DD',
+              defaultRanges: true,
+              startDate: $scope.form.public_released_on_ebt,
+              endDate: $scope.form.public_released_on_iet
+            };
+            
+            if (angular.isDefined(form.public_released_on_ebt)) {
+              $scope.public_released_range = $scope.form.public_released_on_ebt + " - " + $scope.form.public_released_on_iet;
+            }
+
+            $scope.dateRangePickerPublicReleased = function(picker) {
+              $scope.date_picker_object_public_released = picker;
+              $scope.offset=0;
+              $scope.form.public_released_on_ebt=$scope.date_picker_object_public_released.getStartDate();
+              $scope.form.public_released_on_iet=$scope.date_picker_object_public_released.getEndDate();
+            };
+
+            // Classified On Picker Setup
+            $scope.date_picker_opts_classified = {
+              format: 'YYYY-MM-DD',
+              defaultRanges: true,
+              startDate: $scope.form.classified_on_ebt,
+              endDate: $scope.form.classified_on_iet
+            };
+            
+            if (angular.isDefined(form.classified_on_ebt)) {
+              $scope.classified_range = $scope.form.classified_on_ebt + " - " + $scope.form.classified_on_iet;
+            }
+
+            $scope.dateRangePickerClassified = function(picker) {
+              $scope.date_picker_object_classified = picker;
+              $scope.offset=0;
+              $scope.form.classified_on_ebt=$scope.date_picker_object_classified.getStartDate();
+              $scope.form.classified_on_iet=$scope.date_picker_object_classified.getEndDate();
+            };
+
+            $scope.close = function(result) {
+              $modalInstance.close(result);
+            };
+
+            $scope.clearFilters = function() {
+              // Since this is a reference to a variable at a higher level,
+              // we need to clear each field manually
+              for (var prop in form) { if (form.hasOwnProperty(prop)) { delete form[prop]; } }
+              
+              // Clear the date ranges
+              $scope.created_range = '';
+              $scope.public_released_range = '';
+              $scope.classified_range = '';
+            };
+            
+            $scope.save = function(form) {
+              if (angular.isDefined(form)) {
+                $scope.markingSearchParams.remote_object_id = form.remote_object_id;
+                $scope.markingSearchParams.remote_object_field = form.remote_object_field;
+                $scope.markingSearchParams.controlled_structure = form.controlled_structure;
+                $scope.markingSearchParams.created_at_ebt = form.created_at_ebt;
+                $scope.markingSearchParams.created_at_iet = form.created_at_iet;
+                $scope.markingSearchParams.cs_classification = form.cs_classification;
+                $scope.markingSearchParams.cs_countries = form.cs_countries;
+                $scope.markingSearchParams.cs_cui = form.cs_cui;
+                $scope.markingSearchParams.cs_entity = form.cs_entity;
+                $scope.markingSearchParams.cs_orgs = form.cs_orgs;
+                $scope.markingSearchParams.cs_shargrp = form.cs_shargrp;
+                $scope.markingSearchParams.cs_formal_determination = form.cs_formal_determination;
+                $scope.markingSearchParams.public_release = form.public_release;
+                $scope.markingSearchParams.public_released_by = form.public_released_by;
+                $scope.markingSearchParams.public_released_on_ebt = form.public_released_on_ebt;
+                $scope.markingSearchParams.public_released_on_iet = form.public_released_on_iet;
+                $scope.markingSearchParams.classified_by = form.classified_by;
+                $scope.markingSearchParams.classified_on_ebt = form.classified_on_ebt;
+                $scope.markingSearchParams.classified_on_iet = form.classified_on_iet;
+                $scope.markingSearchParams.classification_reason = form.classification_reason;
+                $scope.markingSearchParams.dsply = form.dsply;
+                $scope.markingSearchParams.idsrc = form.idsrc;
+                $scope.markingSearchParams.tenot = form.tenot;
+                $scope.markingSearchParams.netdef = form.netdef;
+                $scope.markingSearchParams.legal = form.legal;
+                $scope.markingSearchParams.intel = form.intel;
+                $scope.markingSearchParams.tearline = form.tearline;
+                $scope.markingSearchParams.opaction = form.opaction;
+                $scope.markingSearchParams.request = form.request;
+                $scope.markingSearchParams.anonymousaccess = form.anonymousaccess;
+                $scope.markingSearchParams.cisauses = form.cisauses;
+                $scope.markingSearchParams.re_custodian = form.re_custodian;
+                $scope.markingSearchParams.re_originator = form.re_originator;
+                $scope.markingSearchParams.consent = form.consent;
+                $scope.markingSearchParams.proprietary = form.proprietary;
+                $scope.markingSearchParams.ais_color = form.ais_color;
+                $scope.markingSearchParams.tlp_color = form.tlp_color;
+                $scope.markingSearchParams.organization_names = form.organization_names;
+                $scope.markingSearchParams.countries = form.countries;
+                $scope.markingSearchParams.administrative_areas = form.administrative_areas;
+                $scope.markingSearchParams.organization_info = form.organization_info;
+                $scope.markingSearchParams.is_federal = form.is_federal;
+                $scope.markingSearchParams.scope = form.sharing_scope;
+                $scope.markingSearchParams.effect = form.sharing_effect;
+                
+              	$modalInstance.close($scope.markingSearchParams);
+              } else {
+                $scope.error.empty="Must specify at least one search term"
+              }
+            };
+          }]
+        });
+        
+        modal.result.then(function(result) {
+          $('#created_input').data('daterangepicker').remove();
+          $('#released_input1').data('daterangepicker').remove();
+          $('#released_input2').data('daterangepicker').remove();
+          $('#classified_input').data('daterangepicker').remove();
+          if (angular.isDefined(result)) {
+            $scope.searchFn();
+          }
+        }, function () {
+        	// Nothing to do
+        });
+      };
+      
+    }]
+  };
+});

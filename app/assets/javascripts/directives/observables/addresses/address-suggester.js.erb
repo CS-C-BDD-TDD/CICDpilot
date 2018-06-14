@@ -1,0 +1,236 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('addressSuggester',['$rootScope',function($rootScope) {
+  return {
+    restrict: 'E',
+    scope: {
+      object:'=?',
+      fieldName: '@',
+      pagePath: '@',
+      showMarkings: '=',
+      portionMarking: '@',
+      address: '=?',
+      hideEdit: '=?'
+    },
+    templateUrl: '<%=asset_path("observables/addresses/address-suggester.html",type: :template)%>',
+
+    controller: ['$scope','Restangular', 'objectSuggesterService', '$location', function($scope, Restangular, objectSuggesterService, $location) {
+      $scope.availableTags = [];
+      $scope.suggestionsIndex = 0;
+      $scope.suggestions = [];
+      $scope.selectClick = false;
+      $scope.addName = "";
+      $scope.minAddressLength = 3;
+      $scope.errors = {};
+      $scope.matched = false;
+
+      if (angular.isUndefined($scope.hideEdit)){
+        $scope.hideEdit = false;
+      }
+
+      var initializer = $scope.$watch("object", function() {
+        if (angular.isDefined($scope.object)) {
+          if(!$rootScope.is_undefined_or_null($scope.object[$scope.fieldName]) && (angular.isDefined($scope.object.addresses) || angular.isDefined($scope.object.address) || angular.isDefined($scope.address))){
+            var addressobj = {};
+            if (angular.isDefined($scope.address)){
+              addressobj = $scope.address;
+            }
+            else if (angular.isDefined($scope.object.addresses)) {
+              addressobj = _.find($scope.object.addresses, function(address) { return address.address.toLowerCase() == $scope.object[$scope.fieldName].toLowerCase() } );
+            }
+            else if (angular.isDefined($scope.object.address)) {
+              var addressobj = $scope.object.address
+            }
+
+            $scope.object[$scope.fieldName + "_address"] = addressobj;
+
+            $scope.errors = {};
+            $scope.matched = true;
+            initializer();
+          }
+        }
+      });
+
+      $scope.onChange = function(addName) {
+        //reset the list of suggestions if the addName is length zero && exit
+        if(!addName.length) {
+          $scope.suggestions = [];
+          return;  
+        }
+
+        if (addName.length < $scope.minAddressLength) {
+          return;
+        }
+
+        $scope.suggestionsIndex = 0;
+
+        allAddsPromise = Restangular.one('addresses').get({all: true});
+
+        if (angular.isDefined($scope.object)){
+          allAddsPromise.then(function(allAdds) {
+            $scope.suggestions = _.filter(allAdds.addresses,function(allAdd) {
+              alladdName = allAdd.address_input.toLowerCase().trim();
+
+              return _.include(alladdName, addName.toLowerCase().trim());
+            });
+
+          });
+        }
+      };
+      
+      $scope.resetSuggestions = function() {
+        $scope.suggestionsIndex = 0;
+        $scope.suggestions = [];
+      };
+
+      //This whole event handler is basically dedicated to maintaining an index on the bounds
+      //of the list of suggestions.  When the enter key is pressed, we pluck the indexed
+      //element and add it to the list of objects.
+      
+      $scope.onKeyup = function(event) {
+        keyCodes = {
+          arrowUp: 38,
+          arrowDown: 40,
+          enter: 13,
+          space: 32,
+          backspace: 8,
+          del: 46,
+        };
+
+        if (angular.isDefined($scope.object)){
+
+          if(event.keyCode == keyCodes.enter && $scope.suggestions.length > 0) {
+            suggestion = $scope.suggestions[$scope.suggestionsIndex];
+            $scope.object[$scope.fieldName] = suggestion.address_input;
+            $scope.object[$scope.fieldName + "_address"] = suggestion;
+
+            $scope.matched = true;
+            $scope.showMarkings[$scope.fieldName] = 0;
+            $scope.selectClick = true;
+
+            $scope.addName = '';
+            $scope.resetSuggestions();
+          };
+        }
+
+        if(event.keyCode == keyCodes.arrowDown && $scope.suggestions.length > 0) {
+          if($scope.suggestionsIndex >= $scope.suggestions.length-1) {
+            $scope.suggestionsIndex = $scope.suggestions.length-1
+            return;
+          }
+          $scope.suggestionsIndex++;
+        };
+
+        if(event.keyCode == keyCodes.arrowUp && $scope.suggestions.length > 0) {
+          if($scope.suggestionsIndex < 1) {
+            $scope.suggestionsIndex = 0;
+            return;
+          }
+          $scope.suggestionsIndex--;
+        }
+
+        if (!_.isEmpty($scope.errors)){
+          $scope.errors = {};
+        }
+      }
+
+      $scope.onAddClick = function(suggestion) {
+        if (angular.isDefined($scope.object)){
+          $scope.object[$scope.fieldName] = suggestion.address_input;
+          $scope.object[$scope.fieldName + "_address"] = suggestion;
+
+          $scope.matched = true;
+          $scope.showMarkings[$scope.fieldName] = 0;
+          $scope.addName = '';
+        }
+
+        $scope.resetSuggestions();
+        $scope.selectClick = false;
+      }
+
+      $scope.onRemoveClick = function(add) {
+        if (angular.isDefined($scope.object)){
+          $scope.object[$scope.fieldName] = null;
+          $scope.object[$scope.fieldName + "_address"] = null;
+          $scope.showMarkings[$scope.fieldName] = 0;
+          $scope.matched = false;
+          $scope.addName = '';
+          $scope.errors = {};
+        }
+
+        $scope.resetSuggestions();
+      }
+
+      $scope.updateSuggestionByMouse = function(index) {
+        $scope.suggestionsIndex = index;
+      }
+
+      $scope.stopBlur = function() {
+        $scope.selectClick = true;
+      }
+
+      $scope.blur = function() {
+        if (!$scope.selectClick){
+          if ($rootScope.is_undefined_or_null($scope.addName)){
+            $scope.onRemoveClick();
+          } else {
+            $scope.matched = addIfMatching();
+            if (!$scope.matched){
+              createNewAddress($scope.addName);
+            }
+          }
+
+        }
+      }
+
+      // finish suggestion handling
+
+      function addIfMatching(){
+        if (angular.isDefined($scope.object) && $scope.suggestions.length == 1 && angular.isDefined($scope.suggestions[0]) && $scope.suggestions[0].address_input.toLowerCase() === $scope.addName){
+          $scope.object[$scope.fieldName] = $scope.suggestions[0].address_input;
+          $scope.object[$scope.fieldName + "_address"] = $scope.suggestions[0];
+
+          $scope.errors = {};
+          return true;
+        }
+        return false;
+      }
+
+      function createNewAddress(name) {
+        $scope.object[$scope.fieldName] = name;
+        $scope.showMarkings[$scope.fieldName] = 1;
+
+        $scope.resetSuggestions();
+        $scope.errors.new = ["If you do not set the Custom ISA Markings, The new Address markings will clone from the Object Markings."];
+      };
+
+      $scope.editAddress = function() {
+        objectSuggesterService.set_data($scope.object);
+        objectSuggesterService.set_params({"current_page": 0, "path": $scope.pagePath + $scope.object.cybox_object_id + "/edit", "portion_marking_col": $scope.portionMarking});
+        $scope.errors.edit = [];
+        $scope.showMarkings[$scope.fieldName] = 0;
+
+        // use the address from the saved address from suggestions to go to the edit page
+        // otherwise check the objects addresses and try to find it.
+        if (angular.isDefined($scope.object) && angular.isDefined($scope.object[$scope.fieldName + "_address"])) {
+          $location.path('/addresses/' + $scope.object[$scope.fieldName + "_address"].cybox_object_id + "/edit");
+        } else {
+          var addressIndex = _.findIndex($scope.object.addresses, function(address){
+            return address.address === $scope.object[$scope.fieldName];
+          })
+
+          if (addressIndex > -1){
+            $location.path('/addresses/' + $scope.object.addresses[addressIndex].cybox_object_id + "/edit");
+          } else {
+            $scope.errors.edit = ["Can not find Address to edit."]
+          }
+        }
+
+        $scope.resetSuggestions();
+      };
+
+    }]
+
+  };
+
+}])

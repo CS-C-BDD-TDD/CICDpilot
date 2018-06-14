@@ -1,0 +1,28 @@
+app.service('DnsRecord', ['$filter', function($filter){
+  return {
+    dns_record_types: <%= DnsRecord::DNSRecordTypes %>,
+    get_value: function(dns_record){
+      if (angular.isUndefined(dns_record)){ return ''; }
+      var value = '';
+      if (angular.isDefined(dns_record.address)) {
+        value+='Address: '+dns_record.address + ' | ';
+      }
+      else if (angular.isDefined(dns_record.address_value_normalized)){
+        value+='Address: '+dns_record.address_value_normalized + ' | ';
+      }
+
+      value+='Address Class: '+dns_record.address_class;
+      value+=' | ';
+
+      if (angular.isDefined(dns_record.domain)) {
+        value+='Domain: '+dns_record.domain + ' | ';
+      }
+      else if (angular.isDefined(dns_record.domain_normalized)){
+        value+='Domain: '+dns_record.domain_normalized + ' | ';
+      }
+      value+='Entry Type: '+dns_record.entry_type;
+      return $filter('prefixWithPortionMarking')(value,
+          dns_record.portion_marking);
+    }
+  };
+}]);

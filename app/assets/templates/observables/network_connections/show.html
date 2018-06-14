@@ -1,0 +1,169 @@
+<div ng-class="{'ciap_show_spinner_wrapper' : fetching}">  
+
+<div class="page-header">
+  <h1>
+    {{networkconnection.display_name | prefixWithPortionMarking: networkconnection.portion_marking}}
+    <small ng-show="networkconnection.read_only">
+      <span style="margin-left: 10px" class="label label-warning arrowed arrowed-right">
+        <span class="white">Read Only</span>
+      </span>
+    </small>
+    <small ng-show="networkconnection.is_ciscp">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">CISCP</span>
+      </span>
+    </small>
+    <small ng-show="networkconnection.is_mifr">
+      <span class="ciap_mleft_10 label label-primary arrowed arrowed-right">
+        <span class="white">MIFR</span>
+      </span>
+    </small>    
+    <span class="pull-right">
+      <a ng-href="#/network_connections/{{networkconnection.cybox_object_id | encodeURIComponent}}/edit" class="btn btn-info no-radius btn-xs" ng-show="canModify(networkconnection) && networkconnection.read_only == false"><i class="ace-icon fa fa-pencil-square-o bigger-160"></i> Edit</a>
+    </span>
+  </h1>
+  <div class="space-18"></div>
+  <span class="pull-left" ng-show="canAny(['create_remove_badge_status','view_badge_status'])">
+    <badge-statuses-table badge-statuses="networkconnection.badge_statuses" audits="networkconnection.audits" parent-id="networkconnection.guid" parent-class="NetworkConnection"></badge-statuses-table>
+  </span>
+  <div class="space-18"></div>
+</div>
+
+<p class="pull-right">
+</p>
+
+<div class="profile-user-info profile-user-info-striped">
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Source {{networkconnection.source_socket_address ? "Address" : "Hostname"}} </div>
+    <div class="profile-info-value">
+      <span>{{networkconnection.source_socket_address || networkconnection.source_socket_hostname | prefixWithPortionMarking: networkconnection.portion_marking:networkconnection.source_socket_address?networkconnection.source_socket_address_c:networkconnection.source_socket_hostname_c}}</span>
+      <field-markings-show markings="networkconnection.stix_markings" fieldname="source_socket_address" fieldtext="'Source Socket Address'" object-level="true"></field-markings-show>
+    </div>
+  </div>
+
+  <div class="profile-info-row" ng-show="networkconnection.source_socket_address && networkconnection.source_socket_is_spoofed">
+    <div class="profile-info-name"> Source is spoofed </div>
+    <div class="profile-info-value">
+      <span>{{networkconnection.source_socket_is_spoofed}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Source Port </div>
+    <div class="profile-info-value">
+      <span>{{networkconnection.source_socket_port | prefixWithPortionMarking: networkconnection.portion_marking:networkconnection.source_socket_port_c}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Destination {{networkconnection.dest_socket_address ? "Address" : "Hostname"}} </div>
+    <div class="profile-info-value">
+      <span>{{networkconnection.dest_socket_address || networkconnection.dest_socket_hostname | prefixWithPortionMarking: networkconnection.portion_marking:networkconnection.dest_socket_address?networkconnection.dest_socket_address_c:networkconnection.dest_socket_hostname_c}}</span>
+      <field-markings-show markings="networkconnection.stix_markings" fieldname="dest_socket_address" fieldtext="'Destination Socket Address'" object-level="true"></field-markings-show>
+    </div>
+  </div>
+
+  <div class="profile-info-row" ng-show="networkconnection.dest_socket_address && networkconnection.dest_socket_is_spoofed">
+    <div class="profile-info-name"> Destination is spoofed </div>
+    <div class="profile-info-value">
+      <span>{{networkconnection.dest_socket_is_spoofed}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Destination Port </div>
+    <div class="profile-info-value">
+      <span>{{networkconnection.dest_socket_port | prefixWithPortionMarking: networkconnection.portion_marking:networkconnection.dest_socket_port_c}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Layer 3 Protocol </div>
+    <div class="profile-info-value">
+      <span>{{networkconnection.layer3_protocol | prefixWithPortionMarking: networkconnection.portion_marking:networkconnection.layer3_protocol_c}}</span>
+      <field-markings-form sets="sets" object="networkconnection" fieldname="layer3_protocol"></field-markings-form>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Layer 4 Protocol </div>
+    <div class="profile-info-value">
+      <span>{{networkconnection.layer4_protocol | prefixWithPortionMarking: networkconnection.portion_marking:networkconnection.layer4_protocol_c}}</span>
+      <field-markings-form sets="sets" object="networkconnection" fieldname="layer4_protocol"></field-markings-form>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Layer 7 Protocol </div>
+    <div class="profile-info-value">
+      <span>{{networkconnection.layer7_protocol | prefixWithPortionMarking: networkconnection.portion_marking:networkconnection.layer7_protocol_c}}</span>
+      <field-markings-form sets="sets" object="networkconnection" fieldname="layer7_protocol"></field-markings-form>
+    </div>
+  </div>
+  
+  <div class="profile-info-row" ng-show='networkconnection.feeds'>
+    <div class="profile-info-name"> Disseminated Feeds </div>
+    <div class="profile-info-value">
+      <span>{{networkconnection.feeds}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Created 
+    	<span class="ace-icon ciap_fa_icon_sm fa-stack" tooltip="Not Exportable Field">
+      		<i class="fa fa-ban fa-stack-2x"> </i> 
+ 			<i class="fa fa-download fa-stack-1x"> </i> 
+    	</span>
+    </div>
+    <div class="profile-info-value">
+      <span>{{networkconnection.created_at | date:"medium"}}</span>
+    </div>
+  </div>
+
+  <div class="profile-info-row">
+    <div class="profile-info-name"> Total Sightings </div>
+    <div class="profile-info-value">
+      <span>{{networkconnection.total_sightings}}</span>
+    </div>
+  </div>
+  <downgrade-request-ids observable="networkconnection"></downgrade-request-ids>
+</div>
+
+<div ng-show="networkconnection.stix_markings.length">
+  <div class="space-12"></div>
+  <markings-table markings="networkconnection.stix_markings"></markings-table>
+</div>
+
+<div class="space-12" ng-show="networkconnection.layer_seven_connections.length"></div>
+
+<div ng-show="networkconnection.layer_seven_connections.length">
+  <layer-seven-connections-table layer-seven-connections="networkconnection.layer_seven_connections"></layer-seven-connections-table>
+</div>
+
+<div class="space-12" ng-show="networkconnection.socket_addresses.length"></div>
+
+<socket-address-table socket-addresses="networkconnection.socket_addresses" ng-show="networkconnection.socket_addresses.length"></socket-address-table>
+
+<div class="space-12"></div>
+
+<div ng-show="networkconnection.indicators.length">
+  <indicator-table indicators="networkconnection.indicators"></indicator-table>
+</div>
+
+<div class="space-12" ng-show="networkconnection.course_of_actions.length"></div>
+<course-of-actions-table course_of_actions="networkconnection.course_of_actions" show_table=showTable addrelated="false" ng-show="networkconnection.course_of_actions.length"></course-of-actions-table>
+
+<div ng-show="networkconnection.stix_packages.length > 0">
+  <div class="space-12"></div>
+  <package-table packages="networkconnection.stix_packages"></package-table>
+</div>
+
+<div class="space-12"></div>
+
+<audits-table audits="networkconnection.audits"></audits-table>
+
+<div class="space-12"></div>
+
+</div>
+
+<show-spinner> </show-spinner>

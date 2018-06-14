@@ -1,0 +1,18 @@
+app.controller('LinksShowController', ['$scope','$location','$routeParams','$rootScope','Restangular','Link',
+  function ($scope, $location, $routeParams, $rootScope, Restangular, Link) {
+    $scope.fetching = true;
+    Restangular.one("/links",$routeParams.id).get().then(function(data){
+      $scope.link = data;
+      if (angular.isDefined($scope.link) && angular.isDefined($scope.link.ind_course_of_actions)){
+        $scope.link.course_of_actions = $scope.link.course_of_actions.concat($scope.link.ind_course_of_actions);
+      }
+      $scope.showTable = {coa_data: true, collapse: false};
+      $scope.link.uris = [data.uri];
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'Links',link:'#/links',icon:'fa-group'},{text:Link.get_value(data),link:'#/links/'+encodeURIComponent(data.cybox_object_id)}];
+      $scope.fetching = false;
+    },function(res){
+      toastr.error("Unable to load Link");
+      $scope.fetching = false;
+    });
+  }
+]);

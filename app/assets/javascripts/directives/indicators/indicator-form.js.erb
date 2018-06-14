@@ -1,0 +1,277 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('indicatorForm', ['paginationService',function(paginationService) {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("indicators/indicator-form.html",type: :template)%>',
+    scope: {
+      indicator: '=',
+      save: '=',
+      editform:'='
+    },
+    controller: ['$scope', 'Restangular','Indicator', 'Observable', '$rootScope', '$location', 'Classification', function($scope, Restangular, Indicator, Observable, $rootScope,$location,Classification){
+      $scope.page = paginationService;
+      $scope.Indicator = Indicator;
+      $scope.canAny = $rootScope.canAny;
+      $scope.showIndicatorBrowser = false;
+      $scope.can = $rootScope.can;
+      $scope.observableTypes = [];
+      $scope.sets = [];
+      $scope.show_classifications = $rootScope.setting_value('CLASSIFICATION');
+      $scope.current_page = 0;
+
+      // toggles for field level markings.
+      $scope.title_toggle = {toggle: 0, clear: 0};
+      $scope.des_toggle = {toggle: 0, clear: 0};
+      $scope.type_toggle = {toggle: 0, clear: 0};
+      $scope.ref_toggle = {toggle: 0, clear: 0};
+      $scope.down_toggle = {toggle: 0, clear: 0};
+
+      // Cleanup
+      $scope.$on('$destroy', function() {
+        $('.daterangepicker').remove();
+      });
+            
+      // Valid Time Date Picker options
+      $scope.date_picker_start_opts = {
+        startDate: moment().utc().format('MM/DD/YYYY'),
+        format: 'MM/DD/YYYY',
+        singleDatePicker: true
+      };
+
+      $scope.date_picker_end_opts = {
+        startDate: moment().utc().format('MM/DD/YYYY'),
+        format: 'MM/DD/YYYY',
+        singleDatePicker: true
+      };
+
+      $scope.dateRangePickerStartTime = function(picker) {
+        $scope.indicator.start_time = picker.getStartDate();
+        $scope.indicator.start_time_precision = 'day';
+
+        var date = moment(picker.getStartDate()).utc().format('MM/DD/YYYY');
+
+        $scope.date_picker_end_opts.minDate = date;
+
+        if (angular.isUndefined($scope.indicator.end_time) || $scope.indicator.end_time==null || $scope.indicator.end_time.length==0) {
+          $scope.date_picker_end_opts.startDate = $scope.date_picker_end_opts.minDate;
+        } else {
+            if (Date.parse($scope.indicator.start_time) > Date.parse($scope.indicator.end_time)) {
+                // If we have an already existing end date and the start date is set later than
+                // the current end date, set the end date the same as the start date
+                $scope.indicator.end_time=picker.getStartDate();
+                $scope.date_picker_end_opts.startDate = $scope.date_picker_end_opts.minDate;
+                $('#end_time_picker').val($scope.indicator.start_time.substr(5,2)+'/'+$scope.indicator.start_time.substr(8,2)+'/'+$scope.indicator.start_time.substr(0,4));
+            } else {
+                $scope.date_picker_end_opts.startDate = moment($scope.indicator.end_time).utc().format('MM/DD/YYYY');
+            }
+        }
+        $scope.date_picker_end_opts=JSON.parse(JSON.stringify($scope.date_picker_end_opts));
+      };
+
+      $scope.dateRangePickerEndTime = function(picker) {
+        $scope.indicator.end_time = picker.getStartDate();
+        $scope.indicator.end_time_precision = 'day';
+      };
+
+      $scope.clear_start_date = function() {
+        $scope.indicator.start_time = null;
+        $scope.indicator.start_time_precision = null;
+        $scope.date_picker_start_opts.startDate = moment().utc().format('MM/DD/YYYY');
+        $scope.date_picker_end_opts.minDate = undefined;
+        if (angular.isUndefined($scope.indicator.end_time) || $scope.indicator.end_time==null || $scope.indicator.end_time.length==0) {
+          $scope.date_picker_end_opts.startDate = moment().utc().format('MM/DD/YYYY');
+        };
+        $scope.date_picker_start_opts = JSON.parse(JSON.stringify($scope.date_picker_start_opts));
+        $scope.date_picker_end_opts = JSON.parse(JSON.stringify($scope.date_picker_end_opts));
+        $('#start_time_picker').val('');
+      }
+
+      $scope.clear_end_date = function() {
+        $scope.indicator.end_time = null;
+        $scope.indicator.end_time_precision = null;
+        $scope.date_picker_end_opts.startDate = moment().utc().format('MM/DD/YYYY');
+        $scope.date_picker_end_opts = JSON.parse(JSON.stringify($scope.date_picker_end_opts));
+        $('#end_time_picker').val('');
+      }
+
+      Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+          $scope.sets = data;
+      },function(res){
+          toastr.error("Unable to load ACS Set List");
+      });
+      var checkIndicatorType = function() {
+          var types = Observable.valid_types()[$scope.indicator.indicator_type];
+          if (angular.isDefined(types) && types.length <= 0) {
+              $scope.observableTypes = Object.keys(Observable.type_to_object_name);
+          }
+          else if (angular.isDefined(types)) {
+              $scope.observableTypes = types;
+          }
+          else {
+              $scope.observableTypes = [];
+          }
+          if ($scope.indicator.observables.length > 0) {
+
+              if (_.findIndex($scope.observableTypes,function(e) {return e == $scope.indicator.observables[0].remote_object_type}) <= -1) {
+                  toastr.warning("Mismatch Indicator and Observable Type");
+                  if (angular.isUndefined($scope.indicator.warnings) || $scope.indicator.warnings == null){
+                      $scope.indicator.warnings = {};
+                  }
+                  $scope.indicator.warnings.indicator_type = ['Warning: The selected Indicator Type is invalid for the linked Observable']
+              }
+              else {
+                  if (angular.isDefined($scope.indicator.warnings)){
+                      $scope.indicator.warnings.indicator_type = [];
+                  }
+              }
+
+          }
+      }
+
+      $scope.cancel = function() {
+        if (angular.isDefined($scope.indicator.stix_id) && $scope.indicator.stix_id !== 'NEW-INDICATOR'){
+          $location.path('/indicators/' + $scope.indicator.stix_id);
+        } else {
+          $location.path('/indicators');
+        }
+      };
+
+
+      $scope.changeObservableTypes = function(){
+          checkIndicatorType();
+      }
+
+      $scope.$watch("indicator",function(newVal,OldVal){
+        if (angular.isDefined(newVal)){
+          checkIndicatorType();
+          if (angular.isUndefined(newVal.kill_chain_phases)) {
+            newVal.kill_chain_phases=[];
+          }
+          var start_change=false;
+          var end_change=false;
+          if (angular.isDefined(newVal.start_time) && newVal.start_time != null && newVal.start_time.length!=0) {
+            var date = moment(newVal.start_time).utc().format('MM/DD/YYYY');
+            $scope.date_picker_start_opts.startDate = date;
+            $scope.date_picker_end_opts.minDate = date;
+            $scope.date_picker_end_opts.startDate = date;
+            start_change=true;
+            end_change=true;
+          }
+          if (angular.isDefined(newVal.end_time) && newVal.end_time != null && newVal.end_time.length!=0) {
+            var date = moment(newVal.end_time).utc().format('MM/DD/YYYY');
+            $scope.date_picker_end_opts.startDate = date;
+            end_change=true;
+          } else {
+            if (Date.parse(newVal.start_time) > new Date().setUTCHours(0,0,0,0)) {
+              $scope.date_picker_end_opts.startDate = moment(newVal.start_time).utc().format('MM/DD/YYYY');
+              end_change=true;
+            }
+          }
+          if (start_change) {
+            $scope.date_picker_start_opts=JSON.parse(JSON.stringify($scope.date_picker_start_opts));
+          }
+          if (end_change) {
+            $scope.date_picker_end_opts=JSON.parse(JSON.stringify($scope.date_picker_end_opts));
+          }
+        }
+      });
+
+      $scope.linkAnObservable = function(observable,done) {
+      // At present, this is only linking 1 observable.   Code will need to be updated to make this work properly
+        observable.stix_indicator_id=$scope.indicator.stix_id;
+        if (observable.stix_indicator_id==='NEW-INDICATOR') {
+          done(observable);
+        } else {
+          Restangular.one('/observables').customPOST(observable).then(function(data){
+            done(data);
+          },function(res){ 
+            if(angular.isDefined(res.data) && angular.isDefined(res.data.errors) && angular.isDefined(res.data.errors.base) && res.data.errors.base.length > 0){
+              toastr.error(res.data.errors.base.toString());
+            }
+            $rootScope.$emit('reloadObservableSelect',observable.remote_object_type);
+            done(false); 
+          });
+        }
+      };
+
+      $scope.unlinkAnObservable = function(observable,unlink_justification,done) {
+        Restangular.one('/observables/'+observable.cybox_object_id).remove({"justification":unlink_justification}).then(
+          function() {
+            delete(observable.value);
+            done(true);
+          },
+          function() {
+            done(false);
+          }
+        );
+      };
+      $scope.start_save = function() {
+          $scope.is_saving = true;
+          $scope.current_page = 0;
+          $scope.indicator.errors = {};
+          if ($rootScope.is_undefined_or_null($scope.indicator.description)) {
+              $scope.indicator.errors.description = [" can't be blank"];
+          }
+          if ($rootScope.is_undefined_or_null($scope.indicator.title)) {
+              $scope.indicator.errors.title = [" can't be blank"];
+          }
+          if ($rootScope.is_undefined_or_null($scope.indicator.indicator_type)) {
+              $scope.indicator.errors.indicator_type = [" can't be blank"];
+          }
+          /*
+          Rules for when CLASSIFICATION is true
+
+          and ACS Set or Classification must be selected. When Classification is above unclassified, 
+          details must be filled out.
+          */
+          if ($rootScope.setting_value('CLASSIFICATION') == true){
+            $scope.indicator.stix_markings_attributes = Classification.check_classification_details($scope.indicator.stix_markings_attributes);
+            var problems = $scope.indicator.stix_markings_attributes.problems;
+            var classification_check = $scope.indicator.stix_markings_attributes.classification_check;
+            /*
+            If customized was not clicked and ISA Assertion Structure is not defined.
+            In this case we need to make sure that an ACS Set is selected because an ACS Set is required to have a classification.
+            */
+            var obj_level_index = _.findIndex($scope.indicator.stix_markings_attributes, function(sm){
+              return angular.isDefined(sm) && ($rootScope.is_undefined_or_null(sm.remote_object_field) || (angular.isDefined(sm.remote_object_field) && sm.remote_object_field == null)) && angular.isDefined(sm.isa_assertion_structure_attributes);
+            })
+            if ($rootScope.is_undefined_or_null($scope.indicator.stix_markings_attributes[obj_level_index]) && $rootScope.is_undefined_or_null($scope.indicator.acs_set_id)) {
+              $scope.indicator.errors.acs_set_id = ["You either need to associate an ACS Set or Click Customize and set a Classification"];
+              if (angular.isDefined($scope.indicator.stix_markings_attributes[obj_level_index].isa_assertion_structure_attributes)){
+                $scope.indicator.stix_markings_attributes[obj_level_index].isa_assertion_structure_attributes.errors.acs_set_id = ["You either need to associate an ACS Set or set a Classification"];
+              }
+              classification_check = true;
+            }
+          }
+          if (Object.keys($scope.indicator.errors).length > 0 || classification_check) {
+              $scope.is_saving = false;
+              toastr.error("Unable to save indicator");
+              $("html, body").animate({ scrollTop: 0 }, 200);
+              if(classification_check){
+                  for (var i = 0; i < problems.length; i++){
+                      if(problems[i].field == null){
+                          toastr.error("Unable to save due to classification errors in the Object level markings");
+                      } else {
+                          toastr.error("Unable to save due to classification errors in the " + problems[i].field + " markings");
+                      }
+                  }
+              }
+              return;
+          }
+          $scope.save($scope.indicator, function(){
+              $scope.is_saving = false;
+          });
+      }
+
+      $scope.removeTtp = function(ttp) {
+        _.remove($scope.indicator.ttps, function(t){
+          if (t == ttp) {
+            return t;
+          }
+        });
+      };
+
+    }]
+  };
+}]);

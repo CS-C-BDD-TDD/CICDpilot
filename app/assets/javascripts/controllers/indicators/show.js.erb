@@ -1,0 +1,268 @@
+ <% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.controller('IndicatorsShowController', ['$scope','$routeParams','$rootScope','Restangular', '$location','Indicator','Color','Observable','FileUploader', 'Marking', function ($scope, $routeParams, $rootScope, Restangular, $location, Indicator,Color,Observable,FileUploader,Marking) {
+  $scope.fetching = true;
+  $scope.SYSTEM_MODE = $rootScope.SYSTEM_MODE;
+  $scope.scrollTo = $rootScope.scrollTo;
+  $scope.Indicator = Indicator;
+  $scope.Color = Color;
+  $scope.showAttachmentsTable = true;
+  $scope.showScoringTable = true;
+  $scope.show_classifications = $rootScope.setting_value('CLASSIFICATION');
+  $scope.linker = {selected_coas: []};
+  $scope.showTable = {coa_data: true, collapse: false};
+
+  Restangular.one('/indicators/'+$routeParams.id).get().then(function(data){
+    $scope.Indicator = Indicator;
+    $scope.indicator = Marking.translate_existing_attributes(data);
+
+    // init additional attachment fields
+    $scope.upload_ref_title = "";
+    $scope.upload_ref_num = "";
+    $scope.upload_ref_link = "";
+
+    // Init scoring values
+    $scope.total_score = 0;
+    $scope.export_recommendation = "";
+    
+    // we need to calculate the total score of the indicator
+    if (angular.isDefined($scope.indicator.timelines)){
+      $scope.total_score += getScoreValue($scope.Indicator.timelines, $scope.indicator.timelines);
+    }
+
+    if (angular.isDefined($scope.indicator.source_of_report)){
+      $scope.total_score += getScoreValue($scope.Indicator.sourceOfReport, $scope.indicator.source_of_report);
+    }
+
+    if (angular.isDefined($scope.indicator.target_of_attack)){
+      $scope.total_score += getScoreValue($scope.Indicator.targetOfAttack, $scope.indicator.target_of_attack);
+    }
+
+    if (angular.isDefined($scope.indicator.target_scope)){
+      $scope.total_score += getScoreValue($scope.Indicator.targetScope, $scope.indicator.target_scope);
+    }
+
+    if (angular.isDefined($scope.indicator.actor_attribution)){
+      $scope.total_score += getScoreValue($scope.Indicator.actorAttribution, $scope.indicator.actor_attribution);
+    }
+
+    if (angular.isDefined($scope.indicator.actor_type)){
+      $scope.total_score += getScoreValue($scope.Indicator.actorType, $scope.indicator.actor_type);
+    }
+
+    if (angular.isDefined($scope.indicator.modus_operandi)){
+      $scope.total_score += getScoreValue($scope.Indicator.modusOperandi, $scope.indicator.modus_operandi);
+    }
+
+    // then after that we will have a recommendation to export based on the score.
+    if ($scope.total_score >= 51 && $scope.total_score <= 70){
+      $scope.export_recommendation = "E3A";
+    } else if ($scope.total_score >= 21 && $scope.total_score <= 50){
+      $scope.export_recommendation = "E2";
+    } else {
+      $scope.export_recommendation = "No Recommendation for Export";
+    }
+
+    // Currently, the related indicators do NOT account for classification, and will show
+    // ALL matching indicators.  If classification does need to be taken into consideration,
+    // uncomment the following lines.
+    //if ($rootScope.setting_value('CLASSIFICATION')) {
+    //  $scope.indicator.stix_markings_attributes.forEach(function(marking) {
+    //    if (angular.isDefined(marking.isa_assertion_structure)) {
+    //      marking.isa_assertion_structure_attributes=marking.isa_assertion_structure;
+    //    };
+    //  });
+    //};
+
+    _.forEach($scope.indicator.stix_markings,function(stix_marking) {
+        if (stix_marking.tlp_marking_structure != null) {
+            return $scope.indicator.marking_color = stix_marking.tlp_marking_structure.color;
+        }
+    });
+
+    $scope.can = $rootScope.can
+    $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                              {text:'All Indicators',link:'#/indicators',icon:'fa-thumb-tack'},
+                              {text:data.title,link:'#/indicators/'+encodeURIComponent(data.stix_id)}];
+    i = data;
+    if (i.observables.length) {
+      if (i.observables[0].address) {
+        i.observables[0].addresses=[i.observables[0].address];
+      }
+      if (i.observables[0].domain) {
+        i.observables[0].domains=[i.observables[0].domain];
+      }
+      if (i.observables[0].dns_query) {
+        i.observables[0].dns_queries=[i.observables[0].dns_query];
+      }
+      if (i.observables[0].dns_record) {
+        i.observables[0].dns_records=[i.observables[0].dns_record];
+      }
+      if (i.observables[0].email_message) {
+        i.observables[0].email_messages=[i.observables[0].email_message];
+      }
+      if (i.observables[0].file) {
+        i.observables[0].files=[i.observables[0].file];
+      }
+      if (i.observables[0].http_session) {
+        i.observables[0].http_sessions=[i.observables[0].http_session];
+      }
+      if (i.observables[0].hostname) {
+        i.observables[0].hostnames=[i.observables[0].hostname];
+      }
+      if (i.observables[0].link) {
+        i.observables[0].links=[i.observables[0].link];
+      }
+      if (i.observables[0].mutex) {
+        i.observables[0].mutexes=[i.observables[0].mutex];
+      }
+      if (i.observables[0].network_connection) {
+        i.observables[0].network_connections=[i.observables[0].network_connection];
+      }
+      if (i.observables[0].port) {
+        i.observables[0].ports=[i.observables[0].port];
+      }
+      if (i.observables[0].registry) {
+        i.observables[0].registries=[i.observables[0].registry];
+      }
+      if (i.observables[0].socket_address) {
+        i.observables[0].socket_addresses=[i.observables[0].socket_address];
+      }
+      if (i.observables[0].uri) {
+        i.observables[0].uris=[i.observables[0].uri];
+      }
+    }
+    
+    $("html, body").animate({ scrollTop: 0 }, 200);
+    $scope.fetching = false;
+
+  },function(res){
+    $scope.fetching = false;
+    toastr.error(res.data.errors[0]);
+    $location.path('/indicators');
+  });
+
+  function getScoreValue(toLook, name){
+    var obj = _.find(toLook ,{"name": name});
+
+    if (angular.isDefined(obj)){
+      return obj.score;
+    } else {
+      return 0;
+    }
+  }
+
+  $scope.mismatchedType = function() {
+      if (angular.isDefined($scope.indicator) && angular.isDefined($scope.indicator.observables) && $scope.indicator.observables != [] && angular.isDefined($scope.indicator.observables[0])) {
+          var types = Observable.valid_types()[$scope.indicator.indicator_type];
+          if (angular.isDefined(types) && types.length <= 0) {
+            types = Object.keys(Observable.type_to_object_name);
+          }
+          return _.findIndex(types,function(e) {return e == $scope.indicator.observables[0].remote_object_type}) <= -1;
+      }
+      else {
+          return false;
+      }
+  }
+  $scope.deleteIndicator = function(indicator){
+    var justification = prompt("Justification for deleting indicator");
+    if (justification){
+      $scope.fetching = true;
+      Restangular.one("indicators/"+indicator.stix_id).remove().then(function(data){
+        toastr.success("Indicator deleted");
+        $location.path('/indicators');
+        $scope.fetching = false;
+      },function(res){
+        toastr.error("Could not remove indicator: "+res.data.errors[0]);
+        $scope.fetching = false;
+      });
+    }
+  };
+
+  $scope.delete_attachment = function(attachment){
+    Restangular.one("uploads/attachment/" + attachment.id).remove().then(function(data){
+      $scope.indicator = data;
+      toastr.success("Attachment deleted");
+    },function(res){
+      toastr.error("Could not remove Attachment: "+res.data.errors[0]);
+    });
+  };
+
+  <% url_root = (Rails.configuration.action_controller.relative_url_root||"") %>
+  $scope.uploader = new FileUploader({url: "<%= url_root %>/uploads/attachment", queueLimit: 2});
+
+  $scope.uploader.onBeforeUploadItem = function(fileItem) {
+     fileItem.formData.push(
+       {"indicator_id" : $routeParams.id,
+       "ref_title" : $scope.upload_ref_title,
+       "ref_num" : $scope.upload_ref_num,
+       "ref_link" : $scope.upload_ref_link}
+     );
+     $scope.is_uploading = true;
+  };
+
+  $scope.uploader.onAfterAddingFile = (function(item,filter,options){
+      if ($scope.uploader.queue.length > 1){
+          $scope.uploader.queue.shift();
+      }
+  });
+
+  $scope.uploader.onCompleteItem = function(fileItem,response,status,headers) {
+    if (angular.isDefined(response.errors) && response.errors.length > 0){
+      _.each(response.errors, function(e){
+          toastr.error(e);
+      });
+    } else {
+      $scope.indicator = response;
+    }
+    $scope.uploader.queue=[];
+
+    $scope.upload_ref_title = '';
+    $scope.upload_ref_num = '';
+    $scope.upload_ref_link = '';
+
+    $scope.is_uploading = false;
+  };
+  
+  $scope.cancelLinkingCoas = function() {
+    $scope.showTable.coa_data = !$scope.showTable.coa_data;
+    $scope.linker.selected_coas = [];
+  }
+
+  $scope.saveLinkingCoas = function() {
+    if ($scope.linker.selected_coas.length == 0){
+      toastr.error("Please select at least 1 Course of action");
+      return;
+    }
+    // so now that we are ready to save these all we need is id's.
+    var post_obj = {};
+
+    // need to make sure they can modify coas so filter out coas that are not allowed to be edited.
+    $scope.linker.selected_coas = _.filter($scope.linker.selected_coas, function(coas){
+      return $rootScope.canModify(coas);
+    });
+
+    post_obj.coa_stix_ids = _.map($scope.linker.selected_coas,function(coa) {
+      return coa.stix_id;
+    });
+
+    post_obj.indicator_stix_id = $scope.indicator.stix_id;
+
+    Restangular.all('indicators/coa_additions/link').customPUT(post_obj).then(function(data){
+        $scope.indicator = Marking.translate_existing_attributes(data);
+        toastr.success("Successfully Added Courses of Action");
+        $scope.showTable.coa_data = !$scope.showTable.coa_data;
+        $scope.linker.selected_coas = [];
+      }, function(res) {
+        // give a toastr with any validation errors
+        if (angular.isDefined(data.errors)){
+          _.forEach(data.errors,function(error) {
+              toastr.error("Unable to add Courses of Action to Indicator: " + error, '', {timeOut: 15000, closeButton: true});
+          })
+        }
+      }
+    );
+    
+  }
+
+}]);

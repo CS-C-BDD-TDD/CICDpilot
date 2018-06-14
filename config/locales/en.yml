@@ -1,0 +1,30 @@
+# Files in the config/locales directory are used for internationalization
+# and are automatically loaded by Rails. If you want to use locales other
+# than English, add the necessary files in this directory.
+#
+# To use the locales, use `I18n.t`:
+#
+#     I18n.t 'hello'
+#
+# In views, this is aliased to just `t`:
+#
+#     <%= t('hello') %>
+#
+# To use a different locale, set it with `I18n.locale`:
+#
+#     I18n.locale = :es
+#
+# This would use the information in config/locales/es.yml.
+#
+# To learn more, please read the Rails Internationalization guide
+# available at http://guides.rubyonrails.org/i18n.html.
+
+en:
+  solr_agencies_sensors_seen_on: 'Agencies Sensors'
+  solr_com_threat_score: 'COM Threat Score'
+  solr_gov_threat_score: 'GOV Threat Score'
+  solr_ip_address_raw: 'IP Address'
+  solr_iso_country_code: 'ISO Country Code'
+  time:
+    formats:
+      atom: "%Y-%m-%dT%H:%M:%SZ"

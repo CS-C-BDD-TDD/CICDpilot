@@ -1,0 +1,14 @@
+app.controller('AcsSetsIndexController', ['$scope','$rootScope','Restangular',
+    function ($scope, $rootScope, Restangular) {
+        $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},{text:'ACS Sets',link:'#/acs_sets',icon:'fa-thumb-tack'}];
+        $scope.fetching = true;
+        Restangular.one('acs_sets').get().then(function(data){
+
+            $scope.acs_sets = data;
+            $scope.fetching= false;
+        },function(res){
+            $scope.fetching = false;
+            toastr.error("Unable to load ACS Sets");
+        });
+    }]
+);

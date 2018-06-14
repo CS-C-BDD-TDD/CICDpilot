@@ -1,0 +1,24 @@
+ESSA-DOD:
+    profile:    ISA
+    government: Y
+    directory:  /tmp/isa1
+    feed:       ESSA_DOD
+    active:     true
+ESSA-NON-DOD:
+    profile:    ISA
+    government: Y
+    directory:  /tmp/isa2
+    feed:       ESSA_Non_DOD
+    active:     true
+AIS-PRIVATE:
+    profile:    AIS
+    government: N
+    directory:  /tmp/ais
+    feed:       AIS_Private
+    active:     true
+CISCP:
+    profile:    CISCP
+    government: Y
+    directory:  /tmp/ciscp
+    feed:       CISCP
+    active:     false

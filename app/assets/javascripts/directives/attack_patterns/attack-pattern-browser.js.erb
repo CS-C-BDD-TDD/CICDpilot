@@ -1,0 +1,88 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('attackPatternBrowser', function(){
+  return {
+    restrict: 'E',
+    scope: {
+      selectedAttackPatterns: '=',
+      selectOnly: '@',
+      classificationDirection: '@?'
+    },
+    templateUrl: '<%=asset_path("attack_patterns/attack_pattern_browser.html",type: :template)%>',
+    controller: ['$scope','$rootScope','Restangular','Marking', 'AttackPattern', function($scope,$rootScope,Restangular,Marking,AttackPattern) {
+      $scope.q = '';
+
+      $scope.sortOptions = {
+        'title' : 'asc',
+        'description' : 'asc',
+        'capec_id' : 'asc'
+      };
+
+      $scope.searchAttackPatterns = function() {
+        $scope.fetching = true;
+        var curr_obj = AttackPattern.fetch_markings_object_from_scope($scope);
+        var curr_markings = curr_obj.stix_markings_attributes;
+        if (!$rootScope.is_undefined_or_null(curr_obj.acs_set_id)){
+          Restangular.one('acs_sets').get({id: curr_obj.acs_set_id}).then(function(data){
+            // set it equal to the existing markings
+            if (angular.isDefined(data.stix_markings)){
+              curr_markings = data.stix_markings;
+            }
+            getAttackPatternList(curr_markings);
+          },function(res){
+              toastr.error("Unable to load ACS Set Markings");
+          });
+        } else {
+          getAttackPatternList(curr_markings);
+        }
+      };
+
+      function getAttackPatternList(current_markings){
+        var classification_limit = Marking.get_classification_attributes(current_markings);
+        Restangular.one('/attack_patterns').get({
+          q: $scope.q,
+          classification_limit: $scope.classificationDirection == "down" ? classification_limit : null,
+          classification_greater: $scope.classificationDirection == "up" ? classification_limit : null
+        }).then(
+          function(data){
+            $scope.attack_patterns = data.attack_patterns;
+            $scope.fetching = false;
+          },
+          function(res){
+            toastr.error("Unable to load Attack Patterns");
+            $scope.fetching = false;
+          }
+        );
+      }
+
+      $scope.disabled = function(attack_pattern) {
+        if ($scope.checked(attack_pattern) && $scope.selectOnly) {
+          return true;
+        }
+        return false;
+      }
+
+      $scope.checked = function(attack_pattern){
+        return _.findIndex($scope.selectedAttackPatterns, function(i){return i.stix_id == attack_pattern.stix_id;}) > -1;
+      };
+
+      $scope.sort = function(method) {
+        Restangular.one('/attack_patterns').get({q: $scope.q,column: method, direction: $scope.sortOptions[method]}).then(function(data){
+          $scope.attack_patterns = data.attack_patterns;
+          $scope.sortOptions[method] = ($scope.sortOptions[method]=='desc')?'asc':'desc';
+        });
+      }
+
+      $scope.selectAttackPattern = function(attack_pattern,$event) {
+        var checkbox = $event.target;
+        if (checkbox.checked){
+          if (_.findIndex($scope.selectedAttackPatterns, function(i){return i.stix_id == attack_pattern.stix_id}) == -1){
+            $scope.selectedAttackPatterns.push(attack_pattern);
+          }
+        } else {
+          $scope.selectedAttackPatterns = _.filter($scope.selectedAttackPatterns, function(i){return i.stix_id != attack_pattern.stix_id});
+        }
+      };
+    }]
+  };
+});

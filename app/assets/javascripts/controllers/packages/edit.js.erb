@@ -1,0 +1,79 @@
+app.controller('PackagesEditController', ['$scope','$routeParams','$location','$rootScope','Restangular','Marking',
+  function ($scope, $routeParams, $location, $rootScope, Restangular,Marking) {
+    $scope.ais_marking_created = false;
+    Restangular.one("/stix_packages/"+$routeParams.id).get().then(function(data){
+      $scope.package = Marking.translate_existing_attributes(data);
+      $scope.package.ais_attributes = {};
+      if($scope.package.stix_markings)
+      {
+        for(i = 0; i < $scope.package.stix_markings.length; i++) //find the (first) stix marking with AIS attributes and load them in the UI and prep for saving changes
+        {
+          if($scope.package.stix_markings[i].ais_consent_marking_structure)
+          {
+            $scope.package.ais_attributes = $scope.package.stix_markings[i].ais_consent_marking_structure;
+            if(!$scope.package.stix_markings_attributes[i]) 
+            {
+              $scope.package.stix_markings_attributes[i] = $scope.package.stix_markings[i];
+            }
+            //$.extend($scope.package.stix_markings_attributes[i].ais_consent_marking_structure_attributes , $scope.package.ais_attributes);
+            $scope.package.stix_markings_attributes[i].ais_consent_marking_structure_attributes = $scope.package.ais_attributes;
+            $scope.ais_marking_created = true;
+            break; 
+          }
+        }
+      }
+
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                {text:'All Packages',link:'#/packages',icon:'fa-list'},
+                                {text:data.title,link:'#/packages/'+encodeURIComponent(data.stix_id),icon:'fa-pencil'}];
+
+    });
+    $scope.save = function(package,done){
+      var indicator_stix_ids=_.map(package.indicators,function(i) {
+        return i.stix_id;
+      });
+
+      var coa_ids=_.map(package.course_of_actions,function(coa) {
+        return coa.stix_id;
+      });
+      
+      var et_ids=_.map(package.exploit_targets,function(et) {
+        return et.stix_id;
+      });
+
+      var ttp_ids=_.map(package.ttps,function(ttp) {
+        return ttp.stix_id;
+      });
+
+      package.indicator_stix_ids=indicator_stix_ids;
+      package.course_of_action_stix_ids = coa_ids;
+      package.exploit_target_stix_ids = et_ids;
+      package.ttp_stix_ids = ttp_ids;
+      package.contributing_sources_attributes = package.contributing_sources;      
+
+      if(!_.isEmpty(package.ais_attributes) && !$scope.ais_marking_created) //create a new stix marking to hold ais_attributes
+      {
+        index = package.stix_markings_attributes.length;
+        package.stix_markings_attributes[index] = {};
+        package.stix_markings_attributes[index].ais_consent_marking_structure_attributes = package.ais_attributes;
+        $scope.ais_marking_created = true;
+      }
+
+      // save the package indicators incase failure
+      var package_inds = _.clone(package.indicators);
+      package.indicators = null;
+
+      package.id = package.stix_id;
+      Restangular.one("stix_packages/"+$routeParams.id).customPUT(package).then(function(data){
+        toastr.success("Package saved");
+        $scope.package = data;
+        $location.path('/packages/'+encodeURIComponent($scope.package.stix_id));
+      },function(res){
+        toastr.error("Unable to save package");
+        $rootScope.show_res_errors(res);
+        $scope.package.errors = res.data.errors;
+        $scope.package.indicators = package_inds;
+      });
+        done();
+    };
+}]);

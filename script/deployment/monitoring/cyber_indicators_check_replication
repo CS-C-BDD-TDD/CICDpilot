@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# Loads a simple STIX via the API using a curl script. Demonstrates that the
+# API upload is functional.
+
+parse_yaml() {
+   local prefix=$2
+   local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
+   sed -ne "s|^\($s\)\($w\)$s:$s\"\(.*\)\"$s\$|\1$fs\2$fs\3|p" \
+        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
+   awk -F$fs '{
+      indent = length($1)/2;
+      vname[indent] = $2;
+      for (i in vname) {if (i > indent) {delete vname[i]}}
+      if (length($3) > 0) {
+         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
+         printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
+      }
+   }'
+}
+
+# read yaml file (first param = yml file path, second param = variable prefix
+eval $(parse_yaml /etc/cyber-indicators/config/monitoring.yml "")
+
+eval $(parse_yaml /etc/cyber-indicators/config/database.yml "")
+
+return_text=""
+# Log into the database and verify whether replications are set up on this server
+output=`printf "set heading off\nset pagesize 0\nset feedback off\nselect count(*) from replications;" | sqlplus -S "$production_username/$production_password@$production_database" 2> /dev/null`;
+
+retcode=0
+if [[ $output -gt 0 ]]; then
+  # Replications are set up, lets verify them
+  read -a outputs <<< `printf "set heading off\nset pagesize 0\nset feedback off\nselect url from replications;" | sqlplus -S "$production_username/$production_password@$production_database" 2> /dev/null`
+  for output in "${outputs[@]}"
+  do
+    regexp='^(.+)/'
+    [[ $output =~ $regexp ]]
+    URL="${BASH_REMATCH[1]}/mutexes"
+    output=`curl -X GET -s -S --tlsv1.2 -H "Content-type: application/xml" -H "api_key: $API_KEY" -H "api_key_hash: $API_KEY_HASH" -k "$URL" 2> /dev/null`
+    regexp='\{"metadata":\{"total_count":'
+    if [[ $output =~ $regexp ]]; then
+      let retcode+=0
+    else
+      url_regexp='^(https://[^/]+)'
+      [[ $URL =~ $url_regexp ]]
+      return_text+="CRIT-0002 Connectivity to ${BASH_REMATCH[1]} is Down"$'\n'
+      retcode=2
+    fi
+  done
+  if [[ $retcode -eq 0 ]]; then
+    regexp1='^Testing connection to (.+)'
+    regexp2='^success: OK$'
+    IFS=$'\n' read -d '' -a outputs <<< "`/var/apps/cyber-indicators/bin/rake replication:test`"
+    for output in "${outputs[@]}"
+    do
+      if [[ $output =~ $regexp1 ]]; then
+        let retcode+=0
+        URL=${BASH_REMATCH[1]}
+      elif [[ $output =~ $regexp2 ]]; then
+        let retcode+=0
+      else
+        url_regexp='^(https://[^/]+)'
+        [[ $URL =~ $url_regexp ]]
+        return_text+="CRIT-0003 Replication to ${BASH_REMATCH[1]} is Down"$'\n'
+        retcode=2
+      fi
+    done
+  fi
+fi
+if [[ $retcode -eq 0 ]]; then
+  echo "OK"
+else
+  return_text="${return_text%$'\n'}"
+  echo "$return_text"
+fi
+exit $retcode

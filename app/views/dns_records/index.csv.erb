@@ -1,0 +1,10 @@
+<%- headers = ['Address Value', 'Address Class', 'Domain Name', 'Entry Type', 'Created At', 'Last Updated'] %>
+<%= raw CSV.generate_line addPortionMarkingToCSV(headers), :row_sep => '', :force_quotes => true %>
+<%- addressValue = String.new %>
+<%- domainValue = String.new %>
+<% @dns_records.each do |record| %>
+  <% if record.address_value_normalized != nil then addressValue = record.address_value_normalized else addressValue = record.address_value_raw end %>
+  <% if record.domain_normalized != nil then domainValue = record.domain_normalized else domainValue = record.domain_raw end %>
+  <%- row = [addressValue, record.address_class, domainValue, record.entry_type, record.created_at, record.updated_at] -%>
+<%= raw CSV.generate_line addPortionMarkingToCSV(nil, row, record), :row_sep => '', :force_quotes => true %>
+<% end %>

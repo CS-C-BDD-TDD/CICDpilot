@@ -1,0 +1,40 @@
+<button tooltip="Show/Hide Badges" class="btn btn-xs btn-white btn-info pull-left" data-toggle="collapse" data-target="#badges_table"><i class="ace-icon fa fa-eye bigger-120"></i> Show/Hide Badges </button>
+
+<div class="collapse in" id="badges_table">
+  <div class="space-22"></div>
+  <span class="label label-primary arrowed arrowed-right ciap_mleft_10" ng-show="can('create_remove_badge_status')">
+      <i class="ace-icon fa fa-plus icon-on-right"><span class="ciap_mleft_5 white" ng-click="toggleBadgeModalNew()" style="cursor: pointer">New</span></i>
+  </span>
+  <span ng-repeat="badge_status in badgeStatuses" class="label label-primary arrowed arrowed-right ciap_mleft_10">
+      <span ng-show="can('create_remove_badge_status')"><i class="ace-icon fa fa-eye icon-on-right"><span class="ciap_mleft_5 white" ng-click="toggleBadgeModal(badge_status)" tooltip="{{badge_status.badge_status}}" style="cursor: pointer">{{badge_status.badge_name}}</span></i></span>
+      <span ng-hide="can('create_remove_badge_status')"><i class="ace-icon fa fa-eye icon-on-right"><span class="ciap_mleft_5 white" tooltip="{{badge_status.badge_status}}">{{badge_status.badge_name}}</span></i></span>
+  </span>
+  <div class="space-18"></div>
+</div>
+
+<!-- Badge Modal -->
+<div class="modal fade" id="badge_modal" tabindex="-1" role="dialog" aria-labelledby="badgeModalLabel">
+  <div class="modal-dialog ciap_width_95" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="badgeModalLabel">{{current_badge.badge_name}}</h4>
+      </div>
+      <div class="modal-body">
+        <badge-status-form badge-status="current_badge"></badge-status-form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-info pull-right ciap_mleft_5" ng-disabled="is_saving" type="button" ng-click="save(current_badge)">
+          <i class="ace-icon fa fa-check bigger-110"></i> Save
+        </button>
+        <button class="btn btn-default pull-right ciap_mleft_5" ng-disabled="is_saving" type="button" data-dismiss="modal">
+          <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+        </button>
+        <button ng-show="current_badge.guid && !current_badge.system" class="btn btn-danger pull-right ciap_mleft_5" ng-disabled="is_saving" type="button" ng-click="delete_badge(current_badge)">
+          <i class="ace-icon fa fa-times bigger-110"></i> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Badge Modal End-->

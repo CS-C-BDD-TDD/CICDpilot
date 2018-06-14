@@ -1,0 +1,45 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('humanReviewTable', function(){
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("human_reviews/table.html",type: :template)%>',
+        scope: false,
+        controller: ['$scope','Restangular','$rootScope', function($scope,Restangular,$rootScope) {
+            $scope.full_status = function(status){
+                switch(status) {
+                    case 'A':
+                        return 'Accepted';
+                    case 'N':
+                        return 'Not Yet Reviewed';
+                    case 'R':
+                        return 'Rejected';
+                    case 'I':
+                        return 'In Progress';
+                    case 'D':
+                        return 'Ready For Dissemination';
+                    default:
+                        return '';
+                }
+            }
+
+            $scope.disseminate=function(review) {
+              var id = _.findIndex($scope.human_reviews,function(rev) {
+                         return review.id == rev.id;
+                       });
+              $scope.saving_id = review.id;
+              Restangular.one('human_review_disseminate',review.id).customPUT().then(function(data){
+                toastr.success('Disseminated File');
+                $scope.human_reviews[id].status=data.status;
+                $scope.human_reviews[id].decided_at=data.decided_at;
+                $scope.human_reviews[id].decided_by=data.decided_by;
+                $scope.saving_id = null;
+              },function(res){
+                toastr.error("Unable to Disseminate");
+                $scope.saving_id = null;
+              });
+              $rootScope.updateHRCount();
+            }
+        }]
+    }
+});

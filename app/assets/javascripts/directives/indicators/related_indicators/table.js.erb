@@ -1,0 +1,115 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('relatedIndicatorsTable',function() {
+    return {
+        restrict: 'E',
+        scope: {
+            indicator:'=',
+            hideActions:'@',
+            showTable:'@'
+        },
+        templateUrl: '<%=asset_path("indicators/related_indicators/table.html",type: :template)%>',
+        controller: ['$scope','$rootScope','Restangular','Indicator',function($scope,$rootScope,Restangular,Indicator) {
+            $scope.Indicator = Indicator;
+            $scope.canModify = $rootScope.canModify;
+
+            $scope.showConfidence = [];
+            $scope.showEdit = [];
+            $scope.showNew = false;
+            $scope.selected_indicators = [];
+            $scope.closeBrowser = false;
+            $scope.relationship = {};
+
+            var listen = $scope.$watch("indicator", function(newVal,oldVal){
+                if (typeof($scope.indicator) != 'undefined'){
+                    for (var i=0;i < $scope.indicator.related_indicators.length;i++) {
+                        $scope.showConfidence.push(false);
+                        $scope.showEdit.push(false);
+                        $scope.selected_indicators.push($scope.indicator);
+                        $scope.selected_indicators.push($scope.indicator.related_indicators[i].indicator)
+                    }
+                    listen();
+                }
+            });
+
+            $scope.$watchCollection('selected_indicators', function(newVal,oldVal){
+                if (newVal.length > oldVal.length && $scope.showNew && !$scope.closeBrowser) {
+                    $scope.closeBrowser = true;
+                }
+            });
+
+            $scope.back = function(){
+                $scope.closeBrowser = !$scope.closeBrowser;
+                $scope.selected_indicators.pop();
+            }
+
+            $scope.create = function(relationship) {
+                var selected = $scope.selected_indicators[$scope.selected_indicators.length-1]
+                relationship.remote_src_object_guid = $scope.indicator.guid;
+                relationship.remote_src_object_type = 'Indicator';
+                relationship.remote_dest_object_guid = selected.guid;
+                relationship.remote_dest_object_type = 'Indicator';
+                relationship.relationship_type = 'Indicator to Indicator';
+
+                Restangular.all('relationships').post(relationship).then(
+                        function(data){
+                            toastr.success("Relationship with "+ selected.title +" Added");
+                            var related_indicator = {
+                                created_at: data.created_at,
+                                guid: data.guid,
+                                relationship_type: data.relationship_type,
+                                updated_at: data.updated_at,
+                                stix_information_source_id: data.stix_information_source_id,
+                                indicator: selected,
+                                confidences: data.confidences
+                            };
+                            $scope.indicator.related_indicators.push(related_indicator);
+                            $scope.indicator.audits = data.audits;
+                            $scope.closeBrowser = false;
+                            $scope.relationship = {};
+                            $scope.showNew = false;
+                            $scope.showTable = true;
+                        },function(res){
+                            $scope.selected_indicators.pop();
+                            $rootScope.show_res_errors(res);
+                            $scope.back();
+                        }
+                );
+            }
+
+            $scope.destroy = function(related_indicator) {
+                Restangular.one("relationships/"+related_indicator.guid).remove().then(function(data){
+                    _.remove($scope.indicator.related_indicators,function(i){
+                        return i.guid == related_indicator.guid;
+                    });
+
+                    _.remove($scope.selected_indicators,function(i){
+                        return i.guid == related_indicator.indicator.guid;
+                    });
+                    $scope.indicator.audits = data.audits;
+                    toastr.success("Relationship Removed");
+                },function(res){
+                    toastr.error("Unable to remove Relationship with "+related_indicator.indicator.title);
+                });
+            };
+
+            $scope.update = function(related_indicator) {
+                Restangular.one('relationships/'+related_indicator.guid).customPUT(related_indicator).then(function(data){
+                    var index = _.findIndex($scope.indicator.related_indicators, function(i){return i.guid == data.guid })
+                    $scope.showEdit[index] = false;
+
+                    var r = $scope.indicator.related_indicators[index];
+                    r.updated_at = data.updated_at;
+                    r.stix_information_source_id = data.stix_information_source_id;
+                    r.relationship_type = data.relationship_type;
+                    r.confidences = data.confidences;
+                    $scope.indicator.audits = data.audits;
+                    toastr.success("Relationship with "+ r.indicator.title +" Updated");
+
+                },function(res){
+                    toastr.error("Unable to update Relationship with "+related_indicator.indicator.title);
+                });
+            }
+        }]
+    }
+});

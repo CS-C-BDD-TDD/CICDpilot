@@ -1,0 +1,25 @@
+app.service('Registry', ['$filter', function($filter){
+  return {
+    get_value: function(registry){
+      if (angular.isUndefined(registry)){ return ""; }
+      var names=['Hive','Key'];
+      var attributes=['hive','key'];
+      var value = '';
+      for (i=0;i<names.length;i++) {
+        if (registry[attributes[i]]) {
+          if (value) {
+            value+=' | ';
+          }
+          value+=names[i]+': '+registry[attributes[i]];
+        }
+      }
+      if (value == '') {
+          value = 'Registry: ' + registry.cybox_object_id;
+      }
+      else {
+        return $filter('prefixWithPortionMarking')(value,
+            registry.portion_marking);
+      }
+    }
+  };
+}]);

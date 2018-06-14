@@ -1,0 +1,5 @@
+app.service('ResourceRecord', function(){
+  return {
+    resource_record_types: <%= ResourceRecord::ResourceRecordTypes.to_json %>
+  };
+});

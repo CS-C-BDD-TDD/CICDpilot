@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<stix:STIX_Package id="TEST:ABCDEFGHIJKLMNOPQRSTUVWXYA" version="1.1.1" xmlns:DomainObj="http://stix.mitre.org/domain-1" xmlns:cybox="http://stix.mitre.org/cybox-1" xmlns:EmailMessageObj="http://stix.mitre.org/email-1" xmlns:FileObj="http://stix.mitre.org/email-1" xmlns:incident="http://stix.mitre.org/incident-1" xmlns:marking="http://stix.mitre.org/marking-1" xmlns:ttp="http://stix.mitre.org/ttp-1" xmlns:tlp="http://stix.mitre.org/tlp-1" xmlns:indicator="http://stix.mitre.org/indicator-1" xmlns:stixCommon="http://stix.mitre.org/common-1" xmlns:stixVocabs="http://stix.mitre.org/default_vocabularies-1" xmlns:stix="http://stix.mitre.org/stix-1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://stix.mitre.org/Incident-1 http://stix.mitre.org/XMLSchema/incident/1.1/incident.xsd http://stix.mitre.org/TTP-1 http://stix.mitre.org/XMLSchema/ttp/1.1/ttp.xsd http://stix.mitre.org/common-1 http://stix.mitre.org/XMLSchema/common/1.1/stix_common.xsd http://stix.mitre.org/default_vocabularies-1 http://stix.mitre.org/XMLSchema/default_vocabularies/1.1.0/stix_default_vocabularies.xsd http://stix.mitre.org/stix-1 http://stix.mitre.org/XMLSchema/core/1.1/stix_core.xsd">
+   <stix:STIX_Header>
+      <stix:Title>List With One Indicator (and Domain)</stix:Title>
+      <stix:Description>A list of one or more indicators.</stix:Description>
+      <stix:Package_Intent xsi:type="stixVocabs:PackageIntentVocab-1.0">Indicators</stix:Package_Intent>
+   </stix:STIX_Header>
+   <stix:Indicators>
+      <stix:Indicator id="example:ZYXWVUTSRQP123456789" timestamp="2014-05-15T20:22:19Z" version="1.1" xsi:type="indicator:IndicatorType">
+         <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.1">IP Watchlist</indicator:Type>
+         <indicator:Title>A Great Web Site</indicator:Title>
+         <indicator:Description>This is a test.</indicator:Description>
+         <indicator:Observable>
+            <cybox:Object id="example:9876543210987654321-ABCDEF">
+               <cybox:Properties xsi:type="DomainObj:DomainNameObjectType">
+                   <DomainObj:Name_Value condition="Equals" apply_condition="ANY">davidkeener.org/32</DomainObj:Name_Value>
+               </cybox:Properties>
+            </cybox:Object>
+         </indicator:Observable>
+      </stix:Indicator>
+   </stix:Indicators>
+</stix:STIX_Package>

@@ -1,0 +1,32 @@
+app.controller('TtpsShowController', ['$scope','$routeParams','$rootScope','$location','Restangular',
+  function ($scope, $routeParams, $rootScope, $location, Restangular) {
+    $scope.fetching = true;
+    $scope.can = $rootScope.can;
+    $scope.showTable = {coa_data: true, collapse: false};
+    Restangular.one("/ttps/"+$routeParams.id).get().then(function(data){
+      $scope.ttp = data;
+      $scope.ttp.course_of_actions = data.course_of_actions;
+      $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'},
+                                {text:'All TTPs',link:'#/ttps',icon:'fa-list'},
+                                {text:data.stix_id,link:'#/ttps/'+encodeURIComponent(data.stix_id),icon:'fa-eye'}];
+      $scope.fetching = false;
+    },function(res){
+      toastr.error(res.data.errors[0]);
+      $scope.fetching = false;
+    });
+    $scope.destroy = function(ttp){
+      var justification = prompt("Justification for deleting TTP");
+      if (justification){
+        $scope.fetching = true;
+        Restangular.one("/ttps/"+ttp.stix_id).remove().then(function(data){
+          toastr.success("TTP removed");
+          $location.path('/ttps');
+          $scope.fetching = false;
+        },function(res){
+          toastr.error("Could not remove TTP: "+res.data.errors[0]);
+          $scope.fetching = false;
+        });
+      }
+    };
+  }
+]);

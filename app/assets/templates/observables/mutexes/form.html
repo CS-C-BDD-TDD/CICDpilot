@@ -1,0 +1,47 @@
+<form class="form-horizontal">
+    <div class="col-md-12">
+        <div class="form-group" ng-class="{'has-error': error.name}">
+            <label class="col-md-4 control-label">Mutex Name*</label>
+            <div class="col-md-8">
+                <input type="text" ng-model="mutex.name" name="name" class="col-md-8" placeholder="Mutex Name" auto-focus ng-disabled="mutex.cybox_object_id.length">
+                <i class="ace-icon fa fa-info-circle fa-3x ciap_mleft_25" tooltip="The field level marking for this field is defined by the object level marking."></i> 
+                <ul ng-show="error.name" class="help-block">
+                    <li ng-repeat="e in error.name">This Mutex and Mutex Condition {{e}}</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="form-group" ng-class="{'has-error': error.name_condition}">
+            <label class="col-md-4 control-label">Mutex Condition *</label>
+            <div class="col-md-8">
+                <select class="col-md-8" ng-model="mutex.name_condition" ng-options="condition for condition in conditions" ng-disabled="mutex.cybox_object_id.length"></select>
+                <br/>
+                <ul ng-show="error.name_condition" class="help-block">
+                    <li ng-repeat="e in error.name_condition">{{e}}</li>
+                </ul>
+            </div>
+        </div>
+
+        <acs-associate-form sets="sets" object="mutex" objecttype="Mutex" disable-save="is_saving" editform="editform" fieldname="cybox"></acs-associate-form>
+    </div>
+</form>
+<div class="row">
+    <div class="col-xs-12">
+        <form class="form-horizontal" role="form" ng-submit="save(mutex)">
+            <div class="clearfix form-actions">
+                <span ng-show="is_saving">
+                    <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+                </span>
+                <div class="col-md-offset-3">
+                    <button class="btn btn-info" ng-disabled="is_saving" type="submit">
+                        <i class="ace-icon fa fa-check bigger-110"></i> Save
+                    </button>
+                    <button class="btn btn-default" ng-disabled="is_saving" type="button" ng-click="cancel()">
+                        <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+                    </button>
+                </div>
+            </div>
+            <div class="hr hr-24"></div>
+        </form>
+    </div>
+</div>

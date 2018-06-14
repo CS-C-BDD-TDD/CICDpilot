@@ -1,0 +1,137 @@
+<div class="page-header">
+  <h1>Create User</h1>
+</div>
+
+<form method="post" class="form-horizontal">
+  <div class="col-md-12">
+    <div class="form-group">
+      <label class="col-md-4 control-label">Username *</label>
+      <div class="col-md-6" ng-class="error.username ? 'has-error' : ''">
+        <input type="text" ng-model="user.username" name="username" class="form-control" placeholder="Username" tooltip="The username must match a valid Active Directory username.">
+        <ul ng-show="error.username">
+          <li ng-repeat="e in error.username">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-md-4 control-label">First Name *</label>
+      <div class="col-md-6" ng-class="error.first_name ? 'has-error' : ''">
+        <input type="text" ng-model="user.first_name" name="first_name" class="form-control" placeholder="First Name">
+        <ul ng-show="error.first_name">
+          <li ng-repeat="e in error.first_name">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-md-4 control-label">Last Name *</label>
+      <div class="col-md-6" ng-class="error.last_name ? 'has-error' : ''">
+        <input type="text" ng-model="user.last_name" name="last_name" class="form-control" placeholder="Last Name">
+        <ul ng-show="error.last_name">
+          <li ng-repeat="e in error.last_name">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-md-4 control-label">Email *</label>
+      <div class="col-md-6" ng-class="error.email ? 'has-error' : ''">
+        <input type="text" ng-model="user.email" name="email" class="form-control" placeholder="Email Address">
+        <ul ng-show="error.email">
+          <li ng-repeat="e in error.email">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-md-4 control-label">Phone Number</label>
+      <div class="col-md-6" ng-class="error.phone ? 'has-error' : ''">
+        <input type="text" ng-model="user.phone" name="phone" class="form-control" placeholder="Phone Number">
+        <ul ng-show="error.phone">
+          <li ng-repeat="e in error.phone">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-md-4 control-label">Organization *</label>
+      <div class="col-md-6" ng-class="error.organization ? 'has-error' : ''">
+        <select class="col-md-12 form-control" ng-model="user.organization.guid" ng-options="organization.guid as organization.short_name for organization in organizations">
+        </select>
+        <ul ng-show="error.organization">
+          <li ng-repeat="e in error.organization">{{e}}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div ng-hide="setting_value('SSO_AD')">
+      <div class="form-group" ng-class="{'has-error': error.password}">
+        <label class="col-md-4 control-label">Password *</label>
+        <div class="col-md-6" ng-class="error.password ? 'has-error' : ''">
+          <input type="password" autocomplete="off" ng-model="user.password" name="password" class="form-control" placeholder="Password">
+          <ul ng-show="error.password">
+            <li ng-repeat="e in error.password">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="col-md-4 control-label">Password Confirmation *</label>
+        <div class="col-md-6" ng-class="error.password_confirmation ? 'has-error' : ''">
+          <input type="password" autocomplete="off" ng-model="user.password_confirmation" name="password_confirmation" class="form-control" placeholder="Password Confirmation">
+          <ul ng-show="error.password_confirmation">
+            <li ng-repeat="e in error.password_confirmation">{{e}}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-1 col-md-1"></div>
+    <div class="col-lg-10 col-md-10">
+      <acs-entity-attributes object="user"></acs-entity-attributes>
+    </div>
+    <div class="col-lg-1 col-md-1"></div>
+  </div>
+</form>
+
+<div class="form-group">
+  <label class="col-md-12 control-label text-center"><strong>User Groups</strong></label>
+  <div class="col-md-12">
+    Drag the groups from Unselected to Selected to add them to the groups for this user.
+    Drag the groups from Selected to Unselected to remove them from the groups for this user.
+  </div>
+  <div class="col-md-12">
+    <div class="col-md-2"></div>
+    <label class="col-md-4 control-label text-center"><strong>Unselected</strong></label>
+    <label class="col-md-4 control-label text-center"><strong>Selected</strong></label>
+  </div>
+  <div class="col-md-2"></div>
+  <div class="col-md-4">
+    <ul id="unselected" ui-sortable="list_options" class="sortable-container" ng-model="unselected_groups" ng-style="heightStyle">
+      <li ng-repeat="g in unselected_groups" class="sortable-item">{{g.name}}</li>
+    </ul>
+  </div>
+  <div class="col-md-4">
+    <ul id="selected" ui-sortable="list_options" class="sortable-container" ng-model="user.groups" ng-style="heightStyle">
+      <li ng-repeat="g in user.groups" class="sortable-item">{{g.name}}</li>
+    </ul>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-xs-12">
+    <form class="form-horizontal" role="form" ng-submit="save(user)">
+      <div class="clearfix form-actions">
+        <div class="col-md-offset-5 col-md-6">
+          <button class="btn btn-info" type="submit">
+            <i class="ace-icon fa fa-check bigger-110"></i> Save
+          </button>
+          <a class="btn" ng-click="cancel()">
+            <i class="ace-icon fa fa-trash-o"></i> Cancel
+          </a>
+        </div>
+      </div>
+      <div class="hr hr-24"></div>
+    </form>
+  </div>
+</div>

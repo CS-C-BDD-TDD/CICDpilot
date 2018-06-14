@@ -1,0 +1,216 @@
+# Secure the Application
+
+**Enfore permissions.**
+
+```bash
+/var/apps/cyber-indicators/bin/enforce-application-permissions
+```
+
+**Configure the Firewall**
+
+If your application server has a firewall, you must enable TCP and UDP ports for the application to successfully communicate.
+
+The Cyber Indicators Application requires these network rules:
+
+Redirection from port 443 to port 8443 on the public network interface.
+
+```bash
+SSH Access                    | INPUT TCP port 22
+HTTPS Application Access      | INPUT TCP ports 443 and 8443
+Internal Application Services | INPUT TCP and UDP on the loopback address | OUTPUT TCP and UDP on the loopback address
+Kerberos Authentication       | INPUT TCP port 88 with state NEW, ESTABLISHED, RELATED
+Kerberos Authentication       | INPUT UDP port 88
+Oracle Database Access        | INPUT TCP port 1521
+SSH Access                    | OUTPUT TCP port 22
+HTTPS Application Access      | OUTPUT ports 443 and 8443
+Kerberos Authentication       | OUTPUT TCP port 88 with state NEW, ESTABLISHED, RELATED
+Kerberos Authentication       | OUTPUT UDP port 88
+DNS                           | OUTPUT UDP port 53
+NTP                           | OUTPUT TCP port 123
+Oracle Database Access        | OUTPUT TCP port 1521
+```
+
+<%if ENV['NOTE']%>
+!Note! You should substitute port 1521 with the port that your Oracle database uses.
+<%end%>
+
+<%if ENV['IMPORTANT']%>
+!Important! You may have additional firewall rules for your organization in addition to these rules.  Please merge these rules with your rules.
+<%end%>
+
+Please configure your firewall with these rules.
+
+<%if ENV['DEVELOPER_NOTE']%>
+### [Developer Note] Configure IPtables
+
+!Important! Directly editing the iptables configuration can have adverse effects.
+
+Edit the firewall rules in this file:
+
+```bash
+/etc/sysconfig/iptables
+```
+
+These are the firewall settings required for Cyber Indicators:
+
+```bash
+*nat
+:PREROUTING ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+-A PREROUTING -i eth0 -p tcp --dport 443 -j REDIRECT --to-port 8443
+COMMIT
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT DROP [0:0]
+#Self
+-A INPUT -i lo -j ACCEPT
+-A OUTPUT -o lo -j ACCEPT
+#SSH
+-A INPUT -i eth0 -p tcp --dport 22 -j ACCEPT
+#HTTPS
+-A INPUT -i eth0 -p tcp -m multiport --dports 443,8443 -j ACCEPT
+#Kerberos
+-A INPUT -i eth0 -p tcp --sport 88 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -i eth0 -p udp --sport 88 -j ACCEPT
+# DNS
+-A INPUT -i eth0 -p udp -m udp --sport 53 -j ACCEPT
+#Oracle
+-A INPUT -i eth0 -p tcp --sport 1521 -j ACCEPT
+#SSH
+-A OUTPUT -o eth0 -p tcp --sport 22 -j ACCEPT
+#HTTPS
+-A OUTPUT -o eth0 -p tcp -m multiport --sports 443,8443 -j ACCEPT
+#NTP
+-A OUTPUT -o eth0 -p tcp --sport 123 -j ACCEPT
+#Kerberos
+-A OUTPUT -o eth0 -p tcp --dport 88 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+-A OUTPUT -o eth0 -p udp --dport 88 -j ACCEPT
+#DNS
+-A OUTPUT -o eth0 -p udp -m udp --dport 53 -j ACCEPT
+#Oracle
+-A OUTPUT -o eth0 -p tcp --dport 1521 -j ACCEPT
+COMMIT
+```
+
+!Important! Directly editing the iptables configuration can have adverse effects.
+
+!Note! You may wish to merge these rules with your existing iptables rules.  Merging iptables rules is out-of-scope from this document.
+
+!Note! You must replace the --dport 1521 for Oracle with the correct TCP port that your instance of Oracle uses.
+
+Restart the firewall.
+
+```bash
+service iptables restart
+```
+<%end%>
+
+<%if ENV['TROUBLESHOOTING']%>
+### [Troubleshooting]  Logging Firewall Access
+
+```bash
+-A INPUT  -s [IP_ADDRESS_OF_SYSTEM_TRYING_TO_CONNECT_TO_YOU] -j LOG --log-prefix "iptables-input-drop:  " --log-level=info
+-A OUTPUT -d [IP_ADDRESS_OF_SYSTEM_TRYING_TO_CONNECT_TO_YOU] -j LOG --log-prefix "iptables-output-drop: " --log-level=info
+```
+
+Leave off the IP_ADDRESS_OF_SYSTEM_TRYING_TO_CONNECT_TO_YOU to log all traffic.
+<%end%>
+
+<%if ENV['DEVELOPER_NOTE']%>
+### [Developer Note] Additions to default image IPtables rules
+
+```bash
+*nat
+:PREROUTING ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+-A PREROUTING -i eth0 -p tcp --dport 443 -j REDIRECT --to-port 8443
+COMMIT
+```
+
+```bash
+#-----------------------------Cyber Indicators
+-A INPUT -p tcp -m multiport --dports 443,8443 -j ACCEPT
+-A INPUT -p tcp --sport 88 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -p udp --sport 88 -j ACCEPT
+-A INPUT -p tcp --sport 1521 -j ACCEPT
+```
+
+```bash
+#-----------------------------Cyber Indicators
+-A OUTPUT -p tcp -m multiport --sports 443,8443 -j ACCEPT
+-A OUTPUT -p tcp --dport 88 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+-A OUTPUT -p udp --dport 88 -j ACCEPT
+-A OUTPUT -p tcp --dport 1521 -j ACCEPT
+```
+
+!Note! Port 1521 varies per instance.
+<%end%>
+
+<%if ENV['TROUBLESHOOTING']%>
+## [Troubleshooting] Exception java.lang.OutOfMemoryError: PermGen space
+
+The default PermGen space is too low.  You can increase the PermSize by setting JAVA_OPTS in this file:
+
+```
+/etc/sysconfig/cyber-indicators
+```
+
+Increase the PermGem space.
+
+```bash
+JAVA_OPTS="-XX:PermSize=512m -XX:MaxPermSize=1024m"
+```
+<%end%>
+
+# Start the Application
+
+**Restart the application service.**
+
+```bash
+service cyber-indicators restart
+```
+
+**Browse to the application.**
+
+Log in to a workstation in the Windows Active Directory Domain as the user account created in "Bootstrap the application"
+
+Open your web browser.
+
+Browse to the application server FQDN.
+
+<%if ENV['TROUBLESHOOTING']%>
+## [Troubleshooting] java.lang.UnsupportedClassVersionError: ... Unsupported major.minor version ... catalina log.
+
+The version of Java that you have configured the application to use is incorrect.
+
+Configure the application to use a compatible version of Java specified in this guide.
+
+Set the JAVA_HOME environment variable.
+
+Set the JAVA_HOME environment variable in the /etc/sysconfig/cyber-indicators file.
+
+## [Troubleshooting] Errno::ECONNREFUSED: Connection refused - ... :uri=>#<URI::HTTP:0x4b514eb5 URL:http://localhost:8080/solr/production/update?wt=ruby> ...} when running rails console and trying to create indicators.
+
+One behavior that indicates this issue is that you are able to create indicators through the front-end of the application.
+
+This error is usually followed by: OpenSSL::SSL::SSLError: certificate verify failed (after correcting the first issue.  You do not see these errors together)
+
+The problem is that the SSL_CERT_FILE and SOLR_URL environment variables are not being passed in correctly.
+
+The root cause is that the /etc/sysconfig/cyber-indicators file is not being sourced correctly.
+
+Pass the environment variables in when running rails console.
+
+```bash
+SSL_CERT_FILE=[SSL_CERT_FILE] SOLR_URL=[SOLR_URL] /var/apps/cyber-indicators/bin/rals console
+```
+<%end%>
+
+**Configure the application to start on reboot.**
+
+```bash
+chkconfig --level 345 cyber-indicators on
+```

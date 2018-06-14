@@ -1,0 +1,294 @@
+  <div class="widget-box widget-color-blue ui-sortable-handle">
+    <pagination-header metadata="metadata" offset="offset" pagename="'Indicators'"></pagination-header>
+    <pagination-footer metadata="metadata" offset="offset" get_records="getIndicators"></pagination-footer>
+    <div class="dataTables_wrapper form-inline no-footer">
+      <div class="row ciap_pall_5 ciap_bgc_header_first">
+        <span class="ciap_mleft_10 pull-right">
+          <!-- We need this ngif because buildHref only works when the date_picker_object is defined -->
+          <a ng-href="{{buildHref()}}" ng-hide="tags" ng-if="date_picker_object">
+            <button class="btn btn-grey no-radius btn-xs">
+              <i class="ace-icon fa fa-floppy-o bigger-160"></i>
+              Download to CSV
+            </button>
+          </a>
+        </span>
+        
+        <span class="ciap_mleft_10 pull-right">
+          <button type="button" class="btn btn-primary btn-xs" ng-click="getAisFlag()" ng-disabled="fetching">
+            <i class="ace-icon fa" ng-class="is_ais ? 'fa-check-square-o' : 'fa-square-o'"></i>
+            AIS Only
+          </button>
+        </span>
+
+        <span class="ciap_mleft_10 pull-right">
+          <button class="btn btn-danger no-radius btn-xs" ng-click="clearSelectedIndicators()">
+            <i class="ace-icon fa fa-eraser bigger-160"></i>
+            Clear Selected
+          </button>
+        </span>
+        
+        <span class="ciap_mleft_10 pull-right">
+          <button class="btn btn-danger no-radius btn-xs" ng-click="clearFilters()">
+            <i class="ace-icon fa fa-trash-o bigger-160"></i>
+            Clear All Filters
+          </button>
+        </span>
+        
+        <span class="ciap_mleft_10 pull-right">
+          <search-markings search-fn="startSearch()" marking-search-params="marking_search_params"></search-markings>
+        </span>
+        <!-- End row -->
+      </div>
+    </div>
+    <div class="widget-body">
+      <div class="widget-main no-padding">
+        <!-- To achieve fixed headers we made two tables. one for the headers and one for the table content.  in this way you need to make sure that the width classes are matched on both the body and the headers. The only issue is that there is a blank space above the scroll bar.  As a solution we made a fake table-->
+        
+        <!-- wrap the headers with two divs, one will be the full width so that we can fill in the background color. -->
+        <div class="ciap_bgc_header_first" ng-cloak>
+          <!-- The second is so we can minus the size of the scroll bar so that the headers line up with the body content. We use style here instead of class because we need to calculate the width with javascript incase page size changes.-->
+          <div id="first_header" class="ciap_float_left">
+            <table class="table table-striped table-bordered table-hover dataTable table-fixed">
+              <thead class="thin-border-bottom">
+                <tr id="advindfirstrow" role="row">
+                  <th class="sorting ciap_width_15" ng-click="sort('observable_value')">Observable Value</th>
+                  <th class="sorting ciap_width_10" ng-click="sort('observable_type')">Observable Type</th>
+                  <th class="ciap_width_10">Reference</th>
+                  <th class="ciap_width_10">FO Sets</th>
+                  <th class="sorting ciap_width_15" ng-click="sort('indicator_type')">Indicator Type</th>
+                  <th class="sorting ciap_width_15" ng-click="sort('title')">Title</th>
+                  <th class="sorting ciap_width_15" ng-click="sort('updated_at')">Last Updated</th>
+                  <th class="ciap_width_6">Actions</th>
+                </tr>
+
+                <tr id="advindsecondrow" role="row">
+                  <input type="hidden" ng-model="marking_search_params">
+                  <!-- Observable Value -->
+                  <th>
+                    <span class="input-icon ciap_width_100">
+                      <input class="form-control search-query" placeholder="Search Observable Values..." type="search"
+                             ng-enter="startSearch()" ng-model="observableq">
+                      <i class="ace-icon fa fa-search nav-search-icon ciap_mleft_5"></i>
+                    </span>
+                  </th>
+                  <!-- Observable Type -->
+                  <th>
+                    <select class="ciap_width_100" ng-model='observable_type'
+                      ng-options="key as name for (name,key) in Observable.display_name_to_type" ng-change="filterIndicators()">
+                      <option value="">--Cybox Object Type--</option>
+                    </select>
+                  </th>
+                  <!-- Reference -->
+                  <th>
+                    <span class="input-icon ciap_width_100">
+                      <input class="form-control search-query" placeholder="Search Reference..." type="search"
+                             ng-enter="startSearch()" ng-model="referenceq">
+                      <i class="ace-icon fa fa-search nav-search-icon ciap_mleft_5"></i>
+                    </span>
+                  </th>
+                  <!-- FO Sets -->
+                  <th>
+                    <span class="input-icon ciap_width_100">
+                      <input class="form-control search-query" placeholder="Search FO Sets..." type="search"
+                             ng-enter="startSearch()" ng-model="threatActorQ">
+                      <i class="ace-icon fa fa-search nav-search-icon ciap_mleft_5"></i>
+                    </span>
+                  </th>
+                  <!-- Indicator Type -->
+                  <th>
+                    <select class="form-control input-sm" ng-model='indicator_type'
+                            ng-options="key as name for (key,name) in Indicator.indicatorTypes" ng-change="filterIndicators()">
+                      <option value="">--Indicator Type--</option>
+                    </select>
+                  </th>
+                  <!-- Title -->
+                  <th>
+                    <span class="input-icon ciap_width_100">
+                      <input class="form-control search-query" placeholder="Search Title..." type="search"
+                             ng-enter="startSearch()" ng-model="titleq">
+                      <i class="ace-icon fa fa-search nav-search-icon ciap_mleft_5"></i>
+                    </span>
+                  </th>
+                  <!-- Last Updated -->
+                  <th>
+                    <div class="input-group">
+                      <span class="input-group-addon">
+                        <i class="fa fa-calendar"></i>
+                      </span>
+                      <input id="last_updated_filter" date-range-picker type="text" class="ciap_mleft_0 ciap_width_100" options="date_picker_opts" />
+                    </div>
+                  </th>
+                  <!-- Actions -->
+                  <th>
+                    <select class="ciap_width_100" dir="rtl">
+                      <option>--Select an Action--</option>
+                      <!-- Bulk Actions -->
+                      <!-- User/System Tags -->
+                      <option ng-show="can('tag_item_with_user_tag') || can('tag_item_with_system_tag')" data-toggle="modal" data-target="#advIndTagModal"> Add to Tag
+                      </option>
+                      <!-- Export Indicators -->
+                      <option ng-show="SYSTEM_MODE=='CIAP' && can('mark_items_for_export')" data-toggle="modal" data-target="#advIndExportModal"> Mark For Export
+                      </option>
+                      <!-- Packages -->
+                      <!-- New -->
+                      <option ng-show="can('create_package_report')" ng-click="add_to_new_package()"> Add to New Package
+                      </option>
+                      <!-- Existing -->
+                      <option ng-show="can('modify_all_items')" ng-click="add_to_existing_package()"> Add to Existing Package
+                      </option>
+                      <!-- Threat Actors-->
+                      <!-- New -->
+                      <option ng-show="can('create_remove_threat_actors')" ng-click="add_to_threat_new_actor()"> Add to New Threat Actor
+                      </option>
+                      <!-- Existing -->
+                      <option ng-show="can('modify_all_items')" ng-click="add_to_existing_threat_actor()"> Add to Existing Threat Actor
+                      </option>
+                      <!-- End Bulk Actions -->
+                    </select>
+                  </th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+          
+          <!-- fake table to fill in headers -->
+          <div id="fakerowwidth" class="ciap_float_left">
+            <table class="table table-striped table-bordered table-hover dataTable table-fixed">
+              <thead class="thin-border-bottom">
+                <tr id="fakerowone" role="row">
+                  <th></th>
+                </tr>
+                <tr id="fakerowtwo" role="row">
+                  <th></th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+        <!-- This is the content table.  We add the overflow property and specify the max height on this css class -->
+        <div class="ciap_fixed_headers_table">
+          <table class="table table-striped table-bordered table-hover dataTable table-fixed ciap_width_100">
+            <tbody ng-hide="fetching">
+              <tr id="advrows" ng-repeat="(id,indicator) in indicators" ng-show="indicators.length">
+                <!-- Observable Values -->
+                <td class="ciap_width_15">
+                  {{indicator.observable_value | piiFilter:indicator.observable_type}}
+                </td>
+                <!-- Observable Type -->
+                <td class="ciap_width_10">
+                  {{indicator.observable_type}}
+                </td>
+                <!-- Reference -->
+                <td class="ciap_width_10">
+                    {{indicator.reference | prefixWithPortionMarking: indicator.portion_marking:indicator.reference_c}}
+                </td>
+                <!-- Confidence -> FO Sets -->
+                <td class="ciap_width_10">
+                  <span ng-show="indicator.threat_actor_values && indicator.threat_actor_values.length > 3">
+                     <a class="fake-link" ng-click="is_open[id] = !is_open[id]">
+                        <i class="fa" ng-class="{'fa-plus-square-o': !is_open[id], 'fa-minus-square-o': is_open[id]}" style="font-size: 1.5em;"></i>
+                      </a>
+                  </span>
+                  <span ng-repeat="threat_actor_value in indicator.threat_actor_values | limitTo: 3">
+                     <a href="#/threat_actors/{{threat_actor_value.threat_actor_id | encodeURIComponent}}">{{threat_actor_value.threat_actor_title}}{{$last? '':' '}}</a>
+                  </span>
+                  <div ng-show="is_open[id]">
+                    <span ng-repeat="threat_actor_value in indicator.threat_actor_values.slice(3) ">
+                      <a href="#/threat_actors/{{threat_actor_value.threat_actor_id | encodeURIComponent}}">{{threat_actor_value.threat_actor_title}}{{$last? '':' '}}</a>
+                    </span>
+                  </div>
+                </td>
+                <!-- Indicator Types -->
+                <td class="ciap_width_15">
+                    {{Indicator.indicatorTypes[indicator.indicator_type] | prefixWithPortionMarking: indicator.portion_marking:indicator.indicator_type_c}}
+                </td>
+                <!-- Title -->
+                <td class="ciap_width_15">
+                  <a href="#/indicators/{{indicator.stix_id | encodeURIComponent}}">{{indicator.title | prefixWithPortionMarking: indicator.portion_marking:indicator.title_c}}</a>
+                </td>
+                <!-- Date -->
+                <td class="ciap_width_15">
+                  {{indicator.updated_at | date: 'medium'}}
+                </td>
+                <!-- Actions -->
+                <td  class="ciap_width_6">
+                  <input class="ciap_center_checkbox" ng-disabled="disabled(indicator)" type="checkbox" ng-click="selectIndicator(indicator, $event)" ng-checked="checked(indicator)"/>
+                </td>
+              </tr>
+            </tbody>
+
+            <tbody ng-show="fetching">
+              <tr>
+                <td colspan="7" class="center">
+                  <i class="fa fa-spinner fa-spin bigger-300 blue"></i>
+                </td>
+              </tr>
+            </tbody>
+
+            <tbody ng-hide="indicators.length || fetching">
+              <tr>
+                <td colspan="7" class="center">
+                  No Results
+                </td>
+              </tr>
+            </tbody>
+
+          </table>
+        </div>
+      </div>
+    </div>
+    <pagination-footer metadata="metadata" offset="offset" get_records="getIndicators"></pagination-footer>
+  </div>
+  <div class="space-12"></div>
+  
+  <!-- Bulk Actions Modals-->
+  <!-- Export Indicators -->
+  <div class="modal fade" id="advIndExportModal" tabindex="-1" role="dialog" aria-labelledby="advIndExportModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header ciap_pbottom_35">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="advIndTagModalLabel">Export to System</h4>
+        </div>
+        <div class="modal-body">
+          <export-indicator-new id="ind_export_bulk" class='' selected='selected_indicators' show-header="false">
+          </export-indicator-new>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- User/System Tags -->
+  <div class="modal fade" id="advIndTagModal" tabindex="-1" role="dialog" aria-labelledby="advIndTagModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="advIndTagModalLabel">Add to Tag</h4>
+        </div>
+        <div class="modal-body">
+          <h5>Only Tags that are not already linked to the indicators will be added. No tags are saved into selected indicators till save is pressed.</h5>
+          <form class="form-horizontal">
+            
+            <div class='form-group' tooltip="User Tags" ng-show="can('tag_item_with_user_tag')">
+              <div class="col-md-11">
+                <indicator-user-tag id="ind_user_tag_bulk" selectedtags="selected_tags.user_tags"></indicator-user-tag>
+              </div>
+            </div>
+
+            <div class='form-group' tooltip="System Tags" ng-show="can('tag_item_with_system_tag')">
+              <div class="col-md-11">
+                <indicator-system-tag id="ind_system_tag_bulk" selectedtags="selected_tags.system_tags"></indicator-system-tag>
+              </div>
+            </div>
+            <div class="form-actions" style="background-color: #ffffff">
+              <button ng-disabled="is_saving" class="btn btn-info pull-right" type="button" ng-click="add_to_tags()" data-dismiss="modal">
+                  <i class="fa fa-check"></i>
+                  Save
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Bulk Actions Modals-->

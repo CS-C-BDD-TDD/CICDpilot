@@ -1,0 +1,116 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('ttpTable', function() {
+  return {
+    restrict: 'E',
+    templateUrl: function(elem,attrs) {
+      return attrs.indexpage ? '<%=asset_path("ttps/advanced_table.html",type: :template)%>' :
+                               '<%=asset_path("ttps/table.html",type: :template)%>';
+    },
+    scope: {
+             ttps: '=?',
+             metadata: '=?',
+             showTable: '@',
+             search: '=?',
+             fetching: '=?'
+           },
+    controller: ['$scope', 'Restangular', '$rootScope', function($scope,Restangular,$rootScope) {
+      $scope.can = $rootScope.can;
+      $scope.date_picker_opts = {
+        defaultRanges: true
+      };
+      $scope.q = '';
+      $scope.marking_search_params = {};
+      
+      if (angular.isUndefined($scope.offset)) {
+        $scope.offset=0;
+      }
+      if (angular.isUndefined($scope.amount)) {
+        $scope.amount=$rootScope.setting_value('DEFAULT_MAX_RECORDS');
+      }
+      $scope.sortOptions = {
+        'stix_id': 'desc',
+        'created_at': 'desc',
+        'updated_at': 'desc'
+      };
+      $scope.sortMethod = '';
+
+      var listener=$scope.$watch("ttps", function(ttps) {
+        if (angular.isDefined(ttps)) {
+          // Indicators have only 1 TTP associated, so we need to create an array of one element
+          if (ttps.constructor.name != 'Array') {
+            $scope.ttps = [ttps];
+          };
+          listener();
+        }
+      });
+
+      // Cleanup
+      $scope.$on('$destroy', function() {
+        $('.daterangepicker').remove();
+      });
+      
+      $scope.dateRangePicker = function(picker) {
+        $scope.date_picker_object = picker;
+        $scope.offset=0;
+        $scope.getTtps($scope.offset);
+      };
+
+      $scope.$watch("search", function(search) {
+        if (angular.isDefined(search)) {
+          $scope.q = search;
+          $scope.getTtps($scope.offset);
+        }
+      });
+
+      $scope.sort = function(method) {
+        $scope.sortMethod = method;
+        $scope.sortOptions[method]=($scope.sortOptions[method]=='desc')?'asc':'desc';
+        $scope.offset=0;
+        $scope.getTtps($scope.offset);
+      };
+
+      $scope.startSearch = function() {
+        $scope.offset=0;
+        $scope.getTtps($scope.offset);
+      };
+
+      $scope.getTtps = function(offset) {
+        if (angular.isDefined($scope.metadata)) {
+          delete($scope.metadata);
+        }
+        $scope.showTable = false;
+        $scope.fetching= true;
+        Restangular.one("ttps").get({
+          ebt: angular.isDefined($scope.date_picker_object) ? $scope.date_picker_object.getStartDate() : '',
+          iet: angular.isDefined($scope.date_picker_object) ? $scope.date_picker_object.getEndDate() : '',
+          q: $scope.q,
+          column: $scope.sortMethod,
+          direction: $scope.sortOptions[$scope.sortMethod],
+          amount: $scope.amount,
+          offset: offset,
+          marking_search_params: $scope.marking_search_params
+        }).then(
+          function(data){
+            $scope.ttps = data.ttps;
+            $scope.metadata = data.metadata;
+            if (data.metadata['total_count']>0) {
+              $scope.showTable = true;
+            }
+            $scope.fetching = false;
+          },
+          function(res){
+            $scope.ttps = null;
+            $scope.metadata={total_count: 0};
+            toastr.error("Unable to load TTPs");
+            $scope.fetching = false;
+          }
+        );
+      };
+      
+      $scope.buildHref = function() {
+      	return $rootScope.buildCSVHref($scope, "ttps");
+      };
+    }]
+  };
+});

@@ -1,0 +1,160 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('emailSelector', function(){
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("observables/object-selectors/email-selector.html",type: :template)%>',
+    scope: {
+      emails: '=',
+      observableToBeLinked: '=',
+      linkObservableView: '='
+    },
+    controller: ['$scope', 'Restangular', '$rootScope', 'Gfi','Marking','Observable',
+      function($scope,Restangular,$rootScope,Gfi,Marking,Observable) {
+      $scope.date_picker_opts = {
+        defaultRanges: true
+      };
+      $scope.q = '';
+      if (angular.isUndefined($scope.offset)) {
+        $scope.offset=0;
+      }
+      if (angular.isUndefined($scope.amount)) {
+        $scope.amount=$rootScope.setting_value('DEFAULT_MAX_RECORDS');
+      }
+
+      // Cleanup
+      $scope.$on('$destroy', function() {
+        $('.daterangepicker').remove();
+      });
+      
+      $scope.dateRangePicker = function(picker) {
+        $scope.date_picker_object = picker;
+        $scope.offset=0;
+        $scope.getEmailMessages($scope.offset);
+      };
+
+      $scope.startSearch = function() {
+        $scope.offset=0;
+        $scope.getEmailMessages($scope.offset);
+      };
+
+      $scope.getEmailMessages = function(offset) {
+        var curr_ind = Observable.fetch_indicator_from_scope($scope);
+        var curr_markings = curr_ind.stix_markings_attributes;
+        if (!$rootScope.is_undefined_or_null(curr_ind.acs_set_id)){
+          Restangular.one('acs_sets').get({id: curr_ind.acs_set_id}).then(function(data){
+            // set it equal to the existing markings
+            if (angular.isDefined(data.stix_markings)){
+              curr_markings = data.stix_markings;
+            }
+            getEmailList(offset, curr_markings);
+          },function(res){
+              toastr.error("Unable to load ACS Set Markings");
+          });
+        } else {
+          getEmailList(offset, curr_markings);
+        }
+      };
+
+      function getEmailList(offset, current_markings){
+        var classification_limit = Marking.get_classification_attributes(current_markings);
+        if (angular.isDefined($scope.metadata)) {
+          $scope.metadata.total_count = null;
+        }
+        Restangular.one("/email_messages").get({
+          ebt: $scope.date_picker_object.getStartDate(),
+          iet: $scope.date_picker_object.getEndDate(),
+          q: $scope.q,
+          amount: $scope.amount,
+          classification_limit: classification_limit,
+          offset: offset
+        }).then(
+          function(data){
+            $scope.emails = data.email_messages;
+            $scope.metadata = data.metadata;
+          },
+          function(res){
+            toastr.error("Unable to load Email Messages");
+          }
+        );
+      }
+
+      $scope.setSelected = function() {
+        var so=$scope.observableToBeLinked;
+
+        if (angular.isDefined(so)) {
+          if (so.remote_object_id===this.email.cybox_object_id && so.remote_object_type==='EmailMessage') {
+            $scope.observableToBeLinked={};
+          } else {
+            Gfi.init_gfi_edit($scope, this.email);
+            $scope.observableToBeLinked={remote_object_id:this.email.cybox_object_id,remote_object_type:'EmailMessage',email_message:this.email};
+          }
+        }
+      }
+      $scope.classSelected = function() {
+        var so=$scope.observableToBeLinked;
+
+        if (angular.isDefined(so)) {
+          if (so.remote_object_id===this.email.cybox_object_id && so.remote_object_type==='EmailMessage') {
+            return "bg-primary";
+          }
+        }
+      }
+      $scope.$watch('date_picker_object',function(object) {
+        if (angular.isDefined(object)) {
+          $scope.getEmailMessages($scope.offset);
+        }
+      });
+      $rootScope.$on('reloadObservableSelect',function(event,type) {if (type === 'EmailMessage') {$scope.getEmailMessages($scope.offset)}});
+
+      // setEdit is a special function because it's called by an ng-click within an ng-repeat
+      $scope.setEdit = function() {
+        Restangular.one('/email_messages/'+ this.email.cybox_object_id).get().then(function(data){
+          // If you change anything here you need to also change it in the edit.js.erb in controllers for edit!!!
+          data.links.forEach(function(link){
+            if (angular.isUndefined(link.stix_markings)){
+              link.stix_markings = []
+            }
+            link.uri_attributes.stix_markings.forEach(function(sm){
+              // this is the case when its not a link and just a uri
+              if (sm.remote_object_field == null && link.stix_markings.length == 0){
+                sm.custom = true;
+                link.stix_markings.push(sm);
+              } else if (sm.remote_object_field == null){
+                sm.custom = true;
+                sm.remote_object_field = "uri_normalized";
+                link.stix_markings.push(sm);
+              }
+            });
+            delete link.uri_attributes.stix_markings;
+            link = Marking.translate_existing_attributes(link);
+          });
+
+          $scope.email = Marking.translate_existing_attributes(data);
+
+          $scope.email.from_input = $scope.email.from_normalized;
+          $scope.email.reply_to_input = $scope.email.reply_to_normalized;
+          $scope.email.sender_input = $scope.email.sender_normalized;
+
+          $scope.$parent.$parent.selected = $scope.email;
+          $scope.$parent.observableToBeLinked={remote_object_id:$scope.email.cybox_object_id,remote_object_type:'EmailMessage',email_message:$scope.email};
+          $scope.linkObservableView = 'edit';
+        },function(res){
+            toastr.error("Unable to load Email");
+        });
+      }
+
+      $scope.$parent.$parent.after_email_save = function() {
+        var match = _.find($scope.$parent.$parent.emails,{'cybox_object_id':data.cybox_object_id});
+        var index = _.indexOf($scope.$parent.$parent.emails, match);
+        $scope.$parent.$parent.emails.splice(index,1,data);
+        $scope.$parent.observableToBeLinked.email_message=data;
+        $scope.$parent.$parent.showSelectedObservable();
+        if ($rootScope.setting_value('CLASSIFICATION') == true){
+          $rootScope.$emit('reloadObservableSelect', 'EmailMessage');
+        }
+      }
+    }],
+    controllerAs: 'emailSelCtrl'
+  }
+});

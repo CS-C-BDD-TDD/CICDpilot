@@ -1,0 +1,306 @@
+<div class="well">
+  <h5 class="widget-title smaller" style="margin: 0px;display: inline;">ACS Tags</h5>
+  <span class="widget-toolbar">
+    <a class="fake-link" ng-click="display = !display;">
+      <i class="ace-icon fa fa-plus" ng-show="!display"></i>
+      <i class="ace-icon fa fa-minus" ng-show="display"></i>
+    </a>
+  </span>
+
+  <div class="space-16" style="border-top: 1px solid #d9d9d9;overflow: inherit"></div>
+
+  <div class="center" ng-show=display>
+      <div style="padding:2px 40px 2px 40px">
+          <h5 class='smaller'>Responsible Entity</h5>
+          <div style="border: 1px solid #d9d9d9">
+              <div class="space-12"></div>
+
+              <div class="form-group" tooltip="The information owner responsible for the resource">
+                  <label class="control-label col-md-3 no-padding-right">Custodian *</label>
+                  <div class="col-md-7">
+                      <select id="ACS_Set_RE_Custodian" class="col-md-12" ng-model="stixMarking.isa_marking_structure_attributes.re_custodian" ng-options="val.id as val.label for val in Marking.re_custodian"></select>
+                  </div>
+              </div>
+
+              <div class="form-group" tooltip="The source of the resource, which may differ from the custodian" ng-class="{'has-error': originator_err}">
+                  <label class="control-label col-md-3 no-padding-right">Originator</label>
+                  <div class="col-md-7">
+                      <select id="ACS_Set_RE_Originator" class="col-md-12" ng-model="stixMarking.isa_marking_structure_attributes.re_originator" ng-options="val.id as val.label for val in Marking.re_originator.values" ng-show="!originator_text"
+                              ng-change="originator_text = !originator_text;originator_err = swap(stixMarking.isa_marking_structure_attributes.re_originator,Marking.re_originator.alertOn)"></select>
+                      <div class="input-group" ng-show="originator_text">
+                          <input id="originator" type="text" ng-model="stixMarking.isa_marking_structure_attributes.re_originator" class="col-md-12" />
+                          <span class="input-group-btn" ng-show="originator_text">
+                              <button id="ACS_Set_RE_Originator_X_Button" class="btn btn-danger btn-sm" type="button" ng-click="stixMarking.isa_marking_structure_attributes.re_originator = '';originator_text = false;">x</button>
+                          </span>
+                      </div>
+                      <div ng-show="originator_err && originator_text" class="help-block inline col-md-12" align="right">
+                          <span class="col-md-12">This originator tag requires specification of additional organizational information</span>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="form-group">
+                  <label class="control-label col-md-3 no-padding-right">Data Item Created Date</label>
+                  <div class="col-md-7">
+                      <span class="input-icon input-icon-right" tooltip="The created date and time of the associated resource">
+                          <input id="stixMarking.isa_marking_structure_attributes.data_item_created_at" date-range-picker style="margin-left: 0px" type="text" picker="dateRangePickerDataItemCreatedAt" options="date_picker_opts" value="{{stixMarking.isa_marking_structure_attributes.data_item_created_at | date:'MM/dd/yyyy'}}"/>
+                          <i class="ace-icon fa fa-calendar"></i>
+                      </span>
+                  </div>
+              </div>
+
+          </div>
+      </div>
+
+      <div style="padding:16px 40px 2px 40px">
+          <h5 class='smaller'>Policies</h5>
+          <div style="border: 1px solid #d9d9d9">
+              <div class="space-12"></div>
+
+              <div class="form-group" tooltip="If set, all Control Set selections are overridden">
+                  <label class="control-label col-md-3 no-padding-right">Release To Public</label>
+                  <div class="col-md-7"  style="margin-top: 5px">
+                      <input id="ACS_Set_P_Release" name="switch-field-1" class="ace ace-switch ace-switch-5" ng-model="stixMarking.isa_assertion_structure_attributes.public_release" type="checkbox" ng-change="setFD()">
+                      <span class="lbl"></span>
+                      </input>
+                  </div>
+              </div>
+
+              <div style="border-bottom: 1px solid #d9d9d9;margin: 0px 60px 0px 60px" class="space-12"></div>
+              <div class="space-8"></div>
+
+              <div ng-show="stixMarking.isa_assertion_structure_attributes.public_release" class="form-group" ng-class="{'has-error': (stixMarking.isa_assertion_structure_attributes.public_release && stixMarking.isa_assertion_structure_attributes.public_released_by == null)}"  tooltip="Defines the release authority for resources that have been through a formal public release process">
+                  <label class="control-label col-md-3 no-padding-right">Released Authorizer *</label>
+                  <div class="col-md-7">
+                      <input id="ACS_Set_P_Authorizer" type="text" ng-model="stixMarking.isa_assertion_structure_attributes.public_released_by" class="col-md-12" />
+                  </div>
+                  <div ng-show="(stixMarking.isa_assertion_structure_attributes.public_release && stixMarking.isa_assertion_structure_attributes.public_released_by == null)"
+                       class="help-block inline col-md-12" >
+                      <span class="col-lg-3"></span>
+                      <span class="col-md-7" align="left"><li>Release Authorizer is Required</li></span>
+                  </div>
+              </div>
+
+              <div class="form-group" ng-show="stixMarking.isa_assertion_structure_attributes.public_release">
+                  <label class="control-label col-md-3 no-padding-right">Released On</label>
+                  <div class="col-md-7">
+                      <span class="input-icon input-icon-right" tooltip="Defines the release date for resources that have been through a formal public release process">
+                          <input id="stixMarking.isa_assertion_structure_attributes.public_released_on" date-range-picker style="margin-left: 0px" type="text" picker="dateRangePickerPublicReleasedOn" options="date_picker_opts" value="{{stixMarking.isa_assertion_structure_attributes.public_released_on | date:'MM/dd/yyyy'}}"/>
+                          <i class="ace-icon fa fa-calendar"></i>
+                      </span>
+                  </div>
+              </div>
+
+              <div class="row" ng-hide="stixMarking.isa_assertion_structure_attributes.public_release">
+                  <div class="col-lg-1"></div>
+                  <div class="col-lg-3 center">
+                      <label class="control-label col-md-7 no-padding-right">Display</label>
+                      <div class="col-md-3"  style="margin-top: 5px">
+                          <input id="ACS_Set_P_Display" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='dsply.effect'>
+                          <span class="lbl"></span>
+                          </input>
+                      </div>
+                  </div>
+                  <div class="col-lg-3 center">
+                      <label class="control-label col-md-7 no-padding-right">Legal Proceedings</label>
+                      <div class="col-md-3"  style="margin-top: 5px">
+                          <input id="ACS_Set_P_Legal" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='legal.effect'>
+                          <span class="lbl"></span>
+                          </input>
+                      </div>
+                  </div>
+                  <div class="col-lg-3 center">
+                      <label class="control-label col-md-7 no-padding-right">Identify Source</label>
+                      <div class="col-md-3"  style="margin-top: 5px">
+                          <input id="ACS_Set_P_Source" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='idsrc.effect'>
+                          <span class="lbl"></span>
+                          </input>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="row" ng-hide="stixMarking.isa_assertion_structure_attributes.public_release">
+                  <div class="col-lg-1"></div>
+                  <div class="col-lg-3 center">
+                      <label class="control-label col-md-7 no-padding-right">Target Entity Notification</label>
+                      <div class="col-md-3"  style="margin-top: 5px">
+                          <input id="ACS_Set_P_TEN" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='tenot.effect'>
+                          <span class="lbl"></span>
+                          </input>
+                      </div>
+                  </div>
+                  <div class="col-lg-3 center">
+                      <label class="control-label col-md-7 no-padding-right">Intelligence Analysis</label>
+                      <div class="col-md-3"  style="margin-top: 5px">
+                          <input id="ACS_Set_P_Analysis" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='intel.effect'>
+                          <span class="lbl"></span>
+                          </input>
+                      </div>
+                  </div>
+                  <div class="col-lg-3 center">
+                      <label class="control-label col-md-7 no-padding-right">Network Defense Action</label>
+                      <div class="col-md-3"  style="margin-top: 5px">
+                          <input id="ACS_Set_P_NDA" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='netdef.effect'>
+                          <span class="lbl"></span>
+                          </input>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="row" ng-hide="stixMarking.isa_assertion_structure_attributes.public_release">
+                  <div class="col-lg-1"></div>
+                  <div class="col-lg-3 center">
+                      <label class="control-label col-md-7 no-padding-right">Tear-line</label>
+                      <div class="col-md-3"  style="margin-top: 5px">
+                          <input id="ACS_Set_P_Tear" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='tearline.effect'>
+                          <span class="lbl"></span>
+                          </input>
+                      </div>
+                  </div>
+                  <div class="col-lg-3 center">
+                      <label class="control-label col-md-7 no-padding-right">Operation Action</label>
+                      <div class="col-md-3"  style="margin-top: 5px">
+                          <input id="ACS_Set_P_Operation" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='opaction.effect'>
+                          <span class="lbl"></span>
+                          </input>
+                      </div>
+                  </div>
+                  <div class="col-lg-3 center">
+                      <label class="control-label col-md-7 no-padding-right">Access Privilege Waiver Request</label>
+                      <div class="col-md-3"  style="margin-top: 5px">
+                          <input id="ACS_Set_P_Waiver" name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='request.effect'>
+                          <span class="lbl"></span>
+                          </input>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="row" ng-hide="stixMarking.isa_assertion_structure_attributes.public_release">
+                  <div class="col-lg-2"></div>
+
+                  <div class="col-lg-3">
+                      <label class="control-label col-md-7 no-padding-right">Anonymous Access</label>
+                      <div class="col-md-3"  style="margin-top: 5px">
+                          <input name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='anonymousaccess.effect'>
+                          <span class="lbl"></span>
+                          </input>
+                      </div>
+                  </div>
+                  <div class="col-lg-3">
+                      <label class="control-label col-md-7 no-padding-right">CISA Uses</label>
+                      <div class="col-md-3"  style="margin-top: 5px">
+                          <input name="switch-field-1" class="ace ace-switch ace-switch-5"  type="checkbox" ng-model='cisauses.effect'>
+                          <span class="lbl"></span>
+                          </input>
+                      </div>
+                  </div>
+              </div>
+
+              <div style="border-bottom: 1px solid #d9d9d9;margin: 16px 80px 0px 80px" class="space-12"></div>
+              <div class="space-8"></div>
+
+              <div style="padding:12px 100px 2px 100px" ng-hide="stixMarking.isa_assertion_structure_attributes.public_release">
+                  <div style="border: 1px solid #d9d9d9">
+                    <h5 style="margin: 6px 0 0 12px" class='smaller'>Further Sharing</h5>
+                      <div style="margin-top: 5px"
+                           ng-repeat="fshr in stixMarking.isa_assertion_structure_attributes.further_sharings_attributes | filter:{_destroy: '!1'}"
+                           class="row">
+                          <div class="col-lg-2 col-md-2"></div>
+                          <div class="col-lg-8 col-md-8">
+                              <div class="row">
+                                  <div class="col-lg-1 col-md-1 no-padding-right">
+                                      <span class="badge badge-danger" style="margin-top: 8px" tooltip="Remove Further Sharing Element">
+                                          <a href="" class="fake-link center white" ng-click="remove_further_sharing(fshr)">
+                                              <i class="fa fa-remove"></i>
+                                          </a>
+                                      </span>
+                                  </div>
+                                  <div class="col-lg-8 col-md-8 no-padding-left">
+                                      <label class="control-label col-md-1 no-padding-right no-padding-left pull-left">Scope</label>
+                                      <div class="col-md-11">
+                                          <select class="col-md-12" ng-model="fshr.scope" ng-options="val.id as val.label for val in Marking.fs_orgs"></select>
+                                      </div>
+                                  </div>
+                                  <div class="col-lg-3 col-md-3">
+                                      <label class="control-label col-md-7 no-padding-right" style="margin-left: 12px">Permit/Deny</label>
+                                      <div class="col-md-3" style="margin-top: 0px">
+                                          <input ng-model="fshr.effect" style="padding-top: 5px" class="ace ace-switch ace-switch-5" type="checkbox">
+                                            <span style="margin-top: 5px" class="lbl"></span>
+                                          </input>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="col-lg-2 col-md-2"></div>
+                      </div>
+                      <div class="space-8"></div>
+                      <div class="center">
+                          <a href="" class="fake-link" ng-click="add_further_sharing()">
+                              <i class="fa fa-plus-circle"></i>
+                              Add Further Sharing Rule
+                          </a>
+                      </div>
+                      <div class="space-8"></div>
+                  </div>
+              </div>
+              <div class="space-12"></div>
+          </div>
+      </div>
+
+      <div style="padding:16px 40px 2px 40px" ng-hide="stixMarking.isa_assertion_structure_attributes.public_release">
+          <h5 class='smaller'>Control Set</h5>
+          <div style="border: 1px solid #d9d9d9">
+              <div class="space-12"></div>
+              <div class="form-group" tooltip="Flag for formal determinations other than classification.  If Public Release is true, this field 'PUBREL' will be added">
+                  <label class="control-label col-md-3 no-padding-right">Formal Determination</label>
+                  <div class="col-md-7">
+                      <multi-select attribute="stixMarking.isa_assertion_structure_attributes.cs_formal_determination" options-for-select="Marking.cs_formal_determination"></multi-select>
+                  </div>
+
+              </div>
+
+              <div class="form-group" tooltip="Defines safeguarding and dissemination controls for Unclassified resources">
+                  <label class="control-label col-md-3 no-padding-right">Sensitivity</label>
+                  <div class="col-md-7">
+                      <multi-select attribute="stixMarking.isa_assertion_structure_attributes.cs_cui" options-for-select="Marking.cs_cui"></multi-select>
+                  </div>
+              </div>
+
+              <div class="form-group" tooltip="Defines groups to which information may be released">
+                  <label class="control-label col-md-3 no-padding-right">Shareability Group</label>
+                  <div class="col-md-7">
+                      <multi-select attribute="stixMarking.isa_assertion_structure_attributes.cs_shargrp" options-for-select="Marking.cs_shargrp"></multi-select>
+                  </div>
+              </div>
+
+              <div style="padding:16px 40px 16px 40px">
+                  <h5 class='smaller'>Affiliation</h5>
+                  <div style="border: 1px solid #d9d9d9">
+                      <div class="space-12"></div>
+
+                      <div class="form-group" tooltip="Defines access limitations based on the country affiliations of the user">
+                          <label class="control-label col-md-3 no-padding-right">Countries</label>
+                          <div class="col-md-7">
+                              <multi-select attribute='stixMarking.isa_assertion_structure_attributes.cs_countries' options-for-select="Marking.cs_countries"></multi-select>
+                          </div>
+                      </div>
+
+                      <div class="form-group" tooltip="Defines access limitations based on the organization affiliations of the user">
+                          <label class="control-label col-md-3 no-padding-right">Organizations</label>
+                          <div class="col-md-7">
+                              <multi-select attribute='stixMarking.isa_assertion_structure_attributes.cs_orgs' options-for-select="Marking.cs_orgs"></multi-select>
+                          </div>
+                      </div>
+
+                      <div class="form-group" tooltip="Defines access limitations based on the entity affiliations of the user">
+                          <label class="control-label col-md-3 no-padding-right">Affiliation: Entities</label>
+                          <div class="col-md-7">
+                              <multi-select attribute="stixMarking.isa_assertion_structure_attributes.cs_entity" options-for-select="Marking.cs_entity"></multi-select>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>

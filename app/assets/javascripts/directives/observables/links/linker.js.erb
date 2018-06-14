@@ -1,0 +1,82 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('linkLinker', function() {
+  return {
+    restrict: 'E',
+    templateUrl: '<%=asset_path("observables/links/linker.html",type: :template)%>',
+    scope: {
+             links: '=',
+             email: '='
+           },
+    controller: ['$scope', 'Restangular', '$rootScope', 'Link', 'Gfi', function($scope,Restangular,$rootScope,Link,Gfi) {
+      $scope.Link = Link;
+
+      $scope.modified = false;
+      $scope.view = 0;
+      $scope.accessor = {};
+      $scope.showTable = true;
+
+      $scope.set_view = function(value){
+        $scope.view = value;
+        $scope.showTable = true;
+        $scope.orig_links = JSON.parse(JSON.stringify($scope.links));
+        if (value==1) {
+          $scope.link={init: true, uri_attributes:{uri_condition: "Equals"}, label_condition: "Equals"};
+          Gfi.init_gfi_edit($scope, $scope.link);
+        }
+      };
+
+      $scope.set_visibility = function() {
+        $scope.showTable = !$scope.showTable;
+        if ($scope.showTable) {
+          $scope.view = 0;
+        }
+      };
+
+      $scope.remove_link = function(link) {
+        _.remove($scope.links, function(l) {
+          return l == link;
+        })
+        $scope.modified = true;
+      };
+
+      $scope.cancel = function() {
+        $scope.view = 0;
+      };
+
+      $scope.failed = function() {
+        // Don't do anything
+      };
+
+      $scope.saved = function(new_link) {
+        if (angular.isDefined(new_link.uri)) {
+          new_link.uri_attributes=new_link.uri;
+          delete(new_link.uri);
+        }
+        $scope.links.push(new_link);
+        $scope.apply_changes(true);
+        $scope.view = 0;
+      }
+
+      $scope.apply_changes = function(created) {
+        var cybox_object_ids = _.map($scope.links, function(l){
+          return l.cybox_object_id;
+        });
+        Restangular.one("email_links/"+$scope.email.cybox_object_id).customPUT({cybox_object_ids: cybox_object_ids, new: created}).then(function(data) {
+          toastr.success("Linked links have been updated");
+          $scope.orig_links = JSON.parse(JSON.stringify($scope.links));
+          $scope.email.audits = data.audits;
+          $scope.view = 0;
+          $scope.modified = false;
+          $scope.accessor.reset_search();
+        },function(res) {
+          toastr.error("There was a problem updating the linked links.  Changes have been reverted");
+          if (angular.isDefined(res)){
+            $rootScope.show_res_errors(res);
+          }
+          $scope.links = JSON.parse(JSON.stringify($scope.orig_links));
+        });
+      };
+    }]
+  };
+});

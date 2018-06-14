@@ -1,0 +1,20 @@
+app.controller('SearchIndexController', ['$scope','$rootScope','Restangular','Indicator','$location',
+    function ($scope, $rootScope, Restangular,Indicator,$location) {
+        $rootScope.breadcrumbs = [{text:'Home',link:'#/',icon:'fa-home'}];
+        $scope.angular = angular;
+        $scope.loading = true;
+        $scope.q = $location.search()['q'];
+        $scope.loading = false;
+        $scope.indicators_metadata = {};
+        $scope.weather_maps_addresses_metadata = {};
+        $scope.weather_maps_domains_metadata = {};
+        $scope.packages_metadata = {};
+        $scope.lastSearch = $scope.q;
+        $scope.valid_search = true;
+        if ($scope.q.match(/^\s*$/)) {
+          $scope.valid_search = false;
+        }
+
+        $scope.Indicator = Indicator;
+    }
+  ]);

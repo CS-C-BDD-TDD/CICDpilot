@@ -1,0 +1,108 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('sightingNew', function () {
+  return {
+    restrict: 'E',
+    scope: {
+      indicator: '=',
+      showTable: '=',
+      showNew: '='
+    },
+    templateUrl: '<%=asset_path("sightings/new.html",type: :template)%>',
+    controller: ['$scope', '$rootScope', '$location', 'Restangular', 'Sighting',
+      function ($scope, $rootScope, $location, Restangular, Sighting) {
+        $scope.newSighting = {};
+        $scope.showNew = false;
+
+        $scope.date_picker_opts = {
+          singleDatePicker: true,
+          startDate: moment().utc(),
+          endDate: moment().utc(),
+          timePicker: true,
+          timePickerSeconds: false,
+          format: 'MM/DD/YYYY HH:mm [UTC]'
+        };
+
+        $scope.dateRangePicker = function (picker) {
+          $scope.date_picker_object = picker;
+          // Temporarily store the start date as a moment date object.
+          var tempDate = $scope.date_picker_object.startDate;
+
+          if (angular.isUndefined(tempDate) || tempDate == null ||
+              tempDate == '') {
+            // If the temporary date object is empty because no date has been
+            // applied in the date picker, set the sighted_at date for the
+            // new sighting object to null.
+            $scope.newSighting.sighted_at = null;
+          }
+          else {
+            // If the temporary date object is not empty, set the sighted_at
+            // date for the new sighting object to an ISO 8601 date with a
+            // UTC +00:00 Zulu timezone offset that AngularJS can handle
+            // (since it has problems with "Z" as shorthand for Zulu).
+            $scope.newSighting.sighted_at =
+                tempDate.format('YYYY-MM-DDTHH:mmZ');
+          }
+        };
+
+        $scope.saveSighting = function (sighting) {
+          sighting.stix_indicator_id = $scope.indicator.stix_id;
+          
+          $scope.newSighting.errors = {};
+          
+          if ($rootScope.is_undefined_or_null($scope.newSighting.sighted_at)) {
+          	$scope.newSighting.errors.sighted_at = [" can't be blank"];
+            toastr.error("Saving of sighting failed");
+          	return;
+          }else if ($scope.newSighting.sighted_at) {
+          	var now = new Date();
+          	var newSightingDate = new Date($scope.newSighting.sighted_at);
+          	if(newSightingDate.getTime() > now.getTime()) {
+          		$scope.newSighting.errors.sighted_at = [" can't be future date"];
+              toastr.error("Saving of sighting failed");
+          		return;
+          	}
+          }
+
+          Restangular.all('sightings').post(sighting).then(function (data) {
+            if (angular.isUndefined($scope.indicator.sightings) ||
+                $scope.indicator.sightings == null) {
+              $scope.indicator.sightings = [];
+            }
+            $scope.indicator.sightings.push(data);
+            if (angular.isDefined($scope.newSighting)) {
+              delete $scope.newSighting;
+            }
+            $scope.newSighting = {};
+            if (angular.isDefined($scope.date_picker_object)) {
+              $scope.date_picker_object.clickClear();
+            }
+            toastr.success("Sighting Saved");
+            $scope.showNew = false;
+          }, function (res) {
+            if (angular.isDefined(res.data.errors)) {
+              _.forEach(res.data.errors, function (error) {
+                toastr.error("Saving of sighting failed: " + error);
+              })
+            }
+            else {
+              toastr.error("Saving of sighting failed");
+            }
+          });
+        };
+
+        $scope.cancelCreateSighting = function () {
+          if (angular.isDefined($scope.newSighting)) {
+            delete $scope.newSighting;
+          }
+          $scope.newSighting = {};
+          if (angular.isDefined($scope.date_picker_object)) {
+            $scope.date_picker_object.clickClear();
+          }
+          $scope.showNew = false;
+        }
+
+      }],
+    controllerAs: 'sightingCreateCtrl'
+  }
+});

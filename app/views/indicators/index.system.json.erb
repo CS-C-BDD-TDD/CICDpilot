@@ -1,0 +1,45 @@
+{ "metadata":{
+    "total_count":"<%=@metadata.total_count%>"
+  },
+  "indicators":[
+    <%@indicators.each_with_index do |i,i_ind|%>
+          <%= (i.to_json(except: :id)).chop.html_safe %>,
+
+    "confidences":[
+        {
+            <% if i.confidences.present? %>
+                "value":"<%= i.confidences.first.value %>"
+            <% else %>
+                "value":null
+            <% end %>
+        }
+    ],
+    "observables_attributes":[
+      <%i.observables.each_with_index do |o,o_ind|%>
+      {
+      "cybox_object_id":"<%=o.cybox_object_id%>",
+      "stix_indicator_id":"<%=o.stix_indicator_id%>",
+      "remote_object_id":"<%=o.remote_object_id%>",
+      "remote_object_type":"<%=o.remote_object_type%>",
+      "guid":"<%=o.guid%>",
+      "dns_record_attributes":<%= (o.dns_record.to_json).html_safe %>,
+      "domain_attributes":<%= (o.domain.to_json).html_safe %>,
+      "email_message_attributes":<%= (o.email_message.to_json).html_safe %>,
+      "file_attributes":<%= (o.file.to_json(methods: :md5, include: :file_hashes)).html_safe %>,
+      "http_session_attributes":<%= (o.http_session.to_json).html_safe %>,
+      "hostname_attributes":<%= (o.hostname.to_json).html_safe %>,
+      "address_attributes":<%= (o.address.to_json).html_safe %>,
+      "mutex_attributes":<%= (o.mutex.to_json).html_safe %>,
+      "network_connection_attributes":<%= (o.network_connection.to_json).html_safe %>,
+      "registry_attributes":<%= (o.registry.to_json(include: :registry_values)).html_safe %>,
+      "uri_attributes": <%= (o.uri.to_json).html_safe %>
+      }
+      <%if o_ind != i.observables.length-1%>
+        ,
+      <%end%>
+      <%end%>
+      ]
+    } <%=i_ind != @indicators.length-1 ? ',' : nil%>
+    <%end%>
+  ]
+}

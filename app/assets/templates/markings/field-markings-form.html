@@ -1,0 +1,44 @@
+<button tooltip="Delete Field ISA Marking" class="btn btn-xs btn-white btn-info pull-right ciap_mleft_5" ng-click="deleteFieldMarkings()" ng-show="existing_index.index > -1 && object.stix_markings_attributes[existing_index.index].stix_id"><i class="ace-icon fa fa-trash bigger-120"></i></button>
+
+<button tooltip="Add/Edit Field ISA Marking" class="btn btn-white btn-info btn-xs pull-right ciap_mleft_5" ng-click="buildMarkings()">
+  <i ng-class="{'fa-pencil-square-o': object.stix_markings_attributes[existing_index.index].stix_id, 'fa-plus': !object.stix_markings_attributes[existing_index.index].stix_id}" class="fa bigger-120 ace-icon" ng-cloak></i>
+</button>
+
+<button tooltip="View Field ISA Marking" class="btn btn-xs btn-white btn-info pull-right" data-toggle="collapse" data-target="#{{fieldname}}" ng-show="toggler % 2 == 0 && existing_index.index > -1 && object.stix_markings_attributes[existing_index.index].stix_id"><i class="ace-icon fa fa-eye bigger-120"></i></button>
+
+<div id="{{get_field_id()}}" class="form-group animated" ng-if="toggler % 2 == 1">
+  <div class="col-md-12">
+    <form name="{{get_field_id() + '_form'}}" class="form-horizontal">
+      <acs-associate-form sets="$parent.sets" object="$parent.object" disable-save="$parent.disablesave" editform="$parent.editform" fieldname="$parent.fieldname" fieldtext="$parent.fieldtext" smindex="$parent.existing_index" custom="$parent.custom"></acs-associate-form>
+    </form>
+
+    <div class="row">
+      <div class="col-xs-12">
+        <form class="form-horizontal" role="form" ng-submit="save()">
+
+          <div class="clearfix form-actions">
+            <span ng-show="is_saving">
+                <i class="ace-icon fa fa-sun-o fa-spin blue bigger-300 pull-right" ng-show="is_saving"></i>
+            </span>
+            <div class="col-md-offset-3 pull-right">
+              <button class="btn btn-default" type="button" ng-click="cancel()" ng-disabled="is_saving">
+                <i class="ace-icon fa fa-times bigger-110"></i> Cancel
+              </button>
+              <button class="btn btn-info" type="submit" ng-disabled="is_saving">
+                <i class="ace-icon fa fa-check bigger-110"></i> Save
+              </button>
+            </div>
+          </div>
+
+          <div class="hr hr-24"></div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="collapse" id="{{fieldname}}" ng-show="toggler % 2 == 0 && (toggler != 0 || (existing_index.index > -1 && object.stix_markings_attributes[existing_index.index].stix_id))">
+  <div class="space-18"></div>
+    <markings-table markings="object.stix_markings" fieldname="fieldname" fieldtext="fieldtext"></markings-table>
+</div>

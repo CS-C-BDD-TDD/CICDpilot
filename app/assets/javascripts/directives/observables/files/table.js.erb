@@ -1,0 +1,110 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('fileTable', function() {
+  return {
+    restrict: 'E',
+    templateUrl: function(elem,attrs) {
+      return attrs.indexpage ? '<%=asset_path("observables/files/advanced_table.html",type: :template)%>' :
+                               '<%=asset_path("observables/files/table.html",type: :template)%>';
+    },
+    scope: {
+             files: '=',
+             metadata: '=',
+             fetching: '='
+           },
+    controller: ['$scope', 'Restangular', '$rootScope', 'File', function($scope,Restangular,$rootScope, File) {
+      $scope.File = File;
+      $scope.date_picker_opts = {
+        defaultRanges: true
+      };
+      $scope.q = '';
+      $scope.marking_search_params = {};
+
+      $scope.showTable=true;
+      if (angular.isUndefined($scope.offset)) {
+        $scope.offset=0;
+      }
+      if (angular.isUndefined($scope.amount)) {
+        $scope.amount=$rootScope.setting_value('DEFAULT_MAX_RECORDS');
+      }
+      $scope.sortOptions = {
+        'file_name': 'desc',
+        'file_name_condition': 'desc',
+        'created_at': 'desc',
+        'updated_at': 'desc'
+      };
+      $scope.sortMethod = '';
+
+      // If an indicator is displaying the table, the MD5 value was not being sent by the serializer
+      // The following will load the MD5 values (when necessary)
+      var listener=$scope.$watch('files',function(newval,oldval){
+        _.each($scope.files,function(file) {
+          if (!_.contains(_.keys(file),'md5') && _.contains(_.keys(file),'file_hashes')) {
+            _.each(file.file_hashes,function(hash) {
+              if (hash.hash_type == 'MD5') {
+                file['md5']=hash.simple_hash_value;
+              }
+            });
+          }
+        });
+        listener();
+      });
+
+      // Cleanup
+      $scope.$on('$destroy', function() {
+        $('.daterangepicker').remove();
+      });
+      
+      $scope.dateRangePicker = function(picker) {
+        $scope.date_picker_object = picker;
+        $scope.offset=0;
+        $scope.getFiles($scope.offset);
+      };
+
+      $scope.sort = function(method) {
+        $scope.sortMethod = method;
+        $scope.sortOptions[method]=($scope.sortOptions[method]=='desc')?'asc':'desc';
+        $scope.offset=0;
+        $scope.getFiles($scope.offset);
+      };
+
+      $scope.startSearch = function() {
+        $scope.offset=0;
+        $scope.getFiles($scope.offset);
+      };
+
+      $scope.getFiles = function(offset) {
+        if (angular.isDefined($scope.metadata)) {
+          delete($scope.metadata);
+        }
+        $scope.fetching= true;
+        Restangular.one('/files').get({
+          ebt: $scope.date_picker_object.getStartDate(),
+          iet: $scope.date_picker_object.getEndDate(),
+          q: $scope.q,
+          column: $scope.sortMethod,
+          direction: $scope.sortOptions[$scope.sortMethod],
+          amount: $scope.amount,
+          offset: offset,
+          marking_search_params: $scope.marking_search_params
+        }).then(
+          function(data){
+            $scope.files = data.files;
+            $scope.metadata = data.metadata;
+            $scope.fetching= false;
+          },
+          function(res){
+            $scope.files = null;
+            $scope.metadata={total_count: 0};
+            toastr.error("Unable to load Files");
+            $scope.fetching= false;
+          }
+        );
+      };
+      
+      $scope.buildHref = function() {
+      	return $rootScope.buildCSVHref($scope, "files");
+      };      
+    }]
+  };
+});

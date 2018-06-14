@@ -1,0 +1,44 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('exportIndicatorAction',function() {
+	return {
+		restrict: 'E',
+		scope: {
+			audits: "<"
+		},
+		templateUrl: '<%=asset_path("exported_indicators/action.html",type: :template)%>',
+		controller: ['$scope','$location','Restangular','Indicator',function($scope,$location,Restangular,Indicator) {
+			$scope.exports = [];
+			var listener = $scope.$watch("audits",function(){
+				if (angular.isDefined($scope.audits)) {
+					$scope.exports = _.filter($scope.audits,function(x){return x.audit_type == 'export'});
+					_.each($scope.exports,function(exp){
+						exp.system = '';
+
+						_.each(Indicator.exportable_systems(),function(sys) {
+							if (exp.message.endsWith(sys)) {
+								exp.system = sys;
+								return;
+							}
+						});
+					});
+					listener();
+				}
+			});
+
+			$scope.classification_change = function(exp) {
+				if (exp.audit_subtype == 'modify') {
+					var message = _.clone(exp.message);
+					var pos = message.indexOf('from ');
+					if (pos > -1) {
+						return message.slice(pos+5,pos+12);
+					}
+					else {
+						return '';
+					}
+				}
+			};
+
+		}]
+	}
+});

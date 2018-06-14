@@ -1,0 +1,43 @@
+<% environment.context_class.instance_eval { include Rails.application.routes.url_helpers } %>
+
+app.directive('questionForm', function(){
+    return {
+        restrict: 'E',
+        templateUrl: '<%=asset_path("observables/dns_queries/questions/form.html",type: :template)%>',
+        scope: {
+            question: '='
+        },
+        controller: ['$scope','$rootScope','Observable','Restangular', 'Classification','DnsRecord',
+            function($scope,$rootScope,Observable,Restangular, Classification,DnsRecord) {
+                $scope.Observable = Observable;
+                $scope.DnsRecord = DnsRecord;
+                $scope.sets = [];
+                $scope.cybox = "cybox";
+
+                Restangular.one('acs_sets').get({organization_guid: $rootScope.current_user.organization.guid}).then(function(data){
+                    $scope.sets = data;
+                },function(res){
+                    toastr.error("Unable to load ACS Set List");
+                });
+
+                var initializer = $scope.$watch("question", function() {
+                    if (angular.isDefined($scope.question)) {
+                        if (angular.isUndefined($scope.question.uris)) {
+                            $scope.question.uris = [];
+                        }
+
+                        initializer();
+                    }
+                });
+
+                $scope.removeUri = function(obj) {
+                    _.remove($scope.question.uris, function(o){
+                        if (o == obj) {
+                            return o;
+                        }
+                    });
+                };
+            }
+        ]
+    };
+});

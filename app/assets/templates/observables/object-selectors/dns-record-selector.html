@@ -1,0 +1,69 @@
+<div class="dataTables_wrapper form-inline no-footer">
+  <div class="row">
+    <div class="col-xs-4">
+    </div>
+    <div class="col-xs-4">
+      <div style="text-align: center">
+        <div class="input-group">
+          <span class="input-group-addon">
+            <i class="fa fa-calendar"></i>
+          </span>
+          <input date-range-picker style="margin-left: 0px" type="text" class="form-control" options="date_picker_opts" />
+        </div>
+      </div>
+    </div>
+    <div class="col-xs-4">
+      <div style="text-align: right">
+        <span class="input-icon">
+          <input class="form-control search-query" placeholder="Search DNS Records..." type="search"
+                 ng-enter="startSearch()" ng-model="q">
+          <i class="ace-icon fa fa-search nav-search-icon" style="margin-left: 4px"></i>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="widget-box widget-color-blue ui-sortable-handle">
+  <pagination-header metadata="metadata" offset="offset"></pagination-header>
+  <pagination-footer metadata="metadata" offset="offset" get_records="getDnsRecords"></pagination-footer>
+</div>
+<div class="widget-body">
+  <div class="widget-main no-padding" style="height: 220px; overflow-y: scroll;">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Fields</th>
+          <th>Created At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr ng-repeat="dns in dnsRecords | orderBy:'-created_at' | filter:search:strict" ng-click="setSelected()" class="{{classSelected()}}">
+          <td class="pointer">
+            Address Value: {{dns.address | prefixWithPortionMarking:dns.portion_marking:dns.address_c}}<br/>
+            Address Class: {{dns.address_class | prefixWithPortionMarking:dns.portion_marking:dns.address_class_c}}<br/>
+            Domain Name: {{dns.domain | prefixWithPortionMarking:dns.portion_marking:dns.domain_c}}<br/>
+            Entry Type: {{dns.entry_type | prefixWithPortionMarking:dns.portion_marking:dns.entry_type_c}}
+          </td>
+          <td class="pointer">{{dns.created_at | date:"medium"}}</td>
+          <td>
+            <button class="btn btn-primary btn-xs" tooltip="Edit Field" ng-click="setEdit()" ng-hide="dns.read_only">
+              <i class="ace-icon fa fa-pencil "></i>
+              Edit
+            </button>
+            <small ng-show="dns.read_only">
+              <span style="margin-left: 10px" class="label label-warning arrowed arrowed-right">
+                <span class="white">Read Only</span>
+              </span>
+            </small>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="widget-box widget-color-blue">
+  <pagination-footer metadata="metadata" offset="offset" get_records="getDnsRecords"></pagination-footer>
+</div>

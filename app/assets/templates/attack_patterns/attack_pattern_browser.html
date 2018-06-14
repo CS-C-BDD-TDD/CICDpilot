@@ -1,0 +1,51 @@
+<div class="widget-box">
+  <div class="widget-header">
+    <h5 class="widget-title">
+      Attack Pattern Browser
+    </h5>
+  </div>
+  <div class="widget-body">
+    <div class="widget-main">
+      <div class="input-group input-icon">
+        <input ng-model="q" ng-enter="searchAttackPatterns()" id="nav-searchinput" class="form-control search-query" type="text"  autocomplete="off" placeholder="Search Attack Patterns...">
+        <i class="ace-icon fa fa-search nav-search-icon"></i>
+        <span class="input-group-btn">
+          <button class="btn btn-info btn-sm" type="button" ng-click="searchAttackPatterns()">
+            Search
+            <i class="ace-icon fa fa-search icon-on-right bigger-110"></i>
+          </button>
+        </span>
+      </div>
+      <div class="ciap_table_scroll_500">
+        <table id="sample-table-1" class="table table-striped table-bordered table-hover dataTable">
+          <thead>
+            <tr role="row">
+              <th class="sorting" ng-click="sort('title')">Title</th>
+              <th class="sorting" ng-click="sort('description')">Description</th>
+              <th class="sorting" ng-click="sort('capec_id')">CAPEC ID</th>
+              <th class="ciap_width_10">Select</th>
+            </tr>
+          </thead>
+          <tbody ng-hide="fetching">
+            <tr ng-repeat="attack_pattern in attack_patterns">
+              <td><a href="#/attack_patterns/{{attack_pattern.stix_id | encodeURIComponent}}">{{attack_pattern.title | prefixWithPortionMarking:attack_pattern.portion_marking}}</a></td>
+              <td>{{attack_pattern.description}}</td>
+              <td ng-if="attack_pattern.title">{{attack_pattern.capec_id}}</td>
+              <td ng-if="!attack_pattern.title"><a href="#/attack_patterns/{{attack_pattern.stix_id | encodeURIComponent}}">{{attack_pattern.capec_id | prefixWithPortionMarking:attack_pattern.portion_marking}}</a></td>
+              <td>
+                <input ng-disabled="disabled(attack_pattern)" type="checkbox" ng-click="selectAttackPattern(attack_pattern, $event)" ng-checked="checked(attack_pattern)"/>
+              </td>
+            </tr>
+          </tbody>
+          <tbody ng-show="fetching">
+            <tr>
+              <td colspan="4" class="center">
+                <i class="fa fa-spinner fa-spin bigger-300 blue"></i>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
