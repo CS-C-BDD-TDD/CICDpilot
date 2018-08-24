@@ -91,7 +91,7 @@ GEM
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (2.9.2)
-    nokogiri (1.6.8.1)
+    nokogiri (>=1.8.2)
       mini_portile2 (~> 2.1.0)
     options (2.3.2)
     pg (0.20.0)
