@@ -1,4 +1,5 @@
 # PilotPOC
+![yellow dog](https://github.com/CS-C-BDD-TDD/CICDpilot/blob/master/specifications/images/Yellow-dog.jpg)
 ## Major Activities:
 * Develop architecture 
   * Develop architecture for efficient CI/CD 
