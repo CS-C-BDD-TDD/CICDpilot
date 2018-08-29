@@ -1,5 +1,10 @@
 # PilotPOC
+**Original application structure:**
 ![yellow dog](https://github.com/CS-C-BDD-TDD/CICDpilot/blob/master/specifications/images/Yellow-dog.jpg)
+
+**Pilot MVP for POC:**
+![yellow dog2.0](https://github.com/CS-C-BDD-TDD/CICDpilot/blob/master/specifications/images/MVP1.png)
+
 ## Major Activities:
 * Develop architecture 
   * Develop architecture for efficient CI/CD 
