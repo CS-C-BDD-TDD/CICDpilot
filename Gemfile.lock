@@ -111,7 +111,7 @@ GEM
     public_suffix (1.4.6)
     rabl (0.13.1)
       activesupport (>= 2.3.14)
-    rack (1.6.4)
+    rack (>= 1.6.11)
     rack-test (0.6.3)
       rack (>= 1.0)
     rails (4.2.7.1)
